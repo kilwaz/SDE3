@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<StackPane fx:id="stackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
+           minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="application.Controller">
+    <children>
+        <VBox>
+            <children>
+                <MenuBar>
+                    <menus>
+                        <Menu mnemonicParsing="false" text="File">
+                            <items>
+                                <MenuItem fx:id="menuBarMenuItemQuit" mnemonicParsing="false" text="Quit">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
+                            </items>
+                            <accelerator>
+                                <KeyCodeCombination alt="DOWN" code="F" control="UP" meta="UP" shift="UP"
+                                                    shortcut="UP"/>
+                            </accelerator>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+                <SplitPane fx:id="splitPanePageCentral" dividerPositions="0.22074468085106383"
+                           maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                    <items>
+                        <AnchorPane fx:id="leftAccordionAnchorPane" maxHeight="1.7976931348623157E308" maxWidth="160.0"
+                                    minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <Accordion fx:id="leftAccordion" maxHeight="1.7976931348623157E308"
+                                           maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0"
+                                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                           AnchorPane.topAnchor="0.0">
+                                    <panes>
+                                        <TitledPane fx:id="programTitlePane" animated="true"
+                                                    maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                                    text="Programs" AnchorPane.bottomAnchor="0.0"
+                                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                    AnchorPane.topAnchor="0.0">
+                                            <content>
+                                                <AnchorPane fx:id="programAccordion" maxHeight="1.7976931348623157E308"
+                                                            maxWidth="1.7976931348623157E308" minHeight="0.0"
+                                                            minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                            AnchorPane.topAnchor="0.0">
+                                                    <children>
+                                                        <ListView fx:id="programList" maxHeight="1.7976931348623157E308"
+                                                                  maxWidth="1.7976931348623157E308"
+                                                                  AnchorPane.bottomAnchor="-10.0"
+                                                                  AnchorPane.leftAnchor="-10.0"
+                                                                  AnchorPane.rightAnchor="-10.0"
+                                                                  AnchorPane.topAnchor="-10.0"/>
+                                                    </children>
+                                                </AnchorPane>
+                                            </content>
+                                        </TitledPane>
+                                    </panes>
+                                </Accordion>
+                            </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="rightContextAnchorPane" maxHeight="1.7976931348623157E308"
+                                    maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0"
+                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <SplitPane dividerPositions="0.48280254777070064" maxHeight="1.7976931348623157E308"
+                                           maxWidth="1.7976931348623157E308" orientation="VERTICAL"
+                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <items>
+                                        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                                    minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                    AnchorPane.topAnchor="0.0">
+                                            <children>
+                                                <TabPane maxHeight="1.7976931348623157E308"
+                                                         maxWidth="1.7976931348623157E308"
+                                                         tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0"
+                                                         AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                         AnchorPane.topAnchor="0.0">
+                                                    <tabs>
+                                                        <Tab text="Flow">
+                                                            <content>
+                                                                <AnchorPane maxHeight="1.7976931348623157E308"
+                                                                            maxWidth="1.7976931348623157E308"
+                                                                            minHeight="0.0" minWidth="0.0"
+                                                                            AnchorPane.bottomAnchor="0.0"
+                                                                            AnchorPane.leftAnchor="0.0"
+                                                                            AnchorPane.rightAnchor="0.0"
+                                                                            AnchorPane.topAnchor="0.0">
+                                                                    <children>
+                                                                        <Canvas fx:id="canvasFlow" height="400"
+                                                                                layoutX="6.0" layoutY="6.0" width="700"
+                                                                                AnchorPane.bottomAnchor="0.0"
+                                                                                AnchorPane.leftAnchor="0.0"
+                                                                                AnchorPane.rightAnchor="0.0"
+                                                                                AnchorPane.topAnchor="0.0"/>
+                                                                    </children>
+                                                                </AnchorPane>
+                                                            </content>
+                                                        </Tab>
+                                                    </tabs>
+                                                </TabPane>
+                                            </children>
+                                        </AnchorPane>
+                                        <AnchorPane fx:id="lowerMainSplitPane" maxHeight="1.7976931348623157E308"
+                                                    maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0"
+                                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <children>
+                                                <TabPane fx:id="tabPaneSource" layoutY="-3.0"
+                                                         maxHeight="1.7976931348623157E308"
+                                                         maxWidth="1.7976931348623157E308"
+                                                         tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0"
+                                                         AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                         AnchorPane.topAnchor="0.0">
+                                                    <tabs>
+                                                        <Tab text="Console">
+                                                            <content>
+                                                                <AnchorPane fx:id="sourceTabAnchorPane"
+                                                                            maxHeight="1.7976931348623157E308"
+                                                                            maxWidth="1.7976931348623157E308"
+                                                                            minHeight="0.0" minWidth="0.0"
+                                                                            AnchorPane.bottomAnchor="0.0"
+                                                                            AnchorPane.leftAnchor="0.0"
+                                                                            AnchorPane.rightAnchor="0.0"
+                                                                            AnchorPane.topAnchor="0.0">
+                                                                    <children>
+                                                                        <TextArea fx:id="console" layoutX="14.0"
+                                                                                  layoutY="13.0"
+                                                                                  maxHeight="1.7976931348623157E308"
+                                                                                  maxWidth="1.7976931348623157E308"
+                                                                                  wrapText="true"
+                                                                                  AnchorPane.bottomAnchor="16.0"
+                                                                                  AnchorPane.leftAnchor="14.0"
+                                                                                  AnchorPane.rightAnchor="10.0"
+                                                                                  AnchorPane.topAnchor="13.0">
+                                                                            <font>
+                                                                                <Font name="Consolas" size="12.0"/>
+                                                                            </font>
+                                                                        </TextArea>
+                                                                    </children>
+                                                                </AnchorPane>
+                                                            </content>
+                                                        </Tab>
+                                                    </tabs>
+                                                </TabPane>
+                                            </children>
+                                        </AnchorPane>
+                                    </items>
+                                </SplitPane>
+                            </children>
+                        </AnchorPane>
+                    </items>
+                </SplitPane>
+            </children>
+        </VBox>
+    </children>
+</StackPane>
