@@ -26,8 +26,8 @@ public class FlowController {
             newNode = new TestResultNode(id, programId);
         } else if ("SourceNode".equals(nodeType)) {
             newNode = new SourceNode(id, programId);
-        } else if ("SplitNode".equals(nodeType)) {
-            newNode = new SplitNode(id, programId);
+        } else if ("SwitchNode".equals(nodeType)) {
+            newNode = new SwitchNode(id, programId);
         }
 
         if (newNode != null) {
@@ -37,7 +37,6 @@ public class FlowController {
             }
         }
 
-        this.referenceID = referenceID;
         return newNode;
     }
 
@@ -127,7 +126,7 @@ public class FlowController {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((SourceNode) node).getSource());
             } else if (node instanceof TestResultNode) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
-            } else if (node instanceof SplitNode) {
+            } else if (node instanceof SwitchNode) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
             }
         }
@@ -176,13 +175,13 @@ public class FlowController {
                         }
                     }
                 }
-            } else if (startNode instanceof SplitNode) {
+            } else if (startNode instanceof SwitchNode) {
                 for (DrawableNode endNode : getNodes()) {
-                    List<Split> splits = ((SplitNode) startNode).getSplits();
+                    List<Switch> aSwitches = ((SwitchNode) startNode).getSwitches();
 
                     Boolean createConnection = false;
-                    for (Split split : splits) {
-                        if ((split.getTarget().equals(endNode.getContainedText()) && split.isEnabled())) {
+                    for (Switch aSwitch : aSwitches) {
+                        if ((aSwitch.getTarget().equals(endNode.getContainedText()) && aSwitch.isEnabled())) {
                             createConnection = true;
                         }
                     }
@@ -204,17 +203,17 @@ public class FlowController {
                     listToRemove.add(nodeConnection);
                     updateCanvas = true;
                 }
-            } else if (nodeConnection.getConnectionStart() instanceof SplitNode) {
-                List<Split> splits = ((SplitNode) nodeConnection.getConnectionStart()).getSplits();
+            } else if (nodeConnection.getConnectionStart() instanceof SwitchNode) {
+                List<Switch> aSwitches = ((SwitchNode) nodeConnection.getConnectionStart()).getSwitches();
                 String endContainedText = nodeConnection.getConnectionEnd().getContainedText();
                 Integer removeCount = 0;
-                for (Split split : splits) {
-                    if ((!split.getTarget().equals(endContainedText) || !split.isEnabled())) {
+                for (Switch aSwitch : aSwitches) {
+                    if ((!aSwitch.getTarget().equals(endContainedText) || !aSwitch.isEnabled())) {
                         removeCount++;
                     }
                 }
 
-                if (removeCount.equals(splits.size())) {
+                if (removeCount.equals(aSwitches.size())) {
                     listToRemove.add(nodeConnection);
                     updateCanvas = true;
                 }

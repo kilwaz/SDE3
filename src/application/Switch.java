@@ -1,12 +1,12 @@
 package application;
 
-public class Split {
+public class Switch {
     private Boolean enabled = false;
     private String target;
-    private SplitNode parent;
+    private SwitchNode parent;
     private Integer id;
 
-    public Split(Integer id, SplitNode parent, String target, Boolean enabled) {
+    public Switch(Integer id, SwitchNode parent, String target, Boolean enabled) {
         this.target = target;
         this.id = id;
         this.parent = parent;
@@ -29,7 +29,7 @@ public class Split {
         this.target = target;
     }
 
-    public SplitNode getParent() {
+    public SwitchNode getParent() {
         return parent;
     }
 

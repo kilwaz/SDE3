@@ -144,7 +144,7 @@ public class CanvasController {
 
     public void drawNode(DrawableNode drawableNode) {
         gc.setStroke(drawableNode.getColor());
-        if (drawableNode instanceof SplitNode) {
+        if (drawableNode instanceof SwitchNode) {
             gc.setFill(Color.LIGHTCYAN);
         } else if (drawableNode instanceof SourceNode) {
             gc.setFill(Color.LIGHTGREEN);

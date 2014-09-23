@@ -301,8 +301,8 @@ public class DataBank {
         }
     }
 
-    public static void loadSplits(SplitNode splitNode) {
-        List<Split> splits = new ArrayList<Split>();
+    public static void loadSplits(SwitchNode switchNode) {
+        List<Switch> aSwitches = new ArrayList<Switch>();
 
         try {
             if (mySQLInstance == null) {
@@ -310,19 +310,19 @@ public class DataBank {
             }
 
             PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select id, target, enabled from split where node_id = ?");
-            preparedStatement.setInt(1, splitNode.getId());
+            preparedStatement.setInt(1, switchNode.getId());
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                splits.add(new Split(resultSet.getInt("id"), splitNode, resultSet.getString("target"), resultSet.getBoolean("enabled")));
+                aSwitches.add(new Switch(resultSet.getInt("id"), switchNode, resultSet.getString("target"), resultSet.getBoolean("enabled")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        splitNode.setSplits(splits);
+        switchNode.setSwitches(aSwitches);
     }
 
-    public static void saveSplit(Split split) {
+    public static void saveSplit(Switch aSwitch) {
         try {
             if (mySQLInstance == null) {
                 mySQLInstance = MySQLConnectionManager.getInstance();
@@ -330,20 +330,20 @@ public class DataBank {
 
             PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("update split set target = ?, enabled = ? where id = ?");
             if (preparedStatement != null) {
-                preparedStatement.setString(1, split.getTarget());
-                preparedStatement.setBoolean(2, split.isEnabled());
-                preparedStatement.setInt(3, split.getId());
+                preparedStatement.setString(1, aSwitch.getTarget());
+                preparedStatement.setBoolean(2, aSwitch.isEnabled());
+                preparedStatement.setInt(3, aSwitch.getId());
                 int result = preparedStatement.executeUpdate();
                 preparedStatement.close();
 
                 if (result == 0) { // If record does not exist insert a new one..
-                    split.setId(getNextId("split")); // Gets the next ID for a node that is about to be created
+                    aSwitch.setId(getNextId("split")); // Gets the next ID for a node that is about to be created
 
                     preparedStatement = mySQLInstance.getPreparedStatement("insert into split values (default, ?, ?, ?)");
                     if (preparedStatement != null) {
-                        preparedStatement.setInt(1, split.getParent().getId());
-                        preparedStatement.setString(2, split.getTarget());
-                        preparedStatement.setBoolean(3, split.isEnabled());
+                        preparedStatement.setInt(1, aSwitch.getParent().getId());
+                        preparedStatement.setString(2, aSwitch.getTarget());
+                        preparedStatement.setBoolean(3, aSwitch.isEnabled());
                         preparedStatement.executeUpdate();
                         preparedStatement.close();
                     }
@@ -354,13 +354,13 @@ public class DataBank {
         }
     }
 
-    public static Split createNewSplit(String target, SplitNode parent, Boolean enabled) {
-        Split split = new Split(getNextId("split"), parent, target, enabled);
+    public static Switch createNewSplit(String target, SwitchNode parent, Boolean enabled) {
+        Switch aSwitch = new Switch(getNextId("split"), parent, target, enabled);
 
-        parent.addSplit(split);
-        DataBank.saveSplit(split);
+        parent.addSplit(aSwitch);
+        DataBank.saveSplit(aSwitch);
 
-        return split;
+        return aSwitch;
     }
 
     private static Integer getNextId(String tableName) {

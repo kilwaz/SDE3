@@ -69,8 +69,8 @@ public class Program {
         Object node = DataBank.getInstanceObject(referenceID, name);
         if (node instanceof Source) {
             ((Source) node).run(whileWaiting, map);
-        } else if (node instanceof SplitNode) {
-            ((SplitNode) node).run(whileWaiting, map);
+        } else if (node instanceof SwitchNode) {
+            ((SwitchNode) node).run(whileWaiting, map);
         }
     }
 

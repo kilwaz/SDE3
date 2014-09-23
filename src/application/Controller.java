@@ -20,7 +20,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebEngine;
 import javafx.stage.Stage;
 import org.controlsfx.dialog.Dialogs;
 
@@ -157,8 +156,8 @@ public class Controller implements Initializable {
                                 createOrShowSourceTab((SourceNode) drawableNode);
                             } else if (drawableNode instanceof TestResultNode) {
                                 createOrShowResultSetTab((TestResultNode) drawableNode);
-                            } else if (drawableNode instanceof SplitNode) {
-                                createOrShowSplitTab((SplitNode) drawableNode);
+                            } else if (drawableNode instanceof SwitchNode) {
+                                createOrShowSplitTab((SwitchNode) drawableNode);
                             }
                         }
                     }
@@ -210,9 +209,9 @@ public class Controller implements Initializable {
                             Program program = DataBank.currentlyEditProgram;
 
                             SecureRandom random = new SecureRandom();
-                            SplitNode newSplitNode = new SplitNode(0.0, 0.0, new BigInteger(40, random).toString(32));
-                            program.getFlowController().addNode(newSplitNode);
-                            DataBank.saveNode(newSplitNode); // We need to save the node after creating it to assign the ID correctly
+                            SwitchNode newSwitchNode = new SwitchNode(0.0, 0.0, new BigInteger(40, random).toString(32));
+                            program.getFlowController().addNode(newSwitchNode);
+                            DataBank.saveNode(newSwitchNode); // We need to save the node after creating it to assign the ID correctly
                             canvasController.drawProgram();
                         }
                     });
@@ -383,16 +382,16 @@ public class Controller implements Initializable {
         tabPaneSource.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
     }
 
-    public void createOrShowSplitTab(SplitNode splitNode) {
+    public void createOrShowSplitTab(SwitchNode switchNode) {
         // Test to see if the tab exists and if so show it
         for (Tab loopTab : tabPaneSource.getTabs()) {
             if (loopTab.getId() != null) {
-                if (loopTab.getId().equals(splitNode.getId().toString())) {
+                if (loopTab.getId().equals(switchNode.getId().toString())) {
                     SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
                     selectionModel.select(loopTab);
 
-                    TextField textField = (TextField) stackPane.lookup("#fieldName-" + splitNode.getId());
-                    textField.setText(splitNode.getContainedText());
+                    TextField textField = (TextField) stackPane.lookup("#fieldName-" + switchNode.getId());
+                    textField.setText(switchNode.getContainedText());
 
                     return;
                 }
@@ -413,48 +412,48 @@ public class Controller implements Initializable {
         rows.setLayoutY(55);
         rows.setLayoutX(11);
 
-        List<Split> splits = splitNode.getSplits();
-        for (int i = 0; i < splits.size(); i++) {
-            rows.getChildren().add(createSplitNodeRow(i, splits.get(i), splitNode.getId()));
+        List<Switch> aSwitches = switchNode.getSwitches();
+        for (int i = 0; i < aSwitches.size(); i++) {
+            rows.getChildren().add(createSplitNodeRow(i, aSwitches.get(i), switchNode.getId()));
         }
 
-        tabAnchorPane.getChildren().add(createNodeNameField(splitNode));
+        tabAnchorPane.getChildren().add(createNodeNameField(switchNode));
         tabAnchorPane.getChildren().add(createNodeNameLabel());
         tabAnchorPane.getChildren().add(rows);
-        tab.setText(splitNode.getContainedText());
-        tab.setId(splitNode.getId().toString());
+        tab.setText(switchNode.getContainedText());
+        tab.setId(switchNode.getId().toString());
         tab.setContent(tabAnchorPane);
 
         tabPaneSource.getTabs().add(tab);
 
         // Go back to the beginning and run the code to show the tab, it should now exist
-        createOrShowSplitTab(splitNode);
+        createOrShowSplitTab(switchNode);
     }
 
-    public HBox createSplitNodeRow(Integer index, Split split, Integer splitId) {
+    public HBox createSplitNodeRow(Integer index, Switch aSwitch, Integer splitId) {
         HBox row = new HBox(5);
         Button firstSplitButton = new Button();
-        if (split.isEnabled()) {
+        if (aSwitch.isEnabled()) {
             firstSplitButton.setText("Enabled");
         } else {
             firstSplitButton.setText("Disabled");
         }
         firstSplitButton.setPrefWidth(80);
-        firstSplitButton.setId("splitButton-" + split.getId() + "-" + splitId);
+        firstSplitButton.setId("splitButton-" + aSwitch.getId() + "-" + splitId);
         firstSplitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Button button = (Button) event.getSource();
                 Program program = DataBank.currentlyEditProgram;
                 String[] fieldId = button.getId().split("-");
-                SplitNode splitNode = (SplitNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
+                SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
 
                 if ("Disabled".equals(button.getText())) {
                     button.setText("Enabled");
-                    splitNode.updateSplitEnabled(Integer.parseInt(fieldId[1]), true);
+                    switchNode.updateSplitEnabled(Integer.parseInt(fieldId[1]), true);
                 } else {
                     button.setText("Disabled");
-                    splitNode.updateSplitEnabled(Integer.parseInt(fieldId[1]), false);
+                    switchNode.updateSplitEnabled(Integer.parseInt(fieldId[1]), false);
                 }
 
                 program.getFlowController().checkConnections(); // Toggling a switch will make or break connections
@@ -463,8 +462,8 @@ public class Controller implements Initializable {
         row.getChildren().add(firstSplitButton);
 
         TextField firstSplitField = new TextField();
-        firstSplitField.setText(split.getTarget());
-        firstSplitField.setId("splitField-" + split.getId() + "-" + splitId);
+        firstSplitField.setText(aSwitch.getTarget());
+        firstSplitField.setId("splitField-" + aSwitch.getId() + "-" + splitId);
         firstSplitField.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -472,12 +471,12 @@ public class Controller implements Initializable {
                 if (!textField.getText().isEmpty()) {
                     Program program = DataBank.currentlyEditProgram;
                     String[] fieldId = textField.getId().split("-");
-                    SplitNode splitNode = (SplitNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
-                    splitNode.updateSplitTarget(Integer.parseInt(fieldId[1]), textField.getText());
+                    SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
+                    switchNode.updateSplitTarget(Integer.parseInt(fieldId[1]), textField.getText());
 
                     program.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
-                    DataBank.saveNode(splitNode);
+                    DataBank.saveNode(switchNode);
                     canvasController.drawProgram();
                 }
             }
