@@ -254,37 +254,41 @@ public class DataBank {
                             true
                     );
 
-                    PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select node_id,object_name,object_class,object_value from node_details where node_id = ?");
-                    preparedStatement.setInt(1, sourceResultSet.getInt("id"));
-                    ResultSet nodeDetailsResultSet = preparedStatement.executeQuery();
-                    while (nodeDetailsResultSet.next()) {
-                        Method method;
-                        try {
-                            if ("java.lang.Double".equals(nodeDetailsResultSet.getString("object_class"))) {
-                                Double doubleValue = nodeDetailsResultSet.getDouble("object_value");
+                    if (drawableNode != null) {
+                        PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select node_id,object_name,object_class,object_value from node_details where node_id = ?");
+                        preparedStatement.setInt(1, sourceResultSet.getInt("id"));
+                        ResultSet nodeDetailsResultSet = preparedStatement.executeQuery();
+                        while (nodeDetailsResultSet.next()) {
+                            Method method;
+                            try {
+                                if ("java.lang.Double".equals(nodeDetailsResultSet.getString("object_class"))) {
+                                    Double doubleValue = nodeDetailsResultSet.getDouble("object_value");
 
-                                method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
-                                method.invoke(drawableNode, doubleValue);
-                            } else if ("java.lang.String".equals(nodeDetailsResultSet.getString("object_class"))) {
-                                String stringValue = nodeDetailsResultSet.getString("object_value");
+                                    method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
+                                    method.invoke(drawableNode, doubleValue);
+                                } else if ("java.lang.String".equals(nodeDetailsResultSet.getString("object_class"))) {
+                                    String stringValue = nodeDetailsResultSet.getString("object_value");
 
-                                method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
-                                method.invoke(drawableNode, stringValue);
-                            } else if ("java.lang.Integer".equals(nodeDetailsResultSet.getString("object_class"))) {
-                                Integer integerValue = nodeDetailsResultSet.getInt("object_value");
+                                    method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
+                                    method.invoke(drawableNode, stringValue);
+                                } else if ("java.lang.Integer".equals(nodeDetailsResultSet.getString("object_class"))) {
+                                    Integer integerValue = nodeDetailsResultSet.getInt("object_value");
 
-                                method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
-                                method.invoke(drawableNode, integerValue);
+                                    method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
+                                    method.invoke(drawableNode, integerValue);
+                                }
+                            } catch (NoSuchMethodException e) {
+                                e.printStackTrace();
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
                             }
-                        } catch (NoSuchMethodException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
                         }
+                    } else {
+                        System.out.println("Error loading node id " + sourceResultSet.getInt("id") + " program id " + sourceResultSet.getInt("program_id") + " node type " + sourceResultSet.getString("node_type") + " - Node type is not recognised");
                     }
                 }
 

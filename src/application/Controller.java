@@ -280,16 +280,6 @@ public class Controller implements Initializable {
             }
         });
 
-        tabPaneSource.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            @Override
-            public void changed(ObservableValue<? extends Tab> arg0, Tab oldTab, Tab newTab) {
-                SwingTextArea sourceCodeTextArea = (SwingTextArea) stackPane.lookup("#textArea-" + newTab.getId());
-                if (sourceCodeTextArea != null) {
-                    sourceCodeTextArea.requestFocus();
-                }
-            }
-        });
-
         programList.getItems().addAll(DataBank.getPrograms());
         programList.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
             private String clickedName = "";
@@ -609,8 +599,6 @@ public class Controller implements Initializable {
         return nameFieldLabel;
     }
 
-    private WebEngine webEngine;
-
     public void createOrShowSourceTab(SourceNode sourceNode) {
         // Test to see if the tab exists and if so show it
         for (Tab loopTab : tabPaneSource.getTabs()) {
@@ -618,12 +606,6 @@ public class Controller implements Initializable {
                 if (loopTab.getId().equals(sourceNode.getId().toString())) {
                     SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
                     selectionModel.select(loopTab);
-
-                    SwingTextArea sourceCodeTextArea = (SwingTextArea) stackPane.lookup("#textArea-" + sourceNode.getId());
-                    if (sourceCodeTextArea != null) {
-                        sourceCodeTextArea.setSource(sourceNode.getSource());
-                        sourceCodeTextArea.setEnabled(true);
-                    }
 
                     TextField textField = (TextField) stackPane.lookup("#fieldName-" + sourceNode.getId());
                     textField.setText(sourceNode.getContainedText());
