@@ -35,14 +35,14 @@ public class Main extends Application {
     private ProgressBar loadProgress;
     private Label progressText;
     private Stage mainStage;
+    private Stage splashStage;
     private static final int SPLASH_WIDTH = 940;
     private static final int SPLASH_HEIGHT = 360;
-    private Stage primaryStage;
 
     @Override
     public void start(Stage stage) throws Exception {
-        this.primaryStage = stage;
-        showSplash(primaryStage);
+        this.splashStage = stage;
+        showSplash();
 
         loadProgress.setProgress(0.0);
         new MySQLConnectionManager();
@@ -123,21 +123,24 @@ public class Main extends Application {
             }
         });
 
+        URL url = getClass().getResource("/icon.png");
+        mainStage.getIcons().add(new Image(url.toExternalForm()));
+
         Controller.getInstance().setScene(scene);
 
-        if (primaryStage.isShowing()) {
+        if (splashStage.isShowing()) {
             loadProgress.progressProperty().unbind();
             loadProgress.setProgress(1);
             progressText.setText("Finished.");
             mainStage.setIconified(false);
-            primaryStage.toFront();
+            splashStage.toFront();
             FadeTransition fadeSplash = new FadeTransition(Duration.seconds(1.2), splashLayout);
             fadeSplash.setFromValue(1.0);
             fadeSplash.setToValue(0.0);
             fadeSplash.setOnFinished(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    primaryStage.hide();
+                    splashStage.hide();
                     mainStage.show();
                 }
             });
@@ -145,16 +148,17 @@ public class Main extends Application {
         }
     }
 
-    private void showSplash(Stage initStage) {
+    private void showSplash() {
         Scene splashScene = new Scene(splashLayout);
-        initStage.initStyle(StageStyle.UNDECORATED);
+        splashStage.initStyle(StageStyle.UNDECORATED);
         final Rectangle2D bounds = Screen.getPrimary().getBounds();
-        initStage.setScene(splashScene);
-        initStage.setX(bounds.getMinX() + bounds.getWidth() / 2 - SPLASH_WIDTH / 2);
-        initStage.setY(bounds.getMinY() + bounds.getHeight() / 2 - SPLASH_HEIGHT / 2);
-        initStage.show();
+        splashStage.setScene(splashScene);
+        splashStage.setX(bounds.getMinX() + bounds.getWidth() / 2 - SPLASH_WIDTH / 2);
+        splashStage.setY(bounds.getMinY() + bounds.getHeight() / 2 - SPLASH_HEIGHT / 2);
+        URL url = getClass().getResource("/icon.png");
+        splashStage.getIcons().add(new Image(url.toExternalForm()));
+        splashStage.show();
     }
-
 
     public static void main(String[] args) {
         launch(args);
