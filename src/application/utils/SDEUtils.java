@@ -51,8 +51,6 @@ public class SDEUtils {
             // Execute command
             Process child = Runtime.getRuntime().exec("cmd /C " + command);
 
-            //System.out.println("Command is " + command);
-
             InputStream is = child.getInputStream();
             InputStream errSt = child.getErrorStream();
             int in = -1;
@@ -68,15 +66,18 @@ public class SDEUtils {
         }
     }
 
+    public static void svnUpdate(String targetDirectory, Integer revision) {
+        runCMDCommand("svn update -r" + revision + " " + targetDirectory);
+    }
+
     public static void svnCheckout(String branch, String targetDirectory) {
-        //https://ibis.spl.com/svn/focal-v4/branches/spl-demo-v6/
+        // https://ibis.spl.com/svn/focal-v4/branches/spl-demo-v6/
         runCMDCommand("svn checkout " + branch + " " + targetDirectory);
     }
 
     public static void buildApplication(String projectLocation, String project, String outputDirectory) {
         try {
-            String path = "C:" + File.separator + "hello" + File.separator + "hi.txt";
-            path = projectLocation + File.separator +
+            String path = projectLocation + File.separator +
                     "focal-v6-app" + File.separator +
                     "src" + File.separator +
                     "main" + File.separator +
