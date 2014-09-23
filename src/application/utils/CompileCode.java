@@ -94,7 +94,7 @@ public class CompileCode {
                 lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
                 Controller.getInstance().showError(Dialogs.create()
                         .owner(null)
-                        .title("Compile error on " + source.getParentFlowNode().getContainedText())
+                        .title("Compile error on " + source.getParentSourceNode().getContainedText())
                         .masthead("Error at line " + lineNumber)
                         .message(errString));
                 className = null;

@@ -85,7 +85,7 @@ public class CanvasController {
 
     public void setFlowNodeScale(DrawableNode flowNode, Double scale) {
 //        flowNode.setScale(scale);
-//        for (FlowNode loopFlowNode : flowNode.getChildren()) {
+//        for (SourceNode loopFlowNode : flowNode.getChildren()) {
 //            setFlowNodeScale(loopFlowNode, scale);
 //        }
     }
@@ -146,7 +146,7 @@ public class CanvasController {
         gc.setStroke(drawableNode.getColor());
         if (drawableNode instanceof SplitNode) {
             gc.setFill(Color.LIGHTCYAN);
-        } else if (drawableNode instanceof FlowNode) {
+        } else if (drawableNode instanceof SourceNode) {
             gc.setFill(Color.LIGHTGREEN);
         } else if (drawableNode instanceof TestResultNode) {
             gc.setFill(Color.LIGHTSTEELBLUE);

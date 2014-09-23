@@ -16,7 +16,7 @@ public class FlowController {
 
     public FlowController(Program parentProgram) {
         this.parentProgram = parentProgram;
-        startNode = new FlowNode(30.0, 30.0, "Start");
+        startNode = new SourceNode(30.0, 30.0, "Start");
         startNode.setId(-1);
     }
 
@@ -24,15 +24,15 @@ public class FlowController {
         DrawableNode newNode = null;
         if ("TestResultNode".equals(nodeType)) {
             newNode = new TestResultNode(id, programId);
-        } else if ("FlowNode".equals(nodeType)) {
-            newNode = new FlowNode(id, programId);
+        } else if ("SourceNode".equals(nodeType)) {
+            newNode = new SourceNode(id, programId);
         } else if ("SplitNode".equals(nodeType)) {
             newNode = new SplitNode(id, programId);
         }
 
         if (newNode != null) {
             nodes.add(newNode);
-            if (isStartNode && newNode instanceof FlowNode) {
+            if (isStartNode && newNode instanceof SourceNode) {
                 startNode = newNode;
             }
         }
@@ -88,8 +88,8 @@ public class FlowController {
         Boolean result = true;
 
         for (DrawableNode node : nodes) {
-            if (node instanceof FlowNode) {
-                result = ((FlowNode) node).getSource().isCompiled();
+            if (node instanceof SourceNode) {
+                result = ((SourceNode) node).getSource().isCompiled();
                 if (!result) {
                     break;
                 }
@@ -107,8 +107,8 @@ public class FlowController {
         Controller.getInstance().updateCanvasControllerLater();
 
         for (DrawableNode node : nodes) {
-            if (node instanceof FlowNode) {
-                Boolean result = ((FlowNode) node).getSource().compile();
+            if (node instanceof SourceNode) {
+                Boolean result = ((SourceNode) node).getSource().compile();
                 if (result) {
                     node.setColor(Color.LIMEGREEN);
                 } else {
@@ -123,8 +123,8 @@ public class FlowController {
 
     public void loadInstances() {
         for (DrawableNode node : nodes) {
-            if (node instanceof FlowNode) {
-                DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((FlowNode) node).getSource());
+            if (node instanceof SourceNode) {
+                DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((SourceNode) node).getSource());
             } else if (node instanceof TestResultNode) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
             } else if (node instanceof SplitNode) {
@@ -164,8 +164,8 @@ public class FlowController {
 
         // Find new connections and creates them
         for (DrawableNode startNode : nodes) {
-            if (startNode instanceof FlowNode) {
-                String src = ((FlowNode) startNode).getSource().getSource();
+            if (startNode instanceof SourceNode) {
+                String src = ((SourceNode) startNode).getSource().getSource();
 
                 for (DrawableNode endNode : getNodes()) {
                     if (src.contains("run(\"" + endNode.getContainedText() + "\"")) {
@@ -199,8 +199,8 @@ public class FlowController {
         // Checks old connections and removes ones that don't exist
         List<NodeConnection> listToRemove = new ArrayList<NodeConnection>();
         for (NodeConnection nodeConnection : connections) {
-            if (nodeConnection.getConnectionStart() instanceof FlowNode) {
-                if (!((FlowNode) nodeConnection.getConnectionStart()).getSource().getSource().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+            if (nodeConnection.getConnectionStart() instanceof SourceNode) {
+                if (!((SourceNode) nodeConnection.getConnectionStart()).getSource().getSource().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
                     listToRemove.add(nodeConnection);
                     updateCanvas = true;
                 }
@@ -240,8 +240,8 @@ public class FlowController {
     public static FlowController getFlowControllerFromSource(Source source) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
-                if (node instanceof FlowNode) {
-                    if (((FlowNode) node).getSource() == source) {
+                if (node instanceof SourceNode) {
+                    if (((SourceNode) node).getSource() == source) {
                         return program.getFlowController();
                     }
                 }
@@ -252,14 +252,14 @@ public class FlowController {
     }
 
     public static void sourceStarted(String reference) {
-        FlowNode flowNode = FlowController.getSourceFromReference(reference);
-        flowNode.setColor(Color.RED);
+        SourceNode sourceNode = FlowController.getSourceFromReference(reference);
+        sourceNode.setColor(Color.RED);
         Controller.getInstance().updateCanvasControllerLater();
     }
 
     public static void sourceFinished(String reference) {
-        FlowNode flowNode = FlowController.getSourceFromReference(reference);
-        flowNode.setColor(Color.BLACK);
+        SourceNode sourceNode = FlowController.getSourceFromReference(reference);
+        sourceNode.setColor(Color.BLACK);
         Controller.getInstance().updateCanvasControllerLater();
     }
 
@@ -270,11 +270,11 @@ public class FlowController {
         Controller.getInstance().updateCanvasControllerLater();
     }
 
-    public static FlowNode getSourceFromContainedText(String text) {
+    public static SourceNode getSourceFromContainedText(String text) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node.getContainedText().equals(text)) {
-                    return (FlowNode) node;
+                    return (SourceNode) node;
                 }
             }
         }
@@ -282,11 +282,11 @@ public class FlowController {
         return null;
     }
 
-    public static FlowNode getSourceFromReference(String reference) {
+    public static SourceNode getSourceFromReference(String reference) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node.getId().toString().equals(reference)) {
-                    return (FlowNode) node;
+                    return (SourceNode) node;
                 }
             }
         }

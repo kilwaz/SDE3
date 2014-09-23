@@ -7,20 +7,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class FlowNode extends DrawableNode {
+public class SourceNode extends DrawableNode {
     private Source source = null;
     private FlowController parentController;
 
-    public FlowNode(Integer id, Integer programId) {
+    public SourceNode(Integer id, Integer programId) {
         super(id, programId);
     }
 
-    public FlowNode(Double x, Double y, String containedText) {
+    public SourceNode(Double x, Double y, String containedText) {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
         this.source = new Source(this);
     }
 
-    public FlowNode(Double x, Double y, String containedText, String source, Integer id, Integer programId) {
+    public SourceNode(Double x, Double y, String containedText, String source, Integer id, Integer programId) {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, programId, id);
         this.source = new Source(this, source, id);
     }
@@ -45,7 +45,7 @@ public class FlowNode extends DrawableNode {
     }
 
     public String getNodeType() {
-        return "FlowNode";
+        return "SourceNode";
     }
 
     public void setSource(String sourceString) {

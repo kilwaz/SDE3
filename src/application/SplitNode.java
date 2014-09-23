@@ -75,8 +75,8 @@ public class SplitNode extends DrawableNode {
     public void run(Boolean whileWaiting, HashMap<String, Object> map) {
         for (Split split : splits) {
             if (split.isEnabled()) {
-                FlowNode flowNode = FlowController.getSourceFromContainedText(split.getTarget());
-                flowNode.getSource().run(whileWaiting, map);
+                SourceNode sourceNode = FlowController.getSourceFromContainedText(split.getTarget());
+                sourceNode.getSource().run(whileWaiting, map);
             }
         }
     }

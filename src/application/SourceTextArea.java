@@ -11,13 +11,13 @@ import netscape.javascript.JSObject;
 import java.net.URL;
 
 public class SourceTextArea extends VBox {
-    private FlowNode flowNode;
+    private SourceNode sourceNode;
     private WebView browser;
     private WebEngine webEngine;
     private VBox instance = this;
 
-    public SourceTextArea(FlowNode flowNode) {
-        this.flowNode = flowNode;
+    public SourceTextArea(SourceNode sourceNode) {
+        this.sourceNode = sourceNode;
         browser = new WebView();
         webEngine = browser.getEngine();
 
@@ -37,7 +37,7 @@ public class SourceTextArea extends VBox {
                 "</head>\n" +
                 "<body>\n" +
                 "\n" +
-                "<div id=\"editor\">" + flowNode.getSource().getSource() + "</div>\n" +
+                "<div id=\"editor\">" + sourceNode.getSource().getSource() + "</div>\n" +
                 "\n" +
                 "<script src=\"" + editorURL.toExternalForm() + "\" type=\"text/javascript\" charset=\"utf-8\"></script>\n" +
                 "<script>\n" +
@@ -66,7 +66,7 @@ public class SourceTextArea extends VBox {
 
     public final class Bridge {
         public void test(String value) {
-            flowNode.getSource().setSource(value);
+            sourceNode.getSource().setSource(value);
         }
     }
 }

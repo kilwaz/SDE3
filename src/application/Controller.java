@@ -153,8 +153,8 @@ public class Controller implements Initializable {
                         List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX(), event.getY());
                         if (clickNodes.size() > 0) {
                             DrawableNode drawableNode = clickNodes.get(0);
-                            if (drawableNode instanceof FlowNode) {
-                                createOrShowSourceTab((FlowNode) drawableNode);
+                            if (drawableNode instanceof SourceNode) {
+                                createOrShowSourceTab((SourceNode) drawableNode);
                             } else if (drawableNode instanceof TestResultNode) {
                                 createOrShowResultSetTab((TestResultNode) drawableNode);
                             } else if (drawableNode instanceof SplitNode) {
@@ -180,9 +180,9 @@ public class Controller implements Initializable {
                             Program program = DataBank.currentlyEditProgram;
 
                             SecureRandom random = new SecureRandom();
-                            FlowNode newFlowNode = new FlowNode(0.0, 0.0, new BigInteger(40, random).toString(32));
-                            program.getFlowController().addNode(newFlowNode);
-                            DataBank.saveNode(newFlowNode); // We need to save the node after creating it to assign the ID correctly
+                            SourceNode newSourceNode = new SourceNode(0.0, 0.0, new BigInteger(40, random).toString(32));
+                            program.getFlowController().addNode(newSourceNode);
+                            DataBank.saveNode(newSourceNode); // We need to save the node after creating it to assign the ID correctly
                             canvasController.drawProgram();
                         }
                     });
@@ -611,22 +611,22 @@ public class Controller implements Initializable {
 
     private WebEngine webEngine;
 
-    public void createOrShowSourceTab(FlowNode flowNode) {
+    public void createOrShowSourceTab(SourceNode sourceNode) {
         // Test to see if the tab exists and if so show it
         for (Tab loopTab : tabPaneSource.getTabs()) {
             if (loopTab.getId() != null) {
-                if (loopTab.getId().equals(flowNode.getId().toString())) {
+                if (loopTab.getId().equals(sourceNode.getId().toString())) {
                     SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
                     selectionModel.select(loopTab);
 
-                    SwingTextArea sourceCodeTextArea = (SwingTextArea) stackPane.lookup("#textArea-" + flowNode.getId());
+                    SwingTextArea sourceCodeTextArea = (SwingTextArea) stackPane.lookup("#textArea-" + sourceNode.getId());
                     if (sourceCodeTextArea != null) {
-                        sourceCodeTextArea.setSource(flowNode.getSource());
+                        sourceCodeTextArea.setSource(sourceNode.getSource());
                         sourceCodeTextArea.setEnabled(true);
                     }
 
-                    TextField textField = (TextField) stackPane.lookup("#fieldName-" + flowNode.getId());
-                    textField.setText(flowNode.getContainedText());
+                    TextField textField = (TextField) stackPane.lookup("#fieldName-" + sourceNode.getId());
+                    textField.setText(sourceNode.getContainedText());
                     return;
                 }
             }
@@ -634,14 +634,14 @@ public class Controller implements Initializable {
 
         // As the tab doesn't exist we create it here
         Tab tab = new Tab();
-        tab.setText(flowNode.getContainedText());
-        tab.setId(flowNode.getId().toString());
+        tab.setText(sourceNode.getContainedText());
+        tab.setId(sourceNode.getId().toString());
 
         AnchorPane tabAnchorPane = new AnchorPane();
-        tabAnchorPane.getChildren().add(createNodeNameField(flowNode));
+        tabAnchorPane.getChildren().add(createNodeNameField(sourceNode));
         tabAnchorPane.getChildren().add(createNodeNameLabel());
 
-        SourceTextArea sourceTextArea = new SourceTextArea(flowNode);
+        SourceTextArea sourceTextArea = new SourceTextArea(sourceNode);
 
         AnchorPane.setBottomAnchor(sourceTextArea, 0.0);
         AnchorPane.setLeftAnchor(sourceTextArea, 11.0);
@@ -661,7 +661,7 @@ public class Controller implements Initializable {
         tabPaneSource.getTabs().add(tab);
 
         // Go back to the beginning and run the code to show the tab, it should now exist
-        createOrShowSourceTab(flowNode);
+        createOrShowSourceTab(sourceNode);
     }
 
     public void writeNewLineToConsole(String text) {

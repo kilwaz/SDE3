@@ -16,25 +16,25 @@ public class Source {
     private Boolean compiled = false;
     private String source;
     private Object compiledInstance;
-    private FlowNode parentFlowNode;
+    private SourceNode parentSourceNode;
     private Integer id = -1;
     private String compiledClassName = "UNKNOWN";
 
-    Source(FlowNode parentFlowNode) {
-        this.parentFlowNode = parentFlowNode;
+    Source(SourceNode parentSourceNode) {
+        this.parentSourceNode = parentSourceNode;
         this.source = "public void function() {\n" +
                 "   System.out.println(\"Sample code\");\n" +
                 "}";
     }
 
-    Source(FlowNode parentFlowNode, String source, Integer id) {
-        this.parentFlowNode = parentFlowNode;
+    Source(SourceNode parentSourceNode, String source, Integer id) {
+        this.parentSourceNode = parentSourceNode;
         this.source = source;
         this.id = id;
     }
 
-    public FlowNode getParentFlowNode() {
-        return this.parentFlowNode;
+    public SourceNode getParentSourceNode() {
+        return this.parentSourceNode;
     }
 
     public String getSource() {
@@ -45,7 +45,7 @@ public class Source {
         if (!this.source.equals(source)) {
             this.compiled = false;
             this.source = source;
-            DataBank.saveNode(parentFlowNode);
+            DataBank.saveNode(parentSourceNode);
 
             Program program = DataBank.currentlyEditProgram;
             if (program != null) {
