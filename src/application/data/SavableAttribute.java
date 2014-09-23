@@ -1,4 +1,4 @@
-package application;
+package application.data;
 
 /**
  * Created by alex on 18/09/2014.

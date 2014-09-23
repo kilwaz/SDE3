@@ -1,7 +1,8 @@
 package application;
 
+import application.data.MySQLConnectionManager;
 import application.utils.BrowserManager;
-import application.utils.DataBank;
+import application.data.DataBank;
 import application.utils.SSHConnectionManager;
 import application.utils.ThreadManager;
 import javafx.animation.FadeTransition;
@@ -103,7 +104,7 @@ public class Main extends Application {
         mainStage.setIconified(true);
 
         //Sets up interface
-        Parent root = FXMLLoader.load(getClass().getResource("ApplicationScene.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/ApplicationScene.fxml"));
         Scene scene = new Scene(root);
         mainStage.setScene(scene);
         mainStage.setTitle("Spiralinks Development Engine V0.1");

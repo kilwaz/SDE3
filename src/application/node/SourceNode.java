@@ -1,6 +1,9 @@
-package application;
+package application.node;
 
-import application.utils.DataBank;
+import application.FlowController;
+import application.Source;
+import application.data.SavableAttribute;
+import application.data.DataBank;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;

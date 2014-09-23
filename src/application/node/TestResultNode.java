@@ -1,7 +1,7 @@
-package application.tester;
+package application.node;
 
-import application.DrawableNode;
-import application.SavableAttribute;
+import application.data.SavableAttribute;
+import application.test.TestResult;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

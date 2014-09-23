@@ -1,4 +1,4 @@
-package application.tester;
+package application.test;
 
 public class NumberTestCase {
     private Double validMax;

@@ -1,6 +1,8 @@
 package application;
 
-import application.utils.DataBank;
+import application.data.DataBank;
+import application.node.SourceNode;
+import application.node.SwitchNode;
 import application.utils.ThreadManager;
 
 import java.util.HashMap;

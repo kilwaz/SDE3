@@ -1,5 +1,7 @@
 package application;
 
+import application.node.SwitchNode;
+
 public class Switch {
     private Boolean enabled = false;
     private String target;

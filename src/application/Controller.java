@@ -1,9 +1,13 @@
 package application;
 
+import application.canvas.CanvasController;
 import application.net.SSHManager;
-import application.tester.TestResult;
-import application.tester.TestResultNode;
-import application.utils.DataBank;
+import application.node.DrawableNode;
+import application.node.SourceNode;
+import application.node.SwitchNode;
+import application.test.TestResult;
+import application.node.TestResultNode;
+import application.data.DataBank;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

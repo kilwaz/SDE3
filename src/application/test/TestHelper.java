@@ -1,6 +1,7 @@
-package application.tester;
+package application.test;
 
-import application.utils.DataBank;
+import application.data.DataBank;
+import application.node.TestResultNode;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

@@ -1,4 +1,4 @@
-package application;
+package application.data;
 
 import java.util.List;
 

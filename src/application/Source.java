@@ -1,7 +1,8 @@
 package application;
 
+import application.node.SourceNode;
 import application.utils.CompileCode;
-import application.utils.DataBank;
+import application.data.DataBank;
 import application.utils.ThreadManager;
 
 import java.io.File;
@@ -20,14 +21,14 @@ public class Source {
     private Integer id = -1;
     private String compiledClassName = "UNKNOWN";
 
-    Source(SourceNode parentSourceNode) {
+    public Source(SourceNode parentSourceNode) {
         this.parentSourceNode = parentSourceNode;
         this.source = "public void function() {\n" +
                 "   System.out.println(\"Sample code\");\n" +
                 "}";
     }
 
-    Source(SourceNode parentSourceNode, String source, Integer id) {
+    public Source(SourceNode parentSourceNode, String source, Integer id) {
         this.parentSourceNode = parentSourceNode;
         this.source = source;
         this.id = id;

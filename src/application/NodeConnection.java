@@ -1,5 +1,7 @@
 package application;
 
+import application.node.DrawableNode;
+
 public class NodeConnection {
     private DrawableNode connectionStart;
     private DrawableNode connectionEnd;

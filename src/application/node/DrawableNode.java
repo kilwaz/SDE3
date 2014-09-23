@@ -1,5 +1,6 @@
-package application;
+package application.node;
 
+import application.data.SavableAttribute;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;

@@ -1,6 +1,8 @@
-package application.utils;
+package application.data;
 
 import application.*;
+import application.node.DrawableNode;
+import application.node.SwitchNode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -31,7 +31,7 @@ public class CompileCode {
                     "import org.openqa.selenium.support.ui.*;" +
                     "import application.Program;" +
                     "import application.FlowController;" +
-                    "import application.tester.*;" +
+                    "import application.test.*;" +
                     "import application.net.SSHManager;" +
                     "public class " + className + " implements Runnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +

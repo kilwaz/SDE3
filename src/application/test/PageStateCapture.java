@@ -1,4 +1,4 @@
-package application.tester;
+package application.test;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;

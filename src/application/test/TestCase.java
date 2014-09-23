@@ -1,4 +1,4 @@
-package application.tester;
+package application.test;
 
 import application.utils.Timer;
 import com.google.common.base.Function;

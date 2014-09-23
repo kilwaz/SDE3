@@ -1,7 +1,10 @@
 package application;
 
-import application.tester.TestResultNode;
-import application.utils.DataBank;
+import application.node.DrawableNode;
+import application.node.SourceNode;
+import application.node.SwitchNode;
+import application.node.TestResultNode;
+import application.data.DataBank;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
