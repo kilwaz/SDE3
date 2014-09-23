@@ -1,5 +1,6 @@
-package application;
+package application.gui;
 
+import application.gui.Program;
 import application.node.SourceNode;
 import application.utils.CompileCode;
 import application.data.DataBank;

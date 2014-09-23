@@ -1,6 +1,6 @@
 package application.net;
 
-import application.Controller;
+import application.gui.Controller;
 import application.utils.SSHConnectionManager;
 import application.utils.ThreadManager;
 import com.jcraft.jsch.*;

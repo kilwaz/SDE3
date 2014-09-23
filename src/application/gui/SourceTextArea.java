@@ -1,4 +1,4 @@
-package application;
+package application.gui;
 
 import application.node.SourceNode;
 import javafx.beans.value.ChangeListener;

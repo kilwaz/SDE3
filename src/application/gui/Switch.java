@@ -1,4 +1,4 @@
-package application;
+package application.gui;
 
 import application.node.SwitchNode;
 

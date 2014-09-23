@@ -1,6 +1,8 @@
 package application.data;
 
-import application.*;
+import application.gui.FlowController;
+import application.gui.Program;
+import application.gui.Switch;
 import application.node.DrawableNode;
 import application.node.SwitchNode;
 

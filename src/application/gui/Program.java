@@ -1,4 +1,4 @@
-package application;
+package application.gui;
 
 import application.data.DataBank;
 import application.node.SourceNode;

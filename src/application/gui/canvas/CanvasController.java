@@ -1,7 +1,7 @@
-package application.canvas;
+package application.gui.canvas;
 
-import application.NodeConnection;
-import application.Program;
+import application.gui.NodeConnection;
+import application.gui.Program;
 import application.data.DataBank;
 import application.node.DrawableNode;
 import application.node.SourceNode;

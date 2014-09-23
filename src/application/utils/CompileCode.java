@@ -1,8 +1,8 @@
 package application.utils;
 
-import application.Controller;
-import application.FlowController;
-import application.Source;
+import application.gui.Controller;
+import application.gui.FlowController;
+import application.gui.Source;
 import org.controlsfx.dialog.Dialogs;
 
 import javax.tools.JavaCompiler;

@@ -1,6 +1,7 @@
 package application;
 
 import application.data.MySQLConnectionManager;
+import application.gui.Controller;
 import application.utils.BrowserManager;
 import application.data.DataBank;
 import application.utils.SSHConnectionManager;

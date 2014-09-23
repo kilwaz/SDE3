@@ -1,4 +1,4 @@
-package application.canvas;
+package application.gui.canvas;
 
 import java.awt.*;
 import java.util.ArrayList;

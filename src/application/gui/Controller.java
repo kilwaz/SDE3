@@ -1,6 +1,6 @@
-package application;
+package application.gui;
 
-import application.canvas.CanvasController;
+import application.gui.canvas.CanvasController;
 import application.net.SSHManager;
 import application.node.DrawableNode;
 import application.node.SourceNode;

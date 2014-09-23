@@ -1,7 +1,7 @@
 package application.node;
 
-import application.FlowController;
-import application.Switch;
+import application.gui.FlowController;
+import application.gui.Switch;
 import application.data.SavableAttribute;
 import application.data.DataBank;
 import javafx.scene.paint.Color;
