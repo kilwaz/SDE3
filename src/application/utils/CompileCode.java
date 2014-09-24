@@ -16,14 +16,11 @@ public class CompileCode {
     static int counter = 0;
 
     public static String compileCode(Source source) {
-        Object instance = null;
         String className = "SDEClass" + source.getId() + "C" + counter;
         String flowControllerReferenceId = "[Unloaded FlowController]";
-        String sourceReferenceId = "[Unloaded FlowController]";
         try {
-            // Prepare source somehow.
             flowControllerReferenceId = FlowController.getFlowControllerFromSource(source).getReferenceID();
-            sourceReferenceId = source.getId().toString();
+            String sourceReferenceId = source.getId().toString();
             String sourceString = "package programs;" +
                     "import application.utils.*;" +
                     "import application.data.DataBank;" +
@@ -58,6 +55,9 @@ public class CompileCode {
                     "   }" +
                     "   private void run(String name) {" +
                     "      Program.runHelper(name, this.flowControllerReferenceId, false, new HashMap<String, Object>());" +
+                    "   }" +
+                    "   private SSHManager ssh(String connection, String username, String password, String consoleName) {" +
+                    "      return SDEUtils.openSSHSession(connection,username,password,consoleName,this.flowControllerReferenceId);" +
                     "   }" +
                     "   private void run(String name, HashMap<String, Object> map) {" +
                     "      Program.runHelper(name, this.flowControllerReferenceId, false, map);" +

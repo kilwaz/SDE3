@@ -1,12 +1,9 @@
 package application.gui.canvas;
 
+import application.data.DataBank;
 import application.gui.NodeConnection;
 import application.gui.Program;
-import application.data.DataBank;
 import application.node.DrawableNode;
-import application.node.SourceNode;
-import application.node.SwitchNode;
-import application.node.TestResultNode;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.geometry.VPos;
@@ -117,16 +114,7 @@ public class CanvasController {
 
     public void drawNode(DrawableNode drawableNode) {
         gc.setStroke(drawableNode.getColor());
-        if (drawableNode instanceof SwitchNode) {
-            gc.setFill(Color.LIGHTCYAN);
-        } else if (drawableNode instanceof SourceNode) {
-            gc.setFill(Color.LIGHTGREEN);
-        } else if (drawableNode instanceof TestResultNode) {
-            gc.setFill(Color.LIGHTSTEELBLUE);
-        } else {
-            // Probably can't happen..
-            gc.setFill(Color.WHITE);
-        }
+        gc.setFill(drawableNode.getFillColour());
 
         FontMetrics metrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(gc.getFont());
         Float fontWidth = metrics.computeStringWidth(drawableNode.getContainedText());

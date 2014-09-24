@@ -1,10 +1,7 @@
 package application.gui;
 
-import application.node.DrawableNode;
-import application.node.SourceNode;
-import application.node.SwitchNode;
-import application.node.TestResultNode;
 import application.data.DataBank;
+import application.node.*;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -14,13 +11,14 @@ public class FlowController {
     private DrawableNode startNode;
     private List<DrawableNode> nodes = new ArrayList<DrawableNode>();
     private List<NodeConnection> connections = new ArrayList<NodeConnection>();
-    private String referenceID = "test";
+    private String referenceID;
     private Program parentProgram;
 
     public FlowController(Program parentProgram) {
         this.parentProgram = parentProgram;
         startNode = new SourceNode(30.0, 30.0, "Start");
         startNode.setId(-1);
+        referenceID = parentProgram.getId().toString();
     }
 
     public DrawableNode createNewNode(Integer id, Integer programId, String nodeType, Boolean isStartNode) {
@@ -31,6 +29,8 @@ public class FlowController {
             newNode = new SourceNode(id, programId);
         } else if ("SwitchNode".equals(nodeType)) {
             newNode = new SwitchNode(id, programId);
+        } else if ("ConsoleNode".equals(nodeType)) {
+            newNode = new ConsoleNode(id, programId);
         }
 
         if (newNode != null) {
@@ -239,20 +239,6 @@ public class FlowController {
         return false;
     }
 
-    public static FlowController getFlowControllerFromSource(Source source) {
-        for (Program program : DataBank.getPrograms()) {
-            for (DrawableNode node : program.getFlowController().getNodes()) {
-                if (node instanceof SourceNode) {
-                    if (((SourceNode) node).getSource() == source) {
-                        return program.getFlowController();
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
     public static void sourceStarted(String reference) {
         SourceNode sourceNode = FlowController.getSourceFromReference(reference);
         sourceNode.setColor(Color.RED);
@@ -277,6 +263,30 @@ public class FlowController {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node.getContainedText().equals(text)) {
                     return (SourceNode) node;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static FlowController getFlowControllerFromReference(String flowControllerReferenceId) {
+        for (Program program : DataBank.getPrograms()) {
+            if (program.getFlowController().getReferenceID().equals(flowControllerReferenceId)) {
+                return program.getFlowController();
+            }
+        }
+
+        return null;
+    }
+
+    public static FlowController getFlowControllerFromSource(Source source) {
+        for (Program program : DataBank.getPrograms()) {
+            for (DrawableNode node : program.getFlowController().getNodes()) {
+                if (node instanceof SourceNode) {
+                    if (((SourceNode) node).getSource() == source) {
+                        return program.getFlowController();
+                    }
                 }
             }
         }

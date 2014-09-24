@@ -1,6 +1,7 @@
 package application.node;
 
 import application.data.SavableAttribute;
+import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -132,6 +133,10 @@ public class DrawableNode {
         this.containedText = containedText;
     }
 
+    public Tab createInterface() {
+        return new Tab();
+    }
+
     public Integer getProgramId() {
         return this.programId;
     }
@@ -146,6 +151,10 @@ public class DrawableNode {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Color getFillColour() {
+        return Color.WHITE;
     }
 
     public String getNodeType() {

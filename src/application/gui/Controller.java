@@ -1,13 +1,9 @@
 package application.gui;
 
+import application.data.DataBank;
 import application.gui.canvas.CanvasController;
 import application.net.SSHManager;
-import application.node.DrawableNode;
-import application.node.SourceNode;
-import application.node.SwitchNode;
-import application.test.TestResult;
-import application.node.TestResultNode;
-import application.data.DataBank;
+import application.node.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -18,12 +14,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.controlsfx.dialog.Dialogs;
 
@@ -34,9 +27,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
-    @FXML
-    private TextArea console;
-
     @FXML
     private StackPane stackPane;
 
@@ -91,7 +81,7 @@ public class Controller implements Initializable {
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         Controller.controller = this;
 
-        assert console != null : "fx:id=\"console\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert programList != null : "fx:id=\"programList\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert programAccordion != null : "fx:id=\"programAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
@@ -156,13 +146,26 @@ public class Controller implements Initializable {
                         List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX(), event.getY());
                         if (clickNodes.size() > 0) {
                             DrawableNode drawableNode = clickNodes.get(0);
-                            if (drawableNode instanceof SourceNode) {
-                                createOrShowSourceTab((SourceNode) drawableNode);
-                            } else if (drawableNode instanceof TestResultNode) {
-                                createOrShowResultSetTab((TestResultNode) drawableNode);
-                            } else if (drawableNode instanceof SwitchNode) {
-                                createOrShowSplitTab((SwitchNode) drawableNode);
+
+                            Tab nodeTab = null;
+                            // We loop to see if the tab already exists for this node
+                            for (Tab loopTab : tabPaneSource.getTabs()) {
+                                if (loopTab.getId() != null) {
+                                    if (loopTab.getId().equals(drawableNode.getId().toString())) {
+                                        nodeTab = loopTab;
+                                        break;
+                                    }
+                                }
                             }
+
+                            // If the tab does not already exist we create it
+                            if (nodeTab == null) {
+                                nodeTab = drawableNode.createInterface();
+                                tabPaneSource.getTabs().add(nodeTab);
+                            }
+
+                            // Finally we select the tab
+                            selectTab(nodeTab);
                         }
                     }
                 }
@@ -221,6 +224,21 @@ public class Controller implements Initializable {
                     });
                     menuItemFlowSplitNode.setId("SplitNode-");
 
+                    MenuItem menuItemFlowConsoleNode = new MenuItem("Add Console Node");
+                    menuItemFlowConsoleNode.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            Program program = DataBank.currentlyEditProgram;
+
+                            SecureRandom random = new SecureRandom();
+                            ConsoleNode newConsoleNode = new ConsoleNode(0.0, 0.0, new BigInteger(40, random).toString(32));
+                            program.getFlowController().addNode(newConsoleNode);
+                            DataBank.saveNode(newConsoleNode); // We need to save the node after creating it to assign the ID correctly
+                            canvasController.drawProgram();
+                        }
+                    });
+                    menuItemFlowConsoleNode.setId("ConsoleNode-");
+
                     MenuItem menuItemFlowStartNode = new MenuItem("Set Start Node");
                     MenuItem menuItemFlowRemoveNode = new MenuItem("Remove Node");
                     if (clickNodes.size() > 0) {
@@ -273,6 +291,7 @@ public class Controller implements Initializable {
                     contextMenu.getItems().add(menuItemFlowAddNode);
                     contextMenu.getItems().add(menuItemFlowAddResultSet);
                     contextMenu.getItems().add(menuItemFlowSplitNode);
+                    contextMenu.getItems().add(menuItemFlowConsoleNode);
                     if (clickNodes.size() > 0) {
                         contextMenu.getItems().add(menuItemFlowRemoveNode);
                         contextMenu.getItems().add(menuItemFlowStartNode);
@@ -363,18 +382,18 @@ public class Controller implements Initializable {
                     }
                 });
 
-        console.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent ke) {
-                if (ke.getCode().equals(KeyCode.ENTER)) {
-                    String consoleText = console.getText();
-                    String commandText = consoleText.substring(consoleText.lastIndexOf("$") + 1, consoleText.length());
-                    System.out.println("Sending -> " + commandText);
-                    SSHManager sshManager = (SSHManager) DataBank.loadVariable("ssh", "27");
-                    sshManager.sendShellCommand(commandText);
-                }
-            }
-        });
+//        console.setOnKeyPressed(new EventHandler<KeyEvent>() {
+//            @Override
+//            public void handle(KeyEvent ke) {
+//                if (ke.getCode().equals(KeyCode.ENTER)) {
+//                    String consoleText = console.getText();
+//                    String commandText = consoleText.substring(consoleText.lastIndexOf("$") + 1, consoleText.length());
+//                    System.out.println("Sending -> " + commandText);
+//                    SSHManager sshManager = (SSHManager) DataBank.loadVariable("ssh", "27");
+//                    sshManager.sendShellCommand(commandText);
+//                }
+//            }
+//        });
 
         menuBarMenuItemQuit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -386,178 +405,10 @@ public class Controller implements Initializable {
         tabPaneSource.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
     }
 
-    public void createOrShowSplitTab(SwitchNode switchNode) {
-        // Test to see if the tab exists and if so show it
-        for (Tab loopTab : tabPaneSource.getTabs()) {
-            if (loopTab.getId() != null) {
-                if (loopTab.getId().equals(switchNode.getId().toString())) {
-                    SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
-                    selectionModel.select(loopTab);
 
-                    TextField textField = (TextField) stackPane.lookup("#fieldName-" + switchNode.getId());
-                    textField.setText(switchNode.getContainedText());
-
-                    return;
-                }
-            }
-        }
-        // As the tab doesn't exist we create it here
-        Tab tab = new Tab();
-        AnchorPane tabAnchorPane = new AnchorPane();
-
-        tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
-        tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
-
-        VBox rows = new VBox(5);
-        rows.setLayoutY(55);
-        rows.setLayoutX(11);
-
-        List<Switch> aSwitches = switchNode.getSwitches();
-        for (int i = 0; i < aSwitches.size(); i++) {
-            rows.getChildren().add(createSplitNodeRow(i, aSwitches.get(i), switchNode.getId()));
-        }
-
-        tabAnchorPane.getChildren().add(createNodeNameField(switchNode));
-        tabAnchorPane.getChildren().add(createNodeNameLabel());
-        tabAnchorPane.getChildren().add(rows);
-        tab.setText(switchNode.getContainedText());
-        tab.setId(switchNode.getId().toString());
-        tab.setContent(tabAnchorPane);
-
-        tabPaneSource.getTabs().add(tab);
-
-        // Go back to the beginning and run the code to show the tab, it should now exist
-        createOrShowSplitTab(switchNode);
-    }
-
-    public HBox createSplitNodeRow(Integer index, Switch aSwitch, Integer splitId) {
-        HBox row = new HBox(5);
-        Button firstSplitButton = new Button();
-        if (aSwitch.isEnabled()) {
-            firstSplitButton.setText("Enabled");
-        } else {
-            firstSplitButton.setText("Disabled");
-        }
-        firstSplitButton.setPrefWidth(80);
-        firstSplitButton.setId("splitButton-" + aSwitch.getId() + "-" + splitId);
-        firstSplitButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Button button = (Button) event.getSource();
-                Program program = DataBank.currentlyEditProgram;
-                String[] fieldId = button.getId().split("-");
-                SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
-
-                if ("Disabled".equals(button.getText())) {
-                    button.setText("Enabled");
-                    switchNode.updateSplitEnabled(Integer.parseInt(fieldId[1]), true);
-                } else {
-                    button.setText("Disabled");
-                    switchNode.updateSplitEnabled(Integer.parseInt(fieldId[1]), false);
-                }
-
-                program.getFlowController().checkConnections(); // Toggling a switch will make or break connections
-            }
-        });
-        row.getChildren().add(firstSplitButton);
-
-        TextField firstSplitField = new TextField();
-        firstSplitField.setText(aSwitch.getTarget());
-        firstSplitField.setId("splitField-" + aSwitch.getId() + "-" + splitId);
-        firstSplitField.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                TextField textField = (TextField) event.getSource();
-                if (!textField.getText().isEmpty()) {
-                    Program program = DataBank.currentlyEditProgram;
-                    String[] fieldId = textField.getId().split("-");
-                    SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
-                    switchNode.updateSplitTarget(Integer.parseInt(fieldId[1]), textField.getText());
-
-                    program.getFlowController().checkConnections(); // Renaming a node might make or break connections
-
-                    DataBank.saveNode(switchNode);
-                    canvasController.drawProgram();
-                }
-            }
-        });
-
-        row.getChildren().add(firstSplitField);
-
-        return row;
-    }
-
-    public void createOrShowResultSetTab(TestResultNode testResultNode) {
-        // Test to see if the tab exists and if so show it
-        for (Tab loopTab : tabPaneSource.getTabs()) {
-            if (loopTab.getId() != null) {
-                if (loopTab.getId().equals(testResultNode.getId().toString())) {
-                    SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
-                    selectionModel.select(loopTab);
-
-                    TextField textField = (TextField) stackPane.lookup("#fieldName-" + testResultNode.getId());
-                    textField.setText(testResultNode.getContainedText());
-
-                    return;
-                }
-            }
-        }
-        // As the tab doesn't exist we create it here
-        Tab tab = new Tab();
-
-        AnchorPane tabAnchorPane = new AnchorPane();
-        TableView<TestResult> resultsTable = new TableView<TestResult>();
-        resultsTable.setId("resultsTable-" + testResultNode.getId());
-
-        TableColumn expectedOutput = new TableColumn("Expected Output");
-        expectedOutput.setMinWidth(120);
-        expectedOutput.setCellValueFactory(new PropertyValueFactory<TestResult, String>("outcome"));
-
-        TableColumn actualOutput = new TableColumn("Actual Output");
-        actualOutput.setMinWidth(120);
-        actualOutput.setCellValueFactory(new PropertyValueFactory<TestResult, String>("expected"));
-
-        TableColumn duration = new TableColumn("Duration");
-        duration.setMinWidth(120);
-        duration.setCellValueFactory(new PropertyValueFactory<TestResult, String>("duration"));
-
-        resultsTable.setItems(testResultNode.getResultList());
-        resultsTable.getColumns().addAll(expectedOutput);
-        resultsTable.getColumns().addAll(actualOutput);
-        resultsTable.getColumns().addAll(duration);
-        resultsTable.setLayoutX(11);
-        resultsTable.setLayoutY(50);
-
-        resultsTable.setMaxHeight(Integer.MAX_VALUE);
-        resultsTable.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(resultsTable, 0.0);
-        AnchorPane.setLeftAnchor(resultsTable, 11.0);
-        AnchorPane.setRightAnchor(resultsTable, 0.0);
-        AnchorPane.setTopAnchor(resultsTable, 50.0);
-        resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
-        tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
-
-        tabAnchorPane.getChildren().add(createNodeNameField(testResultNode));
-        tabAnchorPane.getChildren().add(createNodeNameLabel());
-        tabAnchorPane.getChildren().add(resultsTable);
-        tab.setText(testResultNode.getContainedText());
-        tab.setId(testResultNode.getId().toString());
-        tab.setContent(tabAnchorPane);
-
-        tabPaneSource.getTabs().add(tab);
-
-        // Go back to the beginning and run the code to show the tab, it should now exist
-        createOrShowResultSetTab(testResultNode);
+    public void selectTab(Tab tab) {
+        SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
+        selectionModel.select(tab);
     }
 
     public TextField createNodeNameField(DrawableNode drawableNode) {
@@ -565,6 +416,7 @@ public class Controller implements Initializable {
         nameField.setLayoutX(57);
         nameField.setLayoutY(13);
         nameField.setId("fieldName-" + drawableNode.getId());
+        nameField.setText(drawableNode.getContainedText());
 
         nameField.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -585,7 +437,6 @@ public class Controller implements Initializable {
                     }
 
                     DataBank.saveNode(nodeToUpdate);
-
                     canvasController.drawProgram();
                 }
             }
@@ -602,72 +453,8 @@ public class Controller implements Initializable {
         return nameFieldLabel;
     }
 
-    public void createOrShowSourceTab(SourceNode sourceNode) {
-        // Test to see if the tab exists and if so show it
-        for (Tab loopTab : tabPaneSource.getTabs()) {
-            if (loopTab.getId() != null) {
-                if (loopTab.getId().equals(sourceNode.getId().toString())) {
-                    SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
-                    selectionModel.select(loopTab);
-
-                    TextField textField = (TextField) stackPane.lookup("#fieldName-" + sourceNode.getId());
-                    textField.setText(sourceNode.getContainedText());
-                    return;
-                }
-            }
-        }
-
-        // As the tab doesn't exist we create it here
-        Tab tab = new Tab();
-        tab.setText(sourceNode.getContainedText());
-        tab.setId(sourceNode.getId().toString());
-
-        AnchorPane tabAnchorPane = new AnchorPane();
-        tabAnchorPane.getChildren().add(createNodeNameField(sourceNode));
-        tabAnchorPane.getChildren().add(createNodeNameLabel());
-
-        SourceTextArea sourceTextArea = new SourceTextArea(sourceNode);
-
-        AnchorPane.setBottomAnchor(sourceTextArea, 0.0);
-        AnchorPane.setLeftAnchor(sourceTextArea, 11.0);
-        AnchorPane.setRightAnchor(sourceTextArea, 0.0);
-        AnchorPane.setTopAnchor(sourceTextArea, 50.0);
-
-        tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
-        tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
-
-        tabAnchorPane.getChildren().add(sourceTextArea);
-        tab.setContent(tabAnchorPane);
-
-        tabPaneSource.getTabs().add(tab);
-
-        // Go back to the beginning and run the code to show the tab, it should now exist
-        createOrShowSourceTab(sourceNode);
-    }
-
-    public void writeNewLineToConsole(String text) {
-        console.appendText(System.getProperty("line.separator"));
-        console.appendText(text);
-    }
-
-    public void writeToConsole(String text) {
-        class OneShotTask implements Runnable {
-            String str;
-
-            OneShotTask(String s) {
-                str = s;
-            }
-
-            public void run() {
-                console.appendText(str);
-            }
-        }
-
-        Platform.runLater(new OneShotTask(text));
+    public void updateCanvasControllerNow() {
+        canvasController.drawProgram();
     }
 
     // Use this one when not on GUI thread

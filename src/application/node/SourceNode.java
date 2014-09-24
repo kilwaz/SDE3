@@ -1,9 +1,13 @@
 package application.node;
 
+import application.data.DataBank;
+import application.data.SavableAttribute;
+import application.gui.Controller;
 import application.gui.FlowController;
 import application.gui.Source;
-import application.data.SavableAttribute;
-import application.data.DataBank;
+import application.gui.SourceTextArea;
+import javafx.scene.control.Tab;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -45,6 +49,41 @@ public class SourceNode extends DrawableNode {
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
+    }
+
+    public Tab createInterface() {
+        Controller controller = Controller.getInstance();
+
+        Tab tab = new Tab();
+        tab.setText(getContainedText());
+        tab.setId(getId().toString());
+
+        AnchorPane tabAnchorPane = new AnchorPane();
+        tabAnchorPane.getChildren().add(controller.createNodeNameField(this));
+        tabAnchorPane.getChildren().add(controller.createNodeNameLabel());
+
+        SourceTextArea sourceTextArea = new SourceTextArea(this);
+
+        AnchorPane.setBottomAnchor(sourceTextArea, 0.0);
+        AnchorPane.setLeftAnchor(sourceTextArea, 11.0);
+        AnchorPane.setRightAnchor(sourceTextArea, 0.0);
+        AnchorPane.setTopAnchor(sourceTextArea, 50.0);
+
+        tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
+        tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
+        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
+        AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
+        AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
+        AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
+
+        tabAnchorPane.getChildren().add(sourceTextArea);
+        tab.setContent(tabAnchorPane);
+
+        return tab;
+    }
+
+    public Color getFillColour() {
+        return Color.LIGHTGREEN;
     }
 
     public String getNodeType() {

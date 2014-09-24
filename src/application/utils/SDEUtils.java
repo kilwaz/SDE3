@@ -1,6 +1,9 @@
 package application.utils;
 
+import application.gui.FlowController;
 import application.net.SSHManager;
+import application.node.ConsoleNode;
+import application.node.DrawableNode;
 import com.jcraft.jsch.JSch;
 
 import java.io.*;
@@ -18,15 +21,28 @@ public class SDEUtils {
 
     private static String knownHosts;
 
-    public static SSHManager openSSHSession(String connection, String username, String password) {
+    public static SSHManager openSSHSession(String connection, String username, String password, String consoleName, String flowControllerReferenceId) {
         JSch.setConfig("StrictHostKeyChecking", "no");
-        SSHManager instance = null;
+        SSHManager instance;
 
         String[] connectionInfo = connection.split(":");
         if (connectionInfo.length > 1) {
             instance = new SSHManager(username, password, connectionInfo[0], knownHosts, Integer.parseInt(connectionInfo[1]));
         } else {
             instance = new SSHManager(username, password, connectionInfo[0], knownHosts, 22);
+        }
+
+        if (consoleName != null) {
+            FlowController flowController = FlowController.getFlowControllerFromReference(flowControllerReferenceId);
+            if (flowController != null) {
+                for (DrawableNode consoleNode : flowController.getNodes()) {
+                    if (consoleNode.getContainedText().equals(consoleName)) {
+                        if (consoleNode instanceof ConsoleNode) {
+                            instance.setConsoleNode((ConsoleNode) consoleNode);
+                        }
+                    }
+                }
+            }
         }
 
         String errorMessage = instance.connect();

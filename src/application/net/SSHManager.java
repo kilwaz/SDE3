@@ -1,6 +1,6 @@
 package application.net;
 
-import application.gui.Controller;
+import application.node.ConsoleNode;
 import application.utils.SSHConnectionManager;
 import application.utils.ThreadManager;
 import com.jcraft.jsch.*;
@@ -22,6 +22,7 @@ public class SSHManager {
     private PipedOutputStream pop;
     private PrintStream print;
     private PipedInputStream sink;
+    private ConsoleNode consoleNode;
 
     private void doCommonConstructorActions(String userName, String password, String connectionIP, String knownHostsFileName) {
         jschSSHChannel = new JSch();
@@ -44,6 +45,10 @@ public class SSHManager {
         intConnectionPort = connectionPort;
         intTimeOut = 60000;
         SSHConnectionManager.getInstance().addConnection(this);
+    }
+
+    public void setConsoleNode(ConsoleNode consoleNode) {
+        this.consoleNode = consoleNode;
     }
 
     public String connect() {
@@ -355,13 +360,14 @@ public class SSHManager {
 
             Thread t = new Thread(new Runnable() {
                 public void run() {
-                    Controller controller = Controller.getInstance();
                     byte[] data = new byte[4096];
                     try {
                         int i = sink.read(data, 0, 4096);
                         while (true) {
                             if (i < 0) break;
-                            controller.writeToConsole(new String(data, 0, i));
+                            if (consoleNode != null) {
+                                consoleNode.writeToConsole(new String(data, 0, i));
+                            }
                             i = sink.read(data, 0, 4096);
                         }
                     } catch (IOException e) {
