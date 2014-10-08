@@ -6,6 +6,8 @@ import application.utils.ThreadManager;
 import com.jcraft.jsch.*;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +25,8 @@ public class SSHManager {
     private PrintStream print;
     private PipedInputStream sink;
     private ConsoleNode consoleNode;
+    private List<SSHCommand> SSHCommandList = new ArrayList<SSHCommand>();
+    private Boolean processingCommand = false;
 
     private void doCommonConstructorActions(String userName, String password, String connectionIP, String knownHostsFileName) {
         jschSSHChannel = new JSch();
@@ -266,7 +270,6 @@ public class SSHManager {
     }
 
     public void scpTo(String remoteFile, String localFile) {
-        FileOutputStream fos = null;
         FileInputStream fis;
         try {
             boolean ptimestamp = true;
@@ -337,14 +340,24 @@ public class SSHManager {
             channel.disconnect();
         } catch (Exception e) {
             System.out.println(e);
-            try {
-                if (fos != null) fos.close();
-            } catch (Exception ee) {
-            }
         }
     }
 
-    //[localhost]:13391 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA4w7Q1rYoKgYLdZszfRLI2+aJ3Xrf6a1qn5v12mfPnfJyFMkmdlwsMSvs6HR4goUecoOGd+75I/YVvJUoKOmUF2p/tKvj/5L11p+uzc0Ntx+BzL1fgznUzV7QlPCbQv96vuZnityqtgIahVBAz1oZT8yeAdXNU8Gr6mJYMT9ByI5kTdNfeyXaZB+edKeoo7FAmdIN2oOBX1uLhasJUMky4na/lmU8m2xFsdSwfobsKG5c4iClEYezpRkR+/shOGt/1lcbfhSh5jpxfNB19Tyc440GSAH38rDqrjslAAJKR9jNIfrkqJtqv53juYMRopp8JPQ2h8To5hafSmX2Ee0tCw==
+    public void runSSHCommand(SSHCommand command) {
+        //System.out.println("Added command " + command.getCommand());
+        SSHCommandList.add(command);
+
+        runNextCommand();
+    }
+
+    private void runNextCommand() {
+        if (SSHCommandList.size() > 0) {
+            if (!processingCommand) {
+                processingCommand = true;
+                sendShellCommand(SSHCommandList.get(0).getCommand());
+            }
+        }
+    }
 
     public void createShellChannel() {
         try {
@@ -363,10 +376,25 @@ public class SSHManager {
                     byte[] data = new byte[4096];
                     try {
                         int i = sink.read(data, 0, 4096);
+                        String previousString = "";
                         while (true) {
                             if (i < 0) break;
+
+                            String responseString = new String(data, 0, i);
+
+                            if (SSHCommandList.size() > 0) {
+                                if ("".equals(SSHCommandList.get(0).getReturnString()) || responseString.contains(SSHCommandList.get(0).getReturnString())) {
+                                    if (!responseString.equals(previousString)) {
+                                        System.out.println("responseString - " + responseString + " - Completed command " + SSHCommandList.get(0).getCommand());
+                                        SSHCommandList.remove(SSHCommandList.get(0));
+                                        processingCommand = false;
+                                        runNextCommand();
+                                    }
+                                }
+                            }
+                            previousString = responseString;
                             if (consoleNode != null) {
-                                consoleNode.writeToConsole(new String(data, 0, i));
+                                consoleNode.writeToConsole(responseString);
                             }
                             i = sink.read(data, 0, 4096);
                         }
@@ -388,7 +416,10 @@ public class SSHManager {
         }
     }
 
-    public void sendShellCommand(String command) {
-        print.println(command);
+    private void sendShellCommand(String command) {
+        System.out.println("running command " + command);
+        print.print("  " + "\n");
+        print.print(command + "\n");
+        print.print("  " + "\n");
     }
 }

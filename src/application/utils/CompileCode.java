@@ -23,14 +23,13 @@ public class CompileCode {
             String sourceReferenceId = source.getId().toString();
             String sourceString = "package programs;" +
                     "import application.utils.*;" +
-                    "import application.data.DataBank;" +
+                    "import application.data.*;" +
                     "import java.util.*;" +
                     "import org.openqa.selenium.*;" +
                     "import org.openqa.selenium.support.ui.*;" +
-                    "import application.gui.Program;" +
-                    "import application.gui.FlowController;" +
+                    "import application.gui.*;" +
                     "import application.test.*;" +
-                    "import application.net.SSHManager;" +
+                    "import application.net.*;" +
                     "public class " + className + " implements Runnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String sourceReferenceId = \"" + sourceReferenceId + "\";" +

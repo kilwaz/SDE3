@@ -1,9 +1,10 @@
 package application;
 
+import application.data.DataBank;
 import application.data.MySQLConnectionManager;
+import application.data.OracleConnectionManager;
 import application.gui.Controller;
 import application.utils.BrowserManager;
-import application.data.DataBank;
 import application.utils.SSHConnectionManager;
 import application.utils.ThreadManager;
 import javafx.animation.FadeTransition;
@@ -48,6 +49,7 @@ public class Main extends Application {
 
         loadProgress.setProgress(0.0);
         new MySQLConnectionManager();
+        //new OracleConnectionManager();
         loadProgress.setProgress(0.25);
         new SSHConnectionManager();
         loadProgress.setProgress(0.5);
