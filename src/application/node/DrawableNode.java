@@ -1,8 +1,12 @@
 package application.node;
 
 import application.data.SavableAttribute;
+import application.gui.canvas.DrawablePoint;
+import com.sun.javafx.tk.FontMetrics;
+import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,29 @@ public class DrawableNode {
         savableAttributes.add(new SavableAttribute("ContainedText", containedText.getClass().getName(), containedText));
 
         return savableAttributes;
+    }
+
+    public List<DrawablePoint> getDrawablePoints() {
+        List<DrawablePoint> drawablePoints = new ArrayList<DrawablePoint>();
+
+        Double minimumNodeWidth = 50.0;
+        Double nodeFontPadding = 5.0;
+
+        FontMetrics metrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(Font.font("Verdana", 12));
+        Float fontWidth = metrics.computeStringWidth(getContainedText());
+        if (fontWidth.doubleValue() + nodeFontPadding > minimumNodeWidth) {
+            setWidth(fontWidth.doubleValue() + nodeFontPadding);
+        } else {
+            setWidth(minimumNodeWidth);
+        }
+
+        drawablePoints.add(new DrawablePoint(0.0, 0.0, false));
+        drawablePoints.add(new DrawablePoint(getWidth(), 0.0, false));
+        drawablePoints.add(new DrawablePoint(getWidth(), getHeight(), false));
+        drawablePoints.add(new DrawablePoint(0.0, getHeight(), false));
+        drawablePoints.add(new DrawablePoint(0.0, 0.0, false));
+
+        return drawablePoints;
     }
 
     public Double getCenterX() {

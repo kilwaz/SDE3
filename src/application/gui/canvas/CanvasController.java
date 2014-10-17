@@ -4,14 +4,13 @@ import application.data.DataBank;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.DrawableNode;
-import com.sun.javafx.tk.FontMetrics;
-import com.sun.javafx.tk.Toolkit;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import java.util.List;
@@ -112,20 +111,27 @@ public class CanvasController {
         }
     }
 
+
     public void drawNode(DrawableNode drawableNode) {
         gc.setStroke(drawableNode.getColor());
+        gc.setFont(Font.font("Verdana", 12));
+        gc.setLineWidth(1.0);
         gc.setFill(drawableNode.getFillColour());
 
-        FontMetrics metrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(gc.getFont());
-        Float fontWidth = metrics.computeStringWidth(drawableNode.getContainedText());
-        if (fontWidth.doubleValue() + nodeFontPadding > minimumNodeWidth) {
-            drawableNode.setWidth(fontWidth.doubleValue() + nodeFontPadding);
-        } else {
-            drawableNode.setWidth(minimumNodeWidth);
-        }
+        List<DrawablePoint> drawablePoints = drawableNode.getDrawablePoints();
 
-        gc.fillRect(drawableNode.getScaledX(), drawableNode.getScaledY(), drawableNode.getScaledWidth(), drawableNode.getScaledHeight());
-        gc.strokeRect(drawableNode.getScaledX(), drawableNode.getScaledY(), drawableNode.getScaledWidth(), drawableNode.getScaledHeight());
+        gc.beginPath();
+        gc.moveTo(drawableNode.getX(), drawableNode.getY());
+        for (DrawablePoint drawablePoint : drawablePoints) {
+            if (drawablePoint.isMove()) {
+                gc.moveTo(drawablePoint.getX() + drawableNode.getX(), drawablePoint.getY() + drawableNode.getY());
+            } else {
+                gc.lineTo(drawablePoint.getX() + drawableNode.getX(), drawablePoint.getY() + drawableNode.getY());
+            }
+        }
+        gc.stroke();
+        gc.fill();
+        gc.closePath();
 
         gc.setFill(Color.GRAY);
         drawContainedText(drawableNode);
