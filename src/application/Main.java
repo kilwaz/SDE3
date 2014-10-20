@@ -2,11 +2,8 @@ package application;
 
 import application.data.DataBank;
 import application.data.MySQLConnectionManager;
-import application.data.OracleConnectionManager;
 import application.gui.Controller;
-import application.utils.BrowserManager;
-import application.utils.SSHConnectionManager;
-import application.utils.ThreadManager;
+import application.utils.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -58,9 +55,11 @@ public class Main extends Application {
         loadProgress.setProgress(0.6);
         new BrowserManager();
         loadProgress.setProgress(0.7);
-
         DataBank.loadFromDatabase();
         loadProgress.setProgress(0.8);
+        new NetworkManager();
+        new NetworkBuilder();
+        loadProgress.setProgress(0.9);
 
         //RemoteDebug remoteDebug = new RemoteDebug("172.16.10.212", "8787");
         //Thread t = new Thread(remoteDebug);
