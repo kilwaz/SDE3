@@ -103,7 +103,6 @@ public class Main extends Application {
 
     private void showMainStage() throws IOException {
         mainStage = new Stage(StageStyle.DECORATED);
-        mainStage.setTitle("FX Experience");
         mainStage.setIconified(true);
 
         //Sets up interface
@@ -129,7 +128,7 @@ public class Main extends Application {
 
         URL url = getClass().getResource("/icon.png");
         mainStage.getIcons().add(new Image(url.toExternalForm()));
-
+        mainStage.setMaximized(true);
         Controller.getInstance().setScene(scene);
 
         if (splashStage.isShowing()) {

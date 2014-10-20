@@ -156,6 +156,18 @@ public class CanvasController {
         gc.fill();
         gc.closePath();
 
+        // Draw the start node arrow
+        if (DataBank.currentlyEditProgram.getFlowController().getStartNode().equals(drawableNode)) {
+            gc.beginPath();
+            gc.moveTo(drawableNode.getX() + offsetWidth - 25, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));
+            gc.lineTo(drawableNode.getX() + offsetWidth - nodeCornerPadding, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));
+            gc.lineTo(drawableNode.getX() + offsetWidth - nodeCornerPadding - 5, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2) - 5);
+            gc.moveTo(drawableNode.getX() + offsetWidth - nodeCornerPadding, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));
+            gc.lineTo(drawableNode.getX() + offsetWidth - nodeCornerPadding - 5, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2) + 5);
+            gc.stroke();
+            gc.closePath();
+        }
+
         gc.setFill(Color.GRAY);
         drawContainedText(drawableNode);
     }

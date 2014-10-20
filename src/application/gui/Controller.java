@@ -14,12 +14,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.controlsfx.dialog.Dialogs;
 
 import java.math.BigInteger;
@@ -310,6 +313,7 @@ public class Controller implements Initializable {
                                 Program program = DataBank.currentlyEditProgram;
                                 DrawableNode startNode = program.getFlowController().getNodeById(Integer.parseInt(((MenuItem) event.getSource()).getId().replace("StartNode-", "")));
                                 program.getFlowController().setStartNode(startNode);
+                                canvasController.drawProgram();
                                 DataBank.saveProgram(program);
                             }
                         });
@@ -436,6 +440,21 @@ public class Controller implements Initializable {
                 clickedName = null;
             }
         });
+
+        programList.setEditable(true);
+        Callback<ListView<Program>, ListCell<Program>> onCommit = TextFieldListCell.forListView(new StringConverter<Program>() {
+            @Override
+            public String toString(Program program) {
+                return program.toString();
+            }
+
+            @Override public Program fromString(String input) {
+                Program program = DataBank.currentlyEditProgram;
+                program.setName(input);
+                return program;
+            }
+        });
+        programList.setCellFactory(onCommit);
 
         programList.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override

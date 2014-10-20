@@ -29,6 +29,7 @@ public class Program {
 
     public void setName(String name) {
         this.name = name;
+        DataBank.saveProgram(this);
     }
 
     public Integer getId() {
