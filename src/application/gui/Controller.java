@@ -2,7 +2,6 @@ package application.gui;
 
 import application.data.DataBank;
 import application.gui.canvas.CanvasController;
-import application.net.SSHManager;
 import application.node.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -14,7 +13,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.*;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -73,6 +74,8 @@ public class Controller implements Initializable {
     private TabPane tabPaneSource;
 
     private CanvasController canvasController;
+    private ContextMenu canvasFlowContextMenu;
+    private ContextMenu programListContextMenu;
     private Boolean skipCanvasClick = false;
     private static Controller controller;
     private Scene scene;
@@ -138,6 +141,9 @@ public class Controller implements Initializable {
         canvasFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                if (canvasFlowContextMenu != null) {
+                    canvasFlowContextMenu.hide();
+                }
                 if (skipCanvasClick) {
                     skipCanvasClick = false;
                 } else {
@@ -177,6 +183,10 @@ public class Controller implements Initializable {
             public void handle(ContextMenuEvent event) {
                 Program program = DataBank.currentlyEditProgram;
                 if (program != null) {
+                    if (canvasFlowContextMenu != null) {
+                        canvasFlowContextMenu.hide();
+                    }
+
                     List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX(), event.getY());
 
                     MenuItem menuItemFlowAddNode = new MenuItem("Add Node");
@@ -287,17 +297,17 @@ public class Controller implements Initializable {
                         menuItemFlowRemoveNode.setId("RemoveNode-" + drawableNode.getId());
                     }
 
-                    ContextMenu contextMenu = new ContextMenu();
-                    contextMenu.getItems().add(menuItemFlowAddNode);
-                    contextMenu.getItems().add(menuItemFlowAddResultSet);
-                    contextMenu.getItems().add(menuItemFlowSplitNode);
-                    contextMenu.getItems().add(menuItemFlowConsoleNode);
+                    canvasFlowContextMenu = new ContextMenu();
+                    canvasFlowContextMenu.getItems().add(menuItemFlowAddNode);
+                    canvasFlowContextMenu.getItems().add(menuItemFlowAddResultSet);
+                    canvasFlowContextMenu.getItems().add(menuItemFlowSplitNode);
+                    canvasFlowContextMenu.getItems().add(menuItemFlowConsoleNode);
                     if (clickNodes.size() > 0) {
-                        contextMenu.getItems().add(menuItemFlowRemoveNode);
-                        contextMenu.getItems().add(menuItemFlowStartNode);
+                        canvasFlowContextMenu.getItems().add(menuItemFlowRemoveNode);
+                        canvasFlowContextMenu.getItems().add(menuItemFlowStartNode);
                     }
 
-                    contextMenu.show(canvasFlow, event.getScreenX(), event.getScreenY());
+                    canvasFlowContextMenu.show(canvasFlow, event.getScreenX(), event.getScreenY());
                 }
             }
         });
@@ -308,6 +318,10 @@ public class Controller implements Initializable {
 
             @Override
             public void handle(ContextMenuEvent event) {
+                if (programListContextMenu != null) {
+                    programListContextMenu.hide();
+                }
+
                 clickedName = programList.getSelectionModel().getSelectedItem().getName();
 
                 MenuItem menuItemNewProgram = new MenuItem("New Program");
@@ -355,20 +369,29 @@ public class Controller implements Initializable {
                     }
                 });
 
-                ContextMenu contextMenu = new ContextMenu();
+                programListContextMenu = new ContextMenu();
 
                 if (clickedName == null) {
-                    contextMenu.getItems().add(menuItemNewProgram);
+                    programListContextMenu.getItems().add(menuItemNewProgram);
                 } else {
-                    contextMenu.getItems().add(menuItemNewProgram);
-                    contextMenu.getItems().add(menuItemDeleteProgram);
-                    contextMenu.getItems().add(menuItemCompile);
-                    contextMenu.getItems().add(menuItemRun);
+                    programListContextMenu.getItems().add(menuItemNewProgram);
+                    programListContextMenu.getItems().add(menuItemDeleteProgram);
+                    programListContextMenu.getItems().add(menuItemCompile);
+                    programListContextMenu.getItems().add(menuItemRun);
                 }
 
-                contextMenu.show(programList, event.getScreenX(), event.getScreenY());
+                programListContextMenu.show(programList, event.getScreenX(), event.getScreenY());
 
                 clickedName = null;
+            }
+        });
+
+        programList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (programListContextMenu != null) {
+                    programListContextMenu.hide();
+                }
             }
         });
 
