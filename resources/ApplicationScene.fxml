@@ -82,7 +82,7 @@
                                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                                     AnchorPane.topAnchor="0.0">
                                             <children>
-                                                <TabPane maxHeight="1.7976931348623157E308"
+                                                <TabPane fx:id="flowTabPane" maxHeight="1.7976931348623157E308"
                                                          maxWidth="1.7976931348623157E308"
                                                          tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0"
                                                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
@@ -98,7 +98,7 @@
                                                                             AnchorPane.rightAnchor="0.0"
                                                                             AnchorPane.topAnchor="0.0">
                                                                     <children>
-                                                                        <Canvas fx:id="canvasFlow" height="400"
+                                                                        <Canvas fx:id="canvasFlow" height="500"
                                                                                 layoutX="6.0" layoutY="6.0" width="700"
                                                                                 AnchorPane.bottomAnchor="0.0"
                                                                                 AnchorPane.leftAnchor="0.0"

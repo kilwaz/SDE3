@@ -1,13 +1,14 @@
 package application.gui.canvas;
 
 import application.data.DataBank;
+import application.gui.Controller;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.DrawableNode;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -18,9 +19,9 @@ import java.util.List;
 public class CanvasController {
     private Canvas canvasFlow;
     private GraphicsContext gc;
-    private PixelWriter pw;
 
     private Boolean isDraggingNode = false;
+    private Boolean isDraggingCanvas = false;
     private DrawableNode draggedNode = null;
     private Double dragXOffset = 0.0;
     private Double dragYOffset = 0.0;
@@ -28,11 +29,16 @@ public class CanvasController {
     private Double nodeFontPadding = 15.0; // This is added onto the width of the font
     private Double minimumNodeWidth = 50.0; // Node cannot have a smaller width than this
     private Integer nodeCornerPadding = 5; // This is the padding space the path network will give around nodes
+    private Double offsetHeight = 0.0;
+    private Double offsetWidth = 0.0;
+    private Double initialOffsetHeight = 0.0;
+    private Double initialOffsetWidth = 0.0;
+    private Double initialMouseX = 0.0;
+    private Double initialMouseY = 0.0;
 
     public CanvasController(Canvas canvasFlow) {
         this.canvasFlow = canvasFlow;
         gc = canvasFlow.getGraphicsContext2D();
-        pw = gc.getPixelWriter();
     }
 
     public Double getScale() {
@@ -49,6 +55,10 @@ public class CanvasController {
             draggedNode.setY(event.getY() + dragYOffset);
             drawProgram();
             isDraggingNode = true;
+        } else if (event.isPrimaryButtonDown() && isDraggingCanvas) {
+            offsetWidth = initialOffsetWidth - (initialMouseX - event.getX());
+            offsetHeight = initialOffsetHeight - (initialMouseY - event.getY());
+            drawProgram();
         }
     }
 
@@ -57,11 +67,18 @@ public class CanvasController {
             Program program = DataBank.currentlyEditProgram;
 
             if (program != null) {
-                List<DrawableNode> clickedNodes = program.getFlowController().getClickedNodes(event.getX(), event.getY());
+                List<DrawableNode> clickedNodes = program.getFlowController().getClickedNodes(event.getX() - offsetWidth, event.getY() - offsetHeight);
                 if (clickedNodes.size() > 0) {
                     draggedNode = clickedNodes.get(0);
                     dragXOffset = draggedNode.getX() - event.getX();
                     dragYOffset = draggedNode.getY() - event.getY();
+                } else {
+                    initialMouseX = event.getX();
+                    initialMouseY = event.getY();
+                    initialOffsetWidth = offsetWidth;
+                    initialOffsetHeight = offsetHeight;
+                    Controller.getInstance().setCursor(Cursor.MOVE);
+                    isDraggingCanvas = true;
                 }
             }
         }
@@ -73,6 +90,10 @@ public class CanvasController {
             draggedNode = null;
             isDraggingNode = false;
             drawProgram();
+            return true;
+        } else if (isDraggingCanvas) {
+            isDraggingCanvas = false;
+            Controller.getInstance().setCursor(Cursor.DEFAULT);
             return true;
         } else {
             return false;
@@ -89,25 +110,27 @@ public class CanvasController {
     public void drawProgram() {
         Program program = DataBank.currentlyEditProgram;
 
-        setFlowNodeScale(program.getFlowController().getStartNode(), this.scale);
-        gc.clearRect(0, 0, canvasFlow.getWidth(), canvasFlow.getHeight()); // Clears the screen
+        if (program != null) {
+            setFlowNodeScale(program.getFlowController().getStartNode(), this.scale);
+            gc.clearRect(0, 0, canvasFlow.getWidth(), canvasFlow.getHeight()); // Clears the screen
 
-        // Draw the bottom layers first and build up
-        // Connections
-        AStarNetwork network = new AStarNetwork(nodeCornerPadding);
-        for (NodeConnection connection : program.getFlowController().getConnections()) {
-            gc.setStroke(Color.BLACK);
-            List<AStarPoint> solvedPath = network.solvePath(connection);
-            AStarPoint currentPoint = network.findStartAStarPointFromNode(connection.getConnectionStart()); // We must get the start after we have solved the path
-            for (AStarPoint path : solvedPath) {
-                gc.strokeLine(currentPoint.getX(), currentPoint.getY(), path.getX(), path.getY());
-                currentPoint = path;
+            // Draw the bottom layers first and build up
+            // Connections
+            AStarNetwork network = new AStarNetwork(nodeCornerPadding);
+            for (NodeConnection connection : program.getFlowController().getConnections()) {
+                gc.setStroke(Color.BLACK);
+                List<AStarPoint> solvedPath = network.solvePath(connection);
+                AStarPoint currentPoint = network.findStartAStarPointFromNode(connection.getConnectionStart()); // We must get the start after we have solved the path
+                for (AStarPoint path : solvedPath) {
+                    gc.strokeLine(currentPoint.getX() + offsetWidth, currentPoint.getY() + offsetHeight, path.getX() + offsetWidth, path.getY() + offsetHeight);
+                    currentPoint = path;
+                }
             }
-        }
 
-        // Nodes boxes and contained text
-        for (DrawableNode node : program.getFlowController().getNodes()) {
-            drawNode(node);
+            // Nodes boxes and contained text
+            for (DrawableNode node : program.getFlowController().getNodes()) {
+                drawNode(node);
+            }
         }
     }
 
@@ -121,12 +144,12 @@ public class CanvasController {
         List<DrawablePoint> drawablePoints = drawableNode.getDrawablePoints();
 
         gc.beginPath();
-        gc.moveTo(drawableNode.getX(), drawableNode.getY());
+        gc.moveTo(drawableNode.getX() + offsetWidth, drawableNode.getY() + offsetHeight);
         for (DrawablePoint drawablePoint : drawablePoints) {
             if (drawablePoint.isMove()) {
-                gc.moveTo(drawablePoint.getX() + drawableNode.getX(), drawablePoint.getY() + drawableNode.getY());
+                gc.moveTo(drawablePoint.getX() + drawableNode.getX() + offsetWidth, drawablePoint.getY() + drawableNode.getY() + offsetHeight);
             } else {
-                gc.lineTo(drawablePoint.getX() + drawableNode.getX(), drawablePoint.getY() + drawableNode.getY());
+                gc.lineTo(drawablePoint.getX() + drawableNode.getX() + offsetWidth, drawablePoint.getY() + drawableNode.getY() + offsetHeight);
             }
         }
         gc.stroke();
@@ -142,7 +165,19 @@ public class CanvasController {
             gc.setTextAlign(TextAlignment.CENTER);
             gc.setTextBaseline(VPos.CENTER);
             gc.setFill(Color.BLACK);
-            gc.fillText(drawableNode.getContainedText(), drawableNode.getScaledCenterX(), drawableNode.getScaledCenterY());
+            gc.fillText(drawableNode.getContainedText(), drawableNode.getScaledCenterX() + offsetWidth, drawableNode.getScaledCenterY() + offsetHeight);
         }
+    }
+
+    public Canvas getCanvasFlow() {
+        return canvasFlow;
+    }
+
+    public Double getOffsetWidth() {
+        return offsetWidth;
+    }
+
+    public Double getOffsetHeight() {
+        return offsetHeight;
     }
 }

@@ -11,6 +11,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
@@ -68,6 +69,9 @@ public class Controller implements Initializable {
     private SplitPane splitPanePageCentral;
 
     @FXML
+    private TabPane flowTabPane;
+
+    @FXML
     private javafx.scene.canvas.Canvas canvasFlow;
 
     @FXML
@@ -107,6 +111,38 @@ public class Controller implements Initializable {
 
         assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
+        assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+
+        flowTabPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+                canvasFlow.setWidth(newSceneWidth.intValue());
+                canvasController.drawProgram();
+            }
+        });
+
+        flowTabPane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+                canvasFlow.setHeight(newSceneHeight.intValue());
+                canvasController.drawProgram();
+            }
+        });
+
+        stackPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+                splitPanePageCentral.setPrefWidth(newSceneWidth.intValue());
+            }
+        });
+
+        stackPane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+                splitPanePageCentral.setPrefHeight(newSceneHeight.intValue());
+            }
+        });
+
         canvasController = new CanvasController(canvasFlow);
 
         canvasFlow.setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -138,6 +174,21 @@ public class Controller implements Initializable {
             }
         });
 
+        canvasFlow.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                Program program = DataBank.currentlyEditProgram;
+                if (program != null) {
+                    List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
+                    if (clickNodes.size() > 0) {
+                        scene.setCursor(Cursor.HAND);
+                    } else {
+                        scene.setCursor(Cursor.DEFAULT);
+                    }
+                }
+            }
+        });
+
         canvasFlow.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -149,7 +200,7 @@ public class Controller implements Initializable {
                 } else {
                     Program program = DataBank.currentlyEditProgram;
                     if (program != null) {
-                        List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX(), event.getY());
+                        List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
                         if (clickNodes.size() > 0) {
                             DrawableNode drawableNode = clickNodes.get(0);
 
@@ -522,6 +573,10 @@ public class Controller implements Initializable {
         }
 
         Platform.runLater(new OneShotTask(dialogs, ex));
+    }
+
+    public void setCursor(Cursor cursor) {
+        scene.setCursor(cursor);
     }
 
     public void setScene(Scene scene) {
