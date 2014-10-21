@@ -76,11 +76,11 @@ public class SDEUtils {
             int in = -1;
 
             while ((in = is.read()) != -1) {
-                System.out.print(((char) in));
+                //System.out.print(((char) in));
                 returnString.append((char) in);
             }
             while ((in = errSt.read()) != -1) {
-                System.out.print(((char) in));
+                //System.out.print(((char) in));
                 returnString.append((char) in);
             }
         } catch (IOException e) {

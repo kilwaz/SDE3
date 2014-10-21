@@ -25,6 +25,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.Dialogs;
 
 import java.math.BigInteger;
@@ -83,10 +84,7 @@ public class Controller implements Initializable {
     private TabPane tabPaneSource;
 
     @FXML
-    private HBox statusBar;
-
-    @FXML
-    private Label activeThreads;
+    private StatusBar statusBar;
 
     private CanvasController canvasController;
     private ContextMenu canvasFlowContextMenu;
@@ -125,7 +123,6 @@ public class Controller implements Initializable {
         assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert activeThreads != null : "fx:id=\"activeThreads\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         flowTabPane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -632,7 +629,7 @@ public class Controller implements Initializable {
             }
 
             public void run() {
-                activeThreads.setText("Active threads: " + threadCount);
+                statusBar.setText("Active threads: " + threadCount);
             }
         }
 
