@@ -15,6 +15,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.controlsfx.control.textfield.TextFields;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,10 +159,15 @@ public class SwitchNode extends DrawableNode {
         });
         row.getChildren().add(firstSplitButton);
 
-        TextField firstSplitField = new TextField();
-        firstSplitField.setText(aSwitch.getTarget());
-        firstSplitField.setId("splitField-" + aSwitch.getId() + "-" + splitId);
-        firstSplitField.setOnAction(new EventHandler<ActionEvent>() {
+        TextField switchField = TextFields.createClearableTextField();
+        TextFields.bindAutoCompletion(switchField, DataBank.currentlyEditProgram.getFlowController().getNodes());
+        //ValidationSupport validationSupport = new ValidationSupport();
+        //validationSupport.registerValidator(switchField, Validator.createEqualsValidator("Node name does not exist", "test");
+        //validationSupport.registerValidator(switchField, Validator.createEmptyValidator("SHOULD NOT BE EMPTY"));
+
+        switchField.setText(aSwitch.getTarget());
+        switchField.setId("switchField-" + aSwitch.getId() + "-" + splitId);
+        switchField.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 TextField textField = (TextField) event.getSource();
@@ -179,7 +185,7 @@ public class SwitchNode extends DrawableNode {
             }
         });
 
-        row.getChildren().add(firstSplitField);
+        row.getChildren().add(switchField);
 
         return row;
     }

@@ -197,4 +197,8 @@ public class DrawableNode {
 
         return false;
     }
+
+    public String toString() {
+        return this.containedText;
+    }
 }
