@@ -1,7 +1,7 @@
 package application.utils;
 
 import application.data.NetworkNodeInfo;
-
+import application.utils.SDEUtils;
 import java.net.InetAddress;
 
 /**
@@ -37,8 +37,8 @@ public class NetworkBuilder {
         public void threadRun() {
             String host = networkAddress + address;
             try {
-                if (InetAddress.getByName(host).isReachable(1100)) {
-                    //System.out.println(host + " is reachable. Using Host Name: " + InetAddress.getByName(host).getHostName());
+                String output = SDEUtils.runCMDCommand("ping " +host + " -n 1");
+                if(output.contains("Sent = 1, Received = 1") && !output.contains("Destination host unreachable")){
                     NetworkManager.getInstance().addNetworkNodeInfo(new NetworkNodeInfo(host, InetAddress.getByName(host).getHostName(), true));
                 }
             } catch (Exception ex) {

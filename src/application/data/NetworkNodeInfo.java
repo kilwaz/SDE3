@@ -40,7 +40,7 @@ public class NetworkNodeInfo{
         this.hostName = hostName;
     }
 
-    public Boolean getReachable() {
+    public Boolean isReachable() {
         return reachable;
     }
 
