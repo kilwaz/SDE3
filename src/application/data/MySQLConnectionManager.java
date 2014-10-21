@@ -15,23 +15,26 @@ public class MySQLConnectionManager {
     create table node(
         id INT NOT NULL AUTO_INCREMENT,
         program_id INT,
-        node_type VARCHAR(100),
-        PRIMARY KEY (id));
+        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode'),
+        PRIMARY KEY (id),
+        FOREIGN KEY (program_id) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
     create table node_details(
         id INT NOT NULL AUTO_INCREMENT,
         node_id INT,
         object_name VARCHAR(100),
-        object_class VARCHAR(100),
+        object_class enum('java.lang.Double','java.lang.Integer','java.lang.String'),
         object_value BLOB,
-        PRIMARY KEY (id));
+        PRIMARY KEY (id),
+        FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
-    create table split(
+    create table switch2(
         id INT NOT NULL AUTO_INCREMENT,
         node_id INT,
         target VARCHAR(100),
         enabled BOOL,
-        PRIMARY KEY (id));
+        PRIMARY KEY (id),
+        FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
     */
 
     public MySQLConnectionManager() {

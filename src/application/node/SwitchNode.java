@@ -26,22 +26,22 @@ public class SwitchNode extends DrawableNode {
 
     public SwitchNode(Integer id, Integer programId) {
         super(id, programId);
-        DataBank.loadSplits(this);
+        DataBank.loadSwitches(this);
         if (aSwitches.size() < 4) {
-            DataBank.createNewSplit("target", this, true);
+            DataBank.createNewSwitch("target", this, true);
         }
     }
 
     public SwitchNode(Double x, Double y, String containedText) {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        DataBank.loadSplits(this);
+        DataBank.loadSwitches(this);
     }
 
     public void updateSplitTarget(Integer splitId, String target) {
         for (Switch aSwitch : aSwitches) {
             if (aSwitch.getId().equals(splitId)) {
                 aSwitch.setTarget(target);
-                DataBank.saveSplit(aSwitch);
+                DataBank.saveSwitch(aSwitch);
             }
         }
 
@@ -51,7 +51,7 @@ public class SwitchNode extends DrawableNode {
         for (Switch aSwitch : aSwitches) {
             if (aSwitch.getId().equals(splitId)) {
                 aSwitch.setEnabled(enabled);
-                DataBank.saveSplit(aSwitch);
+                DataBank.saveSwitch(aSwitch);
             }
         }
     }
@@ -82,7 +82,7 @@ public class SwitchNode extends DrawableNode {
         return savableAttributes;
     }
 
-    public void addSplit(Switch aSwitch) {
+    public void addSwitch(Switch aSwitch) {
         aSwitches.add(aSwitch);
     }
 
