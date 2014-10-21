@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <StackPane fx:id="stackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="application.gui.Controller">
@@ -132,6 +132,15 @@
                         </AnchorPane>
                     </items>
                 </SplitPane>
+                <HBox fx:id="statusBar" prefHeight="10">
+                    <children>
+                        <Label fx:id="activeThreads">
+                            <padding>
+                                <Insets top="1" right="5" bottom="1" left="5"/>
+                            </padding>
+                        </Label>
+                    </children>
+                </HBox>
             </children>
         </VBox>
     </children>

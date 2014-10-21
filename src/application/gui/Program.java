@@ -3,6 +3,8 @@ package application.gui;
 import application.data.DataBank;
 import application.node.SourceNode;
 import application.node.SwitchNode;
+import application.utils.SDERunnable;
+import application.utils.SDEThread;
 import application.utils.ThreadManager;
 
 import java.util.HashMap;
@@ -45,18 +47,16 @@ public class Program {
     }
 
     public Boolean compile() {
-        class CompileRunnable implements Runnable {
+        class CompileRunnable extends SDERunnable {
             CompileRunnable() {
             }
 
-            public void run() {
+            public void threadRun() {
                 flowController.compile();
             }
         }
 
-        Thread t = new Thread(new CompileRunnable());
-        ThreadManager.getInstance().addThread(t);
-        t.start();
+        new SDEThread(new CompileRunnable());
 
         // err this should return what the threaded compile returns but not sure how to do that yet..
         return true;

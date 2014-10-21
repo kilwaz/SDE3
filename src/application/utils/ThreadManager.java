@@ -1,18 +1,20 @@
 package application.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import application.gui.Controller;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ThreadManager {
     private static ThreadManager threadManager;
-    private List<Thread> runningThreads;
+    private CopyOnWriteArrayList<SDEThread> runningThreads;
+    private Integer activeThreads = 0;
 
     public ThreadManager() {
         threadManager = this;
-        runningThreads = new ArrayList<Thread>();
+        runningThreads = new CopyOnWriteArrayList<SDEThread>();
     }
 
-    public void addThread(Thread thread) {
+    public synchronized void addThread(SDEThread thread) {
         runningThreads.add(thread);
     }
 
@@ -22,7 +24,25 @@ public class ThreadManager {
 //        }
     }
 
+    public synchronized void threadStarted() {
+        activeThreads++;
+        if (Controller.getInstance() != null) {
+            Controller.getInstance().updateThreadCount(activeThreads);
+        }
+    }
+
+    public synchronized void threadFinished() {
+        activeThreads--;
+        if (Controller.getInstance() != null) {
+            Controller.getInstance().updateThreadCount(activeThreads);
+        }
+    }
+
     public static ThreadManager getInstance() {
         return threadManager;
+    }
+
+    public synchronized Integer getActiveThreads() {
+        return activeThreads;
     }
 }

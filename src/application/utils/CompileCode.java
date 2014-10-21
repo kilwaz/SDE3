@@ -30,12 +30,12 @@ public class CompileCode {
                     "import application.gui.*;" +
                     "import application.test.*;" +
                     "import application.net.*;" +
-                    "public class " + className + " implements Runnable {" +
+                    "public class " + className + " extends SDERunnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String sourceReferenceId = \"" + sourceReferenceId + "\";" +
                     "   private HashMap<String, Object> params;" +
                     "" + source.getSource() + "" +
-                    "   public void run() {" +
+                    "   public void threadRun() {" +
                     "      FlowController.sourceStarted(this.sourceReferenceId);" +
                     "      function();" +
                     "      FlowController.sourceFinished(this.sourceReferenceId);" +

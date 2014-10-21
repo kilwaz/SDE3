@@ -1,6 +1,8 @@
 package application.net;
 
 import application.node.ConsoleNode;
+import application.utils.SDERunnable;
+import application.utils.SDEThread;
 import application.utils.SSHConnectionManager;
 import application.utils.ThreadManager;
 import com.jcraft.jsch.*;
@@ -371,8 +373,8 @@ public class SSHManager {
             sink = new PipedInputStream();
             source.connect(sink);
 
-            Thread t = new Thread(new Runnable() {
-                public void run() {
+            new SDEThread(new SDERunnable() {
+                public void threadRun() {
                     byte[] data = new byte[4096];
                     try {
                         int i = sink.read(data, 0, 4096);
@@ -403,8 +405,6 @@ public class SSHManager {
                     }
                 }
             });
-            t.start();
-            ThreadManager.getInstance().addThread(t);
 
             channel.setInputStream(pip);
             channel.setOutputStream(source);

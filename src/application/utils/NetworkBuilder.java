@@ -23,20 +23,18 @@ public class NetworkBuilder {
             System.out.println("Exception occurred while trying to retrieve networkAddress stack: " + ex);
         }
         for (Integer i = 1; i < 254; i++) {
-            Thread thread = new Thread(new buildNetwork(i.toString()));
-            ThreadManager.getInstance().addThread(thread);
-            thread.start();
+            new SDEThread(new BuildNetwork(i.toString()));
         }
     }
 
-    class buildNetwork implements Runnable {
+    class BuildNetwork extends SDERunnable {
         private String address;
 
-        buildNetwork(String address) {
+        BuildNetwork(String address) {
             this.address = address;
         }
 
-        public void run() {
+        public void threadRun() {
             String host = networkAddress + address;
             try {
                 if (InetAddress.getByName(host).isReachable(1100)) {

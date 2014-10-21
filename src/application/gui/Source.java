@@ -1,10 +1,10 @@
 package application.gui;
 
-import application.gui.Program;
+import application.data.DataBank;
 import application.node.SourceNode;
 import application.utils.CompileCode;
-import application.data.DataBank;
-import application.utils.ThreadManager;
+import application.utils.SDERunnable;
+import application.utils.SDEThread;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -120,16 +120,14 @@ public class Source {
                     e.printStackTrace();
                 }
 
-                Thread t = new Thread((Runnable) instance);
-                ThreadManager.getInstance().addThread(t);
-                t.start();
-                if (whileWaiting) {
-                    try {
-                        t.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                new SDEThread((SDERunnable) instance);
+//                if (whileWaiting) {
+//                    try {
+//                        t.join();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
             }
         }
     }

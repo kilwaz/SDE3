@@ -3,6 +3,7 @@ package application.gui;
 import application.data.DataBank;
 import application.gui.canvas.CanvasController;
 import application.node.*;
+import application.utils.ThreadManager;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -19,6 +20,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -80,6 +82,12 @@ public class Controller implements Initializable {
     @FXML
     private TabPane tabPaneSource;
 
+    @FXML
+    private HBox statusBar;
+
+    @FXML
+    private Label activeThreads;
+
     private CanvasController canvasController;
     private ContextMenu canvasFlowContextMenu;
     private ContextMenu programListContextMenu;
@@ -115,6 +123,9 @@ public class Controller implements Initializable {
         assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+
+        assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert activeThreads != null : "fx:id=\"activeThreads\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         flowTabPane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -448,7 +459,8 @@ public class Controller implements Initializable {
                 return program.toString();
             }
 
-            @Override public Program fromString(String input) {
+            @Override
+            public Program fromString(String input) {
                 Program program = DataBank.currentlyEditProgram;
                 program.setName(input);
                 return program;
@@ -496,6 +508,7 @@ public class Controller implements Initializable {
         });
 
         tabPaneSource.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
+        updateThreadCount(ThreadManager.getInstance().getActiveThreads());
     }
 
 
@@ -608,6 +621,22 @@ public class Controller implements Initializable {
 
     public static Controller getInstance() {
         return Controller.controller;
+    }
+
+    public void updateThreadCount(Integer threadCount) {
+        class OneShotTask implements Runnable {
+            Integer threadCount;
+
+            OneShotTask(Integer threadCount) {
+                this.threadCount = threadCount;
+            }
+
+            public void run() {
+                activeThreads.setText("Active threads: " + threadCount);
+            }
+        }
+
+        Platform.runLater(new OneShotTask(threadCount));
     }
 }
 
