@@ -64,24 +64,30 @@ public class SDEUtils {
         sshManager.runSSHCommand(new SSHCommand("sed -i 's/" + find + "/" + replace + "/' " + fileLocation, "]$", 1000));
     }
 
-    public static void runCMDCommand(String command) {
+    public static String runCMDCommand(String command) {
+        StringBuilder returnString = new StringBuilder();
+        returnString.append("");
         try {
             // Execute command
             Process child = Runtime.getRuntime().exec("cmd /C " + command);
-
             InputStream is = child.getInputStream();
             InputStream errSt = child.getErrorStream();
+
             int in = -1;
 
             while ((in = is.read()) != -1) {
                 System.out.print(((char) in));
+                returnString.append((char) in);
             }
             while ((in = errSt.read()) != -1) {
                 System.out.print(((char) in));
+                returnString.append((char) in);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return returnString.toString();
     }
 
     public static void svnUpdate(String targetDirectory, Integer revision) {
