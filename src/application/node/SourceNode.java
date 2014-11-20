@@ -2,10 +2,9 @@ package application.node;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.gui.AceTextArea;
 import application.gui.Controller;
-import application.gui.FlowController;
 import application.gui.Source;
-import application.gui.SourceTextArea;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -16,7 +15,24 @@ import java.util.List;
 
 public class SourceNode extends DrawableNode {
     private Source source = null;
-    private FlowController parentController;
+    private Color fillColour = Color.LIGHTGREEN;
+
+    public SourceNode(SourceNode sourceNode) {
+        this.source = new Source(this);
+
+        this.setId(-1);
+        this.setX(sourceNode.getX());
+        this.setY(sourceNode.getY());
+        this.setWidth(sourceNode.getWidth());
+        this.setHeight(sourceNode.getHeight());
+        this.setColor(sourceNode.getColor());
+        this.setScale(sourceNode.getScale());
+        super.setContainedText(sourceNode.getContainedText());
+        this.setProgramId(sourceNode.getProgramId());
+        this.setNextNodeToRun(sourceNode.getNextNodeToRun());
+
+        this.setSource(sourceNode.getSource().getSource());
+    }
 
     public SourceNode(Integer id, Integer programId) {
         super(id, programId);
@@ -34,7 +50,6 @@ public class SourceNode extends DrawableNode {
 
     public void setContainedText(String containedText) {
         super.setContainedText(containedText);
-        DataBank.saveNode(this);
     }
 
     public void setId(Integer id) {
@@ -43,9 +58,9 @@ public class SourceNode extends DrawableNode {
     }
 
     public List<SavableAttribute> getDataToSave() {
-        List<SavableAttribute> savableAttributes = new ArrayList<SavableAttribute>();
+        List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("Source", source.getSource().getClass().getName(), source.getSource()));
+        savableAttributes.add(new SavableAttribute("Source", getSource().getSource().getClass().getName(), getSource().getSource()));
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
@@ -54,40 +69,19 @@ public class SourceNode extends DrawableNode {
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
-        Tab tab = new Tab();
-        tab.setText(getContainedText());
-        tab.setId(getId().toString());
+        Tab tab = controller.createDefaultNodeTab(this);
+        AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
-        AnchorPane tabAnchorPane = new AnchorPane();
-        tabAnchorPane.getChildren().add(controller.createNodeNameField(this));
-        tabAnchorPane.getChildren().add(controller.createNodeNameLabel());
+        AceTextArea aceTextArea = new AceTextArea(this, "ace/mode/java");
 
-        SourceTextArea sourceTextArea = new SourceTextArea(this);
+        AnchorPane.setBottomAnchor(aceTextArea, 0.0);
+        AnchorPane.setLeftAnchor(aceTextArea, 11.0);
+        AnchorPane.setRightAnchor(aceTextArea, 0.0);
+        AnchorPane.setTopAnchor(aceTextArea, 50.0);
 
-        AnchorPane.setBottomAnchor(sourceTextArea, 0.0);
-        AnchorPane.setLeftAnchor(sourceTextArea, 11.0);
-        AnchorPane.setRightAnchor(sourceTextArea, 0.0);
-        AnchorPane.setTopAnchor(sourceTextArea, 50.0);
-
-        tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
-        tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
-
-        tabAnchorPane.getChildren().add(sourceTextArea);
-        tab.setContent(tabAnchorPane);
+        anchorPane.getChildren().add(aceTextArea);
 
         return tab;
-    }
-
-    public Color getFillColour() {
-        return Color.LIGHTGREEN;
-    }
-
-    public String getNodeType() {
-        return "SourceNode";
     }
 
     public void setSource(String sourceString) {
@@ -104,7 +98,25 @@ public class SourceNode extends DrawableNode {
         return this.source;
     }
 
+    public String getAceTextAreaText() {
+        return getSource().getSource();
+    }
+
+    public void setAceTextAreaText(String sourceText) {
+        getSource().setSource(sourceText);
+    }
+
     public void run() {
-        this.source.run(false, new HashMap<String, Object>());
+        this.getSource().run(true, new HashMap<>());
+    }
+
+    @Override
+    public Color getFillColour() {
+        return fillColour;
+    }
+
+    @Override
+    public void setFillColour(Color fillColour) {
+        this.fillColour = fillColour;
     }
 }

@@ -6,8 +6,6 @@ import application.gui.Controller;
 import application.utils.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -23,7 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -80,8 +77,8 @@ public class Main extends Application {
         }
 
         // System specific
-        System.setProperty("webdriver.chrome.driver", "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe");
-        System.setProperty("webdriver.ie.driver", "C:\\Program Files\\Internet Explorer\\iexplore.exe\"");
+        System.setProperty("webdriver.chrome.driver", AppParams.CHROME_DIRECTORY);
+        System.setProperty("webdriver.ie.driver", AppParams.IE_DIRECTORY);
 
         loadProgress.setProgress(1.0);
         showMainStage();
@@ -109,20 +106,18 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/ApplicationScene.fxml"));
         Scene scene = new Scene(root);
         mainStage.setScene(scene);
-        mainStage.setTitle("Spiralinks Development Engine V0.1");
-        mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            public void handle(WindowEvent we) {
-                // On Application Close
-                SSHConnectionManager.getInstance().closeConnections();
-                ThreadManager.getInstance().closeThreads();
-                BrowserManager.getInstance().closeBrowsers();
+        mainStage.setTitle(AppParams.APP_TITLE);
+        mainStage.setOnCloseRequest(we -> {
+            // On Application Close
+            SSHConnectionManager.getInstance().closeConnections();
+            ThreadManager.getInstance().closeThreads();
+            BrowserManager.getInstance().closeBrowsers();
 
-                // Cleans up any class or java files previously compiled.
-                String userHome = System.getProperty("user.home");
-                File dir = new File(userHome, "/SDE/programs");
-                if (dir.exists()) {
-                    for (File file : dir.listFiles()) file.delete();
-                }
+            // Cleans up any class or java files previously compiled.
+            String userHome = System.getProperty("user.home");
+            File dir = new File(userHome, "/SDE/programs");
+            if (dir.exists()) {
+                for (File file : dir.listFiles()) file.delete();
             }
         });
 
@@ -140,12 +135,9 @@ public class Main extends Application {
             FadeTransition fadeSplash = new FadeTransition(Duration.seconds(1.2), splashLayout);
             fadeSplash.setFromValue(1.0);
             fadeSplash.setToValue(0.0);
-            fadeSplash.setOnFinished(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    splashStage.hide();
-                    mainStage.show();
-                }
+            fadeSplash.setOnFinished(actionEvent -> {
+                splashStage.hide();
+                mainStage.show();
             });
             fadeSplash.play();
         }

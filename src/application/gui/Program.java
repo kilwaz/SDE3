@@ -1,11 +1,12 @@
 package application.gui;
 
 import application.data.DataBank;
-import application.node.SourceNode;
+import application.node.BashNode;
+import application.node.DrawableNode;
+import application.node.LinuxNode;
 import application.node.SwitchNode;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
-import application.utils.ThreadManager;
 
 import java.util.HashMap;
 
@@ -64,16 +65,34 @@ public class Program {
 
     public void run() {
         getFlowController().setSourceToBlack();
-        this.flowController.loadInstances();
-        ((SourceNode) this.flowController.getStartNode()).run();
+        getFlowController().loadInstances();
+        Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), false, true, new HashMap<>());
     }
 
-    public static void runHelper(String name, String referenceID, Boolean whileWaiting, HashMap<String, Object> map) {
+    public static void runHelper(String name, String referenceID, Boolean whileWaiting, Boolean main, HashMap<String, Object> map) {
         Object node = DataBank.getInstanceObject(referenceID, name);
         if (node instanceof Source) {
             ((Source) node).run(whileWaiting, map);
         } else if (node instanceof SwitchNode) {
             ((SwitchNode) node).run(whileWaiting, map);
+        } else if (node instanceof LinuxNode) {
+            ((LinuxNode) node).run(whileWaiting, map);
+        } else if (node instanceof BashNode) {
+            ((BashNode) node).run(whileWaiting, map);
+        }
+
+        // Main is only true when using the main path of execution
+        if (main) {
+            DrawableNode drawableNode = null;
+            if (node instanceof DrawableNode) {
+                drawableNode = ((DrawableNode) node);
+            } else if (node instanceof Source) {
+                drawableNode = ((Source) node).getParentSourceNode();
+            }
+
+            if (!drawableNode.getNextNodeToRun().isEmpty()) {
+                Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, true, main, map);
+            }
         }
     }
 

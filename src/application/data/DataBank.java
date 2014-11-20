@@ -258,6 +258,9 @@ public class DataBank {
                             true
                     );
 
+                    // This disables auto saving when running setters.  We don't want that while we are first populating the object
+                    drawableNode.setIsInitialising(true);
+
                     if (drawableNode != null) {
                         PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select node_id,object_name,object_class,object_value from node_details where node_id = ?");
                         preparedStatement.setInt(1, sourceResultSet.getInt("id"));
@@ -294,6 +297,8 @@ public class DataBank {
                     } else {
                         System.out.println("Error loading node id " + sourceResultSet.getInt("id") + " program id " + sourceResultSet.getInt("program_id") + " node type " + sourceResultSet.getString("node_type") + " - Node type is not recognised");
                     }
+
+                    drawableNode.setIsInitialising(false);
                 }
 
                 flowController.setStartNode(flowController.getNodeById(startNode));
@@ -306,7 +311,7 @@ public class DataBank {
     }
 
     public static void loadSwitches(SwitchNode switchNode) {
-        List<Switch> aSwitches = new ArrayList<Switch>();
+        List<Switch> aSwitches = new ArrayList<>();
 
         try {
             if (mySQLInstance == null) {

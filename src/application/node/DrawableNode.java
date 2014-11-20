@@ -2,11 +2,11 @@ package application.node;
 
 import application.data.SavableAttribute;
 import application.gui.canvas.DrawablePoint;
+import application.utils.AppParams;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,28 @@ public class DrawableNode {
     private Double scale = 1.0;
     private String containedText = "Unnamed";
     private Integer programId = -1;
+    private String nextNodeToRun = "";
+    private Boolean initialising = false;
+    private Color fillColour = Color.WHITE;
+
+    public static final List<String> NODE_NAMES = new ArrayList<>();
+
+    static {
+        NODE_NAMES.add("BashNode");
+        NODE_NAMES.add("ConsoleNode");
+        NODE_NAMES.add("InputNode");
+        NODE_NAMES.add("LinuxNode");
+        NODE_NAMES.add("SourceNode");
+        NODE_NAMES.add("SwitchNode");
+        NODE_NAMES.add("TestResultNode");
+    }
+
+    public DrawableNode() {
+    }
+
+    public DrawableNode(DrawableNode drawableNode) {
+
+    }
 
     public DrawableNode(Integer id, Integer programId) {
         this.programId = programId;
@@ -45,6 +67,7 @@ public class DrawableNode {
         savableAttributes.add(new SavableAttribute("Id", id.getClass().getName(), id));
         savableAttributes.add(new SavableAttribute("Y", y.getClass().getName(), y));
         savableAttributes.add(new SavableAttribute("ContainedText", containedText.getClass().getName(), containedText));
+        savableAttributes.add(new SavableAttribute("NextNodeToRun", nextNodeToRun.getClass().getName(), nextNodeToRun));
 
         return savableAttributes;
     }
@@ -55,7 +78,7 @@ public class DrawableNode {
         Double minimumNodeWidth = 50.0;
         Double nodeFontPadding = 5.0;
 
-        FontMetrics metrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(Font.font("Verdana", 12));
+        FontMetrics metrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(AppParams.getFont());
         Float fontWidth = metrics.computeStringWidth(getContainedText());
         if (fontWidth.doubleValue() + nodeFontPadding > minimumNodeWidth) {
             setWidth(fontWidth.doubleValue() + nodeFontPadding);
@@ -181,11 +204,30 @@ public class DrawableNode {
     }
 
     public Color getFillColour() {
-        return Color.WHITE;
+        return this.fillColour;
+    }
+
+    public void setFillColour(Color fillColour) {
+        this.fillColour = fillColour;
     }
 
     public String getNodeType() {
-        return "DrawableNode";
+        return this.getClass().getSimpleName();
+    }
+
+    public String getNextNodeToRun() {
+        return nextNodeToRun;
+    }
+
+    public void setNextNodeToRun(String nextNodeToRun) {
+        this.nextNodeToRun = nextNodeToRun;
+    }
+
+    public String getAceTextAreaText() {
+        return "";
+    }
+
+    public void setAceTextAreaText(String source) {
     }
 
     public Boolean isCoordInside(Double x, Double y) {
@@ -196,6 +238,14 @@ public class DrawableNode {
         }
 
         return false;
+    }
+
+    public Boolean isInitialising() {
+        return initialising;
+    }
+
+    public void setIsInitialising(Boolean initialising) {
+        this.initialising = initialising;
     }
 
     public String toString() {

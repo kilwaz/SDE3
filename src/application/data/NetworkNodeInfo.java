@@ -7,18 +7,18 @@ package application.data;
  * Time: 16:25
  * To change this template use File | Settings | File Templates.
  */
-public class NetworkNodeInfo{
+public class NetworkNodeInfo {
 
     private String hostAddress;
     private String hostName;
     private Boolean reachable;
 
 
-    public NetworkNodeInfo (){
+    public NetworkNodeInfo() {
 
     }
 
-    public NetworkNodeInfo(String hostAddress, String hostName, Boolean reachable){
+    public NetworkNodeInfo(String hostAddress, String hostName, Boolean reachable) {
         this.hostAddress = hostAddress;
         this.hostName = hostName;
         this.reachable = reachable;

@@ -13,6 +13,12 @@ public class TestResult {
     public TestResult() {
     }
 
+    public TestResult(TestResult testResult) {
+        this.outcome = testResult.getOutcome();
+        this.expected = testResult.getExpected();
+        this.duration = new Duration(testResult.getDuration().getMillis());
+    }
+
     public String getOutcome() {
         return this.outcome;
     }
@@ -29,7 +35,11 @@ public class TestResult {
         this.expected = expected;
     }
 
-    public String getDuration() {
+    public Duration getDuration() {
+        return this.duration;
+    }
+
+    public String getFormattedDuration() {
         if (duration == null) {
             return "-";
         } else {

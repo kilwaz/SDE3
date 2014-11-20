@@ -47,7 +47,9 @@ public class Source {
         if (!this.source.equals(source)) {
             this.compiled = false;
             this.source = source;
-            DataBank.saveNode(parentSourceNode);
+            if (!parentSourceNode.isInitialising()) {
+                DataBank.saveNode(parentSourceNode);
+            }
 
             Program program = DataBank.currentlyEditProgram;
             if (program != null) {

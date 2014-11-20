@@ -18,6 +18,25 @@ import java.util.List;
 
 public class TestResultNode extends DrawableNode {
     private ObservableList<TestResult> resultList = FXCollections.observableArrayList();
+    private Color fillColour = Color.LIGHTSTEELBLUE;
+
+    // This will make a copy of the node passed to it
+    public TestResultNode(TestResultNode testResultNode) {
+        this.setId(-1);
+        this.setX(testResultNode.getX());
+        this.setY(testResultNode.getY());
+        this.setWidth(testResultNode.getWidth());
+        this.setHeight(testResultNode.getHeight());
+        this.setColor(testResultNode.getColor());
+        this.setScale(testResultNode.getScale());
+        this.setContainedText(testResultNode.getContainedText());
+        this.setProgramId(testResultNode.getProgramId());
+        this.setNextNodeToRun(testResultNode.getNextNodeToRun());
+
+        // Do we want to copy all the test result data as well?
+        //this.resultList = FXCollections.observableArrayList();
+        //this.resultList.addAll(testResultNode.getResultList());
+    }
 
     public TestResultNode(Integer id, Integer programId) {
         super(id, programId);
@@ -58,9 +77,9 @@ public class TestResultNode extends DrawableNode {
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
-        Tab tab = new Tab();
+        Tab tab = controller.createDefaultNodeTab(this);
+        AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
-        AnchorPane tabAnchorPane = new AnchorPane();
         TableView<TestResult> resultsTable = new TableView<TestResult>();
         resultsTable.setId("resultsTable-" + getId());
 
@@ -91,29 +110,19 @@ public class TestResultNode extends DrawableNode {
         AnchorPane.setTopAnchor(resultsTable, 50.0);
         resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
-        tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
-
-        tabAnchorPane.getChildren().add(controller.createNodeNameField(this));
-        tabAnchorPane.getChildren().add(controller.createNodeNameLabel());
-        tabAnchorPane.getChildren().add(resultsTable);
-        tab.setText(getContainedText());
-        tab.setId(getId().toString());
-        tab.setContent(tabAnchorPane);
+        anchorPane.getChildren().add(resultsTable);
 
         return tab;
     }
 
+    @Override
     public Color getFillColour() {
-        return Color.LIGHTSTEELBLUE;
+        return fillColour;
     }
 
-    public String getNodeType() {
-        return "TestResultNode";
+    @Override
+    public void setFillColour(Color fillColour) {
+        this.fillColour = fillColour;
     }
 
     public ObservableList<TestResult> getResultList() {

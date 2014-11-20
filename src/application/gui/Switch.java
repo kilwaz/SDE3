@@ -8,6 +8,13 @@ public class Switch {
     private SwitchNode parent;
     private Integer id;
 
+    public Switch(Switch copySwitch, SwitchNode parent) {
+        this.enabled = copySwitch.isEnabled();
+        this.target = copySwitch.getTarget();
+        this.parent = parent;
+        this.id = -1;
+    }
+
     public Switch(Integer id, SwitchNode parent, String target, Boolean enabled) {
         this.target = target;
         this.id = id;

@@ -15,14 +15,23 @@
 
 <div id="editor">[[source]]</div>
 
-<script src="[[aceSource]]" type="text/javascript" charset="utf-8"></script>
+<script src="[[ace]]" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/tomorrow");
-    editor.getSession().setMode("ace/mode/java");
+    editor.getSession().setMode("[[mode]]");
+
     editor.on('change', function () {
-        java.test(editor.getValue());
+        java.setTextAreaValue(editor.getValue());
     });
+
+    function getSelectedText() {
+        return editor.session.getTextRange(editor.getSelectionRange());
+    }
+
+    function pasteText(pasteText) {
+        editor.insert(pasteText);
+    }
 </script>
 </body>
 </html>

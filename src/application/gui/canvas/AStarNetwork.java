@@ -1,8 +1,8 @@
 package application.gui.canvas;
 
+import application.data.DataBank;
 import application.gui.NodeConnection;
 import application.gui.Program;
-import application.data.DataBank;
 import application.node.DrawableNode;
 import javafx.scene.canvas.GraphicsContext;
 

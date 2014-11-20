@@ -5,6 +5,7 @@ import application.gui.Controller;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.DrawableNode;
+import application.utils.AppParams;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
@@ -118,7 +119,12 @@ public class CanvasController {
             // Connections
             AStarNetwork network = new AStarNetwork(nodeCornerPadding);
             for (NodeConnection connection : program.getFlowController().getConnections()) {
-                gc.setStroke(Color.BLACK);
+                if (connection.getConnectionType().equals(NodeConnection.MAIN_CONNECTION)) {
+                    gc.setStroke(Color.BLACK);
+                } else if (connection.getConnectionType().equals(NodeConnection.DYNAMIC_CONNECTION)) {
+                    gc.setStroke(Color.GRAY);
+                }
+
                 List<AStarPoint> solvedPath = network.solvePath(connection);
                 AStarPoint currentPoint = network.findStartAStarPointFromNode(connection.getConnectionStart()); // We must get the start after we have solved the path
                 for (AStarPoint path : solvedPath) {
@@ -137,7 +143,7 @@ public class CanvasController {
 
     public void drawNode(DrawableNode drawableNode) {
         gc.setStroke(drawableNode.getColor());
-        gc.setFont(Font.font("Verdana", 12));
+        gc.setFont(AppParams.getFont());
         gc.setLineWidth(1.0);
         gc.setFill(drawableNode.getFillColour());
 

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.StatusBar?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <StackPane fx:id="stackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
            minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="application.gui.Controller">
@@ -30,6 +31,15 @@
                         </Menu>
                     </menus>
                 </MenuBar>
+                <ToolBar fx:id="toolBar">
+                    <Button fx:id="runButtonToolBar">
+                        <graphic>
+                            <ImageView>
+                                <Image url="run.png"/>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </ToolBar>
                 <SplitPane fx:id="splitPanePageCentral" dividerPositions="0.22074468085106383"
                            maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                     <items>

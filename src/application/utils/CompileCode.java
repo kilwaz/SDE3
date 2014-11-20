@@ -53,19 +53,19 @@ public class CompileCode {
                     "      TestHelper.getResultSet(name, this.flowControllerReferenceId).addResult(testResult);" +
                     "   }" +
                     "   private void run(String name) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, false, new HashMap<String, Object>());" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, false, false, new HashMap<String, Object>());" +
                     "   }" +
                     "   private SSHManager ssh(String connection, String username, String password, String consoleName) {" +
                     "      return SDEUtils.openSSHSession(connection,username,password,consoleName,this.flowControllerReferenceId);" +
                     "   }" +
                     "   private void run(String name, HashMap<String, Object> map) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, false, map);" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, false, false, map);" +
                     "   }" +
                     "   private void runAndWait(String name) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, true, new HashMap<String, Object>());" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, true, false, new HashMap<String, Object>());" +
                     "   }" +
                     "   private void runAndWait(String name, HashMap<String, Object> map) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, true, map);" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, true, false, map);" +
                     "   }" +
                     "}";
 

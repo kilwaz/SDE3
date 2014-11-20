@@ -1,5 +1,7 @@
 package application.data;
 
+import application.utils.AppParams;
+
 import java.sql.*;
 
 public class MySQLConnectionManager {
@@ -15,7 +17,7 @@ public class MySQLConnectionManager {
     create table node(
         id INT NOT NULL AUTO_INCREMENT,
         program_id INT,
-        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode'),
+        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode'),
         PRIMARY KEY (id),
         FOREIGN KEY (program_id) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
@@ -28,7 +30,7 @@ public class MySQLConnectionManager {
         PRIMARY KEY (id),
         FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
-    create table switch2(
+    create table switch(
         id INT NOT NULL AUTO_INCREMENT,
         node_id INT,
         target VARCHAR(100),
@@ -41,7 +43,7 @@ public class MySQLConnectionManager {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             //connect = DriverManager.getConnection("jdbc:mysql://localhost:13390/sde?user=spiralinks&password=spiralinks");
-            connect = DriverManager.getConnection("jdbc:mysql://172.16.10.213/sde?user=spiralinks&password=spiralinks");
+            connect = DriverManager.getConnection(AppParams.MYSQL_CONNECTION);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {

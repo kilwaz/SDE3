@@ -4,13 +4,15 @@ import application.data.DataBank;
 import application.node.*;
 import javafx.scene.paint.Color;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FlowController {
     private DrawableNode startNode;
-    private List<DrawableNode> nodes = new ArrayList<DrawableNode>();
-    private List<NodeConnection> connections = new ArrayList<NodeConnection>();
+    private List<DrawableNode> nodes = new ArrayList<>();
+    private List<NodeConnection> connections = new ArrayList<>();
     private String referenceID;
     private Program parentProgram;
 
@@ -23,14 +25,22 @@ public class FlowController {
 
     public DrawableNode createNewNode(Integer id, Integer programId, String nodeType, Boolean isStartNode) {
         DrawableNode newNode = null;
-        if ("TestResultNode".equals(nodeType)) {
-            newNode = new TestResultNode(id, programId);
-        } else if ("SourceNode".equals(nodeType)) {
-            newNode = new SourceNode(id, programId);
-        } else if ("SwitchNode".equals(nodeType)) {
-            newNode = new SwitchNode(id, programId);
-        } else if ("ConsoleNode".equals(nodeType)) {
-            newNode = new ConsoleNode(id, programId);
+
+        // Here we are searching for the class by name and calling the constructor manually to get our DrawableNode object
+        try {
+            Class<?> clazz = Class.forName("application.node." + nodeType);
+            Constructor<?> ctor = clazz.getConstructor(Integer.class, Integer.class);
+            newNode = (DrawableNode) ctor.newInstance(new Object[]{id, programId});
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
 
         if (newNode != null) {
@@ -50,7 +60,7 @@ public class FlowController {
 
     public void removeNode(DrawableNode drawableNode) {
         nodes.remove(drawableNode);
-        ArrayList<NodeConnection> connectionsToRemove = new ArrayList<NodeConnection>();
+        ArrayList<NodeConnection> connectionsToRemove = new ArrayList<>();
         for (NodeConnection connection : connections) {
             if (connection.getConnectionStart() == drawableNode || connection.getConnectionEnd() == drawableNode) {
                 connectionsToRemove.add(connection);
@@ -131,6 +141,10 @@ public class FlowController {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
             } else if (node instanceof SwitchNode) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
+            } else if (node instanceof LinuxNode) {
+                DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
+            } else if (node instanceof BashNode) {
+                DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
             }
         }
     }
@@ -140,7 +154,7 @@ public class FlowController {
     }
 
     public List<DrawableNode> getClickedNodes(Double x, Double y) {
-        List<DrawableNode> nodeList = new ArrayList<DrawableNode>();
+        List<DrawableNode> nodeList = new ArrayList<>();
 
         for (DrawableNode node : nodes) {
             if (node.isCoordInside(x, y)) {
@@ -164,25 +178,26 @@ public class FlowController {
     public void checkConnections() {
         Boolean updateCanvas = false;
 
-        // Find new connections and creates them
+        // Find new connections set within a node and creates them
         for (DrawableNode startNode : nodes) {
             if (startNode instanceof SourceNode) {
                 String src = ((SourceNode) startNode).getSource().getSource();
 
                 for (DrawableNode endNode : getNodes()) {
-                    if (src.contains("run(\"" + endNode.getContainedText() + "\"")) {
+                    if (src.contains("run(\"" + endNode.getContainedText() + "\"") || src.contains("runAndWait(\"" + endNode.getContainedText() + "\"")) {
                         if (!connectionExists(startNode, endNode)) {
-                            NodeConnection newConnection = new NodeConnection(startNode, endNode);
+                            NodeConnection newConnection = new NodeConnection(startNode, endNode, NodeConnection.DYNAMIC_CONNECTION);
                             connections.add(newConnection);
                             updateCanvas = true;
                         }
                     }
                 }
             } else if (startNode instanceof SwitchNode) {
-                for (DrawableNode endNode : getNodes()) {
-                    List<Switch> aSwitches = ((SwitchNode) startNode).getSwitches();
+                List<Switch> aSwitches = ((SwitchNode) startNode).getSwitches();
 
+                for (DrawableNode endNode : getNodes()) {
                     Boolean createConnection = false;
+
                     for (Switch aSwitch : aSwitches) {
                         if ((aSwitch.getTarget().equals(endNode.getContainedText()) && aSwitch.isEnabled())) {
                             createConnection = true;
@@ -190,33 +205,81 @@ public class FlowController {
                     }
 
                     if (createConnection && !connectionExists(startNode, endNode)) {
-                        NodeConnection newConnection = new NodeConnection(startNode, endNode);
+                        NodeConnection newConnection = new NodeConnection(startNode, endNode, NodeConnection.DYNAMIC_CONNECTION);
                         connections.add(newConnection);
                         updateCanvas = true;
+                    }
+                }
+            } else if (startNode instanceof LinuxNode) {
+                String consoleName = ((LinuxNode) startNode).getConsoleName();
+
+                for (DrawableNode endNode : getNodes()) {
+                    Boolean createConnection = false;
+
+                    if (consoleName.equals(endNode.getContainedText())) {
+                        createConnection = true;
+                    }
+
+                    if (createConnection && !connectionExists(startNode, endNode)) {
+                        NodeConnection newConnection = new NodeConnection(startNode, endNode, NodeConnection.DYNAMIC_CONNECTION);
+                        connections.add(newConnection);
+                        updateCanvas = true;
+                    }
+                }
+            }
+
+            // Find connection that are set using the Next node input box
+            if (!startNode.getNextNodeToRun().isEmpty()) {
+                for (DrawableNode endNode : getNodes()) {
+                    if (startNode.getNextNodeToRun().equals(endNode.getContainedText())) {
+                        if (!connectionExists(startNode, endNode)) {
+                            NodeConnection newConnection = new NodeConnection(startNode, endNode, NodeConnection.MAIN_CONNECTION);
+                            connections.add(newConnection);
+                            updateCanvas = true;
+                        }
                     }
                 }
             }
         }
 
         // Checks old connections and removes ones that don't exist
-        List<NodeConnection> listToRemove = new ArrayList<NodeConnection>();
+        List<NodeConnection> listToRemove = new ArrayList<>();
         for (NodeConnection nodeConnection : connections) {
-            if (nodeConnection.getConnectionStart() instanceof SourceNode) {
-                if (!((SourceNode) nodeConnection.getConnectionStart()).getSource().getSource().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
-                    listToRemove.add(nodeConnection);
-                    updateCanvas = true;
-                }
-            } else if (nodeConnection.getConnectionStart() instanceof SwitchNode) {
-                List<Switch> aSwitches = ((SwitchNode) nodeConnection.getConnectionStart()).getSwitches();
-                String endContainedText = nodeConnection.getConnectionEnd().getContainedText();
-                Integer removeCount = 0;
-                for (Switch aSwitch : aSwitches) {
-                    if ((!aSwitch.getTarget().equals(endContainedText) || !aSwitch.isEnabled())) {
-                        removeCount++;
+            if (nodeConnection.getConnectionType().equals(NodeConnection.DYNAMIC_CONNECTION)) {
+                if (nodeConnection.getConnectionStart() instanceof SourceNode) {
+                    if (!((SourceNode) nodeConnection.getConnectionStart()).getSource().getSource().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                        if (!((SourceNode) nodeConnection.getConnectionStart()).getSource().getSource().contains("runAndWait(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                            listToRemove.add(nodeConnection);
+                            updateCanvas = true;
+                        }
+                    }
+                } else if (nodeConnection.getConnectionStart() instanceof SwitchNode) {
+                    List<Switch> aSwitches = ((SwitchNode) nodeConnection.getConnectionStart()).getSwitches();
+                    String endContainedText = nodeConnection.getConnectionEnd().getContainedText();
+                    Integer removeCount = 0;
+                    for (Switch aSwitch : aSwitches) {
+                        if ((!aSwitch.getTarget().equals(endContainedText) || !aSwitch.isEnabled())) {
+                            removeCount++;
+                        }
+                    }
+
+                    if (removeCount.equals(aSwitches.size())) {
+                        listToRemove.add(nodeConnection);
+                        updateCanvas = true;
+                    }
+                } else if (nodeConnection.getConnectionStart() instanceof LinuxNode) {
+                    String consoleName = ((LinuxNode) nodeConnection.getConnectionStart()).getConsoleName();
+                    String endContainedText = nodeConnection.getConnectionEnd().getContainedText();
+
+                    if ((!consoleName.equals(endContainedText))) {
+                        listToRemove.add(nodeConnection);
+                        updateCanvas = true;
                     }
                 }
+            }
 
-                if (removeCount.equals(aSwitches.size())) {
+            if (nodeConnection.getConnectionType().equals(NodeConnection.MAIN_CONNECTION)) {
+                if (!nodeConnection.getConnectionStart().getNextNodeToRun().equals(nodeConnection.getConnectionEnd().getContainedText())) {
                     listToRemove.add(nodeConnection);
                     updateCanvas = true;
                 }
@@ -258,11 +321,11 @@ public class FlowController {
         Controller.getInstance().updateCanvasControllerLater();
     }
 
-    public static SourceNode getSourceFromContainedText(String text) {
+    public static DrawableNode getNodeFromContainedText(String text) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node.getContainedText().equals(text)) {
-                    return (SourceNode) node;
+                    return node;
                 }
             }
         }
@@ -285,6 +348,20 @@ public class FlowController {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node instanceof SourceNode) {
                     if (((SourceNode) node).getSource() == source) {
+                        return program.getFlowController();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static FlowController getFlowControllerFromBash(Bash bash) {
+        for (Program program : DataBank.getPrograms()) {
+            for (DrawableNode node : program.getFlowController().getNodes()) {
+                if (node instanceof BashNode) {
+                    if (((BashNode) node).getBash() == bash) {
                         return program.getFlowController();
                     }
                 }

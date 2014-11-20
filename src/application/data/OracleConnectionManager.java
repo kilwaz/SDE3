@@ -1,5 +1,7 @@
 package application.data;
 
+import application.utils.AppParams;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,7 +14,7 @@ public class OracleConnectionManager {
     public OracleConnectionManager() {
         instance = this;
         try {
-            connection = DriverManager.getConnection("jdbc:oracle:thin:@172.16.10.181:1521:FOCALTST", "alex_spl_demo_v6", "alex_spl_demo_v6");
+            connection = DriverManager.getConnection(AppParams.ORACLE_CONNECTION, "alex_spl_demo_v6", "alex_spl_demo_v6");
             System.out.println("SUCCESS!");
         } catch (SQLException e) {
             System.out.println("Connection Failed! Check output console");
