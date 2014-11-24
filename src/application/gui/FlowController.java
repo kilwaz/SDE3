@@ -11,6 +11,7 @@ import java.util.List;
 
 public class FlowController {
     private DrawableNode startNode;
+    private DrawableNode selectedNode;
     private List<DrawableNode> nodes = new ArrayList<>();
     private List<NodeConnection> connections = new ArrayList<>();
     private String referenceID;
@@ -381,5 +382,13 @@ public class FlowController {
         }
 
         return null;
+    }
+
+    public DrawableNode getSelectedNode() {
+        return selectedNode;
+    }
+
+    public void setSelectedNode(DrawableNode selectedNode) {
+        this.selectedNode = selectedNode;
     }
 }

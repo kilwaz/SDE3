@@ -12,7 +12,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import java.util.List;
@@ -135,16 +134,24 @@ public class CanvasController {
 
             // Nodes boxes and contained text
             for (DrawableNode node : program.getFlowController().getNodes()) {
-                drawNode(node);
+                if (node == program.getFlowController().getSelectedNode()) {
+                    drawNode(node, true);
+                } else {
+                    drawNode(node, false);
+                }
             }
         }
     }
 
-
-    public void drawNode(DrawableNode drawableNode) {
+    public void drawNode(DrawableNode drawableNode, Boolean selected) {
         gc.setStroke(drawableNode.getColor());
         gc.setFont(AppParams.getFont());
-        gc.setLineWidth(1.0);
+        if (selected) {
+            gc.setLineWidth(4.0); // Highlights the currently selected node
+        } else {
+            gc.setLineWidth(1.0);
+        }
+
         gc.setFill(drawableNode.getFillColour());
 
         List<DrawablePoint> drawablePoints = drawableNode.getDrawablePoints();
@@ -161,6 +168,7 @@ public class CanvasController {
         gc.stroke();
         gc.fill();
         gc.closePath();
+        gc.setLineWidth(1.0);
 
         // Draw the start node arrow
         if (DataBank.currentlyEditProgram.getFlowController().getStartNode().equals(drawableNode)) {

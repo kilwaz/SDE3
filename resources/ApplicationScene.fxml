@@ -31,15 +31,7 @@
                         </Menu>
                     </menus>
                 </MenuBar>
-                <ToolBar fx:id="toolBar">
-                    <Button fx:id="runButtonToolBar">
-                        <graphic>
-                            <ImageView>
-                                <Image url="run.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                </ToolBar>
+                <ToolBar fx:id="toolBar"/>
                 <SplitPane fx:id="splitPanePageCentral" dividerPositions="0.22074468085106383"
                            maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                     <items>

@@ -5,6 +5,8 @@ import application.gui.canvas.CanvasController;
 import application.node.DrawableNode;
 import application.utils.AppParams;
 import application.utils.ThreadManager;
+import de.jensd.fx.fontawesome.AwesomeDude;
+import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -137,7 +139,7 @@ public class Controller implements Initializable {
 
         assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert toolBar != null : "fx:id=\"toolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert runButtonToolBar != null : "fx:id=\"runButtonToolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert runButtonToolBar != null : "fx:id=\"runButtonToolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         flowTabPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             canvasFlow.setWidth(newSceneWidth.intValue());
@@ -213,6 +215,10 @@ public class Controller implements Initializable {
 
                         // Finally we select the tab
                         selectTab(nodeTab);
+
+                        // Set the node as the selected node
+                        program.getFlowController().setSelectedNode(drawableNode);
+                        canvasController.drawProgram();
                     }
                 }
             }
@@ -444,24 +450,30 @@ public class Controller implements Initializable {
                 });
 
 
+        runButtonToolBar = AwesomeDude.createIconButton(AwesomeIcon.PLAY);
+        runButtonToolBar.setStyle("-fx-background-color: null;");
+        runButtonToolBar.setOnMouseEntered(event -> {
+            runButtonToolBar.setStyle("-fx-background-color: lightgray;");
+        });
+        runButtonToolBar.setOnMousePressed(event -> {
+            runButtonToolBar.setStyle("-fx-background-color: darkgray;");
+        });
+        runButtonToolBar.setOnMouseReleased(event -> {
+            runButtonToolBar.setStyle("-fx-background-color: lightgray;");
+        });
+        runButtonToolBar.setOnMouseExited(event -> {
+            runButtonToolBar.setStyle("-fx-background-color: null;");
+        });
         runButtonToolBar.setOnAction(event -> {
                     Program program = DataBank.currentlyEditProgram;
-                    program.run();
+                    if (program != null) {
+                        program.run();
+                    }
                 }
         );
 
-//        console.setOnKeyPressed(new EventHandler<KeyEvent>() {
-//            @Override
-//            public void handle(KeyEvent ke) {
-//                if (ke.getCode().equals(KeyCode.ENTER)) {
-//                    String consoleText = console.getText();
-//                    String commandText = consoleText.substring(consoleText.lastIndexOf("$") + 1, consoleText.length());
-//                    System.out.println("Sending -> " + commandText);
-//                    SSHManager sshManager = (SSHManager) DataBank.loadVariable("ssh", "27");
-//                    sshManager.sendShellCommand(commandText);
-//                }
-//            }
-//        });
+        toolBar.getItems().add(runButtonToolBar);
+        toolBar.getItems().add(new Separator());
 
         menuBarMenuItemQuit.setOnAction(event -> ((Stage) scene.getWindow()).close());
 

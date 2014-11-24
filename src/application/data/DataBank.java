@@ -177,6 +177,23 @@ public class DataBank {
         }
     }
 
+    public static void deleteSwitch(Switch deleteSwitch) {
+        try {
+            if (mySQLInstance == null) {
+                mySQLInstance = MySQLConnectionManager.getInstance();
+            }
+
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("delete from switch where id = ?");
+            if (preparedStatement != null) {
+                preparedStatement.setInt(1, deleteSwitch.getId());
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void saveNode(DrawableNode node) {
         try {
             if (mySQLInstance == null) {
