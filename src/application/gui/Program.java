@@ -1,10 +1,7 @@
 package application.gui;
 
 import application.data.DataBank;
-import application.node.BashNode;
 import application.node.DrawableNode;
-import application.node.LinuxNode;
-import application.node.SwitchNode;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 
@@ -66,34 +63,41 @@ public class Program {
     public void run() {
         getFlowController().setSourceToBlack();
         getFlowController().loadInstances();
-        Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), false, true, new HashMap<>());
+
+        class OneShotTask implements Runnable {
+            OneShotTask() {
+            }
+
+            public void run() {
+                Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), false, true, new HashMap<>());
+            }
+        }
+
+        // Starts the program in a new thread separate from the GUI thread.
+        new SDEThread(new OneShotTask());
     }
 
     public static void runHelper(String name, String referenceID, Boolean whileWaiting, Boolean main, HashMap<String, Object> map) {
         Object node = DataBank.getInstanceObject(referenceID, name);
         if (node instanceof Source) {
             ((Source) node).run(whileWaiting, map);
-        } else if (node instanceof SwitchNode) {
-            ((SwitchNode) node).run(whileWaiting, map);
-        } else if (node instanceof LinuxNode) {
-            ((LinuxNode) node).run(whileWaiting, map);
-        } else if (node instanceof BashNode) {
-            ((BashNode) node).run(whileWaiting, map);
+        } else if (node instanceof DrawableNode) {
+            ((DrawableNode) node).run(whileWaiting, map);
         }
 
         // Main is only true when using the main path of execution
-        if (main) {
-            DrawableNode drawableNode = null;
-            if (node instanceof DrawableNode) {
-                drawableNode = ((DrawableNode) node);
-            } else if (node instanceof Source) {
-                drawableNode = ((Source) node).getParentSourceNode();
-            }
-
-            if (!drawableNode.getNextNodeToRun().isEmpty()) {
-                Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, true, main, map);
-            }
+//        if (main) {
+        DrawableNode drawableNode = null;
+        if (node instanceof DrawableNode) {
+            drawableNode = ((DrawableNode) node);
+        } else if (node instanceof Source) {
+            drawableNode = ((Source) node).getParentSourceNode();
         }
+
+        if (drawableNode != null && drawableNode.getNextNodeToRun() != null && !drawableNode.getNextNodeToRun().isEmpty()) {
+            Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, true, main, map);
+        }
+//        }
     }
 
     public String toString() {

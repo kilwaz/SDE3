@@ -73,7 +73,7 @@ public class DataBank {
     public static void saveInstanceObject(String referenceID, String name, Object instance) {
         HashMap<String, Object> instances = programInstances.get(referenceID);
         if (instances == null) {
-            instances = new HashMap<String, Object>();
+            instances = new HashMap<>();
         }
 
         instances.put(name, instance);

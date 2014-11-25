@@ -9,6 +9,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DrawableNode {
@@ -35,13 +36,13 @@ public class DrawableNode {
         NODE_NAMES.add("SourceNode");
         NODE_NAMES.add("SwitchNode");
         NODE_NAMES.add("TestResultNode");
+        NODE_NAMES.add("TimerNode");
     }
 
     public DrawableNode() {
     }
 
     public DrawableNode(DrawableNode drawableNode) {
-
     }
 
     public DrawableNode(Integer id, Integer programId) {
@@ -228,6 +229,9 @@ public class DrawableNode {
     }
 
     public void setAceTextAreaText(String source) {
+    }
+
+    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
     }
 
     public Boolean isCoordInside(Double x, Double y) {

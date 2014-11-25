@@ -118,18 +118,30 @@ public class CanvasController {
             // Connections
             AStarNetwork network = new AStarNetwork(nodeCornerPadding);
             for (NodeConnection connection : program.getFlowController().getConnections()) {
+                // Bold lines for the selected node
+                if (connection.getConnectionStart() == program.getFlowController().getSelectedNode()
+                        || connection.getConnectionEnd() == program.getFlowController().getSelectedNode()) {
+                    gc.setLineWidth(2.0);
+                } else {
+                    gc.setLineWidth(1.0);
+                }
+
+                // Colours for different types of connection
                 if (connection.getConnectionType().equals(NodeConnection.MAIN_CONNECTION)) {
                     gc.setStroke(Color.BLACK);
                 } else if (connection.getConnectionType().equals(NodeConnection.DYNAMIC_CONNECTION)) {
                     gc.setStroke(Color.GRAY);
                 }
 
+                // Solution to path finding
                 List<AStarPoint> solvedPath = network.solvePath(connection);
                 AStarPoint currentPoint = network.findStartAStarPointFromNode(connection.getConnectionStart()); // We must get the start after we have solved the path
                 for (AStarPoint path : solvedPath) {
                     gc.strokeLine(currentPoint.getX() + offsetWidth, currentPoint.getY() + offsetHeight, path.getX() + offsetWidth, path.getY() + offsetHeight);
                     currentPoint = path;
                 }
+
+                gc.setLineWidth(1.0);
             }
 
             // Nodes boxes and contained text
@@ -146,8 +158,10 @@ public class CanvasController {
     public void drawNode(DrawableNode drawableNode, Boolean selected) {
         gc.setStroke(drawableNode.getColor());
         gc.setFont(AppParams.getFont());
+
+        // Highlights the currently selected node with bolder line
         if (selected) {
-            gc.setLineWidth(4.0); // Highlights the currently selected node
+            gc.setLineWidth(4.0);
         } else {
             gc.setLineWidth(1.0);
         }

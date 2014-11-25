@@ -138,13 +138,7 @@ public class FlowController {
         for (DrawableNode node : nodes) {
             if (node instanceof SourceNode) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((SourceNode) node).getSource());
-            } else if (node instanceof TestResultNode) {
-                DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
-            } else if (node instanceof SwitchNode) {
-                DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
-            } else if (node instanceof LinuxNode) {
-                DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
-            } else if (node instanceof BashNode) {
+            } else if (node != null) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
             }
         }
