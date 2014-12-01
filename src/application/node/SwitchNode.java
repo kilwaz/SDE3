@@ -119,7 +119,7 @@ public class SwitchNode extends DrawableNode {
     public void run(Boolean whileWaiting, HashMap<String, Object> map) {
         for (Switch aSwitch : aSwitches) {
             if (aSwitch.isEnabled()) {
-                Program.runHelper(aSwitch.getTarget(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), whileWaiting, false, map);
+                Program.runHelper(aSwitch.getTarget(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), this, whileWaiting, false, map);
             }
         }
     }

@@ -6,16 +6,18 @@ import javafx.scene.paint.Color;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class FlowController {
     private DrawableNode startNode;
     private DrawableNode selectedNode;
     private List<DrawableNode> nodes = new ArrayList<>();
     private List<NodeConnection> connections = new ArrayList<>();
+    private List<NodeConnection> activeConnections = Collections.synchronizedList(new ArrayList<>());
     private String referenceID;
     private Program parentProgram;
+    private ActiveRefreshTimer activeRefreshTimer = null;
+    private Timer currentTimer;
 
     public FlowController(Program parentProgram) {
         this.parentProgram = parentProgram;
@@ -297,6 +299,16 @@ public class FlowController {
         return false;
     }
 
+    public NodeConnection getConnection(DrawableNode start, DrawableNode end) {
+        for (NodeConnection nodeConnection : connections) {
+            if (nodeConnection.getConnectionStart() == start && nodeConnection.getConnectionEnd() == end) {
+                return nodeConnection;
+            }
+        }
+
+        return null;
+    }
+
     public static void sourceStarted(String reference) {
         SourceNode sourceNode = FlowController.getSourceFromReference(reference);
         sourceNode.setColor(Color.RED);
@@ -378,11 +390,47 @@ public class FlowController {
         return null;
     }
 
+    public void addActiveConnection(NodeConnection nodeConnection) {
+        activeConnections.add(nodeConnection);
+        triggerActiveTimer();
+    }
+
     public DrawableNode getSelectedNode() {
         return selectedNode;
     }
 
     public void setSelectedNode(DrawableNode selectedNode) {
         this.selectedNode = selectedNode;
+    }
+
+    public void triggerActiveTimer() {
+        if (currentTimer == null) {
+            currentTimer = new Timer();  //At this line a new Thread will be created
+            currentTimer.schedule(new ActiveRefreshTimer(), 30); //delay in milliseconds
+        }
+    }
+
+    class ActiveRefreshTimer extends TimerTask {
+        @Override
+        public void run() {
+            currentTimer.cancel();
+            List<NodeConnection> removalList = new ArrayList<>();
+            for (NodeConnection connection : activeConnections) {
+                connection.degradeGradient();
+                if (!connection.isTriggeredGradient()) {
+                    removalList.add(connection);
+                }
+            }
+
+            activeConnections.removeAll(removalList);
+
+            Controller.getInstance().updateCanvasControllerLater();
+
+            currentTimer = null;
+
+            if (activeConnections.size() > 0) {
+                triggerActiveTimer();
+            }
+        }
     }
 }

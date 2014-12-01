@@ -619,12 +619,7 @@ public class Controller implements Initializable {
 
     // Use this one when not on GUI thread
     public void updateCanvasControllerLater() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                canvasController.drawProgram();
-            }
-        });
+        Platform.runLater(canvasController::drawProgram);
     }
 
     public void showError(Dialogs dialogs) {

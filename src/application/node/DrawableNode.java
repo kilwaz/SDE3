@@ -3,12 +3,14 @@ package application.node;
 import application.data.SavableAttribute;
 import application.gui.canvas.DrawablePoint;
 import application.utils.AppParams;
+import application.utils.ClassFinder;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,14 +31,18 @@ public class DrawableNode {
     public static final List<String> NODE_NAMES = new ArrayList<>();
 
     static {
-        NODE_NAMES.add("BashNode");
-        NODE_NAMES.add("ConsoleNode");
-        NODE_NAMES.add("InputNode");
-        NODE_NAMES.add("LinuxNode");
-        NODE_NAMES.add("SourceNode");
-        NODE_NAMES.add("SwitchNode");
-        NODE_NAMES.add("TestResultNode");
-        NODE_NAMES.add("TimerNode");
+        // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
+
+        List<Class<?>> classes = ClassFinder.find("application.node");
+
+        for (Class clazz : classes) {
+            String simpleClassName = clazz.getSimpleName();
+
+            if (simpleClassName.endsWith("Node") && !"DrawableNode".equals(simpleClassName)) {
+                NODE_NAMES.add(clazz.getSimpleName());
+                Collections.sort(NODE_NAMES);
+            }
+        }
     }
 
     public DrawableNode() {

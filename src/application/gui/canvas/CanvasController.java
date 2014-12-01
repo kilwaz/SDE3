@@ -126,11 +126,11 @@ public class CanvasController {
                     gc.setLineWidth(1.0);
                 }
 
-                // Colours for different types of connection
-                if (connection.getConnectionType().equals(NodeConnection.MAIN_CONNECTION)) {
-                    gc.setStroke(Color.BLACK);
-                } else if (connection.getConnectionType().equals(NodeConnection.DYNAMIC_CONNECTION)) {
-                    gc.setStroke(Color.GRAY);
+                // Get colours for different types of connection
+                if (connection.isTriggeredGradient()) {
+                    gc.setStroke(connection.getRunGradientColor());
+                } else {
+                    gc.setStroke(connection.getBaseColor());
                 }
 
                 // Solution to path finding
