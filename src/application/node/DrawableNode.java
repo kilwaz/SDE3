@@ -1,5 +1,6 @@
 package application.node;
 
+import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.canvas.DrawablePoint;
 import application.utils.AppParams;
@@ -26,7 +27,6 @@ public class DrawableNode {
     private Integer programId = -1;
     private String nextNodeToRun = "";
     private Boolean initialising = false;
-    private Color fillColour = Color.WHITE;
 
     public static final List<String> NODE_NAMES = new ArrayList<>();
 
@@ -211,11 +211,7 @@ public class DrawableNode {
     }
 
     public Color getFillColour() {
-        return this.fillColour;
-    }
-
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
+        return DataBank.getNodeColours().getNodeColour(getNodeType()).getColour();
     }
 
     public String getNodeType() {

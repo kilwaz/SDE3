@@ -1,6 +1,7 @@
 package application.gui;
 
 import application.data.DataBank;
+import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
 import application.node.DrawableNode;
 import application.utils.AppParams;
@@ -158,8 +159,8 @@ public class Controller implements Initializable {
 
         canvasController = new CanvasController(canvasFlow);
 
-        canvasFlow.setOnMouseDragged(event -> canvasController.canvasDragged(event));
-        canvasFlow.setOnMousePressed(event -> canvasController.canvasMouseDown(event));
+        canvasFlow.setOnMouseDragged(canvasController::canvasDragged);
+        canvasFlow.setOnMousePressed(canvasController::canvasMouseDown);
         canvasFlow.setOnMouseReleased(event -> skipCanvasClick = canvasController.canvasMouseUp(event));
 
         canvasFlow.setOnScroll(event -> {
@@ -238,6 +239,7 @@ public class Controller implements Initializable {
 
                     List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
 
+                    // This is when right clicking on a specific node, you get the edit node menu
                     if (clickNodes.size() > 0) {
                         DrawableNode drawableNode = clickNodes.get(0);
 
@@ -323,11 +325,12 @@ public class Controller implements Initializable {
                         colorPicker.setValue(drawableNode.getFillColour());
                         colorPicker.setStyle("-fx-background-color: null; -fx-color-label-visible: false;");
 
-                        colorPicker.setOnAction(new EventHandler() {
-                            public void handle(Event t) {
-                                drawableNode.setFillColour(colorPicker.getValue());
-                                canvasController.drawProgram();
-                            }
+                        colorPicker.setOnAction(t -> {
+                            NodeColour nodeColour = new NodeColour(colorPicker.getValue(), drawableNode.getNodeType());
+                            DataBank.getNodeColours().addNodeColour(nodeColour);
+                            DataBank.saveNodeColour(nodeColour);
+
+                            canvasController.drawProgram();
                         });
 
                         header.getChildren().add(nodeText);
@@ -342,7 +345,7 @@ public class Controller implements Initializable {
 
                         canvasPopOver.show(canvasFlow, event.getScreenX(), event.getScreenY());
                         canvasPopOver.setContentNode(node);
-                    } else {
+                    } else { // This is when not right clicking on a node, you get the create node menu
                         canvasPopOver.hide();
 
                         List<MenuItem> nodeMenuItems = new ArrayList<>();
@@ -472,9 +475,11 @@ public class Controller implements Initializable {
                 }
         );
 
+        // Setup tool bar  here
         toolBar.getItems().add(runButtonToolBar);
         toolBar.getItems().add(new Separator());
 
+        // Setup menu bar here
         menuBarMenuItemQuit.setOnAction(event -> ((Stage) scene.getWindow()).close());
 
         tabPaneSource.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
@@ -589,9 +594,17 @@ public class Controller implements Initializable {
         tab.setId(node.getId().toString());
 
         AnchorPane tabAnchorPane = new AnchorPane();
+
+        VBox vbox = new VBox(5);
+        vbox.setLayoutX(11);
+        vbox.setLayoutY(13);
+        vbox.setAlignment(Pos.BASELINE_LEFT);
+
+        vbox.setMaxWidth(Integer.MAX_VALUE);
+        AnchorPane.setLeftAnchor(vbox, 0.0);
+        AnchorPane.setRightAnchor(vbox, 0.0);
+
         HBox hbox = new HBox(5);
-        hbox.setLayoutX(11);
-        hbox.setLayoutY(13);
         hbox.setAlignment(Pos.CENTER);
         hbox.getChildren().add(createNodeNameLabel());
         hbox.getChildren().add(createNodeNameField(node));
@@ -599,14 +612,18 @@ public class Controller implements Initializable {
         hbox.getChildren().add(createNextNodeLabel());
         hbox.getChildren().add(createNextNodeField(node));
 
-        tabAnchorPane.getChildren().add(hbox);
+        vbox.getChildren().add(hbox);
+        vbox.getChildren().add(new Separator());
+
+        tabAnchorPane.getChildren().add(vbox);
 
         tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
         tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
+
         AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
         AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
         AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
+        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
 
         tab.setContent(tabAnchorPane);
 

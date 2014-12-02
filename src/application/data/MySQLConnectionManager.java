@@ -12,6 +12,8 @@ public class MySQLConnectionManager {
         id INT NOT NULL AUTO_INCREMENT,
         name VARCHAR(100),
         start_node INT,
+        view_x DOUBLE,
+        view_y DOUBLE,
         PRIMARY KEY (id));
 
     create table node(
@@ -41,6 +43,15 @@ public class MySQLConnectionManager {
         enabled BOOL,
         PRIMARY KEY (id),
         FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
+
+    create table node_colour(
+        id INT NOT NULL AUTO_INCREMENT,
+        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode'),
+        colour_r INT,
+        colour_g INT,
+        colour_b INT,
+        PRIMARY KEY (id));
+
     */
 
     public MySQLConnectionManager() {

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class TimerNode extends DrawableNode {
-    private Color fillColour = Color.PLUM;
     private Integer milliSecsWait = 0;
 
     // This will make a copy of the node passed to it
@@ -121,15 +120,5 @@ public class TimerNode extends DrawableNode {
 
     public void setMilliSecsWait(Integer milliSecsWait) {
         this.milliSecsWait = milliSecsWait;
-    }
-
-    @Override
-    public Color getFillColour() {
-        return fillColour;
-    }
-
-    @Override
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
     }
 }

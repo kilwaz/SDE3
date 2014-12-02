@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 public class SwitchNode extends DrawableNode {
     private List<Switch> aSwitches = new ArrayList<>();
-    private Color fillColour = Color.LIGHTCYAN;
 
     private VBox switchRows;
 
@@ -253,15 +252,5 @@ public class SwitchNode extends DrawableNode {
         addSwitchRow.getChildren().add(addButton);
 
         return addSwitchRow;
-    }
-
-    @Override
-    public Color getFillColour() {
-        return fillColour;
-    }
-
-    @Override
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
     }
 }

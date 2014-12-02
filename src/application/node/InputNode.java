@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InputNode extends DrawableNode {
-    private Color fillColour = Color.PEACHPUFF;
 
     // This will make a copy of the node passed to it
     public InputNode(InputNode inputNode) {
@@ -52,15 +51,5 @@ public class InputNode extends DrawableNode {
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
-    }
-
-    @Override
-    public Color getFillColour() {
-        return fillColour;
-    }
-
-    @Override
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
     }
 }

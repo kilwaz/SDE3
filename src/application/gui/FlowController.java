@@ -18,6 +18,8 @@ public class FlowController {
     private Program parentProgram;
     private ActiveRefreshTimer activeRefreshTimer = null;
     private Timer currentTimer;
+    private Double viewOffsetWidth = 0d;
+    private Double viewOffsetHeight = 0d;
 
     public FlowController(Program parentProgram) {
         this.parentProgram = parentProgram;
@@ -431,6 +433,30 @@ public class FlowController {
             if (activeConnections.size() > 0) {
                 triggerActiveTimer();
             }
+        }
+    }
+
+    public Double getViewOffsetHeight() {
+        return viewOffsetHeight;
+    }
+
+    public void setViewOffsetHeight(Double viewOffsetHeight) {
+        if (viewOffsetHeight == null) {
+            this.viewOffsetHeight = 0d;
+        } else {
+            this.viewOffsetHeight = viewOffsetHeight;
+        }
+    }
+
+    public Double getViewOffsetWidth() {
+        return viewOffsetWidth;
+    }
+
+    public void setViewOffsetWidth(Double viewOffsetWidth) {
+        if (viewOffsetWidth == null) {
+            this.viewOffsetWidth = 0d;
+        } else {
+            this.viewOffsetWidth = viewOffsetWidth;
         }
     }
 }

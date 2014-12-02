@@ -18,7 +18,6 @@ import java.util.List;
 
 public class TestResultNode extends DrawableNode {
     private ObservableList<TestResult> resultList = FXCollections.observableArrayList();
-    private Color fillColour = Color.LIGHTSTEELBLUE;
 
     // This will make a copy of the node passed to it
     public TestResultNode(TestResultNode testResultNode) {
@@ -113,16 +112,6 @@ public class TestResultNode extends DrawableNode {
         anchorPane.getChildren().add(resultsTable);
 
         return tab;
-    }
-
-    @Override
-    public Color getFillColour() {
-        return fillColour;
-    }
-
-    @Override
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
     }
 
     public ObservableList<TestResult> getResultList() {

@@ -15,7 +15,6 @@ import java.util.List;
 
 public class SourceNode extends DrawableNode {
     private Source source = null;
-    private Color fillColour = Color.LIGHTGREEN;
 
     public SourceNode(SourceNode sourceNode) {
         this.source = new Source(this);
@@ -108,15 +107,5 @@ public class SourceNode extends DrawableNode {
 
     public void run() {
         this.getSource().run(true, new HashMap<>());
-    }
-
-    @Override
-    public Color getFillColour() {
-        return fillColour;
-    }
-
-    @Override
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
     }
 }

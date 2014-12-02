@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class BashNode extends DrawableNode {
-    private Color fillColor = Color.DARKKHAKI;
     private Bash bash = null;
 
     // This will make a copy of the node passed to it
@@ -99,13 +98,5 @@ public class BashNode extends DrawableNode {
             this.bash = new Bash(this);
         }
         return this.bash;
-    }
-
-    public Color getFillColour() {
-        return fillColor;
-    }
-
-    public void setFillColor(Color fillColor) {
-        this.fillColor = fillColor;
     }
 }

@@ -2,6 +2,8 @@ package application.node;
 
 import application.gui.Controller;
 import javafx.application.Platform;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
@@ -9,7 +11,6 @@ import javafx.scene.paint.Color;
 
 public class ConsoleNode extends DrawableNode {
     private TextArea consoleTextArea = new TextArea();
-    private Color fillColour = Color.CHOCOLATE;
 
     // This will make a copy of the node passed to it
     public ConsoleNode(ConsoleNode consoleNode) {
@@ -33,14 +34,6 @@ public class ConsoleNode extends DrawableNode {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
     }
 
-    public Color getFillColour() {
-        return fillColour;
-    }
-
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
-    }
-
     private String consoleToWrite = "";
 
     public void writeToConsole(String text) {
@@ -60,6 +53,10 @@ public class ConsoleNode extends DrawableNode {
         Platform.runLater(new OneShotTask());
     }
 
+    public void clearConsole() {
+        consoleTextArea.clear();
+    }
+
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
@@ -72,6 +69,16 @@ public class ConsoleNode extends DrawableNode {
         AnchorPane.setTopAnchor(consoleTextArea, 50.0);
 
         anchorPane.getChildren().add(consoleTextArea);
+
+        MenuItem menuItemNewProgram = new MenuItem("Clear All");
+        menuItemNewProgram.setOnAction(event1 -> {
+            clearConsole();
+        });
+
+        ContextMenu clearTextAreaContextMenu = new ContextMenu();
+        clearTextAreaContextMenu.getItems().add(menuItemNewProgram);
+
+        consoleTextArea.setContextMenu(clearTextAreaContextMenu);
 
         return tab;
     }

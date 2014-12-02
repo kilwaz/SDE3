@@ -17,11 +17,12 @@ import java.util.List;
 
 public class DataBank {
     static public Program currentlyEditProgram;
-    static private HashMap<Integer, Program> programs = new HashMap<Integer, Program>();
-    static private HashMap<String, HashMap<String, Object>> programVariables = new HashMap<String, HashMap<String, Object>>();
-    static private HashMap<String, HashMap<String, Object>> programInstances = new HashMap<String, HashMap<String, Object>>();
-    static private HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<String, HashMap<String, Object>>();
+    static private HashMap<Integer, Program> programs = new HashMap<>();
+    static private HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
+    static private HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
+    static private HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
     static private MySQLConnectionManager mySQLInstance;
+    static private NodeColours nodeColours = new NodeColours();
 
     static public List<String> getProgramNames() {
         List<String> nameList = new ArrayList<String>();
@@ -52,7 +53,7 @@ public class DataBank {
     public static void saveVariable(String name, Object object, String referenceID) {
         HashMap<String, Object> programVariable = programVariables.get(referenceID);
         if (programVariable == null) {
-            programVariable = new HashMap<String, Object>();
+            programVariable = new HashMap<>();
         }
         programVariable.put(name, object);
         programVariables.put(referenceID, programVariable);
@@ -99,11 +100,13 @@ public class DataBank {
                 mySQLInstance = MySQLConnectionManager.getInstance();
             }
 
-            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("update program set name = ?, start_node = ? where id = ?");
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("update program set name = ?, start_node = ?, view_offset_width = ?, view_offset_height = ? where id = ?");
             if (preparedStatement != null) {
                 preparedStatement.setString(1, program.getName());
                 preparedStatement.setInt(2, program.getFlowController().getStartNode().getId());
-                preparedStatement.setInt(3, program.getId());
+                preparedStatement.setDouble(3, program.getFlowController().getViewOffsetWidth());
+                preparedStatement.setDouble(4, program.getFlowController().getViewOffsetHeight());
+                preparedStatement.setInt(5, program.getId());
                 preparedStatement.executeUpdate();
                 preparedStatement.close();
             }
@@ -258,14 +261,18 @@ public class DataBank {
                 mySQLInstance = MySQLConnectionManager.getInstance();
             }
 
-            ResultSet resultSet = mySQLInstance.runQuery("select id,name,start_node from program;");
+            ResultSet resultSet = mySQLInstance.runQuery("select id,name,start_node,view_offset_height,view_offset_width from program;");
             while (resultSet.next()) {
                 String name = resultSet.getString("name");
                 Integer programId = resultSet.getInt("id");
                 Integer startNode = resultSet.getInt("start_node");
                 Program loadedProgram = new Program(name, programId);
-                ResultSet sourceResultSet = mySQLInstance.runQuery("select id,program_id,node_type from node where program_id = '" + programId + "';");
+
                 FlowController flowController = loadedProgram.getFlowController();
+                flowController.setViewOffsetHeight(resultSet.getDouble("view_offset_height"));
+                flowController.setViewOffsetWidth(resultSet.getDouble("view_offset_width"));
+
+                ResultSet sourceResultSet = mySQLInstance.runQuery("select id,program_id,node_type from node where program_id = '" + programId + "';");
 
                 while (sourceResultSet.next()) {
                     DrawableNode drawableNode = flowController.createNewNode(
@@ -389,6 +396,58 @@ public class DataBank {
         return aSwitch;
     }
 
+    public static void loadNodeColours(NodeColours nodeColours) {
+        try {
+            if (mySQLInstance == null) {
+                mySQLInstance = MySQLConnectionManager.getInstance();
+            }
+
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select id, colour_r, colour_g, colour_b, node_type from node_colour");
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                NodeColour nodeColour = new NodeColour(resultSet.getInt("colour_r"), resultSet.getInt("colour_g"), resultSet.getInt("colour_b"), resultSet.getString("node_type"));
+                nodeColours.addNodeColour(nodeColour);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveNodeColour(NodeColour nodeColour) {
+        try {
+            if (mySQLInstance == null) {
+                mySQLInstance = MySQLConnectionManager.getInstance();
+            }
+
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("update node_colour set colour_r = ?, colour_g = ?, colour_b = ? where node_type = ?");
+            if (preparedStatement != null) {
+                preparedStatement.setInt(1, nodeColour.getRed());
+                preparedStatement.setInt(2, nodeColour.getGreen());
+                preparedStatement.setInt(3, nodeColour.getBlue());
+                preparedStatement.setString(4, nodeColour.getNodeType());
+                int result = preparedStatement.executeUpdate();
+                preparedStatement.close();
+
+                if (result == 0) { // If record does not exist insert a new one..
+                    nodeColour.setId(getNextId("node_colour")); // Gets the next ID for a node that is about to be created
+
+                    preparedStatement = mySQLInstance.getPreparedStatement("insert into node_colour values (default, ?, ?, ?, ?)");
+                    if (preparedStatement != null) {
+                        preparedStatement.setString(1, nodeColour.getNodeType());
+                        preparedStatement.setInt(2, nodeColour.getRed());
+                        preparedStatement.setInt(3, nodeColour.getGreen());
+                        preparedStatement.setInt(4, nodeColour.getBlue());
+                        preparedStatement.executeUpdate();
+                        preparedStatement.close();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static Integer getNextId(String tableName) {
         Integer autoIncrement = -1;
         try {
@@ -405,5 +464,9 @@ public class DataBank {
             e.printStackTrace();
         }
         return autoIncrement;
+    }
+
+    public static NodeColours getNodeColours() {
+        return nodeColours;
     }
 }

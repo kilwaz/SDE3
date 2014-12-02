@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class LinuxNode extends DrawableNode {
-    private Color fillColour = Color.GOLDENROD;
     private String address = "";
     private String username = "";
     private String password = "";
@@ -201,13 +200,4 @@ public class LinuxNode extends DrawableNode {
         this.consoleName = consoleName;
     }
 
-    @Override
-    public Color getFillColour() {
-        return fillColour;
-    }
-
-    @Override
-    public void setFillColour(Color fillColour) {
-        this.fillColour = fillColour;
-    }
 }

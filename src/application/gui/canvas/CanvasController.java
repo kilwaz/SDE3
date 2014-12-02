@@ -58,6 +58,8 @@ public class CanvasController {
         } else if (event.isPrimaryButtonDown() && isDraggingCanvas) {
             offsetWidth = initialOffsetWidth - (initialMouseX - event.getX());
             offsetHeight = initialOffsetHeight - (initialMouseY - event.getY());
+            DataBank.currentlyEditProgram.getFlowController().setViewOffsetWidth(offsetWidth);
+            DataBank.currentlyEditProgram.getFlowController().setViewOffsetHeight(offsetHeight);
             drawProgram();
         }
     }
@@ -94,6 +96,7 @@ public class CanvasController {
         } else if (isDraggingCanvas) {
             isDraggingCanvas = false;
             Controller.getInstance().setCursor(Cursor.DEFAULT);
+            DataBank.saveProgram(DataBank.currentlyEditProgram);
             return true;
         } else {
             return false;
@@ -111,6 +114,9 @@ public class CanvasController {
         Program program = DataBank.currentlyEditProgram;
 
         if (program != null) {
+            offsetWidth = program.getFlowController().getViewOffsetWidth();
+            offsetHeight = program.getFlowController().getViewOffsetHeight();
+
             setFlowNodeScale(program.getFlowController().getStartNode(), this.scale);
             gc.clearRect(0, 0, canvasFlow.getWidth(), canvasFlow.getHeight()); // Clears the screen
 
