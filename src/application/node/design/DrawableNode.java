@@ -1,4 +1,4 @@
-package application.node;
+package application.node.design;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
@@ -6,6 +6,7 @@ import application.gui.Trigger;
 import application.gui.canvas.DrawablePoint;
 import application.utils.AppParams;
 import application.utils.ClassFinder;
+import application.utils.NodeRunParams;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
@@ -13,7 +14,6 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 public class DrawableNode {
@@ -35,12 +35,12 @@ public class DrawableNode {
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
 
-        List<Class<?>> classes = ClassFinder.find("application.node");
+        List<Class<?>> classes = ClassFinder.find("application.node.implementations");
 
         for (Class clazz : classes) {
             String simpleClassName = clazz.getSimpleName();
 
-            if (simpleClassName.endsWith("Node") && !"DrawableNode".equals(simpleClassName)) {
+            if (simpleClassName.endsWith("Node")) {
                 NODE_NAMES.add(clazz.getSimpleName());
                 Collections.sort(NODE_NAMES);
             }
@@ -232,7 +232,7 @@ public class DrawableNode {
         return "";
     }
 
-    public void setAceTextAreaText(String source) {
+    public void setAceTextAreaText(String logic) {
     }
 
     public List<String> getAvailableTriggers() {
@@ -243,7 +243,7 @@ public class DrawableNode {
         return new ArrayList<>();
     }
 
-    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
     }
 
     public Boolean isCoordInside(Double x, Double y) {

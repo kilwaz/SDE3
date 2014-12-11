@@ -1,10 +1,12 @@
-package application.node;
+package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.net.SSHCommand;
 import application.net.SSHManager;
+import application.node.design.DrawableNode;
+import application.utils.NodeRunParams;
 import application.utils.SDEUtils;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -20,7 +22,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class LinuxNode extends DrawableNode {
@@ -100,15 +101,20 @@ public class LinuxNode extends DrawableNode {
             if (!textField.getText().isEmpty()) {
                 String[] fieldId = textField.getId().split("-");
 
-                if (fieldId[1].equals("address")) {
-                    address = textField.getText();
-                } else if (fieldId[1].equals("username")) {
-                    username = textField.getText();
-                } else if (fieldId[1].equals("password")) {
-                    password = textField.getText();
-                } else if (fieldId[1].equals("consoleName")) {
-                    consoleName = textField.getText();
-                    DataBank.currentlyEditProgram.getFlowController().checkConnections();
+                switch (fieldId[1]) {
+                    case "address":
+                        address = textField.getText();
+                        break;
+                    case "username":
+                        username = textField.getText();
+                        break;
+                    case "password":
+                        password = textField.getText();
+                        break;
+                    case "consoleName":
+                        consoleName = textField.getText();
+                        DataBank.currentlyEditProgram.getFlowController().checkConnections();
+                        break;
                 }
 
                 //program.getFlowController().checkConnections(); // Renaming a node might make or break connections
@@ -124,8 +130,8 @@ public class LinuxNode extends DrawableNode {
         return row;
     }
 
-    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
-        String script = (String) map.get("bashScript");
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
+        String script = (String) nodeRunParams.getOneTimeVariable();
         //System.out.println("Running linux, script is.. " + script);
         if (script != null) {
             String userHome = System.getProperty("user.home");
@@ -134,7 +140,11 @@ public class LinuxNode extends DrawableNode {
             File root = new File(userHome, "/SDE"); // On Windows running on C:\, this is C:\java.
             //File root = new File("C:\\developers\\alex\\svnwork\\focal-v6-demo-test\\SDE\\out\\production\\SDE\\programs"); // On Windows running on C:\, this is C:\java.
             File sourceFile = new File(root, "programs/bash.script");
-            sourceFile.getParentFile().mkdirs();
+            Boolean mkDirResult = sourceFile.getParentFile().mkdirs();
+
+            if (!mkDirResult) {
+                System.out.println("Issue creating directory " + sourceFile.getAbsolutePath());
+            }
 
             //System.out.println("Writing file " + script);
 
@@ -159,7 +169,7 @@ public class LinuxNode extends DrawableNode {
     }
 
     public List<SavableAttribute> getDataToSave() {
-        List<SavableAttribute> savableAttributes = new ArrayList<SavableAttribute>();
+        List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.add(new SavableAttribute("Address", address.getClass().getName(), address));
         savableAttributes.add(new SavableAttribute("Username", username.getClass().getName(), username));
@@ -208,5 +218,10 @@ public class LinuxNode extends DrawableNode {
         } else {
             return false;
         }
+    }
+
+    public void closeSSHManager() {
+        sshManager.close();
+        Controller.getInstance().updateCanvasControllerLater();
     }
 }

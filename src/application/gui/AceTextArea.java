@@ -1,6 +1,6 @@
 package application.gui;
 
-import application.node.DrawableNode;
+import application.node.design.DrawableNode;
 import javafx.concurrent.Worker;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
@@ -14,7 +14,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -38,13 +37,11 @@ public class AceTextArea extends VBox {
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(bashEditorURL.toExternalForm().replaceFirst("file:/", "")));
             content = new String(encoded, "UTF8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        content = content.replace("[[source]]", node.getAceTextAreaText());
+        content = content.replace("[[logic]]", node.getAceTextAreaText());
         content = content.replace("[[ace]]", editorURL.toExternalForm());
         content = content.replace("[[mode]]", textMode);
 
@@ -68,9 +65,7 @@ public class AceTextArea extends VBox {
                     String pasteText = "";
                     try {
                         pasteText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-                    } catch (UnsupportedFlavorException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
+                    } catch (UnsupportedFlavorException | IOException e) {
                         e.printStackTrace();
                     }
                     jsObject.call("pasteText", pasteText);

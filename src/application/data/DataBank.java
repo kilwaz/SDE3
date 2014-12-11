@@ -4,9 +4,9 @@ import application.gui.FlowController;
 import application.gui.Program;
 import application.gui.Switch;
 import application.gui.Trigger;
-import application.node.DrawableNode;
-import application.node.SwitchNode;
-import application.node.TriggerNode;
+import application.node.design.DrawableNode;
+import application.node.implementations.SwitchNode;
+import application.node.implementations.TriggerNode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -278,13 +278,13 @@ public class DataBank {
                 flowController.setViewOffsetHeight(resultSet.getDouble("view_offset_height"));
                 flowController.setViewOffsetWidth(resultSet.getDouble("view_offset_width"));
 
-                ResultSet sourceResultSet = mySQLInstance.runQuery("select id,program_id,node_type from node where program_id = '" + programId + "';");
+                ResultSet nodeResultSet = mySQLInstance.runQuery("select id,program_id,node_type from node where program_id = '" + programId + "';");
 
-                while (sourceResultSet.next()) {
+                while (nodeResultSet.next()) {
                     DrawableNode drawableNode = flowController.createNewNode(
-                            sourceResultSet.getInt("id"),
-                            sourceResultSet.getInt("program_id"),
-                            sourceResultSet.getString("node_type"),
+                            nodeResultSet.getInt("id"),
+                            nodeResultSet.getInt("program_id"),
+                            nodeResultSet.getString("node_type"),
                             true
                     );
 
@@ -293,7 +293,7 @@ public class DataBank {
 
                     if (drawableNode != null) {
                         PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select node_id,object_name,object_class,object_value from node_details where node_id = ?");
-                        preparedStatement.setInt(1, sourceResultSet.getInt("id"));
+                        preparedStatement.setInt(1, nodeResultSet.getInt("id"));
                         ResultSet nodeDetailsResultSet = preparedStatement.executeQuery();
                         while (nodeDetailsResultSet.next()) {
                             Method method;
@@ -325,7 +325,7 @@ public class DataBank {
                             }
                         }
                     } else {
-                        System.out.println("Error loading node id " + sourceResultSet.getInt("id") + " program id " + sourceResultSet.getInt("program_id") + " node type " + sourceResultSet.getString("node_type") + " - Node type is not recognised");
+                        System.out.println("Error loading node id " + nodeResultSet.getInt("id") + " program id " + nodeResultSet.getInt("program_id") + " node type " + nodeResultSet.getString("node_type") + " - Node type is not recognised");
                     }
 
                     drawableNode.setIsInitialising(false);

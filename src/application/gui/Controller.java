@@ -3,7 +3,7 @@ package application.gui;
 import application.data.DataBank;
 import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
-import application.node.DrawableNode;
+import application.node.design.DrawableNode;
 import application.utils.AppParams;
 import application.utils.ThreadManager;
 import de.jensd.fx.fontawesome.AwesomeDude;
@@ -87,7 +87,7 @@ public class Controller implements Initializable {
     private javafx.scene.canvas.Canvas canvasFlow;
 
     @FXML
-    private TabPane tabPaneSource;
+    private TabPane nodeTabPane;
 
     @FXML
     private StatusBar statusBar;
@@ -132,7 +132,7 @@ public class Controller implements Initializable {
 
         assert canvasFlow != null : "fx:id=\"canvasFlow\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
-        assert tabPaneSource != null : "fx:id=\"tabPaneSource\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert nodeTabPane != null : "fx:id=\"tabPaneSource\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
@@ -199,7 +199,7 @@ public class Controller implements Initializable {
 
                         Tab nodeTab = null;
                         // We loop to see if the tab already exists for this node
-                        for (Tab loopTab : tabPaneSource.getTabs()) {
+                        for (Tab loopTab : nodeTabPane.getTabs()) {
                             if (loopTab.getId() != null) {
                                 if (loopTab.getId().equals(drawableNode.getId().toString())) {
                                     nodeTab = loopTab;
@@ -211,7 +211,7 @@ public class Controller implements Initializable {
                         // If the tab does not already exist we create it
                         if (nodeTab == null) {
                             nodeTab = drawableNode.createInterface();
-                            tabPaneSource.getTabs().add(nodeTab);
+                            nodeTabPane.getTabs().add(nodeTab);
                         }
 
                         // Finally we select the tab
@@ -290,7 +290,7 @@ public class Controller implements Initializable {
                             canvasController.drawProgram();
 
                             Tab tabToRemove = null;
-                            for (Tab loopTab : tabPaneSource.getTabs()) {
+                            for (Tab loopTab : nodeTabPane.getTabs()) {
                                 if (loopTab.getId() != null) {
                                     if (loopTab.getId().equals(removedNode.getId().toString())) {
                                         tabToRemove = loopTab;
@@ -483,7 +483,7 @@ public class Controller implements Initializable {
         // Setup menu bar here
         menuBarMenuItemQuit.setOnAction(event -> ((Stage) scene.getWindow()).close());
 
-        tabPaneSource.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
+        nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());
     }
 
@@ -493,7 +493,7 @@ public class Controller implements Initializable {
             Program program = DataBank.currentlyEditProgram;
 
             try {
-                Class<?> clazz = Class.forName("application.node." + className);
+                Class<?> clazz = Class.forName("application.node.implementations." + className);
                 Constructor<?> ctor = clazz.getConstructor(Double.class, Double.class, String.class);
                 DrawableNode newNode = (DrawableNode) ctor.newInstance(lastCanvasContextMenuX - canvasController.getOffsetWidth(), lastCanvasContextMenuY - canvasController.getOffsetHeight(), "New " + className);
 
@@ -518,7 +518,7 @@ public class Controller implements Initializable {
     }
 
     public void selectTab(Tab tab) {
-        SingleSelectionModel<Tab> selectionModel = tabPaneSource.getSelectionModel();
+        SingleSelectionModel<Tab> selectionModel = nodeTabPane.getSelectionModel();
         selectionModel.select(tab);
     }
 
@@ -535,7 +535,7 @@ public class Controller implements Initializable {
                 nodeToUpdate.setContainedText(textField.getText());
                 program.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
-                tabPaneSource.getTabs().stream().filter(loopTab -> loopTab.getId() != null).forEach(loopTab -> {
+                nodeTabPane.getTabs().stream().filter(loopTab -> loopTab.getId() != null).forEach(loopTab -> {
                     if (loopTab.getId().equals(nodeToUpdate.getId().toString())) {
                         loopTab.setText(textField.getText());
                     }

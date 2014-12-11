@@ -1,7 +1,8 @@
 package application.gui;
 
 import application.data.DataBank;
-import application.node.*;
+import application.node.design.DrawableNode;
+import application.node.implementations.*;
 import javafx.scene.paint.Color;
 
 import java.lang.reflect.Constructor;
@@ -25,7 +26,7 @@ public class FlowController {
 
     public FlowController(Program parentProgram) {
         this.parentProgram = parentProgram;
-        startNode = new SourceNode(30.0, 30.0, "Start");
+        startNode = new LogicNode(30.0, 30.0, "Start");
         startNode.setId(-1);
         referenceID = parentProgram.getId().toString();
     }
@@ -35,7 +36,7 @@ public class FlowController {
 
         // Here we are searching for the class by name and calling the constructor manually to get our DrawableNode object
         try {
-            Class<?> clazz = Class.forName("application.node." + nodeType);
+            Class<?> clazz = Class.forName("application.node.implementations." + nodeType);
             Constructor<?> ctor = clazz.getConstructor(Integer.class, Integer.class);
             newNode = (DrawableNode) ctor.newInstance(new Object[]{id, programId});
         } catch (ClassNotFoundException e) {
@@ -52,7 +53,7 @@ public class FlowController {
 
         if (newNode != null) {
             nodes.add(newNode);
-            if (isStartNode && newNode instanceof SourceNode) {
+            if (isStartNode && newNode instanceof LogicNode) {
                 startNode = newNode;
             }
         }
@@ -107,8 +108,8 @@ public class FlowController {
         Boolean result = true;
 
         for (DrawableNode node : nodes) {
-            if (node instanceof SourceNode) {
-                result = ((SourceNode) node).getSource().isCompiled();
+            if (node instanceof LogicNode) {
+                result = ((LogicNode) node).getLogic().isCompiled();
                 if (!result) {
                     break;
                 }
@@ -126,8 +127,8 @@ public class FlowController {
         Controller.getInstance().updateCanvasControllerLater();
 
         for (DrawableNode node : nodes) {
-            if (node instanceof SourceNode) {
-                Boolean result = ((SourceNode) node).getSource().compile();
+            if (node instanceof LogicNode) {
+                Boolean result = ((LogicNode) node).getLogic().compile();
                 if (result) {
                     node.setColor(Color.LIMEGREEN);
                 } else {
@@ -145,8 +146,8 @@ public class FlowController {
 
         for (DrawableNode node : nodes) {
             // This adds the runnable node objects
-            if (node instanceof SourceNode) {
-                DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((SourceNode) node).getSource());
+            if (node instanceof LogicNode) {
+                DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((LogicNode) node).getLogic());
             } else if (node != null) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
             }
@@ -189,8 +190,8 @@ public class FlowController {
 
         // Find new connections set within a node and creates them
         for (DrawableNode startNode : nodes) {
-            if (startNode instanceof SourceNode) {
-                String src = ((SourceNode) startNode).getSource().getSource();
+            if (startNode instanceof LogicNode) {
+                String src = ((LogicNode) startNode).getLogic().getLogic();
 
                 for (DrawableNode endNode : getNodes()) {
                     if (src.contains("run(\"" + endNode.getContainedText() + "\"") || src.contains("runAndWait(\"" + endNode.getContainedText() + "\"")) {
@@ -277,9 +278,9 @@ public class FlowController {
         List<NodeConnection> listToRemove = new ArrayList<>();
         for (NodeConnection nodeConnection : connections) {
             if (nodeConnection.getConnectionType().equals(NodeConnection.DYNAMIC_CONNECTION)) {
-                if (nodeConnection.getConnectionStart() instanceof SourceNode) {
-                    if (!((SourceNode) nodeConnection.getConnectionStart()).getSource().getSource().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
-                        if (!((SourceNode) nodeConnection.getConnectionStart()).getSource().getSource().contains("runAndWait(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                if (nodeConnection.getConnectionStart() instanceof LogicNode) {
+                    if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                        if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("runAndWait(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
                             listToRemove.add(nodeConnection);
                             updateCanvas = true;
                         }
@@ -360,14 +361,14 @@ public class FlowController {
     }
 
     public static void sourceStarted(String reference) {
-        SourceNode sourceNode = FlowController.getSourceFromReference(reference);
-        sourceNode.setColor(Color.RED);
+        LogicNode logicNode = FlowController.getSourceFromReference(reference);
+        logicNode.setColor(Color.RED);
         Controller.getInstance().updateCanvasControllerLater();
     }
 
     public static void sourceFinished(String reference) {
-        SourceNode sourceNode = FlowController.getSourceFromReference(reference);
-        sourceNode.setColor(Color.BLACK);
+        LogicNode logicNode = FlowController.getSourceFromReference(reference);
+        logicNode.setColor(Color.BLACK);
         Controller.getInstance().updateCanvasControllerLater();
     }
 
@@ -410,11 +411,11 @@ public class FlowController {
         return null;
     }
 
-    public static FlowController getFlowControllerFromSource(Source source) {
+    public static FlowController getFlowControllerFromLogic(Logic logic) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
-                if (node instanceof SourceNode) {
-                    if (((SourceNode) node).getSource() == source) {
+                if (node instanceof LogicNode) {
+                    if (((LogicNode) node).getLogic() == logic) {
                         return program.getFlowController();
                     }
                 }
@@ -438,11 +439,11 @@ public class FlowController {
         return null;
     }
 
-    public static SourceNode getSourceFromReference(String reference) {
+    public static LogicNode getSourceFromReference(String reference) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node.getId().toString().equals(reference)) {
-                    return (SourceNode) node;
+                    return (LogicNode) node;
                 }
             }
         }
@@ -473,7 +474,9 @@ public class FlowController {
     class ActiveRefreshTimer extends TimerTask {
         @Override
         public void run() {
-            currentTimer.cancel();
+            if (currentTimer != null) {
+                currentTimer.cancel();
+            }
             List<NodeConnection> removalList = new ArrayList<>();
             for (NodeConnection connection : activeConnections) {
                 connection.degradeGradient();

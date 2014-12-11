@@ -1,6 +1,6 @@
 package application.gui;
 
-import application.node.DrawableNode;
+import application.node.design.DrawableNode;
 import javafx.scene.paint.Color;
 
 public class NodeConnection {

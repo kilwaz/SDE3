@@ -4,8 +4,8 @@ import application.data.OracleConnectionManager;
 import application.gui.FlowController;
 import application.net.SSHCommand;
 import application.net.SSHManager;
-import application.node.ConsoleNode;
-import application.node.DrawableNode;
+import application.node.design.DrawableNode;
+import application.node.implementations.ConsoleNode;
 import com.jcraft.jsch.JSch;
 
 import java.io.*;

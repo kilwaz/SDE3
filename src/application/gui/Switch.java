@@ -1,6 +1,6 @@
 package application.gui;
 
-import application.node.SwitchNode;
+import application.node.implementations.SwitchNode;
 
 public class Switch {
     private Boolean enabled = false;

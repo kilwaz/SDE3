@@ -3,7 +3,7 @@ package application.gui.canvas;
 import application.data.DataBank;
 import application.gui.NodeConnection;
 import application.gui.Program;
-import application.node.DrawableNode;
+import application.node.design.DrawableNode;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;

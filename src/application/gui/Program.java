@@ -1,11 +1,10 @@
 package application.gui;
 
 import application.data.DataBank;
-import application.node.DrawableNode;
+import application.node.design.DrawableNode;
+import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
-
-import java.util.HashMap;
 
 public class Program {
     private String name;
@@ -69,7 +68,7 @@ public class Program {
             }
 
             public void run() {
-                Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), null, false, true, new HashMap<>());
+                Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), null, false, true, new NodeRunParams());
             }
         }
 
@@ -77,21 +76,21 @@ public class Program {
         new SDEThread(new OneShotTask());
     }
 
-    public static void runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean main, HashMap<String, Object> map) {
+    public static void runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean main, NodeRunParams nodeRunParams) {
         class OneShotTask implements Runnable {
             OneShotTask() {
             }
 
             public void run() {
                 Object node = DataBank.getInstanceObject(referenceID, name);
-                if (node instanceof Source) {
-                    Source source = ((Source) node);
-                    triggerConnections(sourceNode, ((Source) node).getParentSourceNode().getContainedText(), referenceID);
-                    source.run(whileWaiting, map);
+                if (node instanceof Logic) {
+                    Logic logic = ((Logic) node);
+                    triggerConnections(sourceNode, ((Logic) node).getParentLogicNode().getContainedText(), referenceID);
+                    logic.run(whileWaiting, nodeRunParams);
                 } else if (node instanceof DrawableNode) {
                     DrawableNode drawableNode = (DrawableNode) node;
                     triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
-                    drawableNode.run(whileWaiting, map);
+                    drawableNode.run(whileWaiting, nodeRunParams);
                 } else {
                     System.out.println("Wasn't able to run the program '" + name + "' '" + referenceID + "'");
                 }
@@ -101,13 +100,13 @@ public class Program {
                 DrawableNode drawableNode = null;
                 if (node instanceof DrawableNode) {
                     drawableNode = ((DrawableNode) node);
-                } else if (node instanceof Source) {
-                    drawableNode = ((Source) node).getParentSourceNode();
+                } else if (node instanceof Logic) {
+                    drawableNode = ((Logic) node).getParentLogicNode();
                 }
 
                 if (drawableNode != null && drawableNode.getNextNodeToRun() != null && !drawableNode.getNextNodeToRun().isEmpty()) {
                     triggerConnections(drawableNode, drawableNode.getNextNodeToRun(), referenceID);
-                    Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, drawableNode, true, main, map);
+                    Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, drawableNode, true, main, nodeRunParams);
                 }
 //              }
             }
@@ -123,8 +122,8 @@ public class Program {
 
         Object node = DataBank.getInstanceObject(referenceID, targetNodeName);
         DrawableNode targetNode = null;
-        if (node instanceof Source) {
-            targetNode = ((Source) node).getParentSourceNode();
+        if (node instanceof Logic) {
+            targetNode = ((Logic) node).getParentLogicNode();
         } else if (node instanceof DrawableNode) {
             targetNode = (DrawableNode) node;
         }

@@ -2,7 +2,7 @@ package application.utils;
 
 import application.gui.Controller;
 import application.gui.FlowController;
-import application.gui.Source;
+import application.gui.Logic;
 import org.controlsfx.dialog.Dialogs;
 
 import javax.tools.JavaCompiler;
@@ -15,13 +15,13 @@ import java.nio.charset.Charset;
 public class CompileCode {
     static int counter = 0;
 
-    public static String compileCode(Source source) {
-        String className = "SDEClass" + source.getId() + "C" + counter;
+    public static String compileCode(Logic logic) {
+        String className = "SDEClass" + logic.getId() + "C" + counter;
         String flowControllerReferenceId = "[Unloaded FlowController]";
         try {
-            flowControllerReferenceId = FlowController.getFlowControllerFromSource(source).getReferenceID();
-            String sourceReferenceId = source.getId().toString();
-            String sourceString = "package programs;" +
+            flowControllerReferenceId = FlowController.getFlowControllerFromLogic(logic).getReferenceID();
+            String logicReferenceId = logic.getId().toString();
+            String logicString = "package programs;" +
                     "import application.utils.*;" +
                     "import application.data.*;" +
                     "import java.util.*;" +
@@ -30,19 +30,20 @@ public class CompileCode {
                     "import application.gui.*;" +
                     "import application.test.*;" +
                     "import application.net.*;" +
-                    "import application.node.*;" +
+                    "import application.node.implementations.*;" +
+                    "import application.node.design.*;" +
                     "public class " + className + " extends SDERunnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
-                    "   private String sourceReferenceId = \"" + sourceReferenceId + "\";" +
-                    "   private HashMap<String, Object> params;" +
-                    "" + source.getSource() + "" +
+                    "   private String logicReferenceId = \"" + logicReferenceId + "\";" +
+                    "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
+                    "" + logic.getLogic() + "" +
                     "   public void threadRun() {" +
-                    "      FlowController.sourceStarted(this.sourceReferenceId);" +
+                    "      FlowController.sourceStarted(this.logicReferenceId);" +
                     "      function();" +
-                    "      FlowController.sourceFinished(this.sourceReferenceId);" +
+                    "      FlowController.sourceFinished(this.logicReferenceId);" +
                     "   }" +
-                    "   public void init(HashMap<String, Object> params) {" +
-                    "      this.params = params;" +
+                    "   public void init(NodeRunParams nodeRunParams) {" +
+                    "      this.nodeRunParams = nodeRunParams;" +
                     "   }" +
                     "   private void save(String name, Object object) {" +
                     "      DataBank.saveVariable(name, object, this.flowControllerReferenceId);" +
@@ -54,19 +55,19 @@ public class CompileCode {
                     "      TestHelper.getResultSet(name, this.flowControllerReferenceId).addResult(testResult);" +
                     "   }" +
                     "   private void run(String name) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new HashMap<String, Object>());" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams());" +
                     "   }" +
                     "   private SSHManager ssh(String connection, String username, String password, String consoleName) {" +
                     "      return SDEUtils.openSSHSession(connection,username,password,consoleName,this.flowControllerReferenceId);" +
                     "   }" +
-                    "   private void run(String name, HashMap<String, Object> map) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, map);" +
+                    "   private void run(String name, NodeRunParams nodeRunParams) {" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, nodeRunParams);" +
                     "   }" +
                     "   private void runAndWait(String name) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new HashMap<String, Object>());" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams());" +
                     "   }" +
-                    "   private void runAndWait(String name, HashMap<String, Object> map) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, map);" +
+                    "   private void runAndWait(String name, NodeRunParams nodeRunParams) {" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, nodeRunParams);" +
                     "   }" +
                     "   private DrawableNode getNode(String name) {" +
                     "      return FlowController.getFlowControllerFromReference(this.flowControllerReferenceId).getNodeThisControllerFromContainedText(name);" +
@@ -79,9 +80,13 @@ public class CompileCode {
             File root = new File(userHome, "/SDE"); // On Windows running on C:\, this is C:\java.
             //File root = new File("C:\\developers\\alex\\svnwork\\focal-v6-demo-test\\SDE\\out\\production\\SDE\\programs"); // On Windows running on C:\, this is C:\java.
             File sourceFile = new File(root, "programs/" + className + ".java");
-            sourceFile.getParentFile().mkdirs();
+            Boolean mkDirResult = sourceFile.getParentFile().mkdirs();
 
-            new FileWriter(sourceFile).append(sourceString).close();
+            if (!mkDirResult) {
+                System.out.println("Error creating directory " + sourceFile.getAbsolutePath());
+            }
+
+            new FileWriter(sourceFile).append(logicString).close();
             // Compile source file.
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
@@ -96,14 +101,16 @@ public class CompileCode {
             if (errString.length() > 1) {
                 String lineNumber = errString.substring(errString.indexOf(className) + className.length() + 6);
                 lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
+                System.out.println("Error compiling " + logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString);
                 Controller.getInstance().showError(Dialogs.create()
                         .owner(null)
-                        .title("Compile error on " + source.getParentSourceNode().getContainedText())
+                        .title("Compile error on " + logic.getParentLogicNode().getContainedText())
                         .masthead("Error at line " + lineNumber)
                         .message(errString));
                 className = null;
             }
             if (outString.length() > 1) {
+                System.out.println("Error compiling " + outString);
                 Dialogs.create()
                         .owner(null)
                         .title("ERR")

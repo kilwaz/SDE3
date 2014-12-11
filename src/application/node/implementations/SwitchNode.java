@@ -1,10 +1,12 @@
-package application.node;
+package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.Program;
 import application.gui.Switch;
+import application.node.design.DrawableNode;
+import application.utils.NodeRunParams;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.Node;
@@ -16,7 +18,6 @@ import javafx.scene.paint.Color;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,10 +116,10 @@ public class SwitchNode extends DrawableNode {
         aSwitches.add(aSwitch);
     }
 
-    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         for (Switch aSwitch : aSwitches) {
             if (aSwitch.isEnabled()) {
-                Program.runHelper(aSwitch.getTarget(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), this, whileWaiting, false, map);
+                Program.runHelper(aSwitch.getTarget(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), this, whileWaiting, false, nodeRunParams);
             }
         }
     }

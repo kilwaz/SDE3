@@ -1,9 +1,11 @@
-package application.node;
+package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.Program;
+import application.node.design.DrawableNode;
+import application.utils.NodeRunParams;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -14,7 +16,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -106,7 +107,7 @@ public class TimerNode extends DrawableNode {
         return savableAttributes;
     }
 
-    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         try {
             TimeUnit.MILLISECONDS.sleep(milliSecsWait);
         } catch (InterruptedException e) {

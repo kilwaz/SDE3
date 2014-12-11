@@ -1,6 +1,6 @@
 package application.gui;
 
-import application.node.TriggerNode;
+import application.node.implementations.TriggerNode;
 
 public class Trigger {
     private Integer id = -1;

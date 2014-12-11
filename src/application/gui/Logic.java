@@ -1,8 +1,9 @@
 package application.gui;
 
 import application.data.DataBank;
-import application.node.SourceNode;
+import application.node.implementations.LogicNode;
 import application.utils.CompileCode;
+import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 
@@ -12,43 +13,42 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashMap;
 
-public class Source {
+public class Logic {
     private Boolean compiled = false;
-    private String source;
+    private String logic;
     private Object compiledInstance;
-    private SourceNode parentSourceNode;
+    private LogicNode parentLogicNode;
     private Integer id = -1;
     private String compiledClassName = "UNKNOWN";
 
-    public Source(SourceNode parentSourceNode) {
-        this.parentSourceNode = parentSourceNode;
-        this.source = "public void function() {\n" +
+    public Logic(LogicNode parentLogicNode) {
+        this.parentLogicNode = parentLogicNode;
+        this.logic = "public void function() {\n" +
                 "   System.out.println(\"Sample code\");\n" +
                 "}";
     }
 
-    public Source(SourceNode parentSourceNode, String source, Integer id) {
-        this.parentSourceNode = parentSourceNode;
-        this.source = source;
+    public Logic(LogicNode parentLogicNode, String logic, Integer id) {
+        this.parentLogicNode = parentLogicNode;
+        this.logic = logic;
         this.id = id;
     }
 
-    public SourceNode getParentSourceNode() {
-        return this.parentSourceNode;
+    public LogicNode getParentLogicNode() {
+        return this.parentLogicNode;
     }
 
-    public String getSource() {
-        return this.source;
+    public String getLogic() {
+        return this.logic;
     }
 
-    public void setSource(String source) {
-        if (!this.source.equals(source)) {
+    public void setLogic(String logic) {
+        if (!this.logic.equals(logic)) {
             this.compiled = false;
-            this.source = source;
-            if (!parentSourceNode.isInitialising()) {
-                DataBank.saveNode(parentSourceNode);
+            this.logic = logic;
+            if (!parentLogicNode.isInitialising()) {
+                DataBank.saveNode(parentLogicNode);
             }
 
             Program program = DataBank.currentlyEditProgram;
@@ -86,7 +86,7 @@ public class Source {
         return false;
     }
 
-    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         if (!this.compiled) {
             compile();
         }
@@ -99,24 +99,16 @@ public class Source {
                 URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{root.toURI().toURL()});
                 Class<?> cls = Class.forName("programs." + compiledClassName, true, classLoader);
                 instance = cls.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (MalformedURLException e) {
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | MalformedURLException e) {
                 e.printStackTrace();
             }
 
             if (instance != null) {
                 Method method;
                 try {
-                    method = instance.getClass().getMethod("init", HashMap.class);
-                    method.invoke(instance, map);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
+                    method = instance.getClass().getMethod("init", NodeRunParams.class);
+                    method.invoke(instance, nodeRunParams);
+                } catch (NoSuchMethodException | InvocationTargetException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();

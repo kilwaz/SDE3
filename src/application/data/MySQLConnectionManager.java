@@ -19,12 +19,12 @@ public class MySQLConnectionManager {
     create table node(
         id INT NOT NULL AUTO_INCREMENT,
         program_id INT,
-        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
         PRIMARY KEY (id),
         FOREIGN KEY (program_id) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
     ** Use this to add another enum type to the node table
-    alter table node change node_type node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode');
+    alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode');
     **
 
     create table node_details(
@@ -55,7 +55,7 @@ public class MySQLConnectionManager {
 
     create table node_colour(
         id INT NOT NULL AUTO_INCREMENT,
-        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
         colour_r INT,
         colour_g INT,
         colour_b INT,
@@ -68,9 +68,7 @@ public class MySQLConnectionManager {
             Class.forName("com.mysql.jdbc.Driver");
             //connect = DriverManager.getConnection("jdbc:mysql://localhost:13390/sde?user=spiralinks&password=spiralinks");
             connect = DriverManager.getConnection(AppParams.MYSQL_CONNECTION);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
 
@@ -90,10 +88,9 @@ public class MySQLConnectionManager {
     }
 
     public ResultSet runQuery(String query) {
-        Statement statement = null;
         ResultSet resultSet = null;
         try {
-            statement = connect.createStatement();
+            Statement statement = connect.createStatement();
             resultSet = statement.executeQuery(query);
         } catch (SQLException e) {
             e.printStackTrace();

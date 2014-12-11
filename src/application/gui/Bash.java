@@ -1,9 +1,8 @@
 package application.gui;
 
 import application.data.DataBank;
-import application.node.BashNode;
-
-import java.util.HashMap;
+import application.node.implementations.BashNode;
+import application.utils.NodeRunParams;
 
 public class Bash {
     private String script;
@@ -48,7 +47,7 @@ public class Bash {
         this.id = id;
     }
 
-    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
 //        if (!this.compiled) {
 //            compile();
 //        }

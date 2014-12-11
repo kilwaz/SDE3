@@ -1,7 +1,8 @@
-package application.node;
+package application.node.implementations;
 
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.node.design.DrawableNode;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 

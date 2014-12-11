@@ -1,15 +1,16 @@
-package application.node;
+package application.node.implementations;
 
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Bash;
 import application.gui.Controller;
+import application.node.design.DrawableNode;
+import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class BashNode extends DrawableNode {
@@ -73,9 +74,9 @@ public class BashNode extends DrawableNode {
         return savableAttributes;
     }
 
-    public void run(Boolean whileWaiting, HashMap<String, Object> map) {
-        System.out.println("Added the script to the map");
-        map.put("bashScript", getBash().getScript());
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
+        //System.out.println("Added the script to the map");
+        //map.put("bashScript", getBash().getScript());
     }
 
     public void setBash(String bashString) {
@@ -89,8 +90,8 @@ public class BashNode extends DrawableNode {
         return getBash().getScript();
     }
 
-    public void setAceTextAreaText(String sourceText) {
-        getBash().setScript(sourceText);
+    public void setAceTextAreaText(String scriptText) {
+        getBash().setScript(scriptText);
     }
 
     public Bash getBash() {

@@ -1,9 +1,11 @@
-package application.node;
+package application.node.implementations;
 
 import application.data.DataBank;
 import application.gui.Controller;
 import application.gui.Program;
 import application.gui.Trigger;
+import application.node.design.DrawableNode;
+import application.utils.NodeRunParams;
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -13,7 +15,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class ConsoleNode extends DrawableNode {
@@ -72,9 +73,9 @@ public class ConsoleNode extends DrawableNode {
 
                     List<Trigger> triggers = DataBank.currentlyEditProgram.getFlowController().getActiveTriggers(getContainedText(), "New line");
                     for (Trigger trigger : triggers) {
-                        HashMap<String, Object> params = new HashMap<>();
-                        params.put("triggerStr", consoleToWrite);
-                        Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, params);
+                        NodeRunParams nodeRunParams = new NodeRunParams();
+                        nodeRunParams.setOneTimeVariable(consoleToWrite);
+                        Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
                     }
 
                     consoleToWrite = "";

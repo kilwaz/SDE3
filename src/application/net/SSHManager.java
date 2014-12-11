@@ -1,6 +1,6 @@
 package application.net;
 
-import application.node.ConsoleNode;
+import application.node.implementations.ConsoleNode;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import application.utils.SSHConnectionManager;
