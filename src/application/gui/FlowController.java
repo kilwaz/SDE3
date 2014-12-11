@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FlowController {
     private DrawableNode startNode;
@@ -14,6 +15,7 @@ public class FlowController {
     private List<DrawableNode> nodes = new ArrayList<>();
     private List<NodeConnection> connections = new ArrayList<>();
     private List<NodeConnection> activeConnections = Collections.synchronizedList(new ArrayList<>());
+    private List<Trigger> activeTriggers = new ArrayList<>();
     private String referenceID;
     private Program parentProgram;
     private ActiveRefreshTimer activeRefreshTimer = null;
@@ -139,11 +141,19 @@ public class FlowController {
     }
 
     public void loadInstances() {
+        activeTriggers.clear();
+
         for (DrawableNode node : nodes) {
+            // This adds the runnable node objects
             if (node instanceof SourceNode) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((SourceNode) node).getSource());
             } else if (node != null) {
                 DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
+            }
+
+            // Adds the triggers being used
+            if (node instanceof TriggerNode) {
+                activeTriggers.addAll(((TriggerNode) node).getTriggers());
             }
         }
     }
@@ -225,6 +235,28 @@ public class FlowController {
                         updateCanvas = true;
                     }
                 }
+            } else if (startNode instanceof TriggerNode) {
+                List<Trigger> triggers = ((TriggerNode) startNode).getTriggers();
+
+                for (Trigger trigger : triggers) {
+                    String watchName = trigger.getWatch();
+
+                    for (DrawableNode endNode : getNodes()) {
+                        Boolean createConnection = false;
+
+                        if (watchName.equals(endNode.getContainedText())) {
+                            createConnection = true;
+                        }
+
+                        // This connection has the start and end the other way around, the target is specified in the trigger but
+                        // we want it to look like the watched node is connecting to the trigger as that is the order that they are run
+                        if (createConnection && !connectionExists(endNode, startNode)) {
+                            NodeConnection newConnection = new NodeConnection(endNode, startNode, NodeConnection.TRIGGER_CONNECTION);
+                            connections.add(newConnection);
+                            updateCanvas = true;
+                        }
+                    }
+                }
             }
 
             // Find connection that are set using the Next node input box
@@ -271,6 +303,22 @@ public class FlowController {
                     String endContainedText = nodeConnection.getConnectionEnd().getContainedText();
 
                     if ((!consoleName.equals(endContainedText))) {
+                        listToRemove.add(nodeConnection);
+                        updateCanvas = true;
+                    }
+                }
+            } else if (nodeConnection.getConnectionType().equals(NodeConnection.TRIGGER_CONNECTION)) {
+                if (nodeConnection.getConnectionEnd() instanceof TriggerNode) { // Here the start and end connections are reversed
+                    List<Trigger> triggers = ((TriggerNode) nodeConnection.getConnectionEnd()).getTriggers();
+                    String endContainedText = nodeConnection.getConnectionStart().getContainedText();
+                    Integer removeCount = 0;
+                    for (Trigger trigger : triggers) {
+                        if ((!trigger.getWatch().equals(endContainedText))) {
+                            removeCount++;
+                        }
+                    }
+
+                    if (removeCount.equals(triggers.size())) {
                         listToRemove.add(nodeConnection);
                         updateCanvas = true;
                     }
@@ -328,6 +376,16 @@ public class FlowController {
             node.setColor(Color.BLACK);
         }
         Controller.getInstance().updateCanvasControllerLater();
+    }
+
+    public DrawableNode getNodeThisControllerFromContainedText(String text) {
+        for (DrawableNode node : getNodes()) {
+            if (node.getContainedText().equals(text)) {
+                return node;
+            }
+        }
+
+        return null;
     }
 
     public static DrawableNode getNodeFromContainedText(String text) {
@@ -458,5 +516,15 @@ public class FlowController {
         } else {
             this.viewOffsetWidth = viewOffsetWidth;
         }
+    }
+
+    // Returns a list of triggers based on a node's name and trigger when that the trigger is currently watching.
+    public List<Trigger> getActiveTriggers(String containedText, String triggerWhen) {
+        return activeTriggers.stream().filter(trigger -> trigger.getWatch().equals(containedText) && trigger.getWhen().equals(triggerWhen)).collect(Collectors.toList());
+    }
+
+    // Gets all active triggers
+    public List<Trigger> getActiveTriggers() {
+        return activeTriggers;
     }
 }

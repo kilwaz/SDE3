@@ -92,6 +92,8 @@ public class Program {
                     DrawableNode drawableNode = (DrawableNode) node;
                     triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
                     drawableNode.run(whileWaiting, map);
+                } else {
+                    System.out.println("Wasn't able to run the program '" + name + "' '" + referenceID + "'");
                 }
 
                 // Main is only true when using the main path of execution

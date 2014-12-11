@@ -6,6 +6,7 @@ import application.gui.Controller;
 import application.net.SSHCommand;
 import application.net.SSHManager;
 import application.utils.SDEUtils;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -84,6 +85,7 @@ public class LinuxNode extends DrawableNode {
 
     public HBox createLinuxNodeRow(String labelName, String rowName, String rowValue) {
         HBox row = new HBox(5);
+        row.setAlignment(Pos.CENTER);
         Label rowLabel = new Label();
         TextField rowField = TextFields.createClearableTextField();
 
@@ -124,7 +126,7 @@ public class LinuxNode extends DrawableNode {
 
     public void run(Boolean whileWaiting, HashMap<String, Object> map) {
         String script = (String) map.get("bashScript");
-        System.out.println("Running linux, script is.. " + script);
+        //System.out.println("Running linux, script is.. " + script);
         if (script != null) {
             String userHome = System.getProperty("user.home");
 
@@ -134,7 +136,7 @@ public class LinuxNode extends DrawableNode {
             File sourceFile = new File(root, "programs/bash.script");
             sourceFile.getParentFile().mkdirs();
 
-            System.out.println("Writing file " + script);
+            //System.out.println("Writing file " + script);
 
             try {
                 new FileWriter(sourceFile).append(script).close();
@@ -145,11 +147,11 @@ public class LinuxNode extends DrawableNode {
             System.out.println("Opening connection..");
 
             sshManager = SDEUtils.openSSHSession(address, username, password, consoleName, DataBank.currentlyEditProgram.getFlowController().getReferenceID());
-            System.out.println("Transferring file..");
+            //System.out.println("Transferring file..");
             sshManager.scpTo("/home/" + username + "/bash.sh", sourceFile.getPath());
-            System.out.println("Changing permissions...");
+            //System.out.println("Changing permissions...");
             sshManager.runSSHCommand(new SSHCommand("chmod 777 bash.sh && ./bash.sh", "~$", 100));
-            System.out.println("Done!");
+            //System.out.println("Done!");
             //sshManager.close();
         } else {
             System.out.println("The bash script was null");
@@ -200,4 +202,11 @@ public class LinuxNode extends DrawableNode {
         this.consoleName = consoleName;
     }
 
+    public Boolean isConnected() {
+        if (sshManager != null) {
+            return sshManager.isConnected();
+        } else {
+            return false;
+        }
+    }
 }

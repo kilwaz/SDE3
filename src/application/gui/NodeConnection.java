@@ -11,6 +11,7 @@ public class NodeConnection {
 
     public static final int MAIN_CONNECTION = 0; // Set from changing
     public static final int DYNAMIC_CONNECTION = 1; // Set from within a node (Like run() within SourceNode)
+    public static final int TRIGGER_CONNECTION = 2; // Set from triggers watching a node
 
     public NodeConnection(DrawableNode connectionStart, DrawableNode connectionEnd, Integer connectionType) {
         this.connectionEnd = connectionEnd;
@@ -35,6 +36,8 @@ public class NodeConnection {
             return Color.BLACK;
         } else if (connectionType.equals(NodeConnection.DYNAMIC_CONNECTION)) {
             return Color.GRAY;
+        } else if (connectionType.equals(NodeConnection.TRIGGER_CONNECTION)) {
+            return Color.TAN;
         }
 
         return Color.BLACK;

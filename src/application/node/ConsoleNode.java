@@ -1,6 +1,9 @@
 package application.node;
 
+import application.data.DataBank;
 import application.gui.Controller;
+import application.gui.Program;
+import application.gui.Trigger;
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -8,6 +11,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ConsoleNode extends DrawableNode {
     private TextArea consoleTextArea = new TextArea();
@@ -34,10 +41,27 @@ public class ConsoleNode extends DrawableNode {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
     }
 
+    public List<String> getAvailableTriggers() {
+        List<String> triggers = new ArrayList<>();
+
+        triggers.add("New line");
+
+        return triggers;
+    }
+
+    public List<String> getAvailableTriggerActions() {
+        List<String> triggers = new ArrayList<>();
+
+        triggers.add("Send line on..");
+
+        return triggers;
+    }
+
     private String consoleToWrite = "";
 
     public void writeToConsole(String text) {
         consoleToWrite += text;
+
         class OneShotTask implements Runnable {
             OneShotTask() {
             }
@@ -45,6 +69,14 @@ public class ConsoleNode extends DrawableNode {
             public void run() {
                 if (consoleTextArea != null) {
                     consoleTextArea.appendText(consoleToWrite);
+
+                    List<Trigger> triggers = DataBank.currentlyEditProgram.getFlowController().getActiveTriggers(getContainedText(), "New line");
+                    for (Trigger trigger : triggers) {
+                        HashMap<String, Object> params = new HashMap<>();
+                        params.put("triggerStr", consoleToWrite);
+                        Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, params);
+                    }
+
                     consoleToWrite = "";
                 }
             }

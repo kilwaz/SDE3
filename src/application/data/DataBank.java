@@ -3,8 +3,10 @@ package application.data;
 import application.gui.FlowController;
 import application.gui.Program;
 import application.gui.Switch;
+import application.gui.Trigger;
 import application.node.DrawableNode;
 import application.node.SwitchNode;
+import application.node.TriggerNode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -103,7 +105,11 @@ public class DataBank {
             PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("update program set name = ?, start_node = ?, view_offset_width = ?, view_offset_height = ? where id = ?");
             if (preparedStatement != null) {
                 preparedStatement.setString(1, program.getName());
-                preparedStatement.setInt(2, program.getFlowController().getStartNode().getId());
+                if (program.getFlowController().getStartNode() == null) { // There might be no start node
+                    preparedStatement.setInt(2, -1);
+                } else {
+                    preparedStatement.setInt(2, program.getFlowController().getStartNode().getId());
+                }
                 preparedStatement.setDouble(3, program.getFlowController().getViewOffsetWidth());
                 preparedStatement.setDouble(4, program.getFlowController().getViewOffsetHeight());
                 preparedStatement.setInt(5, program.getId());
@@ -123,7 +129,7 @@ public class DataBank {
                 mySQLInstance = MySQLConnectionManager.getInstance();
             }
 
-            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("insert into program values (default, ?, NULL)");
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("insert into program values (default, ?, NULL, NULL, NULL)");
             if (preparedStatement != null) {
                 preparedStatement.setString(1, programName);
                 preparedStatement.executeUpdate();
@@ -394,6 +400,70 @@ public class DataBank {
         DataBank.saveSwitch(aSwitch);
 
         return aSwitch;
+    }
+
+    public static void loadTriggers(TriggerNode triggerNode) {
+        List<Trigger> triggers = new ArrayList<>();
+
+        try {
+            if (mySQLInstance == null) {
+                mySQLInstance = MySQLConnectionManager.getInstance();
+            }
+
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select id, trigger_watch, trigger_when, trigger_then from trigger_condition where node_id = ?");
+            preparedStatement.setInt(1, triggerNode.getId());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                triggers.add(new Trigger(resultSet.getInt("id"), resultSet.getString("trigger_watch"), resultSet.getString("trigger_when"), resultSet.getString("trigger_then"), triggerNode));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        triggerNode.setTriggers(triggers);
+    }
+
+    public static void saveTrigger(Trigger trigger) {
+        try {
+            if (mySQLInstance == null) {
+                mySQLInstance = MySQLConnectionManager.getInstance();
+            }
+
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("update trigger_condition set trigger_watch = ?, trigger_when = ?, trigger_then = ? where id = ?");
+            if (preparedStatement != null) {
+                preparedStatement.setString(1, trigger.getWatch());
+                preparedStatement.setString(2, trigger.getWhen());
+                preparedStatement.setString(3, trigger.getThen());
+                preparedStatement.setInt(4, trigger.getId());
+                int result = preparedStatement.executeUpdate();
+                preparedStatement.close();
+
+                if (result == 0) { // If record does not exist insert a new one..
+                    trigger.setId(getNextId("trigger_condition")); // Gets the next ID for a node that is about to be created
+
+                    preparedStatement = mySQLInstance.getPreparedStatement("insert into trigger_condition values (default, ?, ?, ?, ?)");
+                    if (preparedStatement != null) {
+                        preparedStatement.setInt(1, trigger.getParent().getId());
+                        preparedStatement.setString(2, trigger.getWatch());
+                        preparedStatement.setString(3, trigger.getWhen());
+                        preparedStatement.setString(4, trigger.getThen());
+                        preparedStatement.executeUpdate();
+                        preparedStatement.close();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Trigger createNewTrigger(String watch, String when, String then, TriggerNode parent) {
+        Trigger trigger = new Trigger(getNextId("trigger_condition"), watch, when, then, parent);
+
+        parent.addTrigger(trigger);
+        DataBank.saveTrigger(trigger);
+
+        return trigger;
     }
 
     public static void loadNodeColours(NodeColours nodeColours) {

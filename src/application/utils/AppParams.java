@@ -6,6 +6,7 @@ public class AppParams {
     public static Font getFont() {
         return getFont(12);
     }
+
     public static String CHROME_DIRECTORY = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe";
     public static String IE_DIRECTORY = "C:\\Program Files\\Internet Explorer\\iexplore.exe\"";
     public static String APP_TITLE = "Spiralinks Development Engine V0.2";

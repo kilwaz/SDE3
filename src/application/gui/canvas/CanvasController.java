@@ -5,6 +5,7 @@ import application.gui.Controller;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.DrawableNode;
+import application.node.LinuxNode;
 import application.utils.AppParams;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
@@ -81,6 +82,8 @@ public class CanvasController {
                     initialOffsetHeight = offsetHeight;
                     Controller.getInstance().setCursor(Cursor.MOVE);
                     isDraggingCanvas = true;
+                    draggedNode = null;
+                    isDraggingNode = false;
                 }
             }
         }
@@ -191,7 +194,8 @@ public class CanvasController {
         gc.setLineWidth(1.0);
 
         // Draw the start node arrow
-        if (DataBank.currentlyEditProgram.getFlowController().getStartNode().equals(drawableNode)) {
+        DrawableNode startNode = DataBank.currentlyEditProgram.getFlowController().getStartNode();
+        if (startNode != null && startNode.equals(drawableNode)) {
             gc.beginPath();
             gc.moveTo(drawableNode.getX() + offsetWidth - 25, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));
             gc.lineTo(drawableNode.getX() + offsetWidth - nodeCornerPadding, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));
@@ -200,6 +204,21 @@ public class CanvasController {
             gc.lineTo(drawableNode.getX() + offsetWidth - nodeCornerPadding - 5, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2) + 5);
             gc.stroke();
             gc.closePath();
+        }
+
+        // Draws the connected status of a LinuxNode
+        if (drawableNode instanceof LinuxNode) {
+            if (((LinuxNode) drawableNode).isConnected()) {
+                gc.beginPath();
+                gc.setFill(Color.LIGHTGREEN);
+                gc.moveTo(drawableNode.getX() + offsetWidth + 4, drawableNode.getY() + offsetHeight + 4);
+                gc.lineTo(drawableNode.getX() + offsetWidth + 8, drawableNode.getY() + offsetHeight + 4);
+                gc.lineTo(drawableNode.getX() + offsetWidth + 8, drawableNode.getY() + offsetHeight + 8);
+                gc.lineTo(drawableNode.getX() + offsetWidth + 4, drawableNode.getY() + offsetHeight + 8);
+                gc.lineTo(drawableNode.getX() + offsetWidth + 4, drawableNode.getY() + offsetHeight + 4);
+                gc.fill();
+                gc.closePath();
+            }
         }
 
         gc.setFill(Color.GRAY);

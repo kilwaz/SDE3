@@ -57,6 +57,7 @@ public class Main extends Application {
         new NetworkManager();
         new NetworkBuilder();
         loadProgress.setProgress(0.9);
+        //new Email();
 
         //RemoteDebug remoteDebug = new RemoteDebug("172.16.10.212", "8787");
         //Thread t = new Thread(remoteDebug);

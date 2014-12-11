@@ -30,6 +30,7 @@ public class CompileCode {
                     "import application.gui.*;" +
                     "import application.test.*;" +
                     "import application.net.*;" +
+                    "import application.node.*;" +
                     "public class " + className + " extends SDERunnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String sourceReferenceId = \"" + sourceReferenceId + "\";" +
@@ -66,6 +67,9 @@ public class CompileCode {
                     "   }" +
                     "   private void runAndWait(String name, HashMap<String, Object> map) {" +
                     "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, map);" +
+                    "   }" +
+                    "   private DrawableNode getNode(String name) {" +
+                    "      return FlowController.getFlowControllerFromReference(this.flowControllerReferenceId).getNodeThisControllerFromContainedText(name);" +
                     "   }" +
                     "}";
 

@@ -1,7 +1,6 @@
 package application.node;
 
 import application.data.SavableAttribute;
-import application.gui.Bash;
 import application.gui.Controller;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;

@@ -19,12 +19,12 @@ public class MySQLConnectionManager {
     create table node(
         id INT NOT NULL AUTO_INCREMENT,
         program_id INT,
-        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode'),
+        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
         PRIMARY KEY (id),
         FOREIGN KEY (program_id) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
     ** Use this to add another enum type to the node table
-    alter table node change node_type node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode');
+    alter table node change node_type node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode');
     **
 
     create table node_details(
@@ -44,9 +44,18 @@ public class MySQLConnectionManager {
         PRIMARY KEY (id),
         FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
+    create table trigger_condition(
+        id INT NOT NULL AUTO_INCREMENT,
+        node_id INT,
+        trigger_watch VARCHAR(100),
+        trigger_when VARCHAR(100),
+        trigger_then VARCHAR(100),
+        PRIMARY KEY (id),
+        FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
+
     create table node_colour(
         id INT NOT NULL AUTO_INCREMENT,
-        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode'),
+        node_type enum('ConsoleNode','SourceNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
         colour_r INT,
         colour_g INT,
         colour_b INT,

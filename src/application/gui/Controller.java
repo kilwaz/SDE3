@@ -434,6 +434,7 @@ public class Controller implements Initializable {
             public Program fromString(String input) {
                 Program program = DataBank.currentlyEditProgram;
                 program.setName(input);
+                DataBank.saveProgram(program);
                 return program;
             }
         });

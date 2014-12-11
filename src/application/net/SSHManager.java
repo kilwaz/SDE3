@@ -421,4 +421,8 @@ public class SSHManager {
         print.print(command + "\n");
         print.print("  " + "\n");
     }
+
+    public Boolean isConnected() {
+        return sesConnection != null && sesConnection.isConnected();
+    }
 }

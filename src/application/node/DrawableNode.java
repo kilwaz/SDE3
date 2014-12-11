@@ -2,6 +2,7 @@ package application.node;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.gui.Trigger;
 import application.gui.canvas.DrawablePoint;
 import application.utils.AppParams;
 import application.utils.ClassFinder;
@@ -27,6 +28,7 @@ public class DrawableNode {
     private Integer programId = -1;
     private String nextNodeToRun = "";
     private Boolean initialising = false;
+    private List<Trigger> listeners = new ArrayList<>();
 
     public static final List<String> NODE_NAMES = new ArrayList<>();
 
@@ -231,6 +233,14 @@ public class DrawableNode {
     }
 
     public void setAceTextAreaText(String source) {
+    }
+
+    public List<String> getAvailableTriggers() {
+        return new ArrayList<>();
+    }
+
+    public List<String> getAvailableTriggerActions() {
+        return new ArrayList<>();
     }
 
     public void run(Boolean whileWaiting, HashMap<String, Object> map) {

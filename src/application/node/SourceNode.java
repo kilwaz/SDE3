@@ -1,6 +1,5 @@
 package application.node;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Controller;
