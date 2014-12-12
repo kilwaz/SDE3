@@ -1,4 +1,4 @@
-package application.gui;
+package application.node.objects;
 
 import application.node.implementations.TriggerNode;
 

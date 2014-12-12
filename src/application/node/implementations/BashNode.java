@@ -2,9 +2,10 @@ package application.node.implementations;
 
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
-import application.gui.Bash;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
+import application.node.objects.Bash;
+import application.node.objects.Input;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
@@ -12,6 +13,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class BashNode extends DrawableNode {
     private Bash bash = null;
@@ -65,8 +67,17 @@ public class BashNode extends DrawableNode {
         return tab;
     }
 
+    public void applyInputs(InputNode inputNode) {
+        for (Input input : inputNode.getInputs()) {
+            if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
+                String script = getBash().getScript();
+                getBash().setScript(script.replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
+            }
+        }
+    }
+
     public List<SavableAttribute> getDataToSave() {
-        List<SavableAttribute> savableAttributes = new ArrayList<SavableAttribute>();
+        List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.add(new SavableAttribute("Bash", getBash().getScript().getClass().getName(), getBash().getScript()));
         savableAttributes.addAll(super.getDataToSave());

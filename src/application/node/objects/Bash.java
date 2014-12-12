@@ -1,4 +1,4 @@
-package application.gui;
+package application.node.objects;
 
 import application.data.DataBank;
 import application.node.implementations.BashNode;

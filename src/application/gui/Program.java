@@ -2,6 +2,7 @@ package application.gui;
 
 import application.data.DataBank;
 import application.node.design.DrawableNode;
+import application.node.objects.Logic;
 import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;

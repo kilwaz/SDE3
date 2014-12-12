@@ -44,6 +44,14 @@ public class MySQLConnectionManager {
         PRIMARY KEY (id),
         FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
+    create table input(
+        id INT NOT NULL AUTO_INCREMENT,
+        node_id INT,
+        variable_name VARCHAR(100),
+        variable_value VARCHAR(100),
+        PRIMARY KEY (id),
+        FOREIGN KEY (node_id) REFERENCES node(id) ON DELETE CASCADE ON UPDATE CASCADE);
+
     create table trigger_condition(
         id INT NOT NULL AUTO_INCREMENT,
         node_id INT,

@@ -3,7 +3,7 @@ package application.node.implementations;
 import application.data.DataBank;
 import application.gui.Controller;
 import application.gui.Program;
-import application.gui.Trigger;
+import application.node.objects.Trigger;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
 import javafx.application.Platform;

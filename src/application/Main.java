@@ -107,7 +107,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/ApplicationScene.fxml"));
         Scene scene = new Scene(root);
         mainStage.setScene(scene);
-        mainStage.setTitle(AppParams.APP_TITLE);
+        mainStage.setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
         mainStage.setOnCloseRequest(we -> {
             // On Application Close
             SSHConnectionManager.getInstance().closeConnections();

@@ -1,6 +1,7 @@
-package application.gui;
+package application.node.objects;
 
 import application.data.DataBank;
+import application.gui.Program;
 import application.node.implementations.LogicNode;
 import application.utils.CompileCode;
 import application.utils.NodeRunParams;

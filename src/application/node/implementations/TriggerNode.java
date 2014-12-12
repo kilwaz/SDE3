@@ -4,7 +4,7 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.FlowController;
-import application.gui.Trigger;
+import application.node.objects.Trigger;
 import application.node.design.DrawableNode;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

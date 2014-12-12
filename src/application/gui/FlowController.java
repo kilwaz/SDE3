@@ -3,6 +3,10 @@ package application.gui;
 import application.data.DataBank;
 import application.node.design.DrawableNode;
 import application.node.implementations.*;
+import application.node.objects.Bash;
+import application.node.objects.Logic;
+import application.node.objects.Switch;
+import application.node.objects.Trigger;
 import javafx.scene.paint.Color;
 
 import java.lang.reflect.Constructor;
@@ -38,16 +42,8 @@ public class FlowController {
         try {
             Class<?> clazz = Class.forName("application.node.implementations." + nodeType);
             Constructor<?> ctor = clazz.getConstructor(Integer.class, Integer.class);
-            newNode = (DrawableNode) ctor.newInstance(new Object[]{id, programId});
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+            newNode = (DrawableNode) ctor.newInstance(id, programId);
+        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }
 
@@ -167,7 +163,7 @@ public class FlowController {
         List<DrawableNode> nodeList = new ArrayList<>();
 
         for (DrawableNode node : nodes) {
-            if (node.isCoordInside(x, y)) {
+            if (node.isCoordinateInside(x, y)) {
                 nodeList.add(node);
             }
         }

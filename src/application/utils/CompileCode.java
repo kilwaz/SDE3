@@ -2,7 +2,7 @@ package application.utils;
 
 import application.gui.Controller;
 import application.gui.FlowController;
-import application.gui.Logic;
+import application.node.objects.Logic;
 import org.controlsfx.dialog.Dialogs;
 
 import javax.tools.JavaCompiler;
@@ -32,6 +32,7 @@ public class CompileCode {
                     "import application.net.*;" +
                     "import application.node.implementations.*;" +
                     "import application.node.design.*;" +
+                    "import application.node.objects.*;" +
                     "public class " + className + " extends SDERunnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String logicReferenceId = \"" + logicReferenceId + "\";" +

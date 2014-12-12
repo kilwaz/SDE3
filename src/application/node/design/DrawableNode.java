@@ -2,7 +2,7 @@ package application.node.design;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
-import application.gui.Trigger;
+import application.node.objects.Trigger;
 import application.gui.canvas.DrawablePoint;
 import application.utils.AppParams;
 import application.utils.ClassFinder;
@@ -246,7 +246,7 @@ public class DrawableNode {
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
     }
 
-    public Boolean isCoordInside(Double x, Double y) {
+    public Boolean isCoordinateInside(Double x, Double y) {
         if (x > this.x * scale && x < this.x * scale + this.width * scale) {
             if (y > this.y * scale && y < this.y * scale + this.height * scale) {
                 return true;

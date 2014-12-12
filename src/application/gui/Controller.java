@@ -132,7 +132,7 @@ public class Controller implements Initializable {
 
         assert canvasFlow != null : "fx:id=\"canvasFlow\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
-        assert nodeTabPane != null : "fx:id=\"tabPaneSource\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert nodeTabPane != null : "fx:id=\"nodeTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 

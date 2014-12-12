@@ -2,11 +2,13 @@ package application.data;
 
 import application.gui.FlowController;
 import application.gui.Program;
-import application.gui.Switch;
-import application.gui.Trigger;
 import application.node.design.DrawableNode;
+import application.node.implementations.InputNode;
 import application.node.implementations.SwitchNode;
 import application.node.implementations.TriggerNode;
+import application.node.objects.Input;
+import application.node.objects.Switch;
+import application.node.objects.Trigger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataBank {
     static public Program currentlyEditProgram;
@@ -27,13 +30,7 @@ public class DataBank {
     static private NodeColours nodeColours = new NodeColours();
 
     static public List<String> getProgramNames() {
-        List<String> nameList = new ArrayList<String>();
-
-        for (Program program : programs.values()) {
-            nameList.add(program.getName());
-        }
-
-        return nameList;
+        return programs.values().stream().map(Program::getName).collect(Collectors.toList());
     }
 
     public static Program getProgramById(Integer id) {
@@ -48,8 +45,8 @@ public class DataBank {
         programs.put(program.getId(), program);
     }
 
-    static public List<Program> getPrograms() {
-        return new ArrayList(programs.values());
+    static public ArrayList<Program> getPrograms() {
+        return new ArrayList<>(programs.values());
     }
 
     public static void saveVariable(String name, Object object, String referenceID) {
@@ -288,10 +285,10 @@ public class DataBank {
                             true
                     );
 
-                    // This disables auto saving when running setters.  We don't want that while we are first populating the object
-                    drawableNode.setIsInitialising(true);
-
                     if (drawableNode != null) {
+                        // This disables auto saving when running setters.  We don't want that while we are first populating the object
+                        drawableNode.setIsInitialising(true);
+
                         PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select node_id,object_name,object_class,object_value from node_details where node_id = ?");
                         preparedStatement.setInt(1, nodeResultSet.getInt("id"));
                         ResultSet nodeDetailsResultSet = preparedStatement.executeQuery();
@@ -314,21 +311,13 @@ public class DataBank {
                                     method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
                                     method.invoke(drawableNode, integerValue);
                                 }
-                            } catch (NoSuchMethodException e) {
-                                e.printStackTrace();
-                            } catch (InvocationTargetException e) {
-                                e.printStackTrace();
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            } catch (ClassNotFoundException e) {
+                            } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
                                 e.printStackTrace();
                             }
                         }
-                    } else {
-                        System.out.println("Error loading node id " + nodeResultSet.getInt("id") + " program id " + nodeResultSet.getInt("program_id") + " node type " + nodeResultSet.getString("node_type") + " - Node type is not recognised");
-                    }
 
-                    drawableNode.setIsInitialising(false);
+                        drawableNode.setIsInitialising(false);
+                    }
                 }
 
                 flowController.setStartNode(flowController.getNodeById(startNode));
@@ -400,6 +389,68 @@ public class DataBank {
         DataBank.saveSwitch(aSwitch);
 
         return aSwitch;
+    }
+
+    public static void loadInputs(InputNode inputNode) {
+        List<Input> inputs = new ArrayList<>();
+
+        try {
+            if (mySQLInstance == null) {
+                mySQLInstance = MySQLConnectionManager.getInstance();
+            }
+
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select id, variable_name, variable_value from input where node_id = ?");
+            preparedStatement.setInt(1, inputNode.getId());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                inputs.add(new Input(resultSet.getInt("id"), resultSet.getString("variable_name"), resultSet.getString("variable_value"), inputNode));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        inputNode.setInputs(inputs);
+    }
+
+    public static void saveInput(Input input) {
+        try {
+            if (mySQLInstance == null) {
+                mySQLInstance = MySQLConnectionManager.getInstance();
+            }
+
+            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("update input set variable_name = ?, variable_value = ? where id = ?");
+            if (preparedStatement != null) {
+                preparedStatement.setString(1, input.getVariableName());
+                preparedStatement.setString(2, input.getVariableValue());
+                preparedStatement.setInt(3, input.getId());
+                int result = preparedStatement.executeUpdate();
+                preparedStatement.close();
+
+                if (result == 0) { // If record does not exist insert a new one..
+                    input.setId(getNextId("input")); // Gets the next ID for a node that is about to be created
+
+                    preparedStatement = mySQLInstance.getPreparedStatement("insert into input values (default, ?, ?, ?)");
+                    if (preparedStatement != null) {
+                        preparedStatement.setInt(1, input.getParent().getId());
+                        preparedStatement.setString(2, input.getVariableName());
+                        preparedStatement.setString(3, input.getVariableValue());
+                        preparedStatement.executeUpdate();
+                        preparedStatement.close();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Input createNewInput(String variableName, String variableValue, InputNode parent) {
+        Input input = new Input(getNextId("trigger_condition"), variableName, variableValue, parent);
+
+        parent.addInput(input);
+        DataBank.saveInput(input);
+
+        return input;
     }
 
     public static void loadTriggers(TriggerNode triggerNode) {

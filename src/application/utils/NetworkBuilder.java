@@ -4,13 +4,6 @@ import application.data.NetworkNodeInfo;
 
 import java.net.InetAddress;
 
-/**
- * Created with IntelliJ IDEA.
- * User: daniel
- * Date: 20/10/14
- * Time: 11:04
- * To change this template use File | Settings | File Templates.
- */
 public class NetworkBuilder {
     public static String networkAddress = "0.0.0.";
 

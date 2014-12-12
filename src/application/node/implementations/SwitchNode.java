@@ -4,8 +4,8 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.Program;
-import application.gui.Switch;
 import application.node.design.DrawableNode;
+import application.node.objects.Switch;
 import application.utils.NodeRunParams;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
@@ -58,6 +58,7 @@ public class SwitchNode extends DrawableNode {
             if (aSwitch.getId().equals(switchId)) {
                 aSwitch.setTarget(target);
                 DataBank.saveSwitch(aSwitch);
+                break;
             }
         }
     }
@@ -67,6 +68,7 @@ public class SwitchNode extends DrawableNode {
             if (aSwitch.getId().equals(switchId)) {
                 aSwitch.setEnabled(enabled);
                 DataBank.saveSwitch(aSwitch);
+                break;
             }
         }
     }

@@ -3,8 +3,8 @@ package application.node.implementations;
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Controller;
-import application.gui.Logic;
 import application.node.design.DrawableNode;
+import application.node.objects.Logic;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
@@ -59,7 +59,7 @@ public class LogicNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("Source", getLogic().getLogic().getClass().getName(), getLogic().getLogic()));
+        savableAttributes.add(new SavableAttribute("Logic", getLogic().getLogic().getClass().getName(), getLogic().getLogic()));
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
