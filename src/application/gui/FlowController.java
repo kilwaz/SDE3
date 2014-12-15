@@ -216,22 +216,6 @@ public class FlowController {
                         updateCanvas = true;
                     }
                 }
-            } else if (startNode instanceof LinuxNode) {
-                String consoleName = ((LinuxNode) startNode).getConsoleName();
-
-                for (DrawableNode endNode : getNodes()) {
-                    Boolean createConnection = false;
-
-                    if (consoleName.equals(endNode.getContainedText())) {
-                        createConnection = true;
-                    }
-
-                    if (createConnection && !connectionExists(startNode, endNode)) {
-                        NodeConnection newConnection = new NodeConnection(startNode, endNode, NodeConnection.DYNAMIC_CONNECTION);
-                        connections.add(newConnection);
-                        updateCanvas = true;
-                    }
-                }
             } else if (startNode instanceof TriggerNode) {
                 List<Trigger> triggers = ((TriggerNode) startNode).getTriggers();
 
@@ -292,14 +276,6 @@ public class FlowController {
                     }
 
                     if (removeCount.equals(aSwitches.size())) {
-                        listToRemove.add(nodeConnection);
-                        updateCanvas = true;
-                    }
-                } else if (nodeConnection.getConnectionStart() instanceof LinuxNode) {
-                    String consoleName = ((LinuxNode) nodeConnection.getConnectionStart()).getConsoleName();
-                    String endContainedText = nodeConnection.getConnectionEnd().getContainedText();
-
-                    if ((!consoleName.equals(endContainedText))) {
                         listToRemove.add(nodeConnection);
                         updateCanvas = true;
                     }
@@ -469,12 +445,16 @@ public class FlowController {
 
     class ActiveRefreshTimer extends TimerTask {
         @Override
-        public void run() {
+        public synchronized void run() {
             if (currentTimer != null) {
                 currentTimer.cancel();
             }
             List<NodeConnection> removalList = new ArrayList<>();
-            for (NodeConnection connection : activeConnections) {
+            // We copy the list here to avoid concurrent modification
+            List<NodeConnection> activeConnectionsCopy = new ArrayList<>();
+            activeConnectionsCopy.addAll(activeConnections);
+
+            for (NodeConnection connection : activeConnectionsCopy) {
                 connection.degradeGradient();
                 if (!connection.isTriggeredGradient()) {
                     removalList.add(connection);

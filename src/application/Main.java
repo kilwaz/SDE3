@@ -38,7 +38,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        //TEST - Can git be updated by non-user
         this.splashStage = stage;
         showSplash();
 

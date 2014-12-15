@@ -6,6 +6,7 @@ import application.net.SSHCommand;
 import application.net.SSHManager;
 import application.node.design.DrawableNode;
 import application.node.implementations.ConsoleNode;
+import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.JSch;
 
 import java.io.*;
@@ -23,7 +24,26 @@ public class SDEUtils {
 
     private static String knownHosts;
 
-    public static SSHManager openSSHSession(String connection, String username, String password, String consoleName, String flowControllerReferenceId) {
+    // This is called from LogicNode code when creating a new SSH connection.
+    public static SSHManager openSSHSession(String connection, String username, String password, String nodeName, String flowControllerReferenceId) {
+        if (nodeName != null) {
+            FlowController flowController = FlowController.getFlowControllerFromReference(flowControllerReferenceId);
+            if (flowController != null) {
+                for (DrawableNode consoleNode : flowController.getNodes()) {
+                    if (consoleNode.getContainedText().equals(nodeName)) {
+                        if (consoleNode instanceof ConsoleNode || consoleNode instanceof LinuxNode) {
+                            return openSSHSession(connection, username, password, consoleNode);
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // This is currently called from LinuxNode when it opens a new connection
+    public static SSHManager openSSHSession(String connection, String username, String password, DrawableNode drawableNode) {
         JSch.setConfig("StrictHostKeyChecking", "no");
         SSHManager instance;
 
@@ -34,21 +54,10 @@ public class SDEUtils {
             instance = new SSHManager(username, password, connectionInfo[0], knownHosts, 22);
         }
 
-        if (consoleName != null) {
-            FlowController flowController = FlowController.getFlowControllerFromReference(flowControllerReferenceId);
-            if (flowController != null) {
-                for (DrawableNode consoleNode : flowController.getNodes()) {
-                    if (consoleNode.getContainedText().equals(consoleName)) {
-                        if (consoleNode instanceof ConsoleNode) {
-                            instance.setConsoleNode((ConsoleNode) consoleNode);
-                        }
-                    }
-                }
-            }
-        }
 
         String errorMessage = instance.connect();
         instance.createShellChannel();
+        instance.setDrawableNode(drawableNode);
 
         if (errorMessage != null) {
             System.out.println("ERROR " + errorMessage);

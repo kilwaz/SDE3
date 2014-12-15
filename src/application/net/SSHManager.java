@@ -1,6 +1,8 @@
 package application.net;
 
+import application.node.design.DrawableNode;
 import application.node.implementations.ConsoleNode;
+import application.node.implementations.LinuxNode;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import application.utils.SSHConnectionManager;
@@ -25,7 +27,7 @@ public class SSHManager {
     private PipedOutputStream pop;
     private PrintStream print;
     private PipedInputStream sink;
-    private ConsoleNode consoleNode;
+    private DrawableNode drawableNode;
     private List<SSHCommand> SSHCommandList = new ArrayList<SSHCommand>();
     private Boolean processingCommand = false;
 
@@ -52,8 +54,8 @@ public class SSHManager {
         SSHConnectionManager.getInstance().addConnection(this);
     }
 
-    public void setConsoleNode(ConsoleNode consoleNode) {
-        this.consoleNode = consoleNode;
+    public void setDrawableNode(DrawableNode drawableNode) {
+        this.drawableNode = drawableNode;
     }
 
     public String connect() {
@@ -394,8 +396,12 @@ public class SSHManager {
                                 }
                             }
                             previousString = responseString;
-                            if (consoleNode != null) {
-                                consoleNode.writeToConsole(responseString);
+                            if (drawableNode != null) {
+                                if (drawableNode instanceof ConsoleNode) {
+                                    ((ConsoleNode) drawableNode).writeToConsole(responseString);
+                                } else if (drawableNode instanceof LinuxNode) {
+                                    ((LinuxNode) drawableNode).writeToConsole(responseString);
+                                }
                             }
                             i = sink.read(data, 0, 4096);
                         }

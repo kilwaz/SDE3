@@ -3,20 +3,20 @@ package application.node.implementations;
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.gui.Program;
 import application.net.SSHCommand;
 import application.net.SSHManager;
 import application.node.design.DrawableNode;
+import application.node.objects.Trigger;
 import application.utils.NodeRunParams;
 import application.utils.SDEUtils;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import org.controlsfx.control.textfield.TextFields;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -28,9 +28,9 @@ public class LinuxNode extends DrawableNode {
     private String address = "";
     private String username = "";
     private String password = "";
-    private String consoleName = "";
 
     private SSHManager sshManager = null;
+    private TextArea consoleTextArea = new TextArea();
 
     // This will make a copy of the node passed to it
     public LinuxNode(LinuxNode linuxNode) {
@@ -48,7 +48,6 @@ public class LinuxNode extends DrawableNode {
         this.setAddress(linuxNode.getAddress());
         this.setUsername(linuxNode.getUsername());
         this.setPassword(linuxNode.getPassword());
-        this.setConsoleName(linuxNode.getConsoleName());
     }
 
 
@@ -74,12 +73,35 @@ public class LinuxNode extends DrawableNode {
         rows.setLayoutY(55);
         rows.setLayoutX(11);
 
-        rows.getChildren().add(createLinuxNodeRow("Address:", "address", address));
-        rows.getChildren().add(createLinuxNodeRow("Username:", "username", username));
-        rows.getChildren().add(createLinuxNodeRow("Password:", "password", password));
-        rows.getChildren().add(createLinuxNodeRow("Console:", "consoleName", consoleName));
+        HBox hbox = new HBox(5);
+        hbox.getChildren().add(createLinuxNodeRow("Username:", "username", username));
+        hbox.getChildren().add(createLinuxNodeRow("Password:", "password", password));
+        hbox.getChildren().add(createLinuxNodeRow("Address:", "address", address));
+
+        AnchorPane.setBottomAnchor(hbox, 11.0);
+        AnchorPane.setLeftAnchor(hbox, 11.0);
+        AnchorPane.setRightAnchor(hbox, 11.0);
+        AnchorPane.setTopAnchor(hbox, 50.0);
+
+        AnchorPane.setBottomAnchor(rows, 11.0);
+        AnchorPane.setLeftAnchor(rows, 11.0);
+        AnchorPane.setRightAnchor(rows, 11.0);
+        AnchorPane.setTopAnchor(rows, 50.0);
+
+        rows.getChildren().add(hbox);
+        rows.getChildren().add(consoleTextArea);
+
+        consoleTextArea.setPrefRowCount(100);
 
         anchorPane.getChildren().add(rows);
+
+        MenuItem menuItemNewProgram = new MenuItem("Clear All");
+        menuItemNewProgram.setOnAction(event -> clearConsole());
+
+        ContextMenu clearTextAreaContextMenu = new ContextMenu();
+        clearTextAreaContextMenu.getItems().add(menuItemNewProgram);
+
+        consoleTextArea.setContextMenu(clearTextAreaContextMenu);
 
         return tab;
     }
@@ -88,9 +110,9 @@ public class LinuxNode extends DrawableNode {
         HBox row = new HBox(5);
         row.setAlignment(Pos.CENTER);
         Label rowLabel = new Label();
-        TextField rowField = TextFields.createClearableTextField();
+//        TextField rowField = TextFields.createClearableTextField();
+        TextField rowField = new TextField();
 
-        rowLabel.setPrefWidth(80);
         rowLabel.setText(labelName);
         rowLabel.setId("linuxLabel-" + rowName + "-" + this.getId());
 
@@ -111,16 +133,9 @@ public class LinuxNode extends DrawableNode {
                     case "password":
                         password = textField.getText();
                         break;
-                    case "consoleName":
-                        consoleName = textField.getText();
-                        DataBank.currentlyEditProgram.getFlowController().checkConnections();
-                        break;
                 }
 
-                //program.getFlowController().checkConnections(); // Renaming a node might make or break connections
-
                 DataBank.saveNode(this);
-                Controller.getInstance().updateCanvasControllerNow();
             }
         });
 
@@ -128,6 +143,51 @@ public class LinuxNode extends DrawableNode {
         row.getChildren().add(rowField);
 
         return row;
+    }
+
+    public List<String> getAvailableTriggers() {
+        List<String> triggers = new ArrayList<>();
+
+        triggers.add("New line");
+
+        return triggers;
+    }
+
+    public List<String> getAvailableTriggerActions() {
+        List<String> triggers = new ArrayList<>();
+
+        triggers.add("Send line on..");
+
+        return triggers;
+    }
+
+    private String consoleToWrite = "";
+
+    public void writeToConsole(String text) {
+        consoleToWrite += text;
+
+        class LinuxNodeWriteConsole implements Runnable {
+            public void run() {
+                if (consoleTextArea != null) {
+                    consoleTextArea.appendText(consoleToWrite);
+
+                    List<Trigger> triggers = DataBank.currentlyEditProgram.getFlowController().getActiveTriggers(getContainedText(), "New line");
+                    for (Trigger trigger : triggers) {
+                        NodeRunParams nodeRunParams = new NodeRunParams();
+                        nodeRunParams.setOneTimeVariable(consoleToWrite);
+                        Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
+                    }
+
+                    consoleToWrite = "";
+                }
+            }
+        }
+
+        Platform.runLater(new LinuxNodeWriteConsole());
+    }
+
+    public void clearConsole() {
+        consoleTextArea.clear();
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
@@ -156,13 +216,12 @@ public class LinuxNode extends DrawableNode {
 
             System.out.println("Opening connection..");
 
-            sshManager = SDEUtils.openSSHSession(address, username, password, consoleName, DataBank.currentlyEditProgram.getFlowController().getReferenceID());
-            //System.out.println("Transferring file..");
+            // Here we open a new ssh connection with the details given
+            sshManager = SDEUtils.openSSHSession(address, username, password, this);
+            // Transfer the bash file
             sshManager.scpTo("/home/" + username + "/bash.sh", sourceFile.getPath());
-            //System.out.println("Changing permissions...");
+            // Change the permissions of the bash file so that we can execute it and finally execute the bash file afterwards
             sshManager.runSSHCommand(new SSHCommand("chmod 777 bash.sh && ./bash.sh", "~$", 100));
-            //System.out.println("Done!");
-            //sshManager.close();
         } else {
             System.out.println("The bash script was null");
         }
@@ -174,7 +233,6 @@ public class LinuxNode extends DrawableNode {
         savableAttributes.add(new SavableAttribute("Address", address.getClass().getName(), address));
         savableAttributes.add(new SavableAttribute("Username", username.getClass().getName(), username));
         savableAttributes.add(new SavableAttribute("Password", password.getClass().getName(), password));
-        savableAttributes.add(new SavableAttribute("ConsoleName", consoleName.getClass().getName(), consoleName));
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
@@ -202,14 +260,6 @@ public class LinuxNode extends DrawableNode {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getConsoleName() {
-        return consoleName;
-    }
-
-    public void setConsoleName(String consoleName) {
-        this.consoleName = consoleName;
     }
 
     public Boolean isConnected() {

@@ -3,8 +3,8 @@ package application.node.implementations;
 import application.data.DataBank;
 import application.gui.Controller;
 import application.gui.Program;
-import application.node.objects.Trigger;
 import application.node.design.DrawableNode;
+import application.node.objects.Trigger;
 import application.utils.NodeRunParams;
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
@@ -63,10 +63,7 @@ public class ConsoleNode extends DrawableNode {
     public void writeToConsole(String text) {
         consoleToWrite += text;
 
-        class OneShotTask implements Runnable {
-            OneShotTask() {
-            }
-
+        class ConsoleNodeWriteConsole implements Runnable {
             public void run() {
                 if (consoleTextArea != null) {
                     consoleTextArea.appendText(consoleToWrite);
@@ -83,7 +80,7 @@ public class ConsoleNode extends DrawableNode {
             }
         }
 
-        Platform.runLater(new OneShotTask());
+        Platform.runLater(new ConsoleNodeWriteConsole());
     }
 
     public void clearConsole() {
@@ -104,9 +101,7 @@ public class ConsoleNode extends DrawableNode {
         anchorPane.getChildren().add(consoleTextArea);
 
         MenuItem menuItemNewProgram = new MenuItem("Clear All");
-        menuItemNewProgram.setOnAction(event1 -> {
-            clearConsole();
-        });
+        menuItemNewProgram.setOnAction(event -> clearConsole());
 
         ContextMenu clearTextAreaContextMenu = new ContextMenu();
         clearTextAreaContextMenu.getItems().add(menuItemNewProgram);

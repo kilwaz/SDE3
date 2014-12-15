@@ -17,6 +17,7 @@ public class CompileCode {
 
     public static String compileCode(Logic logic) {
         String className = "SDEClass" + logic.getId() + "C" + counter;
+        counter++;
         String flowControllerReferenceId = "[Unloaded FlowController]";
         try {
             flowControllerReferenceId = FlowController.getFlowControllerFromLogic(logic).getReferenceID();
@@ -37,7 +38,7 @@ public class CompileCode {
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String logicReferenceId = \"" + logicReferenceId + "\";" +
                     "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
-                    "" + logic.getLogic() + "" +
+                    "   " + logic.getLogic() + "" +
                     "   public void threadRun() {" +
                     "      FlowController.sourceStarted(this.logicReferenceId);" +
                     "      function();" +
@@ -84,7 +85,7 @@ public class CompileCode {
             Boolean mkDirResult = sourceFile.getParentFile().mkdirs();
 
             if (!mkDirResult) {
-                System.out.println("Error creating directory " + sourceFile.getAbsolutePath());
+                System.out.println("Did not create directory " + sourceFile.getAbsolutePath());
             }
 
             new FileWriter(sourceFile).append(logicString).close();
@@ -129,7 +130,6 @@ public class CompileCode {
                     .message("Exception encountered while trying to compile " + flowControllerReferenceId), ex);
             className = null;
         }
-        counter++;
 
         // Returning null classname means that the compile did not succeed.
         return className;
