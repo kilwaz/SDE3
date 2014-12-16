@@ -2,7 +2,10 @@ package application.gui;
 
 import application.data.DataBank;
 import application.node.design.DrawableNode;
-import application.node.implementations.*;
+import application.node.implementations.BashNode;
+import application.node.implementations.LogicNode;
+import application.node.implementations.SwitchNode;
+import application.node.implementations.TriggerNode;
 import application.node.objects.Bash;
 import application.node.objects.Logic;
 import application.node.objects.Switch;
@@ -181,6 +184,7 @@ public class FlowController {
         return null;
     }
 
+    // Controls the creation and removal of all node connections displayed on the program flow
     public void checkConnections() {
         Boolean updateCanvas = false;
 
@@ -190,12 +194,21 @@ public class FlowController {
                 String src = ((LogicNode) startNode).getLogic().getLogic();
 
                 for (DrawableNode endNode : getNodes()) {
-                    if (src.contains("run(\"" + endNode.getContainedText() + "\"") || src.contains("runAndWait(\"" + endNode.getContainedText() + "\"")) {
-                        if (!connectionExists(startNode, endNode)) {
-                            NodeConnection newConnection = new NodeConnection(startNode, endNode, NodeConnection.DYNAMIC_CONNECTION);
-                            connections.add(newConnection);
-                            updateCanvas = true;
-                        }
+                    int nodeConnectionType = NodeConnection.NO_CONNECTION;
+
+                    // Here we are checked to see if any connections are linked from this LogicNode
+                    if (src.contains("run(\"" + endNode.getContainedText() + "\"") ||
+                            src.contains("runAndWait(\"" + endNode.getContainedText() + "\"")) {
+                        nodeConnectionType = NodeConnection.DYNAMIC_CONNECTION;
+                    } else if (src.contains("getNode(\"" + endNode.getContainedText() + "\"")) {
+                        nodeConnectionType = NodeConnection.GET_NODE_CONNECTION;
+                    }
+
+                    // If we find a possible connection and it doesn't already exist, we create that connection with the correct type
+                    if (!connectionExists(startNode, endNode) && nodeConnectionType != -1) {
+                        NodeConnection newConnection = new NodeConnection(startNode, endNode, nodeConnectionType);
+                        connections.add(newConnection);
+                        updateCanvas = true;
                     }
                 }
             } else if (startNode instanceof SwitchNode) {
@@ -261,8 +274,10 @@ public class FlowController {
                 if (nodeConnection.getConnectionStart() instanceof LogicNode) {
                     if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
                         if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("runAndWait(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
-                            listToRemove.add(nodeConnection);
-                            updateCanvas = true;
+                            if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("getNode(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                                listToRemove.add(nodeConnection);
+                                updateCanvas = true;
+                            }
                         }
                     }
                 } else if (nodeConnection.getConnectionStart() instanceof SwitchNode) {
@@ -292,6 +307,13 @@ public class FlowController {
                     }
 
                     if (removeCount.equals(triggers.size())) {
+                        listToRemove.add(nodeConnection);
+                        updateCanvas = true;
+                    }
+                }
+            } else if (nodeConnection.getConnectionType().equals(NodeConnection.GET_NODE_CONNECTION)) {
+                if (nodeConnection.getConnectionStart() instanceof LogicNode) {
+                    if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("getNode(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
                         listToRemove.add(nodeConnection);
                         updateCanvas = true;
                     }

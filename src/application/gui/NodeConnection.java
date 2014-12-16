@@ -6,12 +6,14 @@ import javafx.scene.paint.Color;
 public class NodeConnection {
     private DrawableNode connectionStart;
     private DrawableNode connectionEnd;
-    private Integer connectionType = MAIN_CONNECTION;
+    private Integer connectionType = NO_CONNECTION;
     private Double gradientFramesRemainingRatio = 0.0;  // goes from 1.0 to 0.0
 
+    public static final int NO_CONNECTION = -1; // Used to signify no found connection
     public static final int MAIN_CONNECTION = 0; // Set from changing
     public static final int DYNAMIC_CONNECTION = 1; // Set from within a node (Like run() within SourceNode)
     public static final int TRIGGER_CONNECTION = 2; // Set from triggers watching a node
+    public static final int GET_NODE_CONNECTION = 3; // Set from getNode() method from within LogicNode - Used to access node variables and methods
 
     public NodeConnection(DrawableNode connectionStart, DrawableNode connectionEnd, Integer connectionType) {
         this.connectionEnd = connectionEnd;
@@ -32,12 +34,15 @@ public class NodeConnection {
     }
 
     public Color getBaseColor() {
-        if (connectionType.equals(NodeConnection.MAIN_CONNECTION)) {
-            return Color.BLACK;
-        } else if (connectionType.equals(NodeConnection.DYNAMIC_CONNECTION)) {
-            return Color.GRAY;
-        } else if (connectionType.equals(NodeConnection.TRIGGER_CONNECTION)) {
-            return Color.TAN;
+        switch (connectionType) {
+            case 0:
+                return Color.BLACK;
+            case 1:
+                return Color.RED;
+            case 2:
+                return Color.GREEN;
+            case 3:
+                return Color.BLUE;
         }
 
         return Color.BLACK;
