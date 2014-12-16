@@ -19,12 +19,12 @@ public class MySQLConnectionManager {
     create table node(
         id INT NOT NULL AUTO_INCREMENT,
         program_id INT,
-        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode'),
         PRIMARY KEY (id),
         FOREIGN KEY (program_id) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
     ** Use this to add another enum type to the node table
-    alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode');
+    alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode');
     **
 
     create table node_details(
@@ -63,7 +63,7 @@ public class MySQLConnectionManager {
 
     create table node_colour(
         id INT NOT NULL AUTO_INCREMENT,
-        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode'),
         colour_r INT,
         colour_g INT,
         colour_b INT,
