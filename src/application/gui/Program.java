@@ -36,6 +36,10 @@ public class Program {
         return this.id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public FlowController getFlowController() {
         return this.flowController;
     }

@@ -1,5 +1,7 @@
 package application.utils;
 
+import application.node.implementations.EmailNode;
+
 import javax.mail.*;
 import javax.mail.event.MessageCountEvent;
 import javax.mail.event.MessageCountListener;
@@ -11,14 +13,25 @@ public class Email implements MessageCountListener {
     private Timer currentEmailCheckTimer;
     private Boolean checkEmail = true;
     private Folder inbox;
+    private EmailNode nodeReference;
+    private Boolean active = false;
 
-    public Email() {
+    private String emailUrl = "";
+    private String emailUsername = "";
+    private String emailPassword = "";
+
+    public Email(String emailUrl, String emailUsername, String emailPassword, EmailNode nodeReference) {
+        this.nodeReference = nodeReference;
+        this.emailPassword = emailPassword;
+        this.emailUrl = emailUrl;
+        this.emailUsername = emailUsername;
+
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imaps");
         try {
             Session session = Session.getInstance(props, null);
             Store store = session.getStore();
-            store.connect("mail.spl.com", "alex@spl.com", "4o%2!oqZ#On!tepv111!");
+            store.connect(emailUrl, emailUsername, emailPassword);
             inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
             Message msg = inbox.getMessage(inbox.getMessageCount());
@@ -60,6 +73,8 @@ public class Email implements MessageCountListener {
                     BodyPart bp = mp.getBodyPart(0);
                     System.out.println("CONTENT:" + bp.getContent());
                 }
+
+                nodeReference.newEmailTrigger();
             }
         } catch (Exception mex) {
             mex.printStackTrace();
@@ -72,6 +87,7 @@ public class Email implements MessageCountListener {
     }
 
     private void triggerCheckEmailTimer() {
+        active = true;
         currentEmailCheckTimer = new Timer();  //At this line a new Thread will be created
         currentEmailCheckTimer.schedule(new ActiveRefreshTimer(), 5000); //delay in milliseconds
     }
@@ -94,5 +110,10 @@ public class Email implements MessageCountListener {
                 triggerCheckEmailTimer();
             }
         }
+    }
+
+    public void close() {
+        currentEmailCheckTimer.cancel();
+        active = false;
     }
 }

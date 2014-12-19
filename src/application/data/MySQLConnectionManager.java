@@ -14,17 +14,21 @@ public class MySQLConnectionManager {
         start_node INT,
         view_x DOUBLE,
         view_y DOUBLE,
-        PRIMARY KEY (id));
+        user_id INT,
+        PRIMARY KEY (id),
+        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
     create table node(
         id INT NOT NULL AUTO_INCREMENT,
         program_id INT,
-        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode'),
         PRIMARY KEY (id),
         FOREIGN KEY (program_id) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
     ** Use this to add another enum type to the node table
-    alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode');
+    alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode');
+    ** Adds a foreign key to a table
+    alter table program add FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE;
     **
 
     create table node_details(
@@ -63,12 +67,18 @@ public class MySQLConnectionManager {
 
     create table node_colour(
         id INT NOT NULL AUTO_INCREMENT,
-        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode'),
         colour_r INT,
         colour_g INT,
         colour_b INT,
         PRIMARY KEY (id));
 
+    create table user(
+       id INT NOT NULL AUTO_INCREMENT,
+       username VARCHAR(100),
+       last_program INT,
+       PRIMARY KEY (id),
+       FOREIGN KEY (last_program) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
     */
 
     public MySQLConnectionManager() {

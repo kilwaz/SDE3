@@ -388,7 +388,7 @@ public class Controller implements Initializable {
                             .owner(null)
                             .title("Deleting program")
                             .message("Are you sure you want to delete " + program.getName()).showConfirm();
-                    if ("YES".equals(action.toString())) {
+                    if ("DialogAction.YES".equals(action.toString())) {
                         DataBank.deleteProgram(program);
                         programList.getItems().remove(program);
                     }
@@ -449,10 +449,16 @@ public class Controller implements Initializable {
         programList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldProgram, newProgram) -> {
                     DataBank.currentlyEditProgram = newProgram;
+                    DataBank.currentUser.setCurrentProgram(newProgram);
+                    DataBank.saveUser(DataBank.currentUser);
                     newProgram.getFlowController().checkConnections();
                     canvasController.drawProgram();
                 });
 
+        programList.getSelectionModel().select(DataBank.currentUser.getCurrentProgram());
+        programList.scrollTo(DataBank.currentUser.getCurrentProgram());
+
+        leftAccordion.setExpandedPane(programTitlePane);
 
         runButtonToolBar = AwesomeDude.createIconButton(AwesomeIcon.PLAY);
         runButtonToolBar.setStyle("-fx-background-color: null;");
@@ -500,15 +506,7 @@ public class Controller implements Initializable {
                 program.getFlowController().addNode(newNode);
                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                 canvasController.drawProgram();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | NoSuchMethodException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         });

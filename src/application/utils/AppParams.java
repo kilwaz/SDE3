@@ -12,8 +12,10 @@ public class AppParams {
     public static String APP_TITLE = "SpiraLinks Development Engine";
     public static String APP_VERSION = "V0.3";
 
+    // Database
     public static String MYSQL_CONNECTION = "jdbc:mysql://172.16.10.213/sde?user=spiralinks&password=spiralinks";
     public static String ORACLE_CONNECTION = "jdbc:oracle:thin:@172.16.10.181:1521:FOCALTST";
+    public static String CURRENT_USER = "alex";
 
     public static Font getFont(Integer size) {
         if (size == null) {

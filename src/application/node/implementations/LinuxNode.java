@@ -32,6 +32,9 @@ public class LinuxNode extends DrawableNode {
     private SSHManager sshManager = null;
     private TextArea consoleTextArea = new TextArea();
 
+    // Not to be saved in the database
+    private String consoleToWrite = "";
+
     // This will make a copy of the node passed to it
     public LinuxNode(LinuxNode linuxNode) {
         this.setId(-1);
@@ -160,8 +163,6 @@ public class LinuxNode extends DrawableNode {
 
         return triggers;
     }
-
-    private String consoleToWrite = "";
 
     public void writeToConsole(String text) {
         consoleToWrite += text;
