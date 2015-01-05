@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 
 public class FlowController {
     private DrawableNode startNode;
-    private DrawableNode selectedNode;
+//    private DrawableNode selectedNode;
+    private List<DrawableNode> selectedNodes = new ArrayList<>();
     private List<DrawableNode> nodes = new ArrayList<>();
     private List<NodeConnection> connections = new ArrayList<>();
     private List<NodeConnection> activeConnections = Collections.synchronizedList(new ArrayList<>());
@@ -163,15 +164,30 @@ public class FlowController {
     }
 
     public List<DrawableNode> getClickedNodes(Double x, Double y) {
-        List<DrawableNode> nodeList = new ArrayList<>();
+        List<DrawableNode> clickedNodeList = new ArrayList<>();
 
         for (DrawableNode node : nodes) {
             if (node.isCoordinateInside(x, y)) {
-                nodeList.add(node);
+                clickedNodeList.add(node);
             }
         }
 
-        return nodeList;
+        return clickedNodeList;
+    }
+
+    // This returns all the nodes within a bounded box with top left corner (x,y) and bottom right corner (x2,y2)
+    public List<DrawableNode> getGroupSelectedNodes(Double x, Double y, Double x2, Double y2) {
+        List<DrawableNode> selectedNodeList = new ArrayList<>();
+
+        for (DrawableNode node : nodes) {
+            if (x < node.getX() && x2 > node.getX()) {
+                if (y < node.getY() && y2 > node.getY()) {
+                    selectedNodeList.add(node);
+                }
+            }
+        }
+
+        return selectedNodeList;
     }
 
     public DrawableNode getNodeById(Integer id) {
@@ -216,15 +232,22 @@ public class FlowController {
 
                 for (DrawableNode endNode : getNodes()) {
                     Boolean createConnection = false;
+                    Boolean enabledConnection = false;
 
                     for (Switch aSwitch : aSwitches) {
-                        if ((aSwitch.getTarget().equals(endNode.getContainedText()) && aSwitch.isEnabled())) {
+                        if ((aSwitch.getTarget().equals(endNode.getContainedText()))) {
+                            enabledConnection = aSwitch.isEnabled();
                             createConnection = true;
                         }
                     }
 
                     if (createConnection && !connectionExists(startNode, endNode)) {
-                        NodeConnection newConnection = new NodeConnection(startNode, endNode, NodeConnection.DYNAMIC_CONNECTION);
+                        Integer connectionType = NodeConnection.DYNAMIC_CONNECTION;
+                        if (!enabledConnection) {
+                            connectionType = NodeConnection.DISABLED_CONNECTION;
+                        }
+
+                        NodeConnection newConnection = new NodeConnection(startNode, endNode, connectionType);
                         connections.add(newConnection);
                         updateCanvas = true;
                     }
@@ -269,7 +292,9 @@ public class FlowController {
 
         // Checks old connections and removes ones that don't exist
         List<NodeConnection> listToRemove = new ArrayList<>();
-        for (NodeConnection nodeConnection : connections) {
+        List<NodeConnection> connectionsLoopTemp = new ArrayList<>(); // We make a copy the list here so that we can the original while iterating over this one
+        connectionsLoopTemp.addAll(connections);
+        for (NodeConnection nodeConnection : connectionsLoopTemp) {
             if (nodeConnection.getConnectionType().equals(NodeConnection.DYNAMIC_CONNECTION)) {
                 if (nodeConnection.getConnectionStart() instanceof LogicNode) {
                     if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
@@ -291,6 +316,10 @@ public class FlowController {
                     }
 
                     if (removeCount.equals(aSwitches.size())) {
+                        // Create a disabled connection between these two nodes to give appearance of toggling
+                        NodeConnection newConnection = new NodeConnection(nodeConnection.getConnectionStart(), nodeConnection.getConnectionEnd(), NodeConnection.DISABLED_CONNECTION);
+                        connections.add(newConnection);
+
                         listToRemove.add(nodeConnection);
                         updateCanvas = true;
                     }
@@ -314,6 +343,26 @@ public class FlowController {
             } else if (nodeConnection.getConnectionType().equals(NodeConnection.GET_NODE_CONNECTION)) {
                 if (nodeConnection.getConnectionStart() instanceof LogicNode) {
                     if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("getNode(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                        listToRemove.add(nodeConnection);
+                        updateCanvas = true;
+                    }
+                }
+            } else if (nodeConnection.getConnectionType().equals(NodeConnection.DISABLED_CONNECTION)) {
+                if (nodeConnection.getConnectionStart() instanceof SwitchNode) {
+                    List<Switch> aSwitches = ((SwitchNode) nodeConnection.getConnectionStart()).getSwitches();
+                    String endContainedText = nodeConnection.getConnectionEnd().getContainedText();
+                    Integer removeCount = 0;
+                    for (Switch aSwitch : aSwitches) {
+                        if ((!aSwitch.getTarget().equals(endContainedText) || aSwitch.isEnabled())) {
+                            removeCount++;
+                        }
+                    }
+
+                    if (removeCount.equals(aSwitches.size())) {
+                        // Create an enabled connection between these two nodes to give appearance of toggling
+                        NodeConnection newConnection = new NodeConnection(nodeConnection.getConnectionStart(), nodeConnection.getConnectionEnd(), NodeConnection.DYNAMIC_CONNECTION);
+                        connections.add(newConnection);
+
                         listToRemove.add(nodeConnection);
                         updateCanvas = true;
                     }
@@ -450,12 +499,12 @@ public class FlowController {
         triggerActiveTimer();
     }
 
-    public DrawableNode getSelectedNode() {
-        return selectedNode;
+    public List<DrawableNode> getSelectedNodes() {
+        return selectedNodes;
     }
 
-    public void setSelectedNode(DrawableNode selectedNode) {
-        this.selectedNode = selectedNode;
+    public void setSelectedNodes(List<DrawableNode> selectedNodes) {
+        this.selectedNodes = selectedNodes;
     }
 
     public void triggerActiveTimer() {

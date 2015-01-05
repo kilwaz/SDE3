@@ -9,7 +9,6 @@ public class DrawablePoint {
         this.x = x;
         this.y = y;
         this.isMove = isMove;
-
     }
 
     public Double getX() {

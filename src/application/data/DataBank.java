@@ -12,7 +12,6 @@ import application.node.objects.Trigger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -98,8 +97,8 @@ public class DataBank {
         loadPrograms(user);
     }
 
-    public static List<HashMap<String, Object>> runSelectQuery(SelectQuery selectQuery) {
-        List<HashMap<String, Object>> resultsMap = new ArrayList<>();
+    public static SelectResult runSelectQuery(SelectQuery selectQuery) {
+        SelectResult selectResult = new SelectResult();
         try {
             if (mySQLInstance == null) {
                 mySQLInstance = MySQLConnectionManager.getInstance();
@@ -112,23 +111,28 @@ public class DataBank {
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
-                    HashMap<String, Object> resultRow = new HashMap<>();
+                    SelectResultRow selectResultRow = new SelectResultRow();
+
                     for (int i = 1; i < resultSet.getMetaData().getColumnCount() + 1; i++) {
-                        resultRow.put(resultSet.getMetaData().getColumnName(i), resultSet.getObject(i));
+                        if (resultSet.getMetaData().getColumnType(i) == -4) {  // Column type '-4' is BLOB
+                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i), resultSet.getString(i));
+                        } else {
+                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i), resultSet.getObject(i));
+                        }
                     }
 
-                    resultsMap.add(resultRow);
+                    selectResult.addResultRow(selectResultRow);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return resultsMap;
+        return selectResult;
     }
 
-    public static Integer runUpdateQuery(UpdateQuery updateQuery) {
-        Integer resultNumber = -1;
+    public static UpdateResult runUpdateQuery(UpdateQuery updateQuery) {
+        UpdateResult updateResult = new UpdateResult();
         try {
             if (mySQLInstance == null) {
                 mySQLInstance = MySQLConnectionManager.getInstance();
@@ -137,14 +141,14 @@ public class DataBank {
             PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement(updateQuery.getQuery());
             if (preparedStatement != null) {
                 setParameters(preparedStatement, updateQuery);
-                resultNumber = preparedStatement.executeUpdate();
+                updateResult.setResultNumber(preparedStatement.executeUpdate());
                 preparedStatement.close();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return resultNumber;
+        return updateResult;
     }
 
     private static void setParameters(PreparedStatement preparedStatement, Query query) throws SQLException {
@@ -216,12 +220,12 @@ public class DataBank {
     }
 
     public static void saveNode(DrawableNode node) {
-        Integer resultNumber = (Integer) new UpdateQuery("update node set program_id = ?, node_type = ? where id = ?")
+        UpdateResult updateResult = (UpdateResult)new UpdateQuery("update node set program_id = ?, node_type = ? where id = ?")
                 .addParameter(node.getProgramId()) // 1
                 .addParameter(node.getNodeType()) // 2
                 .addParameter(node.getId()) // 3
                 .execute();
-        if (resultNumber == 0) { // If record does not exist insert a new one..
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
             node.setId(getNextId("node")); // Gets the next ID for a node that is about to be created
             new UpdateQuery("insert into node values (default, ?, ?)")
                     .addParameter(node.getProgramId()) // 1
@@ -232,13 +236,13 @@ public class DataBank {
         // update node_details
         List<SavableAttribute> savableAttributes = node.getDataToSave();
         for (SavableAttribute savableAttribute : savableAttributes) {
-            resultNumber = (Integer) new UpdateQuery("update node_details set object_value = ? where node_id = ? and object_name = ? and object_class = ?")
+            UpdateResult updateResultNodeDetails = (UpdateResult)new UpdateQuery("update node_details set object_value = ? where node_id = ? and object_name = ? and object_class = ?")
                     .addParameter(savableAttribute.getVariable()) // 1
                     .addParameter(node.getId()) // 2
                     .addParameter(savableAttribute.getVariableName()) // 3
                     .addParameter(savableAttribute.getClassName()) // 4
                     .execute();
-            if (resultNumber == 0) { // If record does not exist insert a new one..
+            if (updateResultNodeDetails.getResultNumber() == 0) { // If record does not exist insert a new one..
                 new UpdateQuery("insert into node_details values (default, ?, ?, ?, ?)")
                         .addParameter(node.getId()) // 1
                         .addParameter(savableAttribute.getVariableName()) // 2
@@ -252,99 +256,93 @@ public class DataBank {
     public static User loadUser(String username) {
         User user = null;
 
-        List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) new SelectQuery("select id, username, last_program from user where username = ?")
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, username, last_program from user where username = ?")
                 .addParameter(username)
                 .execute();
-        for (HashMap<String, Object> resultRow : resultMap) {
-            user = new User((Integer) resultRow.get("id"), (String) resultRow.get("username"), (Integer) resultRow.get("last_program"));
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            user = new User(resultRow.getInt("id"), resultRow.getString("username"), resultRow.getInt("last_program"));
         }
 
         return user;
     }
 
     public static void loadPrograms(User user) {
-        try {
-            if (mySQLInstance == null) {
-                mySQLInstance = MySQLConnectionManager.getInstance();
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id,name,start_node,view_offset_height,view_offset_width from program where user_id = ?;")
+                .addParameter(user.getId())
+                .execute();
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            String name = resultRow.getString("name");
+            Integer programId = resultRow.getInt("id");
+            Integer startNode = resultRow.getInt("start_node");
+            Program loadedProgram = new Program(name, programId);
+
+            if (loadedProgram.getId().equals(user.getLastProgram())) {
+                user.setCurrentProgram(loadedProgram);
             }
 
-            ResultSet resultSet = mySQLInstance.runQuery("select id,name,start_node,view_offset_height,view_offset_width from program where user_id = " + user.getId() + ";");
-            while (resultSet.next()) {
-                String name = resultSet.getString("name");
-                Integer programId = resultSet.getInt("id");
-                Integer startNode = resultSet.getInt("start_node");
-                Program loadedProgram = new Program(name, programId);
+            FlowController flowController = loadedProgram.getFlowController();
+            flowController.setViewOffsetHeight(resultRow.getDouble("view_offset_height"));
+            flowController.setViewOffsetWidth(resultRow.getDouble("view_offset_width"));
 
-                if (loadedProgram.getId().equals(user.getLastProgram())) {
-                    user.setCurrentProgram(loadedProgram);
-                }
+            SelectResult selectResultNode = (SelectResult) new SelectQuery("select id,program_id,node_type from node where program_id = ?;")
+                    .addParameter(programId)
+                    .execute();
+            for (SelectResultRow resultRowNode : selectResultNode.getResults()) {
+                DrawableNode drawableNode = flowController.createNewNode(
+                        resultRowNode.getInt("id"),
+                        resultRowNode.getInt("program_id"),
+                        resultRowNode.getString("node_type"),
+                        true
+                );
 
-                FlowController flowController = loadedProgram.getFlowController();
-                flowController.setViewOffsetHeight(resultSet.getDouble("view_offset_height"));
-                flowController.setViewOffsetWidth(resultSet.getDouble("view_offset_width"));
+                if (drawableNode != null) {
+                    // This disables auto saving when running setters.  We don't want that while we are first populating the object
+                    drawableNode.setIsInitialising(true);
 
-                ResultSet nodeResultSet = mySQLInstance.runQuery("select id,program_id,node_type from node where program_id = '" + programId + "';");
+                    SelectResult selectResultNodeDetail = (SelectResult) new SelectQuery("select node_id,object_name,object_class,object_value from node_details where node_id = ?")
+                            .addParameter(resultRowNode.getInt("id"))
+                            .execute();
+                    for (SelectResultRow resultRowNodeDetail : selectResultNodeDetail.getResults()) {
+                        Method method;
+                        try {
+                            if ("java.lang.Double".equals(resultRowNodeDetail.getString("object_class"))) {
+                                Double doubleValue = resultRowNodeDetail.getBlobDouble("object_value");
 
-                while (nodeResultSet.next()) {
-                    DrawableNode drawableNode = flowController.createNewNode(
-                            nodeResultSet.getInt("id"),
-                            nodeResultSet.getInt("program_id"),
-                            nodeResultSet.getString("node_type"),
-                            true
-                    );
+                                method = drawableNode.getClass().getMethod("set" + resultRowNodeDetail.getString("object_name"), Class.forName(resultRowNodeDetail.getString("object_class")));
+                                method.invoke(drawableNode, doubleValue);
+                            } else if ("java.lang.String".equals(resultRowNodeDetail.getString("object_class"))) {
+                                String stringValue = resultRowNodeDetail.getBlobString("object_value");
 
-                    if (drawableNode != null) {
-                        // This disables auto saving when running setters.  We don't want that while we are first populating the object
-                        drawableNode.setIsInitialising(true);
+                                method = drawableNode.getClass().getMethod("set" + resultRowNodeDetail.getString("object_name"), Class.forName(resultRowNodeDetail.getString("object_class")));
+                                method.invoke(drawableNode, stringValue);
+                            } else if ("java.lang.Integer".equals(resultRowNodeDetail.getString("object_class"))) {
+                                Integer integerValue = resultRowNodeDetail.getBlobInt("object_value");
 
-                        PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select node_id,object_name,object_class,object_value from node_details where node_id = ?");
-                        preparedStatement.setInt(1, nodeResultSet.getInt("id"));
-                        ResultSet nodeDetailsResultSet = preparedStatement.executeQuery();
-                        while (nodeDetailsResultSet.next()) {
-                            Method method;
-                            try {
-                                if ("java.lang.Double".equals(nodeDetailsResultSet.getString("object_class"))) {
-                                    Double doubleValue = nodeDetailsResultSet.getDouble("object_value");
-
-                                    method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
-                                    method.invoke(drawableNode, doubleValue);
-                                } else if ("java.lang.String".equals(nodeDetailsResultSet.getString("object_class"))) {
-                                    String stringValue = nodeDetailsResultSet.getString("object_value");
-
-                                    method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
-                                    method.invoke(drawableNode, stringValue);
-                                } else if ("java.lang.Integer".equals(nodeDetailsResultSet.getString("object_class"))) {
-                                    Integer integerValue = nodeDetailsResultSet.getInt("object_value");
-
-                                    method = drawableNode.getClass().getMethod("set" + nodeDetailsResultSet.getString("object_name"), Class.forName(nodeDetailsResultSet.getString("object_class")));
-                                    method.invoke(drawableNode, integerValue);
-                                }
-                            } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
-                                e.printStackTrace();
+                                method = drawableNode.getClass().getMethod("set" + resultRowNodeDetail.getString("object_name"), Class.forName(resultRowNodeDetail.getString("object_class")));
+                                method.invoke(drawableNode, integerValue);
                             }
+                        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
                         }
-
-                        drawableNode.setIsInitialising(false);
                     }
-                }
 
-                flowController.setStartNode(flowController.getNodeById(startNode));
-                addProgram(loadedProgram);
+                    drawableNode.setIsInitialising(false);
+                }
             }
-            resultSet.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+            flowController.setStartNode(flowController.getNodeById(startNode));
+            addProgram(loadedProgram);
         }
     }
 
     public static void loadSwitches(SwitchNode switchNode) {
         List<Switch> aSwitches = new ArrayList<>();
 
-        List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) new SelectQuery("select id, target, enabled from switch where node_id = ?")
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, target, enabled from switch where node_id = ?")
                 .addParameter(switchNode.getId())
                 .execute();
-        for (HashMap<String, Object> resultRow : resultMap) {
-            aSwitches.add(new Switch((Integer) resultRow.get("id"), switchNode, (String) resultRow.get("target"), (Boolean) resultRow.get("enabled")));
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            aSwitches.add(new Switch(resultRow.getInt("id"), switchNode, resultRow.getString("target"), resultRow.getBoolean("enabled")));
         }
 
         switchNode.setSwitches(aSwitches);
@@ -354,11 +352,11 @@ public class DataBank {
     public static void loadInputs(InputNode inputNode) {
         List<Input> inputs = new ArrayList<>();
 
-        List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) new SelectQuery("select id, variable_name, variable_value from input where node_id = ?")
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, variable_name, variable_value from input where node_id = ?")
                 .addParameter(inputNode.getId())
                 .execute();
-        for (HashMap<String, Object> resultRow : resultMap) {
-            inputs.add(new Input((Integer) resultRow.get("id"), (String) resultRow.get("variable_name"), (String) resultRow.get("variable_value"), inputNode));
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            inputs.add(new Input(resultRow.getInt("id"), resultRow.getString("variable_name"), resultRow.getString("variable_value"), inputNode));
         }
 
         inputNode.setInputs(inputs);
@@ -385,23 +383,23 @@ public class DataBank {
     public static void loadTriggers(TriggerNode triggerNode) {
         List<Trigger> triggers = new ArrayList<>();
 
-        List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) new SelectQuery("select id, trigger_watch, trigger_when, trigger_then from trigger_condition where node_id = ?")
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, trigger_watch, trigger_when, trigger_then from trigger_condition where node_id = ?")
                 .addParameter(triggerNode.getId())
                 .execute();
-        for (HashMap<String, Object> resultRow : resultMap) {
-            triggers.add(new Trigger((Integer) resultRow.get("id"), (String) resultRow.get("trigger_watch"), (String) resultRow.get("trigger_when"), (String) resultRow.get("trigger_then"), triggerNode));
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            triggers.add(new Trigger(resultRow.getInt("id"), resultRow.getString("trigger_watch"), resultRow.getString("trigger_when"), resultRow.getString("trigger_then"), triggerNode));
         }
 
         triggerNode.setTriggers(triggers);
     }
 
     public static void saveSwitch(Switch aSwitch) {
-        Integer resultNumber = (Integer) new UpdateQuery("update switch set target = ?, enabled = ? where id = ?")
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update switch set target = ?, enabled = ? where id = ?")
                 .addParameter(aSwitch.getTarget()) // 1
                 .addParameter(aSwitch.isEnabled()) // 2
                 .addParameter(aSwitch.getId()) // 3
                 .execute();
-        if (resultNumber == 0) { // If record does not exist insert a new one..
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
             aSwitch.setId(getNextId("switch"));
             new UpdateQuery("insert into switch values (default, ?, ?, ?)")
                     .addParameter(aSwitch.getParent().getId()) // 1
@@ -412,12 +410,12 @@ public class DataBank {
     }
 
     public static void saveInput(Input input) {
-        Integer resultNumber = (Integer) new UpdateQuery("update input set variable_name = ?, variable_value = ? where id = ?")
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update input set variable_name = ?, variable_value = ? where id = ?")
                 .addParameter(input.getVariableName()) // 1
                 .addParameter(input.getVariableValue()) // 2
                 .addParameter(input.getId()) // 3
                 .execute();
-        if (resultNumber == 0) { // If record does not exist insert a new one..
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
             input.setId(getNextId("input"));
             new UpdateQuery("insert into input values (default, ?, ?, ?)")
                     .addParameter(input.getParent().getId()) // 1
@@ -428,13 +426,13 @@ public class DataBank {
     }
 
     public static void saveTrigger(Trigger trigger) {
-        Integer resultNumber = (Integer) new UpdateQuery("update trigger_condition set trigger_watch = ?, trigger_when = ?, trigger_then = ? where id = ?")
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update trigger_condition set trigger_watch = ?, trigger_when = ?, trigger_then = ? where id = ?")
                 .addParameter(trigger.getWatch()) // 1
                 .addParameter(trigger.getWhen()) // 2
                 .addParameter(trigger.getThen()) // 3
                 .addParameter(trigger.getId()) // 4
                 .execute();
-        if (resultNumber == 0) { // If record does not exist insert a new one..
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
             trigger.setId(getNextId("trigger_condition"));
             new UpdateQuery("insert into trigger_condition values (default, ?, ?, ?, ?)")
                     .addParameter(trigger.getParent().getId()) // 1
@@ -446,13 +444,13 @@ public class DataBank {
     }
 
     public static void saveNodeColour(NodeColour nodeColour) {
-        Integer resultNumber = (Integer) new UpdateQuery("update node_colour set colour_r = ?, colour_g = ?, colour_b = ? where node_type = ?")
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update node_colour set colour_r = ?, colour_g = ?, colour_b = ? where node_type = ?")
                 .addParameter(nodeColour.getRed()) // 1
                 .addParameter(nodeColour.getGreen()) // 2
                 .addParameter(nodeColour.getBlue()) // 3
                 .addParameter(nodeColour.getNodeType()) // 4
                 .execute();
-        if (resultNumber == 0) { // If record does not exist insert a new one..
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
             nodeColour.setId(getNextId("node_colour"));
             new UpdateQuery("insert into node_colour values (default, ?, ?, ?, ?)")
                     .addParameter(nodeColour.getNodeType()) // 1
@@ -490,15 +488,14 @@ public class DataBank {
         }
     }
 
-
     private static Integer getNextId(String tableName) {
         Integer autoIncrement = -1;
 
-        List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) new SelectQuery("SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = ? AND table_schema = DATABASE();")
+        SelectResult selectResult = (SelectResult) new SelectQuery("SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = ? AND table_schema = DATABASE();")
                 .addParameter(tableName)
                 .execute();
-        for (HashMap<String, Object> resultRow : resultMap) {
-            autoIncrement = Integer.parseInt((resultRow.get("AUTO_INCREMENT")).toString());
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            autoIncrement = resultRow.getBigInt("AUTO_INCREMENT").intValue();
         }
 
         return autoIncrement;

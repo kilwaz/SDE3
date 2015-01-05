@@ -193,10 +193,7 @@ public class Controller implements Initializable {
             } else {
                 Program program = DataBank.currentlyEditProgram;
                 if (program != null) {
-                    List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
-                    if (clickNodes.size() > 0) {
-                        DrawableNode drawableNode = clickNodes.get(0);
-
+                    for (DrawableNode drawableNode : program.getFlowController().getSelectedNodes()) {
                         Tab nodeTab = null;
                         // We loop to see if the tab already exists for this node
                         for (Tab loopTab : nodeTabPane.getTabs()) {
@@ -218,7 +215,6 @@ public class Controller implements Initializable {
                         selectTab(nodeTab);
 
                         // Set the node as the selected node
-                        program.getFlowController().setSelectedNode(drawableNode);
                         canvasController.drawProgram();
                     }
                 }
@@ -255,15 +251,7 @@ public class Controller implements Initializable {
                                 program.getFlowController().addNode(newNode);
                                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                                 canvasController.drawProgram();
-                            } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
-                            } catch (InvocationTargetException e) {
-                                e.printStackTrace();
-                            } catch (NoSuchMethodException e) {
-                                e.printStackTrace();
-                            } catch (InstantiationException e) {
-                                e.printStackTrace();
-                            } catch (IllegalAccessException e) {
+                            } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
                                 e.printStackTrace();
                             }
                             canvasPopOver.hide();
@@ -462,18 +450,10 @@ public class Controller implements Initializable {
 
         runButtonToolBar = AwesomeDude.createIconButton(AwesomeIcon.PLAY);
         runButtonToolBar.setStyle("-fx-background-color: null;");
-        runButtonToolBar.setOnMouseEntered(event -> {
-            runButtonToolBar.setStyle("-fx-background-color: lightgray;");
-        });
-        runButtonToolBar.setOnMousePressed(event -> {
-            runButtonToolBar.setStyle("-fx-background-color: darkgray;");
-        });
-        runButtonToolBar.setOnMouseReleased(event -> {
-            runButtonToolBar.setStyle("-fx-background-color: lightgray;");
-        });
-        runButtonToolBar.setOnMouseExited(event -> {
-            runButtonToolBar.setStyle("-fx-background-color: null;");
-        });
+        runButtonToolBar.setOnMouseEntered(event -> runButtonToolBar.setStyle("-fx-background-color: lightgray;"));
+        runButtonToolBar.setOnMousePressed(event -> runButtonToolBar.setStyle("-fx-background-color: darkgray;"));
+        runButtonToolBar.setOnMouseReleased(event -> runButtonToolBar.setStyle("-fx-background-color: lightgray;"));
+        runButtonToolBar.setOnMouseExited(event -> runButtonToolBar.setStyle("-fx-background-color: null;"));
         runButtonToolBar.setOnAction(event -> {
                     Program program = DataBank.currentlyEditProgram;
                     if (program != null) {
@@ -704,5 +684,3 @@ public class Controller implements Initializable {
         Platform.runLater(new OneShotTask(threadCount));
     }
 }
-
-

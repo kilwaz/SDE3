@@ -70,7 +70,7 @@ public class DrawableNode {
     }
 
     public List<SavableAttribute> getDataToSave() {
-        List<SavableAttribute> savableAttributes = new ArrayList<SavableAttribute>();
+        List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.add(new SavableAttribute("X", x.getClass().getName(), x));
         savableAttributes.add(new SavableAttribute("Id", id.getClass().getName(), id));
@@ -82,7 +82,7 @@ public class DrawableNode {
     }
 
     public List<DrawablePoint> getDrawablePoints() {
-        List<DrawablePoint> drawablePoints = new ArrayList<DrawablePoint>();
+        List<DrawablePoint> drawablePoints = new ArrayList<>();
 
         Double minimumNodeWidth = 50.0;
         Double nodeFontPadding = 5.0;

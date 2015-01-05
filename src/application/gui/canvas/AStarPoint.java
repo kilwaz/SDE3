@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class AStarPoint {
-    private ArrayList<AStarPoint> connections = new ArrayList<AStarPoint>();
+    private ArrayList<AStarPoint> connections = new ArrayList<>();
     private Point point;
 
     public AStarPoint(Point point) {
@@ -37,6 +37,7 @@ public class AStarPoint {
         return connections;
     }
 
+    // This is used as the basic heuristic measure for estimating the best solution
     public Double getStraightLineDistance(AStarPoint aStarPoint) {
         // Pythagoras
         Double a = (double) Math.abs(getX() - aStarPoint.getX());

@@ -14,6 +14,7 @@ public class NodeConnection {
     public static final int DYNAMIC_CONNECTION = 1; // Set from within a node (Like run() within SourceNode)
     public static final int TRIGGER_CONNECTION = 2; // Set from triggers watching a node
     public static final int GET_NODE_CONNECTION = 3; // Set from getNode() method from within LogicNode - Used to access node variables and methods
+    public static final int DISABLED_CONNECTION = 4; // Set from switch node when a switch is disabled
 
     public NodeConnection(DrawableNode connectionStart, DrawableNode connectionEnd, Integer connectionType) {
         this.connectionEnd = connectionEnd;
@@ -43,6 +44,8 @@ public class NodeConnection {
                 return Color.GREEN;
             case 3:
                 return Color.BLUE;
+            case 4:
+                return Color.LIGHTPINK;
         }
 
         return Color.BLACK;

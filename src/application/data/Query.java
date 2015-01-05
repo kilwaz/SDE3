@@ -10,5 +10,4 @@ public interface Query {
     public List<Object> getParameters();
 
     public Object execute();
-
 }

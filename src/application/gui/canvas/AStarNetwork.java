@@ -4,7 +4,6 @@ import application.data.DataBank;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.design.DrawableNode;
-import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -14,7 +13,7 @@ import java.util.List;
 
 public class AStarNetwork {
     private Integer nodeCornerPadding;
-    private GraphicsContext gc;
+    //    private GraphicsContext gc;   // Used here for drawing debug view of network
     private List<AStarPoint> networkPoints;
 
     public AStarNetwork(Integer nodeCornerPadding) {
@@ -23,7 +22,7 @@ public class AStarNetwork {
     }
 
     private void generateAStarNetwork() {
-        List<Point> points = new ArrayList<Point>();
+        List<Point> points = new ArrayList<>();
         Program program = DataBank.currentlyEditProgram;
 
         // Create points, 6 points one in each corner and then one on the middle left and right edges
@@ -40,7 +39,7 @@ public class AStarNetwork {
         //gc.setStroke(javafx.scene.paint.Color.RED);
         //gc.setLineWidth(1);
 
-        networkPoints = new ArrayList<AStarPoint>();
+        networkPoints = new ArrayList<>();
         for (Point point : points) {
             networkPoints.add(new AStarPoint(point.getLocation()));
         }
@@ -79,7 +78,7 @@ public class AStarNetwork {
         } else {
             // Return empty list if no start or goal
             System.out.println("Problems finding start or goal for path");
-            return new ArrayList<AStarPoint>();
+            return new ArrayList<>();
         }
     }
 
@@ -113,16 +112,16 @@ public class AStarNetwork {
     }
 
     private List<AStarPoint> aStarSolve(AStarPoint start, AStarPoint goal) {
-        List<AStarPoint> solvedPath = new ArrayList<AStarPoint>();
-        List<AStarPoint> closedSet = new ArrayList<AStarPoint>();
-        List<AStarPoint> openSet = new ArrayList<AStarPoint>();
+        List<AStarPoint> solvedPath = new ArrayList<>();
+        List<AStarPoint> closedSet = new ArrayList<>();
+        List<AStarPoint> openSet = new ArrayList<>();
         openSet.add(start);
 
         // Works as second point back to the first
-        HashMap<AStarPoint, AStarPoint> routes = new HashMap<AStarPoint, AStarPoint>();
+        HashMap<AStarPoint, AStarPoint> routes = new HashMap<>();
 
-        HashMap<AStarPoint, Double> knownScore = new HashMap<AStarPoint, Double>();
-        HashMap<AStarPoint, Double> estimatedScore = new HashMap<AStarPoint, Double>();
+        HashMap<AStarPoint, Double> knownScore = new HashMap<>();
+        HashMap<AStarPoint, Double> estimatedScore = new HashMap<>();
         knownScore.put(start, 0.0);
 
         // Calculate the estimated distance by first going along known and the estimating the rest
@@ -181,7 +180,7 @@ public class AStarNetwork {
 
             return path;
         } else {
-            List<AStarPoint> path = new ArrayList<AStarPoint>();
+            List<AStarPoint> path = new ArrayList<>();
             path.add(currentPoint);
 
             return path;

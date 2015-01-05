@@ -15,6 +15,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CanvasController {
@@ -23,19 +25,25 @@ public class CanvasController {
 
     private Boolean isDraggingNode = false;
     private Boolean isDraggingCanvas = false;
-    private DrawableNode draggedNode = null;
+    private Boolean isGroupSelect = false;
+    private List<DrawableNode> draggedNodes = new ArrayList<>();
+    private HashMap<DrawableNode, List<Double>> draggedOffsets = new HashMap<>();
     private Double dragXOffset = 0.0;
     private Double dragYOffset = 0.0;
     private Double scale = 1.0;
-    private Double nodeFontPadding = 15.0; // This is added onto the width of the font
-    private Double minimumNodeWidth = 50.0; // Node cannot have a smaller width than this
     private Integer nodeCornerPadding = 5; // This is the padding space the path network will give around nodes
     private Double offsetHeight = 0.0;
     private Double offsetWidth = 0.0;
+
     private Double initialOffsetHeight = 0.0;
     private Double initialOffsetWidth = 0.0;
     private Double initialMouseX = 0.0;
     private Double initialMouseY = 0.0;
+
+    private Double groupSelectInitialX = 0.0;
+    private Double groupSelectInitialY = 0.0;
+    private Double groupSelectCurrentX = 0.0;
+    private Double groupSelectCurrentY = 0.0;
 
     public CanvasController(Canvas canvasFlow) {
         this.canvasFlow = canvasFlow;
@@ -51,39 +59,64 @@ public class CanvasController {
     }
 
     public void canvasDragged(MouseEvent event) {
-        if (event.isPrimaryButtonDown() && draggedNode != null) {
-            draggedNode.setX(event.getX() + dragXOffset);
-            draggedNode.setY(event.getY() + dragYOffset);
-            drawProgram();
-            isDraggingNode = true;
-        } else if (event.isPrimaryButtonDown() && isDraggingCanvas) {
-            offsetWidth = initialOffsetWidth - (initialMouseX - event.getX());
-            offsetHeight = initialOffsetHeight - (initialMouseY - event.getY());
-            DataBank.currentlyEditProgram.getFlowController().setViewOffsetWidth(offsetWidth);
-            DataBank.currentlyEditProgram.getFlowController().setViewOffsetHeight(offsetHeight);
-            drawProgram();
+        if (isGroupSelect) {
+            groupSelectCurrentX = event.getX();
+            groupSelectCurrentY = event.getY();
+            drawProgram();  // Draw program method will draw the selection box as it is being dragged
+        } else {
+            if (event.isPrimaryButtonDown() && draggedNodes.size() > 0) {
+                for (DrawableNode draggedNode : draggedNodes) {
+                    List<Double> dragOffsetXY = draggedOffsets.get(draggedNode);
+                    draggedNode.setX(event.getX() + dragOffsetXY.get(0));
+                    draggedNode.setY(event.getY() + dragOffsetXY.get(1));
+                }
+                drawProgram();
+                isDraggingNode = true;
+            } else if (event.isPrimaryButtonDown() && isDraggingCanvas) {
+                offsetWidth = initialOffsetWidth - (initialMouseX - event.getX());
+                offsetHeight = initialOffsetHeight - (initialMouseY - event.getY());
+                DataBank.currentlyEditProgram.getFlowController().setViewOffsetWidth(offsetWidth);
+                DataBank.currentlyEditProgram.getFlowController().setViewOffsetHeight(offsetHeight);
+                drawProgram();
+            }
         }
     }
 
     public void canvasMouseDown(MouseEvent event) {
-        if (event.isPrimaryButtonDown()) {
-            Program program = DataBank.currentlyEditProgram;
+        if (event.isControlDown()) { // This is when we are holding control to select a group of nodes
+            isGroupSelect = true;
+            groupSelectInitialX = event.getX();
+            groupSelectInitialY = event.getY();
+        } else {
+            if (event.isPrimaryButtonDown()) {
+                Program program = DataBank.currentlyEditProgram;
 
-            if (program != null) {
-                List<DrawableNode> clickedNodes = program.getFlowController().getClickedNodes(event.getX() - offsetWidth, event.getY() - offsetHeight);
-                if (clickedNodes.size() > 0) {
-                    draggedNode = clickedNodes.get(0);
-                    dragXOffset = draggedNode.getX() - event.getX();
-                    dragYOffset = draggedNode.getY() - event.getY();
-                } else {
-                    initialMouseX = event.getX();
-                    initialMouseY = event.getY();
-                    initialOffsetWidth = offsetWidth;
-                    initialOffsetHeight = offsetHeight;
-                    Controller.getInstance().setCursor(Cursor.MOVE);
-                    isDraggingCanvas = true;
-                    draggedNode = null;
-                    isDraggingNode = false;
+                if (program != null) {
+                    List<DrawableNode> selectedNodes = program.getFlowController().getSelectedNodes();
+                    if (selectedNodes.size() == 0 || selectedNodes.size() == 1) {
+                        selectedNodes = program.getFlowController().getClickedNodes(event.getX() - offsetWidth, event.getY() - offsetHeight);
+                        program.getFlowController().setSelectedNodes(selectedNodes);
+                    }
+                    draggedNodes = selectedNodes;
+
+                    if (selectedNodes.size() > 0) {
+                        draggedOffsets.clear();
+                        for (DrawableNode draggedNode : draggedNodes) {
+                            List<Double> dragOffsetXY = new ArrayList<>();
+                            dragOffsetXY.add(draggedNode.getX() - event.getX());
+                            dragOffsetXY.add(draggedNode.getY() - event.getY());
+                            draggedOffsets.put(draggedNode, dragOffsetXY);
+                        }
+                    } else {
+                        initialMouseX = event.getX();
+                        initialMouseY = event.getY();
+                        initialOffsetWidth = offsetWidth;
+                        initialOffsetHeight = offsetHeight;
+                        Controller.getInstance().setCursor(Cursor.MOVE);
+                        isDraggingCanvas = true;
+                        draggedNodes = new ArrayList<>();
+                        isDraggingNode = false;
+                    }
                 }
             }
         }
@@ -91,8 +124,8 @@ public class CanvasController {
 
     public Boolean canvasMouseUp(MouseEvent event) {
         if (isDraggingNode) {
-            DataBank.saveNode(draggedNode);
-            draggedNode = null;
+            draggedNodes.forEach(DataBank::saveNode);
+            draggedNodes = new ArrayList<>();
             isDraggingNode = false;
             drawProgram();
             return true;
@@ -100,6 +133,15 @@ public class CanvasController {
             isDraggingCanvas = false;
             Controller.getInstance().setCursor(Cursor.DEFAULT);
             DataBank.saveProgram(DataBank.currentlyEditProgram);
+            return true;
+        } else if (isGroupSelect) {
+            isGroupSelect = false;
+            Program program = DataBank.currentlyEditProgram;
+            if (program != null) {
+                List<DrawableNode> selectedNodes = program.getFlowController().getGroupSelectedNodes(groupSelectInitialX - offsetWidth, groupSelectInitialY - offsetHeight, event.getX() - offsetWidth, event.getY() - offsetHeight);
+                program.getFlowController().setSelectedNodes(selectedNodes);
+            }
+            drawProgram();
             return true;
         } else {
             return false;
@@ -128,8 +170,8 @@ public class CanvasController {
             AStarNetwork network = new AStarNetwork(nodeCornerPadding);
             for (NodeConnection connection : program.getFlowController().getConnections()) {
                 // Bold lines for the selected node
-                if (connection.getConnectionStart() == program.getFlowController().getSelectedNode()
-                        || connection.getConnectionEnd() == program.getFlowController().getSelectedNode()) {
+                if (program.getFlowController().getSelectedNodes().contains(connection.getConnectionStart())
+                        || program.getFlowController().getSelectedNodes().contains(connection.getConnectionEnd())) {
                     gc.setLineWidth(2.0);
                 } else {
                     gc.setLineWidth(1.0);
@@ -155,11 +197,18 @@ public class CanvasController {
 
             // Nodes boxes and contained text
             for (DrawableNode node : program.getFlowController().getNodes()) {
-                if (node == program.getFlowController().getSelectedNode()) {
+                if (program.getFlowController().getSelectedNodes().contains(node)) {
                     drawNode(node, true);
                 } else {
                     drawNode(node, false);
                 }
+            }
+
+            // Draws the box if required to show selected bounding box while using is pressing control and dragging
+            if (isGroupSelect) {
+                gc.setLineWidth(1.0);
+                gc.setStroke(Color.BLACK);
+                gc.strokeRect(groupSelectInitialX, groupSelectInitialY, groupSelectCurrentX - groupSelectInitialX, groupSelectCurrentY - groupSelectInitialY);
             }
         }
     }
