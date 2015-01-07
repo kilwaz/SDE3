@@ -244,7 +244,7 @@ public class Controller implements Initializable {
                             DrawableNode copyNode = program.getFlowController().getNodeById(Integer.parseInt(((Button) actionEvent.getSource()).getId().replace("CopyNode-", "")));
 
                             try {
-                                Class<?> clazz = Class.forName("application.node." + copyNode.getClass().getSimpleName());
+                                Class<?> clazz = Class.forName("application.node.implementations." + copyNode.getClass().getSimpleName());
                                 Constructor<?> ctor = clazz.getConstructor(copyNode.getClass());
                                 DrawableNode newNode = (DrawableNode) ctor.newInstance(copyNode);
 

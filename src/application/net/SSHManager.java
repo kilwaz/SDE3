@@ -28,7 +28,7 @@ public class SSHManager {
     private PrintStream print;
     private PipedInputStream sink;
     private DrawableNode drawableNode;
-    private List<SSHCommand> SSHCommandList = new ArrayList<SSHCommand>();
+    private List<SSHCommand> SSHCommandList = new ArrayList<>();
     private Boolean processingCommand = false;
 
     private void doCommonConstructorActions(String userName, String password, String connectionIP, String knownHostsFileName) {
@@ -108,11 +108,11 @@ public class SSHManager {
             }
 
             channel.disconnect();
-        } catch (IOException ioX) {
-            logWarning(ioX.getMessage());
+        } catch (IOException ex) {
+            logWarning(ex.getMessage());
             return null;
-        } catch (JSchException jschX) {
-            logWarning(jschX.getMessage());
+        } catch (JSchException ex) {
+            logWarning(ex.getMessage());
             return null;
         }
 
@@ -158,7 +158,7 @@ public class SSHManager {
         if (b == -1) return b;
 
         if (b == 1 || b == 2) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             int c;
             do {
                 c = in.read();
@@ -210,17 +210,17 @@ public class SSHManager {
                 // read '0644 '
                 in.read(buf, 0, 5);
 
-                long filesize = 0L;
+                long fileSize = 0L;
                 while (true) {
                     if (in.read(buf, 0, 1) < 0) {
                         // error
                         break;
                     }
                     if (buf[0] == ' ') break;
-                    filesize = filesize * 10L + (long) (buf[0] - '0');
+                    fileSize = fileSize * 10L + (long) (buf[0] - '0');
                 }
 
-                String file = null;
+                String file;
                 for (int i = 0; ; i++) {
                     in.read(buf, i, 1);
                     if (buf[i] == (byte) 0x0a) {
@@ -240,16 +240,16 @@ public class SSHManager {
                 fos = new FileOutputStream(prefix == null ? localFile : prefix + file);
                 int foo;
                 while (true) {
-                    if (buf.length < filesize) foo = buf.length;
-                    else foo = (int) filesize;
+                    if (buf.length < fileSize) foo = buf.length;
+                    else foo = (int) fileSize;
                     foo = in.read(buf, 0, foo);
                     if (foo < 0) {
                         // error
                         break;
                     }
                     fos.write(buf, 0, foo);
-                    filesize -= foo;
-                    if (filesize == 0L) break;
+                    fileSize -= foo;
+                    if (fileSize == 0L) break;
                 }
                 fos.close();
                 fos = null;
@@ -264,10 +264,11 @@ public class SSHManager {
                 out.flush();
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             try {
                 if (fos != null) fos.close();
             } catch (Exception ee) {
+                e.printStackTrace();
             }
         }
     }
@@ -275,10 +276,10 @@ public class SSHManager {
     public void scpTo(String remoteFile, String localFile) {
         FileInputStream fis;
         try {
-            boolean ptimestamp = true;
-
             // exec 'scp -t rfile' remotely
-            String command = "scp " + (ptimestamp ? "-p" : "") + " -t " + remoteFile;
+            String fileDirectory = remoteFile.substring(0, remoteFile.lastIndexOf("/"));
+            String scpCommand = "scp " + ("-p") + " -t \"" + remoteFile + "\"";
+            String command = "if test -d \"" + fileDirectory + "\"/; then " + scpCommand + "; else mkdir -p \"" + fileDirectory + "\" && " + scpCommand + "; fi";
             Channel channel = sesConnection.openChannel("exec");
             ((ChannelExec) channel).setCommand(command);
 
@@ -289,26 +290,26 @@ public class SSHManager {
             channel.connect();
 
             if (checkAck(in) != 0) {
-                System.exit(0);
+//                System.exit(0);
+                return;
             }
 
             File _lfile = new File(localFile);
 
-            if (ptimestamp) {
-                command = "T " + (_lfile.lastModified() / 1000) + " 0";
-                // The access time should be sent here,
-                // but it is not accessible with JavaAPI ;-<
-                command += (" " + (_lfile.lastModified() / 1000) + " 0\n");
-                out.write(command.getBytes());
-                out.flush();
-                if (checkAck(in) != 0) {
-                    System.exit(0);
-                }
+            command = "T " + (_lfile.lastModified() / 1000) + " 0";
+            // The access time should be sent here,
+            // but it is not accessible with JavaAPI ;-<
+            command += (" " + (_lfile.lastModified() / 1000) + " 0\n");
+            out.write(command.getBytes());
+            out.flush();
+            if (checkAck(in) != 0) {
+//                System.exit(0);
+                return;
             }
 
             // send "C0644 filesize filename", where filename should not include '/'
-            long filesize = _lfile.length();
-            command = "C0644 " + filesize + " ";
+            long fileSize = _lfile.length();
+            command = "C0644 " + fileSize + " ";
             if (localFile.lastIndexOf('/') > 0) {
                 command += localFile.substring(localFile.lastIndexOf('/') + 1);
             } else {
@@ -318,7 +319,8 @@ public class SSHManager {
             out.write(command.getBytes());
             out.flush();
             if (checkAck(in) != 0) {
-                System.exit(0);
+//                System.exit(0);
+                return;
             }
 
             // send a content of lfile
@@ -330,19 +332,19 @@ public class SSHManager {
                 out.write(buf, 0, len); //out.flush();
             }
             fis.close();
-            fis = null;
             // send '\0'
             buf[0] = 0;
             out.write(buf, 0, 1);
             out.flush();
             if (checkAck(in) != 0) {
-                System.exit(0);
+//                System.exit(0);
+                return;
             }
             out.close();
 
             channel.disconnect();
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -414,9 +416,7 @@ public class SSHManager {
             channel.setInputStream(pip);
             channel.setOutputStream(source);
             channel.connect(3 * 1000);
-        } catch (JSchException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (JSchException | IOException e) {
             e.printStackTrace();
         }
     }

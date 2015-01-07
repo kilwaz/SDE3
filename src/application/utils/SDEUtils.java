@@ -128,8 +128,6 @@ public class SDEUtils {
             fileOut.println("JBOSS-OUTPUT-DIR=" + outputDirectory);
             fileOut.println("client-name=" + project);
             fileOut.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -137,53 +135,53 @@ public class SDEUtils {
         runCMDCommand("cd " + projectLocation + "\\app-builder & mvn -Dclient-name=" + project + " clean package");
     }
 
-    public static void dropDatabaseUser(SSHManager sshManager, String user) {
-        OracleConnectionManager.getInstance().runQuery("drop user " + user + " cascade");
-
-        //sshManager.runSSHCommand(new SSHCommand("sqlplus / as sysdba", "SQL>", 1000));
-        //sshManager.runSSHCommand(new SSHCommand("drop user " + user + " cascade;", "SQL>", 1000));
-        //sshManager.runSSHCommand(new SSHCommand("exit", "]$", 1000));
-    }
-
-    public static void createDatabaseUser(SSHManager sshManager, String user, String password) {
-        OracleConnectionManager.getInstance().runQuery("create user " + user + " identified by " + password);
-        OracleConnectionManager.getInstance().runQuery("grant resource,dba,connect to " + user);
-
-        //sshManager.runSSHCommand(new SSHCommand("sqlplus / as sysdba", "SQL>", 1000));
-        //sshManager.runSSHCommand(new SSHCommand("create user " + user + " identified by " + password + ";", "", 1000));
-        //sshManager.runSSHCommand(new SSHCommand("grant resource,dba,connect to " + user + ";", "", 1000));
-        //sshManager.runSSHCommand(new SSHCommand("exit", "]$", 1000));
-    }
-
-    public static void importDatabase(SSHManager sshManager, String user, String password, String dumpSchema, String dumpFile, String databaseType) {
-        String command = "";
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMMdd_HHmmss");
-        String dateFormat = sdf.format(new Date());
-        String fileName = "";
-        if ("ORACLE".equals(databaseType)) {
-            fileName = dateFormat + "_" + user;
-            command = "impdp " + user + "/" + password + " directory=dmptmp dumpfile=" + dumpFile + " logfile=" + fileName + ".log remap_schema=" + dumpSchema + ":" + user;
-        }
-        if (!"".equals(command)) {
-            sshManager.runSSHCommand(new SSHCommand(command, "]$", 1000));
-        }
-    }
-
-    public static void exportDatabase(SSHManager sshManager, String user, String password, String schema, String databaseType, Boolean zipFile) {
-        String command = "";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMMdd_HHmmss");
-        String dateFormat = sdf.format(new Date());
-        String fileName = "";
-        if ("ORACLE".equals(databaseType)) {
-            fileName = dateFormat + "_" + user;
-            command = "expdp " + user + "/" + password + " schemas=" + schema + " directory=dmptmp dumpfile=" + fileName + ".dmp logfile=" + fileName + ".log";
-        }
-        if (!"".equals(command)) {
-            sshManager.runSSHCommand(new SSHCommand(command, "]$", 1000));
-            if (zipFile) {
-                sshManager.runSSHCommand(new SSHCommand("gzip -9 " + fileName + ".dmp", "]$", 1000));
-            }
-        }
-    }
+//    public static void dropDatabaseUser(SSHManager sshManager, String user) {
+//        OracleConnectionManager.getInstance().runQuery("drop user " + user + " cascade");
+//
+//        sshManager.runSSHCommand(new SSHCommand("sqlplus / as sysdba", "SQL>", 1000));
+//        sshManager.runSSHCommand(new SSHCommand("drop user " + user + " cascade;", "SQL>", 1000));
+//        sshManager.runSSHCommand(new SSHCommand("exit", "]$", 1000));
+//    }
+//
+//    public static void createDatabaseUser(SSHManager sshManager, String user, String password) {
+//        OracleConnectionManager.getInstance().runQuery("create user " + user + " identified by " + password);
+//        OracleConnectionManager.getInstance().runQuery("grant resource,dba,connect to " + user);
+//
+//        sshManager.runSSHCommand(new SSHCommand("sqlplus / as sysdba", "SQL>", 1000));
+//        sshManager.runSSHCommand(new SSHCommand("create user " + user + " identified by " + password + ";", "", 1000));
+//        sshManager.runSSHCommand(new SSHCommand("grant resource,dba,connect to " + user + ";", "", 1000));
+//        sshManager.runSSHCommand(new SSHCommand("exit", "]$", 1000));
+//    }
+//
+//    public static void importDatabase(SSHManager sshManager, String user, String password, String dumpSchema, String dumpFile, String databaseType) {
+//        String command = "";
+//
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMMdd_HHmmss");
+//        String dateFormat = sdf.format(new Date());
+//        String fileName = "";
+//        if ("ORACLE".equals(databaseType)) {
+//            fileName = dateFormat + "_" + user;
+//            command = "impdp " + user + "/" + password + " directory=dmptmp dumpfile=" + dumpFile + " logfile=" + fileName + ".log remap_schema=" + dumpSchema + ":" + user;
+//        }
+//        if (!"".equals(command)) {
+//            sshManager.runSSHCommand(new SSHCommand(command, "]$", 1000));
+//        }
+//    }
+//
+//    public static void exportDatabase(SSHManager sshManager, String user, String password, String schema, String databaseType, Boolean zipFile) {
+//        String command = "";
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMMdd_HHmmss");
+//        String dateFormat = sdf.format(new Date());
+//        String fileName = "";
+//        if ("ORACLE".equals(databaseType)) {
+//            fileName = dateFormat + "_" + user;
+//            command = "expdp " + user + "/" + password + " schemas=" + schema + " directory=dmptmp dumpfile=" + fileName + ".dmp logfile=" + fileName + ".log";
+//        }
+//        if (!"".equals(command)) {
+//            sshManager.runSSHCommand(new SSHCommand(command, "]$", 1000));
+//            if (zipFile) {
+//                sshManager.runSSHCommand(new SSHCommand("gzip -9 " + fileName + ".dmp", "]$", 1000));
+//            }
+//        }
+//    }
 }

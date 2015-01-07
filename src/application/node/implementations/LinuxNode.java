@@ -7,6 +7,7 @@ import application.gui.Program;
 import application.net.SSHCommand;
 import application.net.SSHManager;
 import application.node.design.DrawableNode;
+import application.node.objects.Bash;
 import application.node.objects.Trigger;
 import application.utils.NodeRunParams;
 import application.utils.SDEUtils;
@@ -17,11 +18,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class LinuxNode extends DrawableNode {
@@ -192,9 +196,10 @@ public class LinuxNode extends DrawableNode {
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        String script = (String) nodeRunParams.getOneTimeVariable();
+        Object oneTimeVariable = nodeRunParams.getOneTimeVariable();
         //System.out.println("Running linux, script is.. " + script);
-        if (script != null) {
+        if (oneTimeVariable instanceof Bash) { // Runs bash script on target linux machine
+            String script = ((Bash) oneTimeVariable).getScript();
             String userHome = System.getProperty("user.home");
 
             // Save source in .java file.
@@ -207,15 +212,13 @@ public class LinuxNode extends DrawableNode {
                 System.out.println("Issue creating directory " + sourceFile.getAbsolutePath());
             }
 
-            //System.out.println("Writing file " + script);
-
             try {
                 new FileWriter(sourceFile).append(script).close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            System.out.println("Opening connection..");
+            writeToConsole("Opening new connection to " + address + "\n\r");
 
             // Here we open a new ssh connection with the details given
             sshManager = SDEUtils.openSSHSession(address, username, password, this);
@@ -223,9 +226,71 @@ public class LinuxNode extends DrawableNode {
             sshManager.scpTo("/home/" + username + "/bash.sh", sourceFile.getPath());
             // Change the permissions of the bash file so that we can execute it and finally execute the bash file afterwards
             sshManager.runSSHCommand(new SSHCommand("chmod 777 bash.sh && ./bash.sh", "~$", 100));
-        } else {
-            System.out.println("The bash script was null");
+        } else if (oneTimeVariable instanceof CopyNode) { // Copies files to and from a linux machines configured by a CopyNode
+            CopyNode copyNode = (CopyNode) oneTimeVariable;
+
+            Boolean copyToLinux = false;
+            Boolean copyFromLinux = false;
+
+            if (copyNode.getCopyTo().contains("/")) {
+                copyToLinux = true;
+            }
+            if (copyNode.getCopyFrom().contains("/")) {
+                copyFromLinux = true;
+            }
+
+            writeToConsole("Opening new connection to " + address + "\n\r");
+            sshManager = SDEUtils.openSSHSession(address, username, password, this);
+
+            if (copyToLinux && !copyFromLinux) { // Copy from windows to linux
+                Integer fileCount = 0;
+                if (copyNode.getCopyFrom().endsWith("\\")) { // If it is a directory we get all files
+                    writeToConsole("Directory detected...\n\r");
+                    File folder = new File(copyNode.getCopyFrom());
+                    if (folder.exists() && folder.isDirectory()) {
+                        Collection<File> filesToCopy = FileUtils.listFilesAndDirs(folder, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+
+                        // Go through each file that we need to copy and copy them
+                        for (File file : filesToCopy) {
+                            if (file != null && file.exists() && file.isFile()) {
+                                String destination = copyNode.getCopyTo() + file.getAbsolutePath().replace(folder.getAbsolutePath(), "");
+                                destination = destination.replace("\\", "/").replace("//", "/");
+                                writeToConsole("Copying " + file.getAbsolutePath() + " -> " + destination + " (" + humanReadableByteCount(file.length(), false) + ")\n\r");
+                                sshManager.scpTo(destination, file.getAbsolutePath());
+                                fileCount++;
+                            }
+                        }
+                    } else {
+                        writeToConsole("Cannot complete copy, directory does not exist on local system.\n\r");
+                    }
+                } else { // If it is just a single file we only copy that
+                    File fileToCopy = new File(copyNode.getCopyFrom());
+                    if (fileToCopy.exists() && fileToCopy.isFile()) {
+                        writeToConsole("Copying " + fileToCopy.getAbsolutePath() + " -> " + copyNode.getCopyTo() + "\n\r");
+                        sshManager.scpTo(copyNode.getCopyTo(), fileToCopy.getAbsolutePath());
+                        fileCount++;
+                    }
+                }
+
+                writeToConsole("Copied " + fileCount + " files.\n\r");
+            } else if (!copyToLinux && copyFromLinux) { // Copy from linux to windows
+                writeToConsole("Copying " + copyNode.getCopyFrom() + " to " + copyNode.getCopyTo() + "\n\r");
+                sshManager.scpFrom(copyNode.getCopyFrom(), copyNode.getCopyTo());
+                writeToConsole("Copy complete!\n\r");
+            } else {
+                writeToConsole("Cannot complete copy.\n\r");
+            }
+
+            sshManager.close();
         }
+    }
+
+    private static String humanReadableByteCount(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     public List<SavableAttribute> getDataToSave() {
