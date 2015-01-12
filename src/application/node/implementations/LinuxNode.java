@@ -4,6 +4,7 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.Program;
+import application.net.SCPProgress;
 import application.net.SSHCommand;
 import application.net.SSHManager;
 import application.node.design.DrawableNode;
@@ -95,8 +96,26 @@ public class LinuxNode extends DrawableNode {
         AnchorPane.setRightAnchor(rows, 11.0);
         AnchorPane.setTopAnchor(rows, 50.0);
 
+        TextField inputField = new TextField();
+        inputField.setId("inputField-" + this.getId());
+        inputField.setOnAction(event -> {
+            TextField textField = (TextField) event.getSource();
+            if (!textField.getText().isEmpty()) {
+                if (sshManager != null && sshManager.isConnected()) {
+                    System.out.println("Running command " + textField.getText());
+                    sshManager.runSSHCommand(new SSHCommand(textField.getText(), "$", null));
+                    textField.setText("");
+                } else {
+                    writeToConsole("Not connected, cannot run command!\n\r");
+                }
+
+                DataBank.saveNode(this);
+            }
+        });
+
         rows.getChildren().add(hbox);
         rows.getChildren().add(consoleTextArea);
+        rows.getChildren().add(inputField);
 
         consoleTextArea.setPrefRowCount(100);
 
@@ -256,7 +275,9 @@ public class LinuxNode extends DrawableNode {
                                 String destination = copyNode.getCopyTo() + file.getAbsolutePath().replace(folder.getAbsolutePath(), "");
                                 destination = destination.replace("\\", "/").replace("//", "/");
                                 writeToConsole("Copying " + file.getAbsolutePath() + " -> " + destination + " (" + humanReadableByteCount(file.length(), false) + ")\n\r");
-                                sshManager.scpTo(destination, file.getAbsolutePath());
+                                SCPProgress scpProgress = new SCPProgress(sshManager, destination, file.getAbsolutePath(), copyNode);
+                                scpProgress.startCopy();
+
                                 fileCount++;
                             }
                         }
@@ -266,17 +287,21 @@ public class LinuxNode extends DrawableNode {
                 } else { // If it is just a single file we only copy that
                     File fileToCopy = new File(copyNode.getCopyFrom());
                     if (fileToCopy.exists() && fileToCopy.isFile()) {
-                        writeToConsole("Copying " + fileToCopy.getAbsolutePath() + " -> " + copyNode.getCopyTo() + "\n\r");
-                        sshManager.scpTo(copyNode.getCopyTo(), fileToCopy.getAbsolutePath());
+                        writeToConsole("Copying " + fileToCopy.getAbsolutePath() + " -> " + copyNode.getCopyTo() + " (" + humanReadableByteCount(fileToCopy.length(), false) + ")\n\r");
+                        SCPProgress scpProgress = new SCPProgress(sshManager, copyNode.getCopyTo(), fileToCopy.getAbsolutePath(), copyNode);
+                        scpProgress.startCopy();
+
                         fileCount++;
                     }
                 }
 
                 writeToConsole("Copied " + fileCount + " files.\n\r");
+                copyNode.copyCompleteTrigger();
             } else if (!copyToLinux && copyFromLinux) { // Copy from linux to windows
                 writeToConsole("Copying " + copyNode.getCopyFrom() + " to " + copyNode.getCopyTo() + "\n\r");
                 sshManager.scpFrom(copyNode.getCopyFrom(), copyNode.getCopyTo());
                 writeToConsole("Copy complete!\n\r");
+                copyNode.copyCompleteTrigger();
             } else {
                 writeToConsole("Cannot complete copy.\n\r");
             }
@@ -285,7 +310,7 @@ public class LinuxNode extends DrawableNode {
         }
     }
 
-    private static String humanReadableByteCount(long bytes, boolean si) {
+    public static String humanReadableByteCount(long bytes, boolean si) {
         int unit = si ? 1000 : 1024;
         if (bytes < unit) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));

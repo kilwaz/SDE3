@@ -3,13 +3,13 @@ package application.node.implementations;
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.gui.Program;
 import application.node.design.DrawableNode;
+import application.node.objects.Trigger;
 import application.utils.NodeRunParams;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -21,6 +21,8 @@ import java.util.List;
 public class CopyNode extends DrawableNode {
     private String copyFrom = "";
     private String copyTo = "";
+    private ProgressBar progressBar = new ProgressBar(0.0);
+    private Label progressBarLabel = new Label();
 
     // This will make a copy of the node passed to it
     public CopyNode(CopyNode copyNode) {
@@ -51,6 +53,22 @@ public class CopyNode extends DrawableNode {
         super(x, y, width, height, color, containedText, programId, id);
     }
 
+    public List<String> getAvailableTriggers() {
+        List<String> triggers = new ArrayList<>();
+
+        triggers.add("Copy complete");
+
+        return triggers;
+    }
+
+    public List<String> getAvailableTriggerActions() {
+        List<String> triggers = new ArrayList<>();
+
+        triggers.add("Trigger next");
+
+        return triggers;
+    }
+
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
@@ -76,7 +94,7 @@ public class CopyNode extends DrawableNode {
 
         copyFromField.setText(copyFrom);
         copyFromField.setId("copyField-from-" + this.getId());
-        copyFromField.setPrefWidth(400.0);
+        copyFromField.setPrefWidth(600.0);
         copyFromField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
@@ -100,7 +118,7 @@ public class CopyNode extends DrawableNode {
 
         copyToField.setText(copyTo);
         copyToField.setId("copyField-to-" + this.getId());
-        copyToField.setPrefWidth(400.0);
+        copyToField.setPrefWidth(600.0);
         copyToField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
@@ -110,16 +128,71 @@ public class CopyNode extends DrawableNode {
             }
         });
 
+        progressBarLabel.setText("");
+        progressBarLabel.setId("currentCopyFile-" + this.getId());
+        progressBarLabel.setPrefWidth(600.0);
+
+        progressBar.setId("progressBar-" + this.getId());
+        progressBar.setPrefWidth(600.0);
+
         copyToRow.getChildren().add(copyToLabel);
         copyToRow.getChildren().add(copyToField);
 
         rows.getChildren().add(copyFromRow);
         rows.getChildren().add(copyToRow);
+        rows.getChildren().add(progressBarLabel);
+        rows.getChildren().add(progressBar);
 
         anchorPane.getChildren().add(rows);
         tab.setContent(scrollPane);
 
         return tab;
+    }
+
+    public void copyCompleteTrigger() {
+        class CopyNodeCopyComplete implements Runnable {
+            public void run() {
+                List<Trigger> triggers = DataBank.currentlyEditProgram.getFlowController().getActiveTriggers(getContainedText(), "Copy complete");
+                for (Trigger trigger : triggers) {
+                    NodeRunParams nodeRunParams = new NodeRunParams();
+                    Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
+                }
+            }
+        }
+
+        Platform.runLater(new CopyNodeCopyComplete());
+    }
+
+    public void updateProgressBar(Double progressValue) {
+        class UpdateProgressBar implements Runnable {
+            Double progressValue;
+
+            UpdateProgressBar(Double progressValue) {
+                this.progressValue = progressValue;
+            }
+
+            public void run() {
+                progressBar.setProgress(progressValue);
+            }
+        }
+
+        Platform.runLater(new UpdateProgressBar(progressValue));
+    }
+
+    public void updateProgressBarLabel(String text) {
+        class UpdateProgressBarLabel implements Runnable {
+            String text;
+
+            UpdateProgressBarLabel(String text) {
+                this.text = text;
+            }
+
+            public void run() {
+                progressBarLabel.setText(text);
+            }
+        }
+
+        Platform.runLater(new UpdateProgressBarLabel(text));
     }
 
     public List<SavableAttribute> getDataToSave() {

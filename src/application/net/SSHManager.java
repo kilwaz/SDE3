@@ -273,6 +273,15 @@ public class SSHManager {
         }
     }
 
+    public Channel openExecChannel() {
+        try {
+            return sesConnection.openChannel("exec");
+        } catch (JSchException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void scpTo(String remoteFile, String localFile) {
         FileInputStream fis;
         try {
@@ -290,7 +299,6 @@ public class SSHManager {
             channel.connect();
 
             if (checkAck(in) != 0) {
-//                System.exit(0);
                 return;
             }
 
@@ -303,7 +311,6 @@ public class SSHManager {
             out.write(command.getBytes());
             out.flush();
             if (checkAck(in) != 0) {
-//                System.exit(0);
                 return;
             }
 
@@ -319,17 +326,20 @@ public class SSHManager {
             out.write(command.getBytes());
             out.flush();
             if (checkAck(in) != 0) {
-//                System.exit(0);
                 return;
             }
 
             // send a content of lfile
             fis = new FileInputStream(localFile);
             byte[] buf = new byte[1024];
+            long sendBytesCount = 0;
             while (true) {
                 int len = fis.read(buf, 0, buf.length);
                 if (len <= 0) break;
                 out.write(buf, 0, len); //out.flush();
+                sendBytesCount += buf.length;
+
+                System.out.println(LinuxNode.humanReadableByteCount(sendBytesCount, false));
             }
             fis.close();
             // send '\0'
@@ -337,7 +347,6 @@ public class SSHManager {
             out.write(buf, 0, 1);
             out.flush();
             if (checkAck(in) != 0) {
-//                System.exit(0);
                 return;
             }
             out.close();
