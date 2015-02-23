@@ -3,12 +3,15 @@ package application.node.implementations;
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.gui.Program;
+import application.gui.SDETextField;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
+import de.jensd.fx.fontawesome.AwesomeDude;
+import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
 
 public class InputNode extends DrawableNode {
     private List<Input> inputs = new ArrayList<>();
+
+    private VBox inputRows;
 
     // This will make a copy of the node passed to it
     public InputNode(InputNode inputNode) {
@@ -80,9 +85,9 @@ public class InputNode extends DrawableNode {
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
-        VBox rows = new VBox(5);
-        rows.setLayoutY(55);
-        rows.setLayoutX(11);
+        inputRows = new VBox(5);
+        inputRows.setLayoutY(55);
+        inputRows.setLayoutX(11);
 
         if (inputs.size() < 1) {
             // Automatically assigned to this triggerNode via 'this' reference
@@ -91,16 +96,37 @@ public class InputNode extends DrawableNode {
         }
 
         for (Input input : inputs) {
-            rows.getChildren().add(createInputNodeRow(input));
+            inputRows.getChildren().add(createInputNodeRow(input));
         }
-        anchorPane.getChildren().add(rows);
+
+        inputRows.getChildren().add(createAddInputNodeRow());
+
+        anchorPane.getChildren().add(inputRows);
 
         return tab;
     }
 
     public HBox createInputNodeRow(Input input) {
         HBox inputRow = new HBox(5);
+        inputRow.setId("inputRow-" + input.getId() + "-" + getId());
         inputRow.setAlignment(Pos.CENTER);
+
+        // Remove input button
+        Button deleteInput = AwesomeDude.createIconButton(AwesomeIcon.MINUS);
+        deleteInput.setPrefWidth(35);
+        deleteInput.setTooltip(new Tooltip("Delete this input"));
+        deleteInput.setId("deleteInputButton-" + input.getId() + "-" + getId());
+        deleteInput.setOnAction(event -> {
+            Button deleteButton = (Button) event.getSource();
+            Program program = DataBank.currentlyEditProgram;
+            String[] fieldId = deleteButton.getId().split("-");
+            InputNode inputNode = (InputNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
+
+            // Remove the input
+            inputNode.removeInput(inputNode.getInputById(Integer.parseInt(fieldId[1])));
+        });
+        inputRow.getChildren().add(deleteInput);
+
         Label inputNameLabel = new Label();
         TextField inputNameField = TextFields.createClearableTextField();
 
@@ -121,6 +147,7 @@ public class InputNode extends DrawableNode {
 
                 DataBank.saveNode(this);
                 Controller.getInstance().updateCanvasControllerNow();
+                SDETextField.setToSaved(textField);
             }
         });
 
@@ -154,8 +181,45 @@ public class InputNode extends DrawableNode {
         return inputRow;
     }
 
+    public void removeInput(Input input) {
+        inputs.remove(input);
+        DataBank.deleteInput(input);
+
+        // Removes the row off of the UI
+        Node rowToRemove = null;
+        for (Node node : inputRows.getChildren()) {
+            if (node.getId().equals("inputRow-" + input.getId() + "-" + getId())) {
+                rowToRemove = node;
+            }
+        }
+
+        if (rowToRemove != null) {
+            inputRows.getChildren().remove(rowToRemove);
+        }
+    }
+
+    public HBox createAddInputNodeRow() {
+        HBox addInputRow = new HBox(5);
+        addInputRow.setId("addInputRow-" + getId());
+
+        Button addButton = AwesomeDude.createIconButton(AwesomeIcon.PLUS);
+        addButton.setPrefWidth(35);
+        addButton.setTooltip(new Tooltip("Add new input"));
+
+        addButton.setOnAction(event -> {
+            Input newInput = DataBank.createNewInput("", "", this);
+
+            // Add the new switch just above the plus button
+            inputRows.getChildren().add(inputRows.getChildren().size() - 1, createInputNodeRow(newInput));
+        });
+
+        addInputRow.getChildren().add(addButton);
+
+        return addInputRow;
+    }
+
     public List<SavableAttribute> getDataToSave() {
-        List<SavableAttribute> savableAttributes = new ArrayList<SavableAttribute>();
+        List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.addAll(super.getDataToSave());
 
@@ -172,5 +236,15 @@ public class InputNode extends DrawableNode {
 
     public void setInputs(List<Input> inputs) {
         this.inputs = inputs;
+    }
+
+    public Input getInputById(Integer id) {
+        for (Input input : inputs) {
+            if (input.getId().equals(id)) {
+                return input;
+            }
+        }
+
+        return null;
     }
 }

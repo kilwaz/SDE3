@@ -1,6 +1,7 @@
 package application.gui;
 
 import application.node.design.DrawableNode;
+import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
@@ -72,6 +73,22 @@ public class AceTextArea extends VBox {
                 }
             }
         });
+    }
+
+    public void goToLine(Integer lineNumber) {
+        class OneShotTask implements Runnable {
+            Integer lineNumber;
+
+            OneShotTask(Integer lineNumber) {
+                this.lineNumber = lineNumber;
+            }
+
+            public void run() {
+                jsObject.call("goToLine", lineNumber);
+            }
+        }
+
+        Platform.runLater(new OneShotTask(lineNumber));
     }
 
     // These methods are callable from within javascript using java.methodName

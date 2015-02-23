@@ -32,6 +32,10 @@
     function pasteText(pasteText) {
         editor.insert(pasteText);
     }
+
+    function goToLine(lineNumber) {
+        editor.gotoLine(lineNumber, 0, true);
+    }
 </script>
 </body>
 </html>

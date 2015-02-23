@@ -214,8 +214,14 @@ public class DataBank {
     }
 
     public static void deleteSwitch(Switch deleteSwitch) {
-        new UpdateQuery("switch from node where id = ?")
+        new UpdateQuery("delete from switch where id = ?")
                 .addParameter(deleteSwitch.getId()) // 1
+                .execute();
+    }
+
+    public static void deleteInput(Input deleteInput) {
+        new UpdateQuery("delete from input where id = ?")
+                .addParameter(deleteInput.getId()) // 1
                 .execute();
     }
 

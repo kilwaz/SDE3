@@ -158,6 +158,22 @@ public class SwitchNode extends DrawableNode {
         HBox switchRow = new HBox(5);
         switchRow.setId("switchRow-" + aSwitch.getId() + "-" + getId());
 
+        // Remove input button
+        Button deleteSwitch = AwesomeDude.createIconButton(AwesomeIcon.MINUS);
+        deleteSwitch.setPrefWidth(35);
+        deleteSwitch.setTooltip(new Tooltip("Delete this switch"));
+        deleteSwitch.setId("deleteSwitchButton-" + aSwitch.getId() + "-" + getId());
+        deleteSwitch.setOnAction(event -> {
+            Button deleteButton = (Button) event.getSource();
+            Program program = DataBank.currentlyEditProgram;
+            String[] fieldId = deleteButton.getId().split("-");
+            SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
+
+            // Remove the switch
+            deleteSwitch(switchNode, Integer.parseInt(fieldId[1]));
+        });
+        switchRow.getChildren().add(deleteSwitch);
+
         // Tick / Cross button
         ToggleButton firstSwitchButton = AwesomeDude.createIconToggleButton(AwesomeIcon.CLOSE, "", "12", null);
         if (aSwitch.isEnabled()) {
@@ -211,23 +227,7 @@ public class SwitchNode extends DrawableNode {
 
                 DataBank.saveNode(switchNode);
             } else {
-                Switch switchToRemove = switchNode.getSwitch(Integer.parseInt(fieldId[1]));
-
-                DataBank.deleteSwitch(switchToRemove);
-                removeSwitch(switchToRemove);
-
-                Node rowToRemove = null;
-                for (Node node : switchRows.getChildren()) {
-                    if (node.getId().equals("switchRow-" + switchToRemove.getId() + "-" + getId())) {
-                        rowToRemove = node;
-                    }
-                }
-
-                if (rowToRemove != null) {
-                    switchRows.getChildren().remove(rowToRemove);
-                }
-
-                program.getFlowController().checkConnections();
+                deleteSwitch(switchNode, Integer.parseInt(fieldId[1]));
             }
 
             Controller.getInstance().updateCanvasControllerNow();
@@ -238,11 +238,34 @@ public class SwitchNode extends DrawableNode {
         return switchRow;
     }
 
+    private void deleteSwitch(SwitchNode switchNode, Integer switchId) {
+        Switch switchToRemove = switchNode.getSwitch(switchId);
+
+        DataBank.deleteSwitch(switchToRemove);
+        removeSwitch(switchToRemove);
+
+        // Removes the row off of the UI
+        Node rowToRemove = null;
+        for (Node node : switchRows.getChildren()) {
+            if (node.getId().equals("switchRow-" + switchToRemove.getId() + "-" + getId())) {
+                rowToRemove = node;
+            }
+        }
+
+        if (rowToRemove != null) {
+            switchRows.getChildren().remove(rowToRemove);
+        }
+
+        Program program = DataBank.currentlyEditProgram;
+        program.getFlowController().checkConnections();
+    }
+
     public HBox createAddSwitchNodeRow() {
         HBox addSwitchRow = new HBox(5);
         addSwitchRow.setId("addSwitchRow-" + getId());
 
         Button addButton = AwesomeDude.createIconButton(AwesomeIcon.PLUS);
+        addButton.setTooltip(new Tooltip("Add new switch"));
         addButton.setPrefWidth(35);
 
         addButton.setOnAction(event -> {

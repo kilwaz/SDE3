@@ -26,7 +26,7 @@ public class TestHelper {
     }
 
     public static List<String> findEmployeeIDsOnWorksheet(WebDriver driver) {
-        List<String> employeeID = new ArrayList<String>();
+        List<String> employeeID = new ArrayList<>();
 
         WebDriverWait wait = new WebDriverWait(driver, 10);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("content")));
@@ -47,7 +47,7 @@ public class TestHelper {
     }
 
     public static List<String> getWorksheetEmployeeRow(WebDriver driver) {
-        List<String> innerHTML = new ArrayList<String>();
+        List<String> innerHTML = new ArrayList<>();
 
         WebDriverWait wait = new WebDriverWait(driver, 10);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("content")));

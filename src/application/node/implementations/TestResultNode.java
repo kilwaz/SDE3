@@ -67,7 +67,7 @@ public class TestResultNode extends DrawableNode {
     }
 
     public List<SavableAttribute> getDataToSave() {
-        List<SavableAttribute> savableAttributes = new ArrayList<SavableAttribute>();
+        List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.addAll(super.getDataToSave());
 
