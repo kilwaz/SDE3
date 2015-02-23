@@ -118,7 +118,16 @@ public class Program {
         }
 
         // Starts a new thread for each time this is called.
-        new SDEThread(new OneShotTask());
+        SDEThread sdeThread = new SDEThread(new OneShotTask());
+
+        // If we need to wait for this thread to finish first we join to the current thread.
+        if (whileWaiting) {
+            try {
+                sdeThread.getThread().join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // This methods takes a sourceNode where a connection is coming from and a name of a target and triggers the connection to flash on the GUI
