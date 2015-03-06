@@ -1,6 +1,10 @@
 package application.data;
 
+
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 public class SelectResultRow {
@@ -33,19 +37,28 @@ public class SelectResultRow {
         return (Boolean) rowValues.get(colName);
     }
 
+    public InputStream getBlobInputStream(String colName) {
+        try {
+            return ((Blob) rowValues.get(colName + "-Blob")).getBinaryStream();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public BigInteger getBigInt(String colName) {
         return (BigInteger) rowValues.get(colName);
     }
 
     public String getBlobString(String colName) {
-        return (String) rowValues.get(colName);
+        return (String) rowValues.get(colName + "-String");
     }
 
     public Integer getBlobInt(String colName) {
-        return Integer.parseInt((String) rowValues.get(colName));
+        return Integer.parseInt((String) rowValues.get(colName + "-String"));
     }
 
     public Double getBlobDouble(String colName) {
-        return Double.parseDouble((String) rowValues.get(colName));
+        return Double.parseDouble((String) rowValues.get(colName + "-String"));
     }
 }

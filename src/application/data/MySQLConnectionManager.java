@@ -79,6 +79,19 @@ public class MySQLConnectionManager {
        last_program INT,
        PRIMARY KEY (id),
        FOREIGN KEY (last_program) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
+
+    create table test_result(
+       id INT NOT NULL AUTO_INCREMENT,
+       PRIMARY KEY (id));
+
+    create table test_step(
+       id INT NOT NULL AUTO_INCREMENT,
+       test_string VARCHAR(1000),
+       screenshot MEDIUMBLOB,
+       successful BOOL,
+       test_result INT,
+       PRIMARY KEY (id),
+       FOREIGN KEY (test_result) REFERENCES test_result(id) ON DELETE CASCADE ON UPDATE CASCADE);
     */
 
     public MySQLConnectionManager() {

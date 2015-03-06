@@ -8,6 +8,7 @@ import java.util.List;
 public class TestCommand {
 
     String mainCommand = "";
+    String rawCommand = "";
     HashMap<String, TestParameter> parameters = new HashMap<>();
 
     public TestCommand(String mainCommand) {
@@ -20,6 +21,14 @@ public class TestCommand {
 
     public String getMainCommand() {
         return mainCommand;
+    }
+
+    public String getRawCommand() {
+        return rawCommand;
+    }
+
+    public void setRawCommand(String rawCommand) {
+        this.rawCommand = rawCommand;
     }
 
     public HashMap<String, TestParameter> getParameters() {
@@ -56,6 +65,7 @@ public class TestCommand {
 
     public static TestCommand parseCommand(String command) {
         TestCommand newCommand = new TestCommand(command.substring(0, command.indexOf(">")));
+        newCommand.setRawCommand(command);
 
         List<String> parameters = new ArrayList<>();
         Collections.addAll(parameters, command.split(">"));

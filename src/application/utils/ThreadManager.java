@@ -11,7 +11,7 @@ public class ThreadManager {
 
     public ThreadManager() {
         threadManager = this;
-        runningThreads = new CopyOnWriteArrayList<SDEThread>();
+        runningThreads = new CopyOnWriteArrayList<>();
     }
 
     public synchronized void addThread(SDEThread thread) {

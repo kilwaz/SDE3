@@ -9,7 +9,12 @@ import application.node.implementations.TriggerNode;
 import application.node.objects.Input;
 import application.node.objects.Switch;
 import application.node.objects.Trigger;
+import application.test.TestResult;
+import application.test.TestStep;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
@@ -115,7 +120,10 @@ public class DataBank {
 
                     for (int i = 1; i < resultSet.getMetaData().getColumnCount() + 1; i++) {
                         if (resultSet.getMetaData().getColumnType(i) == -4) {  // Column type '-4' is BLOB
-                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i), resultSet.getString(i));
+                            // '-Blob' is appended to the end of the result to show that it is the blob representation of the object out of the database
+                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i) + "-Blob", resultSet.getBlob(i));
+                            // '-String' is appended to the end of the result to show that it is the string representation of the object out of the database
+                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i) + "-String", resultSet.getString(i));
                         } else {
                             selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i), resultSet.getObject(i));
                         }
@@ -163,6 +171,8 @@ public class DataBank {
                     preparedStatement.setInt(valueCount, (Integer) value);
                 } else if (value instanceof Boolean) {
                     preparedStatement.setBoolean(valueCount, (Boolean) value);
+                } else if (value instanceof InputStream) {
+                    preparedStatement.setBlob(valueCount, (InputStream) value);
                 }
                 valueCount++;
             }
@@ -226,7 +236,7 @@ public class DataBank {
     }
 
     public static void saveNode(DrawableNode node) {
-        UpdateResult updateResult = (UpdateResult)new UpdateQuery("update node set program_id = ?, node_type = ? where id = ?")
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update node set program_id = ?, node_type = ? where id = ?")
                 .addParameter(node.getProgramId()) // 1
                 .addParameter(node.getNodeType()) // 2
                 .addParameter(node.getId()) // 3
@@ -242,7 +252,7 @@ public class DataBank {
         // update node_details
         List<SavableAttribute> savableAttributes = node.getDataToSave();
         for (SavableAttribute savableAttribute : savableAttributes) {
-            UpdateResult updateResultNodeDetails = (UpdateResult)new UpdateQuery("update node_details set object_value = ? where node_id = ? and object_name = ? and object_class = ?")
+            UpdateResult updateResultNodeDetails = (UpdateResult) new UpdateQuery("update node_details set object_value = ? where node_id = ? and object_name = ? and object_class = ?")
                     .addParameter(savableAttribute.getVariable()) // 1
                     .addParameter(node.getId()) // 2
                     .addParameter(savableAttribute.getVariableName()) // 3
@@ -474,6 +484,64 @@ public class DataBank {
         DataBank.saveTrigger(trigger);
 
         return trigger;
+    }
+
+    public static TestResult createNewTestResult() {
+        TestResult newTestResult = new TestResult();
+        newTestResult.setId(getNextId("test_result"));
+
+        new UpdateQuery("insert into test_result values (default)")
+                .execute();
+
+        return newTestResult;
+    }
+
+    public static TestStep createNewTestStep(TestResult testResult) {
+        TestStep newTestStep = new TestStep();
+        newTestStep.setId(getNextId("test_step"));
+        newTestStep.setParentResult(testResult);
+
+        new UpdateQuery("insert into test_step values (default,NULL,NULL,NULL,NULL)")
+                .execute();
+
+        return newTestStep;
+    }
+
+    public static void saveTestStep(TestStep testStep) {
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update test_step set test_string = ?, screenshot = ?, successful = ?, test_result = ? where id = ?")
+                .addParameter(testStep.getTestString()) // 1
+                .addParameter(testStep.getScreenshotInputStream()) // 2
+                .addParameter(testStep.getSuccessful()) // 3
+                .addParameter(testStep.getParentResult().getId()) // 4
+                .addParameter(testStep.getId()) // 5
+                .execute();
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
+            testStep.setId(getNextId("test_step"));
+            new UpdateQuery("insert into test_step values (default, ?, ?, ?, ?)")
+                    .addParameter(testStep.getTestString()) // 1
+                    .addParameter(testStep.getScreenshotInputStream()) // 2
+                    .addParameter(testStep.getSuccessful()) // 3
+                    .addParameter(testStep.getParentResult().getId()) // 4
+                    .execute();
+        }
+    }
+
+    public static void loadTestSteps(TestResult testResult) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, test_string, successful, screenshot, test_result from test_step where test_result = ?")
+                .addParameter(testResult.getId())
+                .execute();
+
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            try {
+                testResult.addTestStep(new TestStep(resultRow.getInt("id"),
+                        resultRow.getString("test_string"),
+                        resultRow.getBoolean("successful"),
+                        ImageIO.read(resultRow.getBlobInputStream("screenshot")),
+                        testResult));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void loadNodeColours(NodeColours nodeColours) {

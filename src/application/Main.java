@@ -42,20 +42,21 @@ public class Main extends Application {
         showSplash();
 
         loadProgress.setProgress(0.0);
-        new MySQLConnectionManager();
-        //new OracleConnectionManager();
-        loadProgress.setProgress(0.25);
-        new SSHConnectionManager();
-        loadProgress.setProgress(0.5);
+        // Load all managers
         new ThreadManager();
-        loadProgress.setProgress(0.6);
+        new MySQLConnectionManager();
+        new SSHConnectionManager();
         new BrowserManager();
+        new WebProxyManager();
+        loadProgress.setProgress(0.5);
+        //new OracleConnectionManager();
         loadProgress.setProgress(0.7);
         DataBank.loadFromDatabase();
         loadProgress.setProgress(0.8);
         new NetworkManager();
         new NetworkBuilder();
         loadProgress.setProgress(0.9);
+        new SDEThread(new WebProxy());
 
         //RemoteDebug remoteDebug = new RemoteDebug("172.16.10.212", "8787");
         //Thread t = new Thread(remoteDebug);
@@ -106,11 +107,12 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         mainStage.setScene(scene);
         mainStage.setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
-        mainStage.setOnCloseRequest(we -> {
-            // On Application Close
+        mainStage.setOnCloseRequest(windowEvent -> {
+            // On Application Close we try and clean up all the open connections and running threads
             SSHConnectionManager.getInstance().closeConnections();
             ThreadManager.getInstance().closeThreads();
             BrowserManager.getInstance().closeBrowsers();
+            WebProxyManager.getInstance().closeProxies();
 
             // Cleans up any class or java files previously compiled.
             String userHome = System.getProperty("user.home");

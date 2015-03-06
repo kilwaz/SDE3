@@ -3,7 +3,7 @@ package application.node.implementations;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
-import application.test.TestResult;
+import application.test.TestResultOld;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestResultNode extends DrawableNode {
-    private ObservableList<TestResult> resultList = FXCollections.observableArrayList();
+    private ObservableList<TestResultOld> resultList = FXCollections.observableArrayList();
 
     // This will make a copy of the node passed to it
     public TestResultNode(TestResultNode testResultNode) {
@@ -50,11 +50,11 @@ public class TestResultNode extends DrawableNode {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, programId, id);
     }
 
-    public void addResult(TestResult testResult) {
+    public void addResult(TestResultOld testResultOld) {
         class OneShotTask implements Runnable {
-            private TestResult testResult;
+            private TestResultOld testResult;
 
-            OneShotTask(TestResult testResult) {
+            OneShotTask(TestResultOld testResult) {
                 this.testResult = testResult;
             }
 
@@ -63,7 +63,7 @@ public class TestResultNode extends DrawableNode {
             }
         }
 
-        Platform.runLater(new OneShotTask(testResult));
+        Platform.runLater(new OneShotTask(testResultOld));
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -80,20 +80,20 @@ public class TestResultNode extends DrawableNode {
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
-        TableView<TestResult> resultsTable = new TableView<TestResult>();
+        TableView<TestResultOld> resultsTable = new TableView<TestResultOld>();
         resultsTable.setId("resultsTable-" + getId());
 
         TableColumn expectedOutput = new TableColumn("Expected Output");
         expectedOutput.setMinWidth(120);
-        expectedOutput.setCellValueFactory(new PropertyValueFactory<TestResult, String>("outcome"));
+        expectedOutput.setCellValueFactory(new PropertyValueFactory<TestResultOld, String>("outcome"));
 
         TableColumn actualOutput = new TableColumn("Actual Output");
         actualOutput.setMinWidth(120);
-        actualOutput.setCellValueFactory(new PropertyValueFactory<TestResult, String>("expected"));
+        actualOutput.setCellValueFactory(new PropertyValueFactory<TestResultOld, String>("expected"));
 
         TableColumn duration = new TableColumn("Duration");
         duration.setMinWidth(120);
-        duration.setCellValueFactory(new PropertyValueFactory<TestResult, String>("duration"));
+        duration.setCellValueFactory(new PropertyValueFactory<TestResultOld, String>("duration"));
 
         resultsTable.setItems(getResultList());
         resultsTable.getColumns().addAll(expectedOutput);
@@ -115,7 +115,7 @@ public class TestResultNode extends DrawableNode {
         return tab;
     }
 
-    public ObservableList<TestResult> getResultList() {
+    public ObservableList<TestResultOld> getResultList() {
         return resultList;
     }
 }

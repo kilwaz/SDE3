@@ -11,7 +11,7 @@ public class BrowserManager {
 
     public BrowserManager() {
         browserManager = this;
-        runningBrowsers = new ArrayList<WebDriver>();
+        runningBrowsers = new ArrayList<>();
     }
 
     public void addBrowser(WebDriver driver) {
@@ -19,9 +19,7 @@ public class BrowserManager {
     }
 
     public void closeBrowsers() {
-        for (WebDriver driver : runningBrowsers) {
-            driver.quit();
-        }
+        runningBrowsers.forEach(org.openqa.selenium.WebDriver::quit);
     }
 
     public static BrowserManager getInstance() {

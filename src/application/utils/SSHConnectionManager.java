@@ -11,7 +11,7 @@ public class SSHConnectionManager {
 
     public SSHConnectionManager() {
         SSHConnectionManager = this;
-        openConnections = new ArrayList<SSHManager>();
+        openConnections = new ArrayList<>();
     }
 
     public void addConnection(SSHManager sshManager) {
@@ -19,10 +19,7 @@ public class SSHConnectionManager {
     }
 
     public void closeConnections() {
-        System.out.println("Closing Connections!");
-        for (SSHManager connection : openConnections) {
-            connection.close();
-        }
+        openConnections.forEach(application.net.SSHManager::close);
     }
 
     public static SSHConnectionManager getInstance() {

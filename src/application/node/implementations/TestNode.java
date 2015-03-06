@@ -6,25 +6,22 @@ import application.gui.AceTextArea;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
-import application.node.objects.Switch;
 import application.node.objects.Test;
 import application.test.TestCommand;
-import application.test.TestParameter;
+import application.test.TestResult;
+import application.test.TestStep;
+import application.test.action.ActionControl;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
-import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -105,8 +102,9 @@ public class TestNode extends DrawableNode {
         }
 
         if (testToRun != null) {
-            List<String> commands = new ArrayList<>();
+            TestResult testResult = DataBank.createNewTestResult();
 
+            List<String> commands = new ArrayList<>();
             Collections.addAll(commands, testToRun.getText().split("[\\r\\n]+"));
 
             WebDriver driver = BrowserHelper.getChrome();
@@ -114,7 +112,7 @@ public class TestNode extends DrawableNode {
             Integer lineCounter = 1;
 
             for (String command : commands) {
-                TestCommand testCommand = TestCommand.parseCommand(command);
+                    TestCommand testCommand = TestCommand.parseCommand(command);
 
                 // If the user is viewing the node at the time we can select the line that is currently being run
                 if (aceTextArea != null) {
@@ -122,65 +120,39 @@ public class TestNode extends DrawableNode {
                 }
                 lineCounter++;
 
-                if ("go".equals(testCommand.getMainCommand())) {
-                    TestParameter url = testCommand.getParameterByName("url");
-
-                    if (url != null) { // Go to the url specified
-                        driver.get(url.getParameterValue());
-                    }
-                } else if ("input".equals(testCommand.getMainCommand())) { // Input a value into an element
-                    TestParameter elementId = testCommand.getParameterByName("id");
-                    TestParameter valueToEnter = testCommand.getParameterByPath("value");
-                    if (elementId != null && valueToEnter != null) {
-                        WebElement element = driver.findElement(By.id(elementId.getParameterValue()));
-                        if (element != null) {
-                            element.sendKeys(valueToEnter.getParameterValue());
-                        }
-                    }
-                } else if ("click".equals(testCommand.getMainCommand())) { // Click on an element
-                    TestParameter elementId = testCommand.getParameterByName("id");
-                    if (elementId != null) {
-                        WebElement element = driver.findElement(By.id(elementId.getParameterValue()));
-                        if (element != null) {
-                            element.click();
-                        }
-                    }
-                } else if ("wait".equals(testCommand.getMainCommand())) { // Wait for condition to be true
-                    TestParameter elementToBeClickable = testCommand.getParameterByPath("clickable::id");
-                    TestParameter elementToBePresent = testCommand.getParameterByPath("presence::id");
-                    if (elementToBeClickable != null) { // If it is specified wait until this element is clickable
-                        WebDriverWait wait = new WebDriverWait(driver, 10);
-                        wait.until(ExpectedConditions.elementToBeClickable(By.id(elementToBeClickable.getParameterValue())));
-                    }
-                    if (elementToBePresent != null) { // If it is specified wait until this element is clickable
-                        WebDriverWait wait = new WebDriverWait(driver, 10);
-                        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementToBePresent.getParameterValue())));
-                    }
-                } else if ("frame".equals(testCommand.getMainCommand())) { // Wait for condition to be true
-                    TestParameter frameToSelectById = testCommand.getParameterByPath("id");
-                    TestParameter frameToSelect = testCommand.getParameterByPath("select");
-
-                    if (frameToSelectById != null) {
-                        driver.switchTo().frame(frameToSelectById.getParameterValue());
-                    }
-
-                    if (frameToSelect != null) {
-                        driver.switchTo().defaultContent();
-                    }
-                } else if ("exit".equals(testCommand.getMainCommand())) { // Closes down the browser
-                    driver.close();
-                    driver.quit();
+                // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
+                // and initialising the object and performing the required action which is then handled by the object
+                try {
+                    Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
+                    ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
+                    actionControl.initialise(driver, testCommand, testResult);
+                    actionControl.performAction();
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
                 }
+            }
+
+            TestResult testResultReloaded = new TestResult();
+            testResultReloaded.setId(testResult.getId());
+            DataBank.loadTestSteps(testResultReloaded);
+            Integer counter = 1;
+            for (TestStep testStep : testResultReloaded.getTestSteps()) {
+                try {
+                    ImageIO.write(testStep.getScreenshot(), "png", new File("C:\\Users\\alex\\Desktop\\TestStep" + testResultReloaded.getId() + "-" + counter + ".png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                counter++;
             }
         }
     }
 
     public Test applyInputs(InputNode inputNode) {
         Test editedTest = new Test(this);
+        editedTest.setText(getTest().getText());
         for (Input input : inputNode.getInputs()) {
             if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
-                String test = getTest().getText();
-                editedTest.setText(test.replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
+                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
             }
         }
 

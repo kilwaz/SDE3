@@ -62,12 +62,12 @@ public class TestCase {
         this.elementType = elementType;
     }
 
-    public TestResult evaluate(WebDriver driver) {
+    public TestResultOld evaluate(WebDriver driver) {
         PageStateCapture initialState = new PageStateCapture(elementFrame);
         initialState.capturePage(driver);
 
-        TestResult testResult = new TestResult();
-        testResult.setInitialState(initialState);
+        TestResultOld testResultOld = new TestResultOld();
+        testResultOld.setInitialState(initialState);
 
         if (!"default".equals(elementFrame)) {
             WebDriverWait wait = new WebDriverWait(driver, 10);
@@ -79,15 +79,15 @@ public class TestCase {
             Select select = new Select(driver.findElement(By.id(elementId)));
             select.selectByVisibleText(inputValue);
 
-            testResult.setExpected(expectedOutputValue);
+            testResultOld.setExpected(expectedOutputValue);
             Timer timer = new Timer();
-            testResult.setOutcome(testSelectCase(driver, select.getFirstSelectedOption().getAttribute("value")));
-            testResult.setDuration(timer.getDuration());
+            testResultOld.setOutcome(testSelectCase(driver, select.getFirstSelectedOption().getAttribute("value")));
+            testResultOld.setDuration(timer.getDuration());
         } else if ("link".equals(elementType)) {
-            testResult.setExpected(expectedOutputValue);
+            testResultOld.setExpected(expectedOutputValue);
             Timer timer = new Timer();
-            testResult.setOutcome(testLinkCase(driver));
-            testResult.setDuration(timer.getDuration());
+            testResultOld.setOutcome(testLinkCase(driver));
+            testResultOld.setDuration(timer.getDuration());
         }
 
         if (!"default".equals(elementFrame)) {
@@ -95,12 +95,12 @@ public class TestCase {
         }
 
         PageStateCapture finalState = new PageStateCapture(elementFrame);
-        testResult.setFinalState(finalState);
+        testResultOld.setFinalState(finalState);
 
         finalState.capturePage(driver);
-        testResult.setChangedElements(initialState.compare(finalState));
+        testResultOld.setChangedElements(initialState.compare(finalState));
 
-        return testResult;
+        return testResultOld;
     }
 
     private String testLinkCase(WebDriver driver) {
