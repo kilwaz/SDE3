@@ -2,20 +2,20 @@ package application.utils;
 
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
+import io.netty.util.CharsetUtil;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.HttpFiltersSourceAdapter;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
-import java.net.ServerSocket;
-import java.nio.charset.Charset;
-
 public class WebProxy extends SDERunnable {
-    private ServerSocket serverSocket = null;
-    private Boolean listening = true;
     private Integer port = 10000;    //default
     private HttpProxyServer server;
 
@@ -28,40 +28,62 @@ public class WebProxy extends SDERunnable {
         server = DefaultHttpProxyServer.bootstrap()
                 .withPort(port)
                 .withFiltersSource(new HttpFiltersSourceAdapter() {
+                    @Override
+                    public int getMaximumResponseBufferSizeInBytes() {
+                        return 1024 * 1024;
+                    }
+
                     public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
                         return new HttpFiltersAdapter(originalRequest) {
                             @Override
                             public HttpResponse requestPre(HttpObject httpObject) {
-                                //System.out.println("1");
-
-
                                 return null;
                             }
 
                             @Override
                             public HttpResponse requestPost(HttpObject httpObject) {
-                                //System.out.println("2");
-
                                 return null;
                             }
 
                             @Override
                             public HttpObject responsePre(HttpObject httpObject) {
-                                // System.out.println("3");
+                                if (httpObject instanceof FullHttpResponse) {
 
-                                if (httpObject instanceof HttpResponse) {
-                                    System.out.println("RESPONSE!");
-                                    HttpResponse response = (HttpResponse) httpObject;
+                                    FullHttpResponse response = (FullHttpResponse) httpObject;
+                                    ByteBuf buf = response.content();
+
+                                    ByteBuf newBuf = Unpooled.wrappedBuffer(buf);
+
+
+                                    if (response.headers().get("Content-Type").contains("text/html")) {
+                                        StringBuilder builder = new StringBuilder();
+
+                                        String originalContent = buf.toString(CharsetUtil.UTF_8);
+
+                                        Document doc = Jsoup.parse(originalContent);
+
+                                        for (Element element : doc.getAllElements()) {
+                                            if (element.text().contains("Demo") && element.children().size() == 0) {
+                                                element.text(element.text().replace("Demo", "slap"));
+                                            }
+                                        }
+
+                                        builder.append(doc.toString());
+                                        newBuf = Unpooled.copiedBuffer(builder.toString(), CharsetUtil.UTF_8);
+                                    }
+
+                                    DefaultFullHttpResponse newResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, newBuf);
+
+                                    newResponse.headers().set("Content-Length", newResponse.content().readableBytes());
+
                                     HttpHeaders httpHeaders = response.headers();
                                     for (String name : httpHeaders.names()) {
-                                        System.out.println("HEADER " + name + " -> " + httpHeaders.get(name));
+                                        if (!"Content-Length".equals(name)) {
+                                            newResponse.headers().set(name, httpHeaders.get(name));
+                                        }
                                     }
-                                }
 
-                                if (httpObject instanceof HttpContent) {
-                                    HttpContent content = (HttpContent) httpObject;
-                                    ByteBuf bytebuf = content.content();
-                                    System.out.println(bytebuf.toString(Charset.forName("UTF-8")));
+                                    return newResponse;
                                 }
 
                                 return httpObject;
@@ -69,8 +91,6 @@ public class WebProxy extends SDERunnable {
 
                             @Override
                             public HttpObject responsePost(HttpObject httpObject) {
-                                // System.out.println("4");
-
                                 return httpObject;
                             }
                         };
@@ -79,25 +99,6 @@ public class WebProxy extends SDERunnable {
                 .start();
 
         System.out.println("Started");
-
-//        try {
-//            serverSocket = new ServerSocket(port);
-//            System.out.println("Started on: " + port);
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
-//
-//        try {
-//            while (listening) {
-//                new WebProxyThread(serverSocket.accept()).start();
-//            }
-//            serverSocket.close();
-//        } catch (IOException ex) {
-//            // If we are not listening then the socket has been closed by us
-//            if (listening) {
-//                ex.printStackTrace();
-//            }
-//        }
     }
 
     public void close() {

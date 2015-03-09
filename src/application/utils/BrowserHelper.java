@@ -21,11 +21,11 @@ public class BrowserHelper {
         options.addArguments("test-type");
         capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 
-        String PROXY = "localhost:10000";
+        String proxyConnectionString = "localhost:10000";
         Proxy proxy = new Proxy();
-        proxy.setHttpProxy(PROXY)
-                .setFtpProxy(PROXY)
-                .setSslProxy(PROXY);
+        proxy.setHttpProxy(proxyConnectionString)
+                .setFtpProxy(proxyConnectionString)
+                .setSslProxy(proxyConnectionString);
         capabilities.setCapability(CapabilityType.PROXY, proxy);
 
         WebDriver driver = new ChromeDriver(capabilities);
