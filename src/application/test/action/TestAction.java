@@ -1,19 +1,21 @@
 package application.test.action;
 
 import application.data.DataBank;
+import application.node.design.DrawableNode;
+import application.node.implementations.TestResultNode;
 import application.test.TestParameter;
 import application.test.TestStep;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 public class TestAction extends ActionControl {
-    // This class is used to close the web driver which in turn closes the window
     public TestAction() {
     }
 
     public void performAction() {
         TestParameter xPathElement = getTestCommand().getParameterByPath("element::xPath");
         By testBy = null;
+
 
         if (xPathElement != null) {
             testBy = findElement(xPathElement);
@@ -24,6 +26,7 @@ public class TestAction extends ActionControl {
 
             if (getTestCommand().getParameterByPath("equals") != null) {
                 TestStep testStep = DataBank.createNewTestStep(getTestResult());
+                testStep.setTestType(TestStep.TEST_TYPE_EQUAL);
                 getTestResult().addTestStep(testStep);
                 testStep.setTestString(getTestCommand().getRawCommand());
 
@@ -33,13 +36,26 @@ public class TestAction extends ActionControl {
                 takeScreenshotOfElement(testStep, testElement);
 
                 if (contentToEqual.equals(content)) {
-                    System.out.println("SAME - EXPECTED " + contentToEqual + " GOT " + content);
+                    //System.out.println("SAME - EXPECTED " + contentToEqual + " GOT " + content);
                     testStep.setSuccessful(true);
                 } else {
-                    System.out.println("DIFFERENT - EXPECTED " + contentToEqual + " GOT " + content);
+                    //System.out.println("DIFFERENT - EXPECTED " + contentToEqual + " GOT " + content);
                     testStep.setSuccessful(false);
                 }
+                testStep.setExpectedEqual(contentToEqual);
+                testStep.setObservedEqual(content);
+
                 DataBank.saveTestStep(testStep);
+
+                // Add the result to a result node if it is linked
+                TestParameter resultNodeName = getTestCommand().getParameterByPath("resultNode");
+                if (resultNodeName != null) {
+                    DrawableNode resultNode = DataBank.currentlyEditProgram.getFlowController().getNodeThisControllerFromContainedText(resultNodeName.getParameterValue());
+                    if (resultNode != null && resultNode instanceof TestResultNode) {
+                        TestResultNode testResultNode = (TestResultNode) resultNode;
+                        testResultNode.addResult(testStep);
+                    }
+                }
             }
         }
     }

@@ -502,27 +502,33 @@ public class DataBank {
         newTestStep.setId(getNextId("test_step"));
         newTestStep.setParentResult(testResult);
 
-        new UpdateQuery("insert into test_step values (default,NULL,NULL,NULL,NULL)")
+        new UpdateQuery("insert into test_step values (default,NULL,NULL,NULL,NULL,NULL,NULL,NULL)")
                 .execute();
 
         return newTestStep;
     }
 
     public static void saveTestStep(TestStep testStep) {
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update test_step set test_string = ?, screenshot = ?, successful = ?, test_result = ? where id = ?")
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update test_step set test_string = ?, expected_equal = ?, observed_equal = ?, screenshot = ?, successful = ?, test_result = ?, test_type = ? where id = ?")
                 .addParameter(testStep.getTestString()) // 1
-                .addParameter(testStep.getScreenshotInputStream()) // 2
-                .addParameter(testStep.getSuccessful()) // 3
-                .addParameter(testStep.getParentResult().getId()) // 4
-                .addParameter(testStep.getId()) // 5
+                .addParameter(testStep.getExpectedEqual()) // 2
+                .addParameter(testStep.getObservedEqual()) // 3
+                .addParameter(testStep.getScreenshotInputStream()) // 4
+                .addParameter(testStep.getSuccessful()) // 5
+                .addParameter(testStep.getParentResult().getId()) // 6
+                .addParameter(testStep.getTestType()) // 7
+                .addParameter(testStep.getId()) // 8
                 .execute();
         if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
             testStep.setId(getNextId("test_step"));
-            new UpdateQuery("insert into test_step values (default, ?, ?, ?, ?)")
+            new UpdateQuery("insert into test_step values (default, ?, ?, ?, ?, ?, ?, ?)")
                     .addParameter(testStep.getTestString()) // 1
-                    .addParameter(testStep.getScreenshotInputStream()) // 2
-                    .addParameter(testStep.getSuccessful()) // 3
-                    .addParameter(testStep.getParentResult().getId()) // 4
+                    .addParameter(testStep.getExpectedEqual()) // 2
+                    .addParameter(testStep.getObservedEqual()) // 3
+                    .addParameter(testStep.getScreenshotInputStream()) // 4
+                    .addParameter(testStep.getSuccessful()) // 5
+                    .addParameter(testStep.getParentResult().getId()) // 6
+                    .addParameter(testStep.getTestType()) // 6
                     .execute();
         }
     }

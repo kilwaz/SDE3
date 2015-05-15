@@ -1,5 +1,9 @@
 package application.test;
 
+import de.jensd.fx.fontawesome.AwesomeDude;
+import de.jensd.fx.fontawesome.AwesomeIcon;
+import javafx.scene.control.Label;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -8,11 +12,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class TestStep {
+    public static final Integer TEST_TYPE_EQUAL = 1;
+
     private Integer id = -1;
     private String testString = "";
+    private String expectedEqual = "";
+    private String observedEqual = "";
     private Boolean successful = false;
     private BufferedImage screenshot = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     private TestResult parentResult = null;
+    private Integer testType = 0;
 
     public TestStep() {
 
@@ -40,6 +49,18 @@ public class TestStep {
         }
 
         return inputStream;
+    }
+
+    public Integer getTestResultId() {
+        return parentResult.getId();
+    }
+
+    public Label getSuccessLabel() {
+        if (successful) {
+            return AwesomeDude.createIconLabel(AwesomeIcon.CHECK);
+        } else {
+            return AwesomeDude.createIconLabel(AwesomeIcon.CLOSE);
+        }
     }
 
     public Boolean getSuccessful() {
@@ -80,5 +101,38 @@ public class TestStep {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getExpectedEqual() {
+        return expectedEqual;
+    }
+
+    public void setExpectedEqual(String expectedEqual) {
+        this.expectedEqual = expectedEqual;
+    }
+
+    public String getObservedEqual() {
+        return observedEqual;
+    }
+
+    public void setObservedEqual(String observedEqual) {
+        this.observedEqual = observedEqual;
+    }
+
+    public Integer getTestType() {
+        return testType;
+    }
+
+    public void setTestType(Integer testType) {
+        this.testType = testType;
+    }
+
+    public String getTestTypeName() {
+        switch (testType) {
+            case 1:
+                return "Equals";
+            default:
+                return "Unknown";
+        }
     }
 }

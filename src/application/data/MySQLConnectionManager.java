@@ -87,9 +87,12 @@ public class MySQLConnectionManager {
     create table test_step(
        id INT NOT NULL AUTO_INCREMENT,
        test_string VARCHAR(1000),
+       expected_equal VARCHAR(1000),
+       observed_equal VARCHAR(1000),
        screenshot MEDIUMBLOB,
        successful BOOL,
        test_result INT,
+       test_type INT,
        PRIMARY KEY (id),
        FOREIGN KEY (test_result) REFERENCES test_result(id) ON DELETE CASCADE ON UPDATE CASCADE);
     */
