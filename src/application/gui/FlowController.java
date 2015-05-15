@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class FlowController {
     private DrawableNode startNode;
-//    private DrawableNode selectedNode;
+    //    private DrawableNode selectedNode;
     private List<DrawableNode> selectedNodes = new ArrayList<>();
     private List<DrawableNode> nodes = new ArrayList<>();
     private List<NodeConnection> connections = new ArrayList<>();

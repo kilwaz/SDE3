@@ -163,17 +163,18 @@ public class DataBank {
         if (preparedStatement != null) {
             Integer valueCount = 1;
             for (Object value : query.getParameters()) {
-                if (value instanceof String) {
-                    preparedStatement.setString(valueCount, (String) value);
+                if (value instanceof Boolean) {
+                    preparedStatement.setBoolean(valueCount, (Boolean) value);
                 } else if (value instanceof Double) {
                     preparedStatement.setDouble(valueCount, (Double) value);
-                } else if (value instanceof Integer) {
-                    preparedStatement.setInt(valueCount, (Integer) value);
-                } else if (value instanceof Boolean) {
-                    preparedStatement.setBoolean(valueCount, (Boolean) value);
                 } else if (value instanceof InputStream) {
                     preparedStatement.setBlob(valueCount, (InputStream) value);
+                } else if (value instanceof Integer) {
+                    preparedStatement.setInt(valueCount, (Integer) value);
+                } else if (value instanceof String) {
+                    preparedStatement.setString(valueCount, (String) value);
                 }
+
                 valueCount++;
             }
         }

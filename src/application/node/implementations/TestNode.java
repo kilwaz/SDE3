@@ -13,8 +13,13 @@ import application.test.TestStep;
 import application.test.action.ActionControl;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
+import de.jensd.fx.fontawesome.AwesomeDude;
+import de.jensd.fx.fontawesome.AwesomeIcon;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.openqa.selenium.WebDriver;
 
@@ -65,17 +70,35 @@ public class TestNode extends DrawableNode {
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
+        VBox vBox = new VBox(5);
+//        vBox.setLayoutY(55);
+//        vBox.setLayoutX(11);
+
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        Button recordButton = AwesomeDude.createIconButton(AwesomeIcon.DOT_CIRCLE_ALT);
+
+        recordButton.setPrefWidth(35);
+        recordButton.setTooltip(new Tooltip("Record from browser"));
+        recordButton.setId("recordButton-" + getId());
+        recordButton.setOnAction(event -> {
+            WebDriver driver = BrowserHelper.getChrome();
+            driver.get("http://jboss-alex:8080/spl/focal/Login");
+
+
+        });
 
         aceTextArea = new AceTextArea(this, "ace/mode/text");
 
-        AnchorPane.setBottomAnchor(aceTextArea, 0.0);
-        AnchorPane.setLeftAnchor(aceTextArea, 11.0);
-        AnchorPane.setRightAnchor(aceTextArea, 0.0);
-        AnchorPane.setTopAnchor(aceTextArea, 50.0);
+        vBox.getChildren().add(recordButton);
+        vBox.getChildren().add(aceTextArea);
 
-        anchorPane.getChildren().add(aceTextArea);
+        AnchorPane.setBottomAnchor(vBox, 0.0);
+        AnchorPane.setLeftAnchor(vBox, 11.0);
+        AnchorPane.setRightAnchor(vBox, 0.0);
+        AnchorPane.setTopAnchor(vBox, 50.0);
+
+        anchorPane.getChildren().add(vBox);
 
         return tab;
     }
@@ -112,7 +135,7 @@ public class TestNode extends DrawableNode {
             Integer lineCounter = 1;
 
             for (String command : commands) {
-                    TestCommand testCommand = TestCommand.parseCommand(command);
+                TestCommand testCommand = TestCommand.parseCommand(command);
 
                 // If the user is viewing the node at the time we can select the line that is currently being run
                 if (aceTextArea != null) {

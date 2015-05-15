@@ -2,8 +2,8 @@ package application.node.design;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
-import application.node.objects.Trigger;
 import application.gui.canvas.DrawablePoint;
+import application.node.objects.Trigger;
 import application.utils.AppParams;
 import application.utils.ClassFinder;
 import application.utils.NodeRunParams;

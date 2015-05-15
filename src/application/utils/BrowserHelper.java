@@ -45,7 +45,7 @@ public class BrowserHelper {
         return driver;
     }
 
-    static void setupBrowser(WebDriver driver) {
+    private static void setupBrowser(WebDriver driver) {
         Double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
         Double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
         driver.manage().window().setSize(new Dimension(screenWidth.intValue(), screenHeight.intValue()));

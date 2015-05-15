@@ -96,7 +96,7 @@ public class ActionControl {
     public By findElement(TestParameter elementToFind) {
         if ("xPath".equals(elementToFind.getParameterName())) {
             return By.xpath(elementToFind.getParameterValue());
-        } else if("id".equals(elementToFind.getParameterName())) {
+        } else if ("id".equals(elementToFind.getParameterName())) {
             return By.id(elementToFind.getParameterValue());
         }
 

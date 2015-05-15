@@ -53,9 +53,6 @@ public class CompileCode {
                     "   private Object load(String name) {" +
                     "      return DataBank.loadVariable(name, this.flowControllerReferenceId);" +
                     "   }" +
-//                    "   private void recordResult(TestResult testResult, String name) {" +
-//                    "      TestHelper.getResultSet(name, this.flowControllerReferenceId).addResult(testResult);" +
-//                    "   }" +
                     "   private void run(String name) {" +
                     "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams());" +
                     "   }" +
@@ -102,7 +99,9 @@ public class CompileCode {
 
             if (errString.length() > 1) {
                 String lineNumber = errString.substring(errString.indexOf(className) + className.length() + 6);
-                lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
+                if (lineNumber.contains(":")) {
+                    lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
+                }
                 System.out.println("Error compiling " + logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString);
                 Controller.getInstance().showError(Dialogs.create()
                         .owner(null)

@@ -57,6 +57,7 @@ public class Main extends Application {
         new NetworkBuilder();
         loadProgress.setProgress(0.9);
         new SDEThread(new WebProxy());
+        new WebRecordListenServer();
 
         //RemoteDebug remoteDebug = new RemoteDebug("172.16.10.212", "8787");
         //Thread t = new Thread(remoteDebug);
@@ -94,7 +95,7 @@ public class Main extends Application {
         splashLayout = new VBox();
         splashLayout.getChildren().addAll(splash, loadProgress, progressText);
         progressText.setAlignment(Pos.CENTER);
-        splashLayout.setStyle("-fx-padding: 5; -fx-background-color: cornsilk; -fx-border-width:5; -fx-border-color: linear-gradient(to bottom, chocolate, derive(chocolate, 50%));");
+        splashLayout.setStyle("-fx-padding: 5; -fx-background-color: cornsilk; -fx-border-width:5;");
         splashLayout.setEffect(new DropShadow());
     }
 

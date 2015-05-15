@@ -9,6 +9,11 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="org.bouncycastle:bcmail-jdk15on:1.51" level="project" />
+    <orderEntry type="library" name="org.bouncycastle:bcprov-jdk15on:1.51" level="project" />
+    <orderEntry type="library" name="junit:junit:4.12-beta-1" level="project" />
+    <orderEntry type="library" name="org.carlspring.maven:little-proxy-maven-plugin:1.0" level="project" />
+    <orderEntry type="library" name="org.jfree:jfreechart:1.0.19" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">
@@ -207,4 +212,3 @@
     </option>
   </component>
 </module>
-
