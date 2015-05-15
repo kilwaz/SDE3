@@ -534,15 +534,13 @@ public class Controller implements Initializable {
 
         nameField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
-            if (!textField.getText().isEmpty()) {
-                Program program = DataBank.currentlyEditProgram;
-                DrawableNode nodeToUpdate = program.getFlowController().getNodeById(Integer.parseInt(textField.getId().replace("fieldNextNode-", "")));
-                nodeToUpdate.setNextNodeToRun(textField.getText());
-                program.getFlowController().checkConnections(); // Renaming a node might make or break connections
+            Program program = DataBank.currentlyEditProgram;
+            DrawableNode nodeToUpdate = program.getFlowController().getNodeById(Integer.parseInt(textField.getId().replace("fieldNextNode-", "")));
+            nodeToUpdate.setNextNodeToRun(textField.getText());
+            program.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
-                DataBank.saveNode(nodeToUpdate);
-                canvasController.drawProgram();
-            }
+            DataBank.saveNode(nodeToUpdate);
+            canvasController.drawProgram();
         });
 
         return nameField;

@@ -528,7 +528,7 @@ public class DataBank {
                     .addParameter(testStep.getScreenshotInputStream()) // 4
                     .addParameter(testStep.getSuccessful()) // 5
                     .addParameter(testStep.getParentResult().getId()) // 6
-                    .addParameter(testStep.getTestType()) // 6
+                    .addParameter(testStep.getTestType()) // 7
                     .execute();
         }
     }
