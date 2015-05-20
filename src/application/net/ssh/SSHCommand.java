@@ -1,4 +1,4 @@
-package application.net;
+package application.net.ssh;
 
 public class SSHCommand {
     private String command;

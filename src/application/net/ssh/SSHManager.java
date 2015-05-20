@@ -1,4 +1,4 @@
-package application.net;
+package application.net.ssh;
 
 import application.node.design.DrawableNode;
 import application.node.implementations.ConsoleNode;

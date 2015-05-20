@@ -1,4 +1,4 @@
-package application.net;
+package application.net.ssh;
 
 import application.node.implementations.CopyNode;
 import application.node.implementations.LinuxNode;

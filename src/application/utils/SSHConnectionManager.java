@@ -1,6 +1,6 @@
 package application.utils;
 
-import application.net.SSHManager;
+import application.net.ssh.SSHManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class SSHConnectionManager {
     }
 
     public void closeConnections() {
-        openConnections.forEach(application.net.SSHManager::close);
+        openConnections.forEach(SSHManager::close);
     }
 
     public static SSHConnectionManager getInstance() {

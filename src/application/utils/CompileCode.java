@@ -30,7 +30,8 @@ public class CompileCode {
                     "import org.openqa.selenium.support.ui.*;" +
                     "import application.gui.*;" +
                     "import application.test.*;" +
-                    "import application.net.*;" +
+                    "import application.net.ssh.*;" +
+                    "import application.net.proxy.*;" +
                     "import application.node.implementations.*;" +
                     "import application.node.design.*;" +
                     "import application.node.objects.*;" +

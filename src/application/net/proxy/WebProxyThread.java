@@ -1,4 +1,4 @@
-package application.utils;
+package application.net.proxy;
 
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;

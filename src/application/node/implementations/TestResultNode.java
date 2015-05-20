@@ -95,12 +95,12 @@ public class TestResultNode extends DrawableNode {
         testString.setCellValueFactory(new PropertyValueFactory<TestStep, String>("testString"));
 
         TableColumn testType = new TableColumn("Test Type");
-        testType.setMinWidth(50);
+        testType.setMinWidth(75);
+        testType.setMaxWidth(100);
         testType.setCellValueFactory(new PropertyValueFactory<TestStep, String>("testTypeName"));
 
         TableColumn expectedEqual = new TableColumn("Expected");
-        expectedEqual.setMinWidth(10);
-        expectedEqual.setMaxWidth(100);
+        expectedEqual.setMinWidth(100);
         expectedEqual.setCellValueFactory(new PropertyValueFactory<TestStep, String>("expectedEqual"));
 
         TableColumn observedEqual = new TableColumn("Observed");

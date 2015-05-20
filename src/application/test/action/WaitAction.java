@@ -23,7 +23,7 @@ public class WaitAction extends ActionControl {
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementToBePresent.getParameterValue())));
             }
         } catch (org.openqa.selenium.TimeoutException ex) {
-            System.out.println("Element could not be found within the set time limit");
+            System.out.println("Element could not be found within the set time limit of 10 seconds");
             ex.printStackTrace();
         }
     }

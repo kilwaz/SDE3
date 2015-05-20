@@ -4,6 +4,7 @@ import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
+import application.net.proxy.WebProxy;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
@@ -19,6 +20,7 @@ public class ActionControl {
     private WebDriver driver = null;
     private TestCommand testCommand = null;
     private TestResult testResult = null;
+    private WebProxy webProxy = null;
 
     // This is used as a reference to match up action names used within the TestNode to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
@@ -31,12 +33,14 @@ public class ActionControl {
         actionClasses.put("frame", FrameAction.class);
         actionClasses.put("test", TestAction.class);
         actionClasses.put("wait", WaitAction.class);
+        actionClasses.put("track", TrackAction.class);
     }
 
     public ActionControl() {
     }
 
-    public void initialise(WebDriver driver, TestCommand testCommand, TestResult testResult) {
+    public void initialise(WebProxy webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult) {
+        this.webProxy = webProxy;
         this.driver = driver;
         this.testCommand = testCommand;
         this.testResult = testResult;
@@ -66,6 +70,10 @@ public class ActionControl {
 
     public WebDriver getDriver() {
         return driver;
+    }
+
+    public WebProxy getWebProxy() {
+        return webProxy;
     }
 
     public TestCommand getTestCommand() {

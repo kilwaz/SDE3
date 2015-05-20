@@ -13,6 +13,8 @@ import application.test.TestStep;
 import application.test.action.ActionControl;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
+import application.utils.SDEThread;
+import application.net.proxy.WebProxy;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.control.Button;
@@ -134,6 +136,10 @@ public class TestNode extends DrawableNode {
 
             Integer lineCounter = 1;
 
+            // Creates the WebProxy used for this node
+            WebProxy webProxy = new WebProxy();
+            SDEThread webProxyThread = new SDEThread(webProxy);
+
             for (String command : commands) {
                 TestCommand testCommand = TestCommand.parseCommand(command);
 
@@ -148,12 +154,15 @@ public class TestNode extends DrawableNode {
                 try {
                     Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
                     ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
-                    actionControl.initialise(driver, testCommand, testResult);
+                    actionControl.initialise(webProxy, driver, testCommand, testResult);
                     actionControl.performAction();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     e.printStackTrace();
                 }
             }
+
+            // Closes the web proxy
+            webProxy.close();
 
             TestResult testResultReloaded = new TestResult();
             testResultReloaded.setId(testResult.getId());

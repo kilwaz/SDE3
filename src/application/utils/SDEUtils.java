@@ -1,8 +1,8 @@
 package application.utils;
 
 import application.gui.FlowController;
-import application.net.SSHCommand;
-import application.net.SSHManager;
+import application.net.ssh.SSHCommand;
+import application.net.ssh.SSHManager;
 import application.node.design.DrawableNode;
 import application.node.implementations.ConsoleNode;
 import application.node.implementations.LinuxNode;

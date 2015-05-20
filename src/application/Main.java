@@ -3,6 +3,7 @@ package application;
 import application.data.DataBank;
 import application.data.MySQLConnectionManager;
 import application.gui.Controller;
+import application.net.proxy.WebProxyManager;
 import application.utils.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
@@ -56,8 +57,8 @@ public class Main extends Application {
         new NetworkManager();
         new NetworkBuilder();
         loadProgress.setProgress(0.9);
-        new SDEThread(new WebProxy());
-        new WebRecordListenServer();
+        //new SDEThread(new WebProxy());
+        //new WebRecordListenServer();
 
         //RemoteDebug remoteDebug = new RemoteDebug("172.16.10.212", "8787");
         //Thread t = new Thread(remoteDebug);

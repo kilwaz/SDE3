@@ -1,4 +1,4 @@
-package application.utils;
+package application.net.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class WebProxyManager {
     }
 
     public void closeProxies() {
-        openProxies.forEach(application.utils.WebProxy::close);
+        openProxies.forEach(WebProxy::close);
     }
 
     public static WebProxyManager getInstance() {

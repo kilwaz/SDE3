@@ -1,9 +1,11 @@
-package application.utils;
+package application.net.proxy;
 
 
 import application.mitm.HostNameMitmManager;
 import application.mitm.RootCertificateException;
 import application.mitm.SubjectAlternativeNameHolder;
+import application.node.implementations.RequestTrackerNode;
+import application.utils.SDERunnable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,20 +35,23 @@ import java.util.concurrent.ExecutionException;
 public class WebProxy extends SDERunnable {
     private Integer port = 10000;    //default
     private HttpProxyServer server;
+    private WebProxyRequestManager webProxyRequestManager = new WebProxyRequestManager();
 
     public WebProxy() {
         WebProxyManager.getInstance().addConnection(this);
     }
 
-    public void threadRun() {
-        System.out.println("Starting web proxy");
+    public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
+        webProxyRequestManager.addRequestTrackerNode(requestTrackerNode);
+    }
 
+    public void threadRun() {
         try {
             HostNameMitmManager hostNameMitmManager = new HostNameMitmManager();
 
             server = DefaultHttpProxyServer.bootstrap()
                     .withPort(port)
-                    .withManInTheMiddle(hostNameMitmManager)
+                            //.withManInTheMiddle(hostNameMitmManager)
                     .withFiltersSource(new HttpFiltersSourceAdapter() {
                                            @Override
                                            public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
@@ -54,8 +59,38 @@ public class WebProxy extends SDERunnable {
                                                    private int count = 0;
 
                                                    @Override
+                                                   public HttpResponse proxyToServerRequest(HttpObject httpObject) {
+                                                       //System.out.println(originalRequest.hashCode() + "***** proxyToServerRequest - " + count++ + " - " + httpObject.getClass() + " - " + originalRequest.getUri());
+
+                                                       // Check to see if the request is already being processed
+                                                       if (!webProxyRequestManager.isCurrentActiveRequest(originalRequest)) {
+                                                           webProxyRequestManager.addNewActiveRequest(originalRequest);
+                                                           webProxyRequestManager.setRequestStatus(originalRequest, WebProxyRequest.REQUEST_STATUS_PROXY_TO_SERVER);
+                                                       }
+
+                                                       webProxyRequestManager.addRequestHttpContentToRequest(originalRequest, httpObject);
+
+                                                       if (httpObject instanceof LastHttpContent) {
+                                                           if (webProxyRequestManager.isCurrentActiveRequest(originalRequest)) {
+                                                               webProxyRequestManager.setRequestStatus(originalRequest, WebProxyRequest.REQUEST_STATUS_SERVER_TO_PROXY);
+                                                           }
+                                                       }
+
+                                                       return null;
+                                                   }
+
+                                                   @Override
                                                    public HttpObject serverToProxyResponse(HttpObject httpObject) {
-                                                       //System.out.println("***** Hello - " + count++ + " - " + httpObject.getClass() + " - " + originalRequest.getUri());
+                                                       //System.out.println(originalRequest.hashCode() + "***** serverToProxyResponse - " + count++ + " - " + httpObject.getClass() + " - " + originalRequest.getUri());
+
+                                                       webProxyRequestManager.addResponseHttpContentToRequest(originalRequest, httpObject);
+
+                                                       if (httpObject instanceof LastHttpContent) {
+                                                           if (webProxyRequestManager.isCurrentActiveRequest(originalRequest)) {
+                                                               webProxyRequestManager.setRequestStatus(originalRequest, WebProxyRequest.REQUEST_STATUS_COMPLETED);
+                                                               webProxyRequestManager.completeRequest(originalRequest);
+                                                           }
+                                                       }
 
                                                        if (httpObject instanceof DefaultHttpContent) {
                                                            DefaultHttpContent response = (DefaultHttpContent) httpObject;
@@ -101,6 +136,11 @@ public class WebProxy extends SDERunnable {
 
                                                            //System.out.println(originalContent);
                                                        }
+
+//                                                       if (httpObject instanceof LastHttpContent) {
+//                                                           LastHttpContent response = (LastHttpContent) httpObject;
+//                                                           System.out.println("***** LastHttpContent - " + count++ + " - " + httpObject.getClass() + " - " + originalRequest.getUri());
+//                                                       }
 
                                                        if (httpObject instanceof FullHttpResponse) {
 
@@ -159,13 +199,10 @@ public class WebProxy extends SDERunnable {
                                            }
                                        }
 
-                    )
-                    .start();
+                    ).start();
         } catch (RootCertificateException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Started");
     }
 
     public void close() {
