@@ -1,16 +1,14 @@
 package application.net.proxy;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.DefaultHttpContent;
-import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class WebProxyRequest {
@@ -36,6 +34,10 @@ public class WebProxyRequest {
     private Integer requestContentSize = 0;
     private Integer responseContentSize = 0;
     private Integer requestID = 0;
+    private String requestContent = "";
+    private String responseContent = "";
+    private HashMap<String, String> responseHeaders = new HashMap<>();
+    private HashMap<String, String> requestHeaders = new HashMap<>();
 
     public WebProxyRequest(HttpRequest httpRequest, Integer requestID) {
         this.httpRequest = httpRequest;
@@ -58,49 +60,36 @@ public class WebProxyRequest {
         instantCompleteServerToProxy = new Instant();
     }
 
-    public void addRequestHttpObject(HttpObject httpObject) {
-        if (httpObject instanceof DefaultHttpContent) {
-            DefaultHttpContent response = (DefaultHttpContent) httpObject;
-            ByteBuf buf = response.content();
-            //ByteBuf newBuf = Unpooled.wrappedBuffer(buf);
-            String originalContent = buf.toString(CharsetUtil.UTF_8);
-            requestContentSize += originalContent.length();
-            //System.out.println("1 Size? " + originalContent.length());
-            //System.out.println(originalContent);
-        } else if (httpObject instanceof LastHttpContent) {
-            LastHttpContent response = (LastHttpContent) httpObject;
-            ByteBuf buf = response.content();
-            //ByteBuf newBuf = Unpooled.wrappedBuffer(buf);
-            String originalContent = buf.toString(CharsetUtil.UTF_8);
-            requestContentSize += originalContent.length();
-            //System.out.println("2 Size? " + originalContent.length());
-            //System.out.println(originalContent);
+    public void addFullHttpRequest(FullHttpRequest fullHttpRequest){
+        HttpHeaders httpHeaders = fullHttpRequest.headers();
+        for (String headerName : httpHeaders.names()) {
+            requestHeaders.put(headerName, httpHeaders.get(headerName));
         }
 
+        ByteBuf buf = fullHttpRequest.content();
+        String content = buf.toString(CharsetUtil.UTF_8);
+        requestContentSize += content.length();
+        requestContent = content;
+    }
+
+    public void addFullHttpResponse(FullHttpResponse fullHttpResponse) {
+        HttpHeaders httpHeaders = fullHttpResponse.headers();
+        for (String headerName : httpHeaders.names()) {
+            responseHeaders.put(headerName, httpHeaders.get(headerName));
+        }
+
+        ByteBuf buf = fullHttpResponse.content();
+        String content = buf.toString(CharsetUtil.UTF_8);
+        responseContentSize += content.length();
+        responseContent = content;
+    }
+
+    public void addRequestHttpObject(HttpObject httpObject) {
         requestHttpObjects.add(httpObject);
     }
 
     public void addResponseHttpObject(HttpObject httpObject) {
-        if (httpObject instanceof DefaultHttpContent) {
-            DefaultHttpContent response = (DefaultHttpContent) httpObject;
-            ByteBuf buf = response.content();
-            //ByteBuf newBuf = Unpooled.wrappedBuffer(buf);
-            String originalContent = buf.toString(CharsetUtil.UTF_8);
-            responseContentSize += originalContent.length();
-            //System.out.println("OUT 1 Size? " + originalContent.length());
-            //System.out.println(originalContent);
-        } else if (httpObject instanceof LastHttpContent) {
-            LastHttpContent response = (LastHttpContent) httpObject;
-            ByteBuf buf = response.content();
-            //ByteBuf newBuf = Unpooled.wrappedBuffer(buf);
-            String originalContent = buf.toString(CharsetUtil.UTF_8);
-            responseContentSize += originalContent.length();
-            //System.out.println("OUT 2 Size? " + originalContent.length());
-            //System.out.println(originalContent);
-        }
-
         responseHttpObjects.add(httpObject);
-
     }
 
     public Integer getRequestHttpObjectCount() {
@@ -130,6 +119,22 @@ public class WebProxyRequest {
 
     public Integer getRequestID() {
         return requestID;
+    }
+
+    public HashMap<String, String> getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    public HashMap<String, String> getResponseHeaders() {
+        return responseHeaders;
+    }
+
+    public String getRequestContent() {
+        return requestContent;
+    }
+
+    public String getResponseContent() {
+        return responseContent;
     }
 
     public String getRequestContentSize() {

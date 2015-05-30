@@ -8,6 +8,7 @@ public class ExitAction extends ActionControl {
     public void performAction() {
         getDriver().close();
         getDriver().quit();
+        getWebProxy().close();
     }
 }
 

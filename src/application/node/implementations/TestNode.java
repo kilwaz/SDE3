@@ -4,17 +4,16 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Controller;
+import application.net.proxy.WebProxy;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
 import application.test.TestCommand;
 import application.test.TestResult;
-import application.test.TestStep;
 import application.test.action.ActionControl;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
-import application.net.proxy.WebProxy;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.control.Button;
@@ -25,9 +24,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.openqa.selenium.WebDriver;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -161,21 +157,20 @@ public class TestNode extends DrawableNode {
                 }
             }
 
-            // Closes the web proxy
-            webProxy.close();
-
             TestResult testResultReloaded = new TestResult();
             testResultReloaded.setId(testResult.getId());
             DataBank.loadTestSteps(testResultReloaded);
-            Integer counter = 1;
-            for (TestStep testStep : testResultReloaded.getTestSteps()) {
-                try {
-                    ImageIO.write(testStep.getScreenshot(), "png", new File("C:\\Users\\alex\\Desktop\\TestStep" + testResultReloaded.getId() + "-" + counter + ".png"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                counter++;
-            }
+
+            // Doing something with the screenshots
+//            Integer counter = 1;
+//            for (TestStep testStep : testResultReloaded.getTestSteps()) {
+//                try {
+//                    ImageIO.write(testStep.getScreenshot(), "png", new File("C:\\Users\\alex\\Desktop\\TestStep" + testResultReloaded.getId() + "-" + counter + ".png"));
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                counter++;
+//            }
         }
     }
 

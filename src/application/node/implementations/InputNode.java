@@ -240,9 +240,7 @@ public class InputNode extends DrawableNode {
 
     // Sets all inputs with a specific name to a single new value
     public void setInputsByName(String name, String newValue) {
-        inputs.stream().filter(input -> input.getVariableName().equals(name)).forEach(input -> {
-            input.setVariableValue(newValue);
-        });
+        inputs.stream().filter(input -> input.getVariableName().equals(name)).forEach(input -> input.setVariableValue(newValue));
     }
 
     public Input getInputById(Integer id) {

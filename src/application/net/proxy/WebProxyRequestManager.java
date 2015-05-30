@@ -1,6 +1,8 @@
 package application.net.proxy;
 
 import application.node.implementations.RequestTrackerNode;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 
@@ -16,7 +18,6 @@ public class WebProxyRequestManager {
     private Integer requestCount = 1;
 
     public WebProxyRequestManager() {
-
     }
 
     public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -25,6 +26,14 @@ public class WebProxyRequestManager {
 
     public Boolean isCurrentActiveRequest(HttpRequest httpRequest) {
         return activeRequests.containsKey(httpRequest);
+    }
+
+    public void addFullHttpRepsonse(HttpRequest httpRequest, FullHttpResponse fullHttpResponse) {
+        activeRequests.get(httpRequest).addFullHttpResponse(fullHttpResponse);
+    }
+
+    public void addFullHttpRequest(HttpRequest httpRequest, FullHttpRequest fullHttpRequest) {
+        activeRequests.get(httpRequest).addFullHttpRequest(fullHttpRequest);
     }
 
     public void addNewActiveRequest(HttpRequest httpRequest) {
@@ -68,7 +77,5 @@ public class WebProxyRequestManager {
         completedRequests.put(httpRequest, webProxyRequest);
         activeRequests.remove(httpRequest);
         webProxyRequest.instantCompleteServerToProxy();
-
-        //System.out.println(httpRequest.hashCode() + "***** Finished request from Browser - " + httpRequest.getUri() + "(" + webProxyRequest.getRequestHttpObjectCount() + ")(" + webProxyRequest.getResponseHttpObjectCount() + ") - " + webProxyRequest.getRequestDuration() + "ms");
     }
 }

@@ -2,15 +2,14 @@ package application.node.implementations;
 
 import application.data.SavableAttribute;
 import application.gui.Controller;
-import application.node.design.DrawableNode;
 import application.net.proxy.WebProxyRequest;
+import application.node.design.DrawableNode;
+import application.utils.RequestInspectWindow;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -144,6 +143,31 @@ public class RequestTrackerNode extends DrawableNode {
         AnchorPane.setRightAnchor(requestTableView, 0.0);
         AnchorPane.setTopAnchor(requestTableView, 50.0);
         requestTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // Right click context menu
+        requestTableView.setRowFactory(tableView -> {
+            TableRow<WebProxyRequest> row = new TableRow<>();
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem inspectMenuItem = new MenuItem("Inspect");
+            MenuItem removeMenuItem = new MenuItem("Remove");
+            MenuItem removeAllMenuItem = new MenuItem("Remove All");
+
+            inspectMenuItem.setOnAction(event -> new RequestInspectWindow(row.getItem()));
+            removeMenuItem.setOnAction(event -> requestTableView.getItems().remove(row.getItem()));
+            removeAllMenuItem.setOnAction(event -> requestTableView.getItems().clear());
+
+            contextMenu.getItems().add(inspectMenuItem);
+            contextMenu.getItems().add(removeMenuItem);
+            contextMenu.getItems().add(removeAllMenuItem);
+
+            // Set context menu on row, but use a binding to make it only show for non-empty rows:
+            row.contextMenuProperty().bind(
+                    Bindings.when(row.emptyProperty())
+                            .then((ContextMenu) null)
+                            .otherwise(contextMenu)
+            );
+            return row;
+        });
 
         anchorPane.getChildren().add(requestTableView);
 
