@@ -60,7 +60,7 @@ public class WebProxyRequest {
         instantCompleteServerToProxy = new Instant();
     }
 
-    public void addFullHttpRequest(FullHttpRequest fullHttpRequest){
+    public void addFullHttpRequest(FullHttpRequest fullHttpRequest) {
         HttpHeaders httpHeaders = fullHttpRequest.headers();
         for (String headerName : httpHeaders.names()) {
             requestHeaders.put(headerName, httpHeaders.get(headerName));

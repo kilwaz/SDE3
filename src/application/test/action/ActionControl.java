@@ -1,10 +1,10 @@
 package application.test.action;
 
+import application.net.proxy.WebProxy;
 import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
-import application.net.proxy.WebProxy;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;

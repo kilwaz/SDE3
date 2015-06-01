@@ -1,12 +1,9 @@
 package application.data;
 
-import application.utils.AppParams;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.sql.*;
-
-public class MySQLConnectionManager {
-    private Connection connect = null;
-    private static MySQLConnectionManager instance;
+public class DBConnectionManager {
     /*
     create table program(
         id INT NOT NULL AUTO_INCREMENT,
@@ -21,13 +18,13 @@ public class MySQLConnectionManager {
     create table node(
         id INT NOT NULL AUTO_INCREMENT,
         program_id INT,
-        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode','DataBaseNode'),
         PRIMARY KEY (id),
         FOREIGN KEY (program_id) REFERENCES program(id) ON DELETE CASCADE ON UPDATE CASCADE);
 
     ** Use this to add another enum type to the node table
-    alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode');
-    alter table node_colour change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode');
+    alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode','DataBaseNode');
+    alter table node_colour change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode','DataBaseNode');
     ** Adds a foreign key to a table
     alter table program add FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE;
     **
@@ -68,7 +65,7 @@ public class MySQLConnectionManager {
 
     create table node_colour(
         id INT NOT NULL AUTO_INCREMENT,
-        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode'),
+        node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode','DataBaseNode'),
         colour_r INT,
         colour_g INT,
         colour_b INT,
@@ -98,68 +95,33 @@ public class MySQLConnectionManager {
        FOREIGN KEY (test_result) REFERENCES test_result(id) ON DELETE CASCADE ON UPDATE CASCADE);
     */
 
-    public MySQLConnectionManager() {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            //connect = DriverManager.getConnection("jdbc:mysql://localhost:13390/sde?user=spiralinks&password=spiralinks");
-            connect = DriverManager.getConnection(AppParams.MYSQL_CONNECTION);
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
+    private static DBConnectionManager instance;
+    private List<DBConnection> DBConnectionList = new ArrayList<>();
+    private DBConnection applicationConnection;
 
+    public DBConnectionManager() {
         instance = this;
     }
 
-    public Boolean isConnected() {
-        if (connect == null) {
-            return false;
-        }
-        try {
-            return !connect.isClosed();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
+    public void addOracleConnection(DBConnection DBConnection) {
+        DBConnectionList.add(DBConnection);
     }
 
-    public ResultSet runQuery(String query) {
-        ResultSet resultSet = null;
-        try {
-            Statement statement = connect.createStatement();
-            resultSet = statement.executeQuery(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return resultSet;
+    public void closeConnections() {
+        DBConnectionList.forEach(DBConnection::close);
     }
 
-    public PreparedStatement getPreparedStatement(String sql) {
-        try {
-            return connect.prepareStatement(sql);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void createApplicationConnection() {
+        applicationConnection = new DBConnection("jdbc:mysql://172.16.10.213/sde", "spiralinks", "spiralinks");
+        addOracleConnection(applicationConnection);
+        applicationConnection.connect();
     }
 
-    // you need to close all three to make sure
-    private void close() {
-        //close(resultSet);
-        //close(statement);
-        close(connect);
+    public DBConnection getApplicationConnection() {
+        return applicationConnection;
     }
 
-    private void close(AutoCloseable c) {
-        try {
-            if (c != null) {
-                c.close();
-            }
-        } catch (Exception e) {
-            // don't throw now as it might leave following closables in undefined state
-        }
-    }
-
-    public static MySQLConnectionManager getInstance() {
+    public static DBConnectionManager getInstance() {
         return instance;
     }
 } 

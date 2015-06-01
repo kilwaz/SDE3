@@ -31,7 +31,7 @@ public class DataBank {
     static private HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
     static private HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
     static private HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
-    static private MySQLConnectionManager mySQLInstance;
+    static private DBConnectionManager dbInstance;
     static private NodeColours nodeColours = new NodeColours();
 
     static public User currentUser;
@@ -103,13 +103,13 @@ public class DataBank {
     }
 
     public static SelectResult runSelectQuery(SelectQuery selectQuery) {
+        return runSelectQuery(DBConnectionManager.getInstance().getApplicationConnection(), selectQuery);
+    }
+
+    public static SelectResult runSelectQuery(DBConnection dbConnection, SelectQuery selectQuery) {
         SelectResult selectResult = new SelectResult();
         try {
-            if (mySQLInstance == null) {
-                mySQLInstance = MySQLConnectionManager.getInstance();
-            }
-
-            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement(selectQuery.getQuery());
+            PreparedStatement preparedStatement = dbConnection.getPreparedStatement(selectQuery.getQuery());
             if (preparedStatement != null) {
                 setParameters(preparedStatement, selectQuery);
 
@@ -140,13 +140,13 @@ public class DataBank {
     }
 
     public static UpdateResult runUpdateQuery(UpdateQuery updateQuery) {
+        return runUpdateQuery(DBConnectionManager.getInstance().getApplicationConnection(), updateQuery);
+    }
+
+    public static UpdateResult runUpdateQuery(DBConnection dbConnection, UpdateQuery updateQuery) {
         UpdateResult updateResult = new UpdateResult();
         try {
-            if (mySQLInstance == null) {
-                mySQLInstance = MySQLConnectionManager.getInstance();
-            }
-
-            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement(updateQuery.getQuery());
+            PreparedStatement preparedStatement = dbConnection.getPreparedStatement(updateQuery.getQuery());
             if (preparedStatement != null) {
                 setParameters(preparedStatement, updateQuery);
                 updateResult.setResultNumber(preparedStatement.executeUpdate());
@@ -552,20 +552,15 @@ public class DataBank {
     }
 
     public static void loadNodeColours(NodeColours nodeColours) {
-        try {
-            if (mySQLInstance == null) {
-                mySQLInstance = MySQLConnectionManager.getInstance();
-            }
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, colour_r, colour_g, colour_b, node_type from node_colour")
+                .execute();
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            NodeColour nodeColour = new NodeColour(resultRow.getInt("colour_r"),
+                    resultRow.getInt("colour_g"),
+                    resultRow.getInt("colour_b"),
+                    resultRow.getString("node_type"));
 
-            PreparedStatement preparedStatement = mySQLInstance.getPreparedStatement("select id, colour_r, colour_g, colour_b, node_type from node_colour");
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next()) {
-                NodeColour nodeColour = new NodeColour(resultSet.getInt("colour_r"), resultSet.getInt("colour_g"), resultSet.getInt("colour_b"), resultSet.getString("node_type"));
-                nodeColours.addNodeColour(nodeColour);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            nodeColours.addNodeColour(nodeColour);
         }
     }
 

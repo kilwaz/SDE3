@@ -1,7 +1,7 @@
 package application;
 
+import application.data.DBConnectionManager;
 import application.data.DataBank;
-import application.data.MySQLConnectionManager;
 import application.gui.Controller;
 import application.net.proxy.WebProxyManager;
 import application.utils.*;
@@ -45,12 +45,13 @@ public class Main extends Application {
         loadProgress.setProgress(0.0);
         // Load all managers
         new ThreadManager();
-        new MySQLConnectionManager();
+        new DBConnectionManager();
         new SSHConnectionManager();
         new BrowserManager();
         new WebProxyManager();
         loadProgress.setProgress(0.5);
-        //new OracleConnectionManager();
+        new DBConnectionManager();
+        DBConnectionManager.getInstance().createApplicationConnection();
         loadProgress.setProgress(0.7);
         DataBank.loadFromDatabase();
         loadProgress.setProgress(0.8);
@@ -115,6 +116,7 @@ public class Main extends Application {
             ThreadManager.getInstance().closeThreads();
             BrowserManager.getInstance().closeBrowsers();
             WebProxyManager.getInstance().closeProxies();
+            DBConnectionManager.getInstance().closeConnections();
 
             // Cleans up any class or java files previously compiled.
             String userHome = System.getProperty("user.home");

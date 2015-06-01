@@ -2,6 +2,7 @@ package application.data;
 
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -44,6 +45,10 @@ public class SelectResultRow {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public BigDecimal getBigDecimal(String colName) {
+        return (BigDecimal) rowValues.get(colName);
     }
 
     public BigInteger getBigInt(String colName) {
