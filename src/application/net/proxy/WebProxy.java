@@ -52,22 +52,22 @@ public class WebProxy extends SDERunnable {
                                                        //System.out.println(originalRequest.hashCode() + "***** proxyToServerRequest - " + count++ + " - " + httpObject.getClass() + " - " + originalRequest.getUri());
 
                                                        // Check to see if the request is already being processed
-                                                       if (!webProxyRequestManager.isCurrentActiveRequest(originalRequest)) {
-                                                           webProxyRequestManager.addNewActiveRequest(originalRequest);
-                                                           webProxyRequestManager.setRequestStatus(originalRequest, WebProxyRequest.REQUEST_STATUS_PROXY_TO_SERVER);
+                                                       if (!webProxyRequestManager.isCurrentActiveRequest(originalRequest.hashCode())) {
+                                                           webProxyRequestManager.addNewActiveRequest(originalRequest.hashCode(), originalRequest);
+                                                           webProxyRequestManager.setRequestStatus(originalRequest.hashCode(), WebProxyRequest.REQUEST_STATUS_PROXY_TO_SERVER);
                                                        }
 
-                                                       webProxyRequestManager.addRequestHttpContentToRequest(originalRequest, httpObject);
+                                                       webProxyRequestManager.addRequestHttpContentToRequest(originalRequest.hashCode(), httpObject);
 
                                                        if (httpObject instanceof LastHttpContent) {
-                                                           if (webProxyRequestManager.isCurrentActiveRequest(originalRequest)) {
-                                                               webProxyRequestManager.setRequestStatus(originalRequest, WebProxyRequest.REQUEST_STATUS_SERVER_TO_PROXY);
+                                                           if (webProxyRequestManager.isCurrentActiveRequest(originalRequest.hashCode())) {
+                                                               webProxyRequestManager.setRequestStatus(originalRequest.hashCode(), WebProxyRequest.REQUEST_STATUS_SERVER_TO_PROXY);
                                                            }
                                                        }
 
                                                        if (httpObject instanceof FullHttpRequest) {
                                                            FullHttpRequest request = (FullHttpRequest) httpObject;
-                                                           webProxyRequestManager.addFullHttpRequest(originalRequest, request);
+                                                           webProxyRequestManager.addFullHttpRequest(originalRequest.hashCode(), request);
                                                        }
 
                                                        return null;
@@ -77,17 +77,17 @@ public class WebProxy extends SDERunnable {
                                                    public HttpObject serverToProxyResponse(HttpObject httpObject) {
                                                        //System.out.println(originalRequest.hashCode() + "***** serverToProxyResponse - " + count++ + " - " + httpObject.getClass() + " - " + originalRequest.getUri());
 
-                                                       webProxyRequestManager.addResponseHttpContentToRequest(originalRequest, httpObject);
+                                                       webProxyRequestManager.addResponseHttpContentToRequest(originalRequest.hashCode(), httpObject);
 
                                                        if (httpObject instanceof FullHttpResponse) {
                                                            FullHttpResponse response = (FullHttpResponse) httpObject;
-                                                           webProxyRequestManager.addFullHttpRepsonse(originalRequest, response);
+                                                           webProxyRequestManager.addFullHttpRepsonse(originalRequest.hashCode(), response);
                                                        }
 
                                                        if (httpObject instanceof LastHttpContent) {
-                                                           if (webProxyRequestManager.isCurrentActiveRequest(originalRequest)) {
-                                                               webProxyRequestManager.setRequestStatus(originalRequest, WebProxyRequest.REQUEST_STATUS_COMPLETED);
-                                                               webProxyRequestManager.completeRequest(originalRequest);
+                                                           if (webProxyRequestManager.isCurrentActiveRequest(originalRequest.hashCode())) {
+                                                               webProxyRequestManager.setRequestStatus(originalRequest.hashCode(), WebProxyRequest.REQUEST_STATUS_COMPLETED);
+                                                               webProxyRequestManager.completeRequest(originalRequest.hashCode());
                                                            }
                                                        }
 

@@ -71,6 +71,18 @@ public class RequestTrackerNode extends DrawableNode {
         return savableAttributes;
     }
 
+    public List<WebProxyRequest> getRequestsByURL(String url) {
+        List<WebProxyRequest> webProxyRequests = new ArrayList<>();
+
+        for (WebProxyRequest webProxyRequest : requestList) {
+            if (webProxyRequest.getRequestURL().equals(url)) {
+                webProxyRequests.add(webProxyRequest);
+            }
+        }
+
+        return webProxyRequests;
+    }
+
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 

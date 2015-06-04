@@ -55,6 +55,12 @@ public class AceTextArea extends VBox {
             }
         });
 
+        browser.setPrefHeight(Integer.MAX_VALUE);
+        browser.setPrefWidth(Integer.MAX_VALUE);
+
+        browser.setMaxHeight(Integer.MAX_VALUE);
+        browser.setMaxWidth(Integer.MAX_VALUE);
+
         this.setOnKeyReleased(event -> {
             if (event.isControlDown()) {
                 if (event.getCode() == KeyCode.C) {

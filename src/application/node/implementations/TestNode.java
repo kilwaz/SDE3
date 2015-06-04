@@ -69,8 +69,6 @@ public class TestNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         VBox vBox = new VBox(5);
-//        vBox.setLayoutY(55);
-//        vBox.setLayoutX(11);
 
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
@@ -82,8 +80,6 @@ public class TestNode extends DrawableNode {
         recordButton.setOnAction(event -> {
             WebDriver driver = BrowserHelper.getChrome();
             driver.get("http://jboss-alex:8080/spl/focal/Login");
-
-
         });
 
         aceTextArea = new AceTextArea(this, "ace/mode/text");
@@ -138,6 +134,8 @@ public class TestNode extends DrawableNode {
 
             for (String command : commands) {
                 TestCommand testCommand = TestCommand.parseCommand(command);
+
+                System.out.println("Command " + command);
 
                 // If the user is viewing the node at the time we can select the line that is currently being run
                 if (aceTextArea != null) {

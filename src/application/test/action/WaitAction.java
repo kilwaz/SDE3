@@ -1,7 +1,8 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -12,19 +13,36 @@ public class WaitAction extends ActionControl {
 
     public void performAction() {
         TestParameter elementToBeClickable = getTestCommand().getParameterByPath("clickable::id");
-        TestParameter elementToBePresent = getTestCommand().getParameterByPath("presence::id");
+        TestParameter elementToBePresentId = getTestCommand().getParameterByPath("presence::id");
+        TestParameter elementToBePresentXPath = getTestCommand().getParameterByPath("presence::xPath");
+        TestParameter javaScriptToBeTrue = getTestCommand().getParameterByPath("frameLoaded::frame");
+        TestParameter waitForTime = getTestCommand().getParameterByPath("specificTime");
+
         try {
-            if (elementToBeClickable != null) { // If it is specified wait until this element is clickable
+            if (elementToBeClickable != null) { // If it is specified, wait until this element is clickable
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
-                wait.until(ExpectedConditions.elementToBeClickable(By.id(elementToBeClickable.getParameterValue())));
+                wait.until(ExpectedConditions.elementToBeClickable(findElement(elementToBeClickable)));
             }
-            if (elementToBePresent != null) { // If it is specified wait until this element is clickable
+            if (elementToBePresentId != null) { // If it is specified, wait until this element is present
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementToBePresent.getParameterValue())));
+                wait.until(ExpectedConditions.presenceOfElementLocated(findElement(elementToBePresentId)));
+            }
+            if (elementToBePresentXPath != null) { // If it is specified, wait until this element is present
+                WebDriverWait wait = new WebDriverWait(getDriver(), 10);
+                wait.until(ExpectedConditions.presenceOfElementLocated(findElement(elementToBePresentXPath)));
+            }
+            if (javaScriptToBeTrue != null) { // If it is specified, wait for this javascript to be true
+                WebDriverWait wait = new WebDriverWait(getDriver(), 10);
+                wait.until((WebDriver driver) -> ((JavascriptExecutor) driver).executeScript("return $('#" + javaScriptToBeTrue.getParameterValue() + "').contents()[0].readyState").equals("complete"));
+            }
+            if (waitForTime != null) { // If it is specified, wait for this amount of time
+                Thread.sleep(Long.parseLong(waitForTime.getParameterValue()));
             }
         } catch (org.openqa.selenium.TimeoutException ex) {
             System.out.println("Element could not be found within the set time limit of 10 seconds");
             ex.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

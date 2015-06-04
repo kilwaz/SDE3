@@ -292,6 +292,8 @@ public class LinuxNode extends DrawableNode {
                         scpProgress.startCopy();
 
                         fileCount++;
+                    } else {
+                        writeToConsole("Cannot find file " + fileToCopy.getAbsolutePath() + "\n\r");
                     }
                 }
 

@@ -25,6 +25,7 @@ public class CompileCode {
             String logicString = "package programs;" +
                     "import application.utils.*;" +
                     "import application.data.*;" +
+                    "import application.data.export.*;" +
                     "import java.util.*;" +
                     "import org.openqa.selenium.*;" +
                     "import org.openqa.selenium.support.ui.*;" +
@@ -35,6 +36,7 @@ public class CompileCode {
                     "import application.node.implementations.*;" +
                     "import application.node.design.*;" +
                     "import application.node.objects.*;" +
+                    "import application.net.proxy.*;" +
                     "public class " + className + " extends SDERunnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String logicReferenceId = \"" + logicReferenceId + "\";" +
@@ -78,13 +80,12 @@ public class CompileCode {
 
             // Save source in .java file.
             File root = new File(userHome, "/SDE"); // On Windows running on C:\, this is C:\java.
-            //File root = new File("C:\\developers\\alex\\svnwork\\focal-v6-demo-test\\SDE\\out\\production\\SDE\\programs"); // On Windows running on C:\, this is C:\java.
             File sourceFile = new File(root, "programs/" + className + ".java");
             Boolean mkDirResult = sourceFile.getParentFile().mkdirs();
 
-            if (!mkDirResult) {
-                System.out.println("Did not create directory " + sourceFile.getAbsolutePath());
-            }
+//            if (!mkDirResult) {
+//                System.out.println("Did not create directory " + sourceFile.getAbsolutePath());
+//            }
 
             new FileWriter(sourceFile).append(logicString).close();
             // Compile source file.

@@ -51,21 +51,21 @@ public class ActionControl {
     }
 
     public void takeScreenshotOfElement(TestStep testStep, WebElement testElement) {
-        Dimension elementDimension = testElement.getSize();
-        Point elementLocation = testElement.getLocation();
-
-        File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-
-        try {
-            BufferedImage bufferedImage = ImageIO.read(scrFile);
-            Graphics2D g = bufferedImage.createGraphics();
-            g.setColor(java.awt.Color.RED);
-            g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
-
-            testStep.setScreenshot(bufferedImage);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        Dimension elementDimension = testElement.getSize();
+//        Point elementLocation = testElement.getLocation();
+//
+//        File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+//
+//        try {
+//            BufferedImage bufferedImage = ImageIO.read(scrFile);
+//            Graphics2D g = bufferedImage.createGraphics();
+//            g.setColor(java.awt.Color.RED);
+//            g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
+//
+//            testStep.setScreenshot(bufferedImage);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public WebDriver getDriver() {

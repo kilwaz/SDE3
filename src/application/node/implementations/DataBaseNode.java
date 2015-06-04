@@ -48,33 +48,11 @@ public class DataBaseNode extends DrawableNode {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
     }
 
-    public List<String> getAvailableTriggers() {
-        List<String> triggers = new ArrayList<>();
-
-        return triggers;
-    }
-
-    public List<String> getAvailableTriggerActions() {
-        List<String> triggers = new ArrayList<>();
-
-        return triggers;
-    }
-
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        Object oneTimeVariable = nodeRunParams.getOneTimeVariable();
-
-//        connectionString = "jdbc:oracle:thin:@172.16.10.181:1521:FOCALTST";
-//        username = "v6_demo_qa_cam";
-//        password = "v6_demo_qa_cam";
+        //Object oneTimeVariable = nodeRunParams.getOneTimeVariable();
 
         dbConnection = new DBConnection(connectionString, username, password);
         dbConnection.connect();
-
-//        SelectResult selectResult = DataBank.runSelectQuery(dbConnection, new SelectQuery("select count(*) as total from fr_emp_details"));
-//
-//        for (SelectResultRow selectResultRow : selectResult.getResults()) {
-//            System.out.println(selectResultRow.getBigDecimal("TOTAL"));
-//        }
     }
 
     public DBConnection getDbConnection() {
