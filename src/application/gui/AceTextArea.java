@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -42,7 +43,7 @@ public class AceTextArea extends VBox {
             e.printStackTrace();
         }
 
-        content = content.replace("[[logic]]", node.getAceTextAreaText());
+        content = content.replace("[[logic]]", StringEscapeUtils.escapeHtml4(node.getAceTextAreaText()));
         content = content.replace("[[ace]]", editorURL.toExternalForm());
         content = content.replace("[[mode]]", textMode);
 

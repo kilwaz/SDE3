@@ -2,7 +2,10 @@ package application.utils;
 
 import application.gui.Controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public class ThreadManager {
     private static ThreadManager threadManager;
@@ -19,9 +22,9 @@ public class ThreadManager {
     }
 
     public void closeThreads() {
-//        for (Thread thread : runningThreads) {
-//            System.out.println("Is thread done .. " + thread.getState().name());
-//        }
+        List<SDEThread> threadsToRemove = runningThreads.stream().filter(thread -> !thread.getThread().isAlive()).collect(Collectors.toList());
+
+        runningThreads.removeAll(threadsToRemove);
     }
 
     public synchronized void threadStarted() {
@@ -35,6 +38,7 @@ public class ThreadManager {
         activeThreads--;
         if (Controller.getInstance() != null) {
             Controller.getInstance().updateThreadCount(activeThreads);
+            closeThreads();
         }
     }
 

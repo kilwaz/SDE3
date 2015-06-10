@@ -5,6 +5,7 @@ import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.Program;
 import application.node.design.DrawableNode;
+import application.node.objects.BatchTest;
 import application.node.objects.Trigger;
 import application.utils.NodeRunParams;
 import application.utils.SDEUtils;
@@ -131,7 +132,12 @@ public class WindowsNode extends DrawableNode {
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        String script = (String) nodeRunParams.getOneTimeVariable();
+        String script = "";
+        if (nodeRunParams.getOneTimeVariable() instanceof String) {
+            script = (String) nodeRunParams.getOneTimeVariable();
+        } else if (nodeRunParams.getOneTimeVariable() instanceof BatchTest) {
+            script = ((BatchTest) nodeRunParams.getOneTimeVariable()).getText();
+        }
 
         if (script != null) {
             String userHome = System.getProperty("user.home");

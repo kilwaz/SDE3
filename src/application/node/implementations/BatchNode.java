@@ -5,6 +5,7 @@ import application.gui.AceTextArea;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.node.objects.Batch;
+import application.node.objects.BatchTest;
 import application.node.objects.Input;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 
 public class BatchNode extends DrawableNode {
     private Batch batch = null;
+    private BatchTest batchTest;
 
     // This will make a copy of the node passed to it
     public BatchNode(BatchNode batchNode) {
@@ -67,15 +69,6 @@ public class BatchNode extends DrawableNode {
         return tab;
     }
 
-    public void applyInputs(InputNode inputNode) {
-        for (Input input : inputNode.getInputs()) {
-            if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
-                String script = getBatch().getScript();
-                getBatch().setScript(script.replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
-            }
-        }
-    }
-
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
@@ -95,12 +88,28 @@ public class BatchNode extends DrawableNode {
         this.batch.setScript(batchString);
     }
 
+    public BatchTest applyInputs(InputNode inputNode) {
+        BatchTest editedTest = new BatchTest(this);
+        editedTest.setText(getBatch().getScript());
+        for (Input input : inputNode.getInputs()) {
+            if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
+                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
+            }
+        }
+
+        return editedTest;
+    }
+
     public String getAceTextAreaText() {
         return getBatch().getScript();
     }
 
     public void setAceTextAreaText(String scriptText) {
         getBatch().setScript(scriptText);
+    }
+
+    public BatchTest getBatchTest() {
+        return batchTest;
     }
 
     public Batch getBatch() {

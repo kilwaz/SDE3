@@ -3,6 +3,7 @@ package application.data;
 import application.gui.FlowController;
 import application.gui.Program;
 import application.node.design.DrawableNode;
+import application.node.implementations.CustomObjectNode;
 import application.node.implementations.InputNode;
 import application.node.implementations.SwitchNode;
 import application.node.implementations.TriggerNode;
@@ -11,6 +12,8 @@ import application.node.objects.Switch;
 import application.node.objects.Trigger;
 import application.test.TestResult;
 import application.test.TestStep;
+import application.utils.CustomObject;
+import application.utils.Serializer;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -233,6 +236,12 @@ public class DataBank {
     public static void deleteInput(Input deleteInput) {
         new UpdateQuery("delete from input where id = ?")
                 .addParameter(deleteInput.getId()) // 1
+                .execute();
+    }
+
+    public static void deleteCustomObject(CustomObject customObject) {
+        new UpdateQuery("delete from serialized where id = ?")
+                .addParameter(customObject.getId()) // 1
                 .execute();
     }
 
@@ -575,6 +584,48 @@ public class DataBank {
         }
 
         return autoIncrement;
+    }
+
+    public static CustomObject createNewCustomObject(Object payload, String payLoadReference, CustomObjectNode parent) {
+        CustomObject customObject = new CustomObject(getNextId("serialized"), payload, payLoadReference, parent);
+
+        parent.addCustomObject(customObject);
+        DataBank.saveCustomObject(customObject);
+
+        return customObject;
+    }
+
+    public static void saveCustomObject(CustomObject customObject) {
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update serialized set node_id = ?, serial_object = ?, serial_reference = ? where id = ?")
+                .addParameter(customObject.getParentNode().getId()) // 1
+                .addParameter(Serializer.serializeToInputStream(customObject.getPayload())) // 2
+                .addParameter(customObject.getPayLoadReference()) // 3
+                .addParameter(customObject.getId()) // 4
+                .execute();
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
+            customObject.setId(getNextId("serialized"));
+            new UpdateQuery("insert into serialized values (default, ?, ?, ?)")
+                    .addParameter(customObject.getParentNode().getId()) // 1
+                    .addParameter(Serializer.serializeToInputStream(customObject.getPayload())) // 2
+                    .addParameter(customObject.getPayLoadReference()) // 3
+                    .execute();
+        }
+    }
+
+
+    public static void loadCustomObjects(CustomObjectNode customObjectNode) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, serial_object, serial_reference from serialized where node_id = ?")
+                .addParameter(customObjectNode.getId()) // 1
+                .execute();
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            CustomObject customObject = new CustomObject(resultRow.getInt("id"),
+                    Serializer.deserialize(resultRow.getBlobInputStream("serial_object")),
+                    resultRow.getString("serial_reference"),
+                    customObjectNode
+            );
+
+            customObjectNode.addCustomObject(customObject);
+        }
     }
 
     public static NodeColours getNodeColours() {

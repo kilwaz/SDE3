@@ -364,7 +364,9 @@ public class LinuxNode extends DrawableNode {
     }
 
     public void closeSSHManager() {
-        sshManager.close();
-        Controller.getInstance().updateCanvasControllerLater();
+        if (sshManager != null) {
+            sshManager.close();
+            Controller.getInstance().updateCanvasControllerLater();
+        }
     }
 }

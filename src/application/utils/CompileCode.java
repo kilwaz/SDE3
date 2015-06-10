@@ -26,6 +26,7 @@ public class CompileCode {
                     "import application.utils.*;" +
                     "import application.data.*;" +
                     "import application.data.export.*;" +
+                    "import application.data.chart.*;" +
                     "import java.util.*;" +
                     "import org.openqa.selenium.*;" +
                     "import org.openqa.selenium.support.ui.*;" +

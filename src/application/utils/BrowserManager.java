@@ -20,6 +20,7 @@ public class BrowserManager {
 
     public void closeBrowsers() {
         runningBrowsers.forEach(org.openqa.selenium.WebDriver::quit);
+        runningBrowsers.clear();
     }
 
     public static BrowserManager getInstance() {

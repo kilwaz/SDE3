@@ -1,6 +1,8 @@
 package application.node.implementations;
 
 import application.data.export.Export;
+import application.data.export.ExportCell;
+import application.data.export.ExportFormula;
 import application.data.export.ExportValue;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
@@ -8,6 +10,8 @@ import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -51,14 +55,30 @@ public class ExportNode extends DrawableNode {
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFSheet sheet = workbook.createSheet("Export");
 
+//            SheetConditionalFormatting sheetCF = sheet.getSheetConditionalFormatting();
+//            ConditionalFormattingRule rule1 = sheetCF.createConditionalFormattingRule(ComparisonOperator.GT, "0");
+//            FontFormatting fontFmt = rule1.createFontFormatting();
+//            fontFmt.setFontStyle(true, false);
+//            fontFmt.setFontColorIndex(IndexedColors.DARK_RED.index);
+//
+//            ConditionalFormattingRule[] cfRules = {rule1};
+//
+//            CellRangeAddress[] regions = {
+//                    CellRangeAddress.valueOf("A2:BS59")
+//            };
+//
+//            sheetCF.addConditionalFormatting(regions, cfRules);
+
             for (Integer row = 0; row < export.getRowCount(); row++) {
                 XSSFRow currentRow = sheet.createRow(row);
 
                 for (Integer col = 0; col < export.getColCount(); col++) {
-                    ExportValue exportValue = export.getValue(row, col);
+                    ExportCell exportCell = export.getValue(row, col);
 
-                    if (exportValue != null) {
-                        XSSFCell currentCell = currentRow.createCell(col);
+                    XSSFCell currentCell = currentRow.createCell(col);
+
+                    if (exportCell instanceof ExportValue) {
+                        ExportValue exportValue = (ExportValue) exportCell;
 
                         // Find the type of value that this is and set it correctly
                         if (exportValue.getDataValue() instanceof String) { // String
@@ -71,6 +91,12 @@ public class ExportNode extends DrawableNode {
                         } else if (exportValue.getDataValue() instanceof Integer) { // Integer
                             currentCell.setCellValue((Integer) exportValue.getDataValue());
                         }
+                    } else if (exportCell instanceof ExportFormula) {
+                        ExportFormula exportFormula = (ExportFormula) exportCell;
+
+                        currentCell.setCellFormula(exportFormula.getFormula());
+                        currentCell.setCellErrorValue(FormulaError.NA);
+
                     }
                 }
             }

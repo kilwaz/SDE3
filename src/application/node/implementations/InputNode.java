@@ -9,6 +9,8 @@ import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -241,6 +243,16 @@ public class InputNode extends DrawableNode {
     // Sets all inputs with a specific name to a single new value
     public void setInputsByName(String name, String newValue) {
         inputs.stream().filter(input -> input.getVariableName().equals(name)).forEach(input -> input.setVariableValue(newValue));
+    }
+
+    public Input getInputByName(String name) {
+        for (Input input : inputs) {
+            if (input.getVariableName().equals(name)) {
+                return input;
+            }
+        }
+
+        return null;
     }
 
     public Input getInputById(Integer id) {

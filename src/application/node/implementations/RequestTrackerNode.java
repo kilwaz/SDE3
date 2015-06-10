@@ -186,6 +186,10 @@ public class RequestTrackerNode extends DrawableNode {
         return tab;
     }
 
+    public void clearAllRequests() {
+        requestList.clear();
+    }
+
     public ObservableList<WebProxyRequest> getResultList() {
         return requestList;
     }
