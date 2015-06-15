@@ -387,9 +387,10 @@ public class SSHManager {
 
             new SDEThread(new SDERunnable() {
                 public void threadRun() {
-                    byte[] data = new byte[4096];
+                    int bufferSize = 131072;
+                    byte[] data = new byte[bufferSize];
                     try {
-                        int i = sink.read(data, 0, 4096);
+                        int i = sink.read(data, 0, bufferSize);
                         String previousString = "";
                         while (true) {
                             if (i < 0) break;
@@ -414,7 +415,7 @@ public class SSHManager {
                                     ((LinuxNode) drawableNode).writeToConsole(responseString);
                                 }
                             }
-                            i = sink.read(data, 0, 4096);
+                            i = sink.read(data, 0, bufferSize);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

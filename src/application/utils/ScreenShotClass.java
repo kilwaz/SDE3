@@ -51,9 +51,7 @@ public class ScreenShotClass {
 
             image = new Robot().createScreenCapture(screenRectangle);
             ImageIO.write(image, "png", new File(userHome, "/SDE/" + name + ".png"));
-        } catch (AWTException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (AWTException | IOException e) {
             e.printStackTrace();
         }
     }

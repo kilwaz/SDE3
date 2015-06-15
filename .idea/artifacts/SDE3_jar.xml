@@ -1,61 +1,16 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="SDE3:jar">
+  <artifact name="SDE3:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/SDE3_jar</output-path>
-    <root id="archive" name="SDE3.jar">
-      <element id="module-output" name="SDE3" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jna.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/mail.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tools.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/ojdbc6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jflex-1.6.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsch-0.1.51.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/autocomplete.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/joda-time-2.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/rsyntaxtextarea.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/controlsfx-8.20.8.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/microemu-midp-2.0.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/fontawesomefx-8.0.10.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium-java-2.45.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsch.agentproxy.core-0.0.6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsch.agentproxy.pageant-0.0.6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsch.agentproxy.sshagent-0.0.6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/mysql-connector-java-5.1.34-bin.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsch.agentproxy.usocket-jna-0.0.6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jsch.agentproxy.jsch-0.0.5-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/sac-1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/jna-3.4.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/gson-2.3.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/guava-18.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/ini4j-0.5.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/xalan-2.7.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/htmlunit-2.15.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/commons-io-2.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/httpcore-4.3.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/httpmime-4.3.6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/junit-dep-4.11.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/nekohtml-1.9.21.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/operadriver-1.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/xml-apis-1.4.01.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/commons-exec-1.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/cssparser-0.9.14.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/httpclient-4.3.6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/serializer-2.7.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/apache-mime4j-0.6.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/cglib-nodep-2.1_3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/commons-codec-1.9.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/hamcrest-core-1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/netty-3.5.7.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/xercesImpl-2.11.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/commons-jxpath-1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/jna-platform-3.4.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/commons-lang3-3.3.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/protobuf-java-2.4.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/hamcrest-library-1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/commons-logging-1.1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/htmlunit-core-js-2.15.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/jetty-websocket-8.1.8.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/phantomjsdriver-1.2.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/selenium/commons-collections-3.2.1.jar" path-in-jar="/" />
+    <root id="root">
+      <element id="archive" name="SDE3.jar">
+        <element id="module-output" name="SDE3" />
+      </element>
+      <element id="library" level="project" name="lib" />
+      <element id="library" level="project" name="org.bouncycastle:bcmail-jdk15on:1.51" />
+      <element id="library" level="project" name="junit:junit:4.12-beta-1" />
+      <element id="library" level="project" name="org.bouncycastle:bcprov-jdk15on:1.51" />
+      <element id="library" level="project" name="org.jfree:jfreechart:1.0.19" />
+      <element id="library" level="project" name="org.carlspring.maven:little-proxy-maven-plugin:1.0" />
     </root>
   </artifact>
 </component>

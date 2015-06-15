@@ -2,6 +2,7 @@ package application.gui.canvas;
 
 import application.data.DataBank;
 import application.gui.Controller;
+import application.gui.FlowController;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.design.DrawableNode;
@@ -45,6 +46,10 @@ public class CanvasController {
     private Double groupSelectCurrentX = 0.0;
     private Double groupSelectCurrentY = 0.0;
 
+    private HashMap<NodeConnection, List<AStarPoint>> solvedPathsCache = new HashMap<>();
+    private HashMap<NodeConnection, AStarPoint> startPointsCache = new HashMap<>();
+    private AStarNetwork network = null;
+
     public CanvasController(Canvas canvasFlow) {
         this.canvasFlow = canvasFlow;
         gc = canvasFlow.getGraphicsContext2D();
@@ -62,6 +67,7 @@ public class CanvasController {
         if (isGroupSelect) {
             groupSelectCurrentX = event.getX();
             groupSelectCurrentY = event.getY();
+            updateAStarNetwork(draggedNodes);
             drawProgram();  // Draw program method will draw the selection box as it is being dragged
         } else {
             if (event.isPrimaryButtonDown() && draggedNodes.size() > 0) {
@@ -70,6 +76,7 @@ public class CanvasController {
                     draggedNode.setX(event.getX() + dragOffsetXY.get(0));
                     draggedNode.setY(event.getY() + dragOffsetXY.get(1));
                 }
+                updateAStarNetwork(draggedNodes);
                 drawProgram();
                 isDraggingNode = true;
             } else if (event.isPrimaryButtonDown() && isDraggingCanvas) {
@@ -127,6 +134,7 @@ public class CanvasController {
             draggedNodes.forEach(DataBank::saveNode);
             draggedNodes = new ArrayList<>();
             isDraggingNode = false;
+            updateAStarNetwork();
             drawProgram();
             return true;
         } else if (isDraggingCanvas) {
@@ -140,6 +148,7 @@ public class CanvasController {
             if (program != null) {
                 List<DrawableNode> selectedNodes = program.getFlowController().getGroupSelectedNodes(groupSelectInitialX - offsetWidth, groupSelectInitialY - offsetHeight, event.getX() - offsetWidth, event.getY() - offsetHeight);
                 program.getFlowController().setSelectedNodes(selectedNodes);
+                updateAStarNetwork();
             }
             drawProgram();
             return true;
@@ -155,6 +164,37 @@ public class CanvasController {
 //        }
     }
 
+    public void updateAStarNetwork() {
+        Program program = DataBank.currentlyEditProgram;
+        network = null;
+        updateAStarNetwork(program.getFlowController().getNodes());
+    }
+
+    public void updateAStarNetwork(List<DrawableNode> nodesToUpdate) {
+        Program program = DataBank.currentlyEditProgram;
+
+        FlowController flowController = program.getFlowController();
+        List<NodeConnection> connectionsToUpdate = new ArrayList<>();
+
+        for (DrawableNode node : nodesToUpdate) {
+            connectionsToUpdate.addAll(flowController.getConnections(node));
+        }
+
+        if (network == null) {
+            network = new AStarNetwork(nodeCornerPadding);
+            solvedPathsCache.clear();
+            startPointsCache.clear();
+        } else {
+            network.updateAStarNetwork(nodesToUpdate, false);
+        }
+
+        for (NodeConnection connection : connectionsToUpdate) {
+            // Solution to path finding for each connection, these are cached and only recalculated when needed
+            solvedPathsCache.put(connection, network.solvePath(connection));
+            startPointsCache.put(connection, network.findStartAStarPointFromNode(connection.getConnectionStart())); // We must get the start after we have solved the path
+        }
+    }
+
     public void drawProgram() {
         Program program = DataBank.currentlyEditProgram;
 
@@ -166,8 +206,6 @@ public class CanvasController {
             gc.clearRect(0, 0, canvasFlow.getWidth(), canvasFlow.getHeight()); // Clears the screen
 
             // Draw the bottom layers first and build up
-            // Connections
-            AStarNetwork network = new AStarNetwork(nodeCornerPadding);
             for (NodeConnection connection : program.getFlowController().getConnections()) {
                 // Bold lines for the selected node
                 if (program.getFlowController().getSelectedNodes().contains(connection.getConnectionStart())
@@ -184,10 +222,15 @@ public class CanvasController {
                     gc.setStroke(connection.getBaseColor());
                 }
 
-                // Solution to path finding
-                List<AStarPoint> solvedPath = network.solvePath(connection);
-                AStarPoint currentPoint = network.findStartAStarPointFromNode(connection.getConnectionStart()); // We must get the start after we have solved the path
-                for (AStarPoint path : solvedPath) {
+                // If we are missing the routes for these connections recalculate the network
+                if (solvedPathsCache.get(connection) == null || startPointsCache.get(connection) == null) {
+                    updateAStarNetwork();
+                }
+
+                // Refer to the network cache to get the paths
+                List<AStarPoint> currentSolvedPath = solvedPathsCache.get(connection);
+                AStarPoint currentPoint = startPointsCache.get(connection); // We must get the start after we have solved the path
+                for (AStarPoint path : currentSolvedPath) {
                     gc.strokeLine(currentPoint.getX() + offsetWidth, currentPoint.getY() + offsetHeight, path.getX() + offsetWidth, path.getY() + offsetHeight);
                     currentPoint = path;
                 }

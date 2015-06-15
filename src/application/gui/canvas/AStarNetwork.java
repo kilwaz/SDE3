@@ -10,6 +10,7 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AStarNetwork {
     private Integer nodeCornerPadding;
@@ -17,11 +18,12 @@ public class AStarNetwork {
     private List<AStarPoint> networkPoints;
 
     public AStarNetwork(Integer nodeCornerPadding) {
+        Program program = DataBank.currentlyEditProgram;
         this.nodeCornerPadding = nodeCornerPadding;
-        generateAStarNetwork();
+        updateAStarNetwork(program.getFlowController().getNodes(), true);
     }
 
-    private void generateAStarNetwork() {
+    public void updateAStarNetwork(List<DrawableNode> nodes, Boolean recalculateVisibility) {
         List<Point> points = new ArrayList<>();
         Program program = DataBank.currentlyEditProgram;
 
@@ -40,9 +42,7 @@ public class AStarNetwork {
         //gc.setLineWidth(1);
 
         networkPoints = new ArrayList<>();
-        for (Point point : points) {
-            networkPoints.add(new AStarPoint(point.getLocation()));
-        }
+        networkPoints.addAll(points.stream().map(point -> new AStarPoint(point.getLocation())).collect(Collectors.toList()));
 
         for (AStarPoint aStarPointStart : networkPoints) {
             // Debug show network points
@@ -50,12 +50,15 @@ public class AStarNetwork {
 
             for (AStarPoint aStarPointEnd : networkPoints) {
                 Boolean intersected = false;
-                for (DrawableNode node : program.getFlowController().getNodes()) {
-                    Rectangle r1 = new Rectangle(node.getX().intValue() - nodeCornerPadding + 1, node.getY().intValue() - nodeCornerPadding + 1, node.getWidth().intValue() + ((nodeCornerPadding - 1) * 2), node.getHeight().intValue() + ((nodeCornerPadding - 1) * 2));
-                    Line2D l1 = new Line2D.Double(aStarPointStart.getX(), aStarPointStart.getY(), aStarPointEnd.getX(), aStarPointEnd.getY());
-                    if (l1.intersects(r1)) {
-                        intersected = true;
-                        break;
+                // Seeing as calculating visibility of other nodes is expensive we only do this when the user releases the mouse, gives a smoother experience
+                if (recalculateVisibility) {
+                    for (DrawableNode node : nodes) {
+                        Rectangle r1 = new Rectangle(node.getX().intValue() - nodeCornerPadding + 1, node.getY().intValue() - nodeCornerPadding + 1, node.getWidth().intValue() + ((nodeCornerPadding - 1) * 2), node.getHeight().intValue() + ((nodeCornerPadding - 1) * 2));
+                        Line2D l1 = new Line2D.Double(aStarPointStart.getX(), aStarPointStart.getY(), aStarPointEnd.getX(), aStarPointEnd.getY());
+                        if (l1.intersects(r1)) {
+                            intersected = true;
+                            break; // Break as soon as we find a node which intersects as we then know it is not valid
+                        }
                     }
                 }
 
@@ -90,6 +93,7 @@ public class AStarNetwork {
             if (node.getX().intValue() + node.getWidth().intValue() + nodeCornerPadding == aStarPoint.getX() &&
                     node.getY().intValue() + (node.getHeight().intValue() / 2) == aStarPoint.getY()) {
                 foundAStarPoint = aStarPoint;
+                break;
             }
         }
 
@@ -101,10 +105,10 @@ public class AStarNetwork {
         AStarPoint foundAStarPoint = null;
 
         for (AStarPoint aStarPoint : networkPoints) {
-
             if (node.getX().intValue() - nodeCornerPadding == aStarPoint.getX() &&
                     node.getY().intValue() + (node.getHeight().intValue() / 2) == aStarPoint.getY()) {
                 foundAStarPoint = aStarPoint;
+                break;
             }
         }
 

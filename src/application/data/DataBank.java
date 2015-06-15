@@ -135,6 +135,9 @@ public class DataBank {
                     selectResult.addResultRow(selectResultRow);
                 }
             }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

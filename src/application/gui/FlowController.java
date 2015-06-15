@@ -75,9 +75,7 @@ public class FlowController {
             }
         }
 
-        for (NodeConnection connection : connectionsToRemove) {
-            connections.remove(connection);
-        }
+        connectionsToRemove.forEach(connections::remove);
     }
 
     public void addConnection(NodeConnection connection) {
@@ -391,6 +389,12 @@ public class FlowController {
         }
 
         return false;
+    }
+
+    public List<NodeConnection> getConnections(DrawableNode node) {
+        List<NodeConnection> nodeConnections = connections.stream().filter(nodeConnection -> nodeConnection.getConnectionStart() == node || nodeConnection.getConnectionEnd() == node).collect(Collectors.toList());
+
+        return nodeConnections;
     }
 
     public NodeConnection getConnection(DrawableNode start, DrawableNode end) {
