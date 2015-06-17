@@ -3,6 +3,7 @@ package application.gui;
 import application.data.DataBank;
 import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
+import application.gui.window.SettingsWindow;
 import application.node.design.DrawableNode;
 import application.utils.AppParams;
 import application.utils.ThreadManager;
@@ -97,6 +98,8 @@ public class Controller implements Initializable {
 
     @FXML
     private Button runButtonToolBar;
+
+    private Button settingsButtonToolBar = null;
 
     private CanvasController canvasController;
     private ContextMenu canvasFlowContextMenu;
@@ -448,6 +451,7 @@ public class Controller implements Initializable {
 
         leftAccordion.setExpandedPane(programTitlePane);
 
+        // Run button on toolbar
         runButtonToolBar = AwesomeDude.createIconButton(AwesomeIcon.PLAY);
         runButtonToolBar.setStyle("-fx-background-color: null;");
         runButtonToolBar.setOnMouseEntered(event -> runButtonToolBar.setStyle("-fx-background-color: lightgray;"));
@@ -462,9 +466,19 @@ public class Controller implements Initializable {
                 }
         );
 
+        // Settings button on toolbar
+        settingsButtonToolBar = AwesomeDude.createIconButton(AwesomeIcon.COGS);
+        settingsButtonToolBar.setStyle("-fx-background-color: null;");
+        settingsButtonToolBar.setOnMouseEntered(event -> settingsButtonToolBar.setStyle("-fx-background-color: lightgray;"));
+        settingsButtonToolBar.setOnMousePressed(event -> settingsButtonToolBar.setStyle("-fx-background-color: darkgray;"));
+        settingsButtonToolBar.setOnMouseReleased(event -> settingsButtonToolBar.setStyle("-fx-background-color: lightgray;"));
+        settingsButtonToolBar.setOnMouseExited(event -> settingsButtonToolBar.setStyle("-fx-background-color: null;"));
+        settingsButtonToolBar.setOnAction(event -> new SettingsWindow());
+
         // Setup tool bar  here
         toolBar.getItems().add(runButtonToolBar);
         toolBar.getItems().add(new Separator());
+        toolBar.getItems().add(settingsButtonToolBar);
 
         // Setup menu bar here
         menuBarMenuItemQuit.setOnAction(event -> ((Stage) scene.getWindow()).close());

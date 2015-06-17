@@ -4,7 +4,7 @@ import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.net.proxy.WebProxyRequest;
 import application.node.design.DrawableNode;
-import application.utils.RequestInspectWindow;
+import application.gui.window.RequestInspectWindow;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;

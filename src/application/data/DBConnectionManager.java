@@ -1,5 +1,8 @@
 package application.data;
 
+import application.gui.window.SettingsWindow;
+import application.utils.AppParams;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,10 +122,15 @@ public class DBConnectionManager {
         DBConnectionList.forEach(DBConnection::close);
     }
 
-    public void createApplicationConnection() {
-        applicationConnection = new DBConnection("jdbc:mysql://172.16.10.213/sde", "spiralinks", "spiralinks");
+    public Boolean createApplicationConnection() {
+//        applicationConnection = new DBConnection("jdbc:mysql://172.16.10.213/sde", "spiralinks", "spiralinks");
+        applicationConnection = new DBConnection(AppParams.MYSQL_CONNECTION, AppParams.MYSQL_USERNAME, AppParams.MYSQL_PASSWORD);
         addOracleConnection(applicationConnection);
-        applicationConnection.connect();
+        if (!applicationConnection.connect()) {
+            new SettingsWindow();
+            return false;
+        }
+        return true;
     }
 
     public DBConnection getApplicationConnection() {

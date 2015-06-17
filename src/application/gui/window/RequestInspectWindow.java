@@ -1,4 +1,4 @@
-package application.utils;
+package application.gui.window;
 
 import application.net.proxy.WebProxyRequest;
 import javafx.scene.Scene;

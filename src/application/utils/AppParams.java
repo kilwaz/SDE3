@@ -10,11 +10,14 @@ public class AppParams {
     public static String CHROME_DIRECTORY = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe";
     public static String IE_DIRECTORY = "C:\\Program Files\\Internet Explorer\\iexplore.exe\"";
     public static String APP_TITLE = "SpiraLinks Development Engine";
-    public static String APP_VERSION = "V0.4.2.1";
+    public static String APP_VERSION = "V0.4.2.2";
 
-    // Database
-    public static String MYSQL_CONNECTION = "jdbc:mysql://172.16.10.213/sde?user=spiralinks&password=spiralinks";
-    public static String ORACLE_CONNECTION = "jdbc:oracle:thin:@172.16.10.181:1521:FOCALTST";
+    // Database for application - Defaults are displayed here and are overridden by the SDE.xml file
+    public static String MYSQL_CONNECTION = "jdbc:mysql://172.16.10.213/sde";
+    public static String MYSQL_USERNAME = "spiralinks";
+    public static String MYSQL_PASSWORD = "spiralinks";
+
+    // Current user logged into the application
     public static String CURRENT_USER = "alex";
 
     public static Font getFont(Integer size) {

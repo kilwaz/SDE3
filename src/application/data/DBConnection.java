@@ -18,12 +18,13 @@ public class DBConnection {
         this.connectionString = connectionString;
     }
 
-    public void connect() {
+    public Boolean connect() {
         try {
             connection = DriverManager.getConnection(connectionString, username, password);
+            return true;
         } catch (SQLException e) {
-            System.out.println("Connection Failed! Check output console");
-            e.printStackTrace();
+            System.out.println("Trouble connecting to the database with details - Connection String:" + connectionString + " Username:" + username + " Password:" + password);
+            return false;
         }
     }
 

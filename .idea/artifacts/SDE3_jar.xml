@@ -2,15 +2,12 @@
   <artifact name="SDE3:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/SDE3_jar</output-path>
     <root id="root">
+      <element id="directory" name="lib">
+        <element id="library" level="project" name="lib" />
+      </element>
       <element id="archive" name="SDE3.jar">
         <element id="module-output" name="SDE3" />
       </element>
-      <element id="library" level="project" name="lib" />
-      <element id="library" level="project" name="org.bouncycastle:bcmail-jdk15on:1.51" />
-      <element id="library" level="project" name="junit:junit:4.12-beta-1" />
-      <element id="library" level="project" name="org.bouncycastle:bcprov-jdk15on:1.51" />
-      <element id="library" level="project" name="org.jfree:jfreechart:1.0.19" />
-      <element id="library" level="project" name="org.carlspring.maven:little-proxy-maven-plugin:1.0" />
     </root>
   </artifact>
 </component>

@@ -45,18 +45,24 @@ public class Main extends Application {
         loadProgress.setProgress(0.0);
         // Load all managers
         new ThreadManager();
-        new DBConnectionManager();
         new SSHConnectionManager();
         new BrowserManager();
         new WebProxyManager();
+
         loadProgress.setProgress(0.5);
+        new AppProperties(); // Set the location of where to find the properties xml file
+        if (!AppProperties.readXML()) {
+            AppProperties.saveToXML();
+        }
+
         new DBConnectionManager();
-        DBConnectionManager.getInstance().createApplicationConnection();
-        loadProgress.setProgress(0.7);
-        DataBank.loadFromDatabase();
+        Boolean connectionSuccessful = DBConnectionManager.getInstance().createApplicationConnection();
+        if (connectionSuccessful) {
+            DataBank.loadFromDatabase();
+        }
         loadProgress.setProgress(0.8);
         new NetworkManager();
-        new NetworkBuilder();
+        //new NetworkBuilder();  // Finds all available IP addresses on the network
         loadProgress.setProgress(0.9);
         //new SDEThread(new WebProxy());
         //new WebRecordListenServer();
