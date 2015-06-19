@@ -458,6 +458,20 @@ public class FlowController {
         return null;
     }
 
+    public static FlowController getFlowControllerFromNode(DrawableNode nodeToFind) {
+        for (Program program : DataBank.getPrograms()) {
+            for (DrawableNode node : program.getFlowController().getNodes()) {
+                if (node instanceof LogicNode) {
+                    if (nodeToFind.equals(node)) {
+                        return program.getFlowController();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static FlowController getFlowControllerFromLogic(Logic logic) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {

@@ -37,9 +37,9 @@ import org.controlsfx.dialog.Dialogs;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
     @FXML
@@ -339,10 +339,7 @@ public class Controller implements Initializable {
                     } else { // This is when not right clicking on a node, you get the create node menu
                         canvasPopOver.hide();
 
-                        List<MenuItem> nodeMenuItems = new ArrayList<>();
-                        for (String nodeName : DrawableNode.NODE_NAMES) {
-                            nodeMenuItems.add(createNodeMenuItem(nodeName));
-                        }
+                        List<MenuItem> nodeMenuItems = DrawableNode.NODE_NAMES.stream().map(Controller.this::createNodeMenuItem).collect(Collectors.toList());
 
                         canvasFlowContextMenu = new ContextMenu();
                         canvasFlowContextMenu.getItems().addAll(nodeMenuItems);

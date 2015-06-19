@@ -29,12 +29,12 @@ public class AppProperties {
 
         String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         try {
-            propertiesPath = URLDecoder.decode(path, "UTF-8") + "SDE.xml";
+            path = path.replace("SDE.jar","");
+            propertiesPath = URLDecoder.decode(path + "/../../", "UTF-8") + "SDE.xml";
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
-
 
     public static boolean readXML() {
         Document dom;
@@ -101,6 +101,8 @@ public class AppProperties {
 
             dom.appendChild(rootEle);
 
+            FileOutputStream fos = null;
+
             try {
                 Transformer tr = TransformerFactory.newInstance().newTransformer();
                 tr.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -108,9 +110,18 @@ public class AppProperties {
                 tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 
                 // send DOM to file
-                tr.transform(new DOMSource(dom), new StreamResult(new FileOutputStream(propertiesPath)));
+                fos = new FileOutputStream(propertiesPath);
+                tr.transform(new DOMSource(dom), new StreamResult(fos));
             } catch (TransformerException | IOException ex) {
                 System.out.println(ex.getMessage());
+            } finally {
+                if(fos!= null){
+                    try {
+                        fos.close();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         } catch (ParserConfigurationException ex) {
             System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + ex);

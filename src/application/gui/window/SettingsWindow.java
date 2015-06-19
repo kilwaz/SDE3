@@ -33,10 +33,7 @@ public class SettingsWindow extends Stage {
             TextField dbConnectionStringTextField = new TextField();
             dbConnectionStringTextField.setPrefWidth(200.0);
             dbConnectionStringTextField.setText(AppParams.MYSQL_CONNECTION);
-            dbConnectionStringTextField.setOnAction(event -> {
-                AppParams.MYSQL_CONNECTION = ((TextField) event.getSource()).getText();
-                AppProperties.saveToXML();
-            });
+            dbConnectionStringTextField.setOnKeyReleased(event -> AppParams.MYSQL_CONNECTION = ((TextField) event.getSource()).getText());
 
             dbConnectionStringRow.getChildren().add(dbConnectionStringLabel);
             dbConnectionStringRow.getChildren().add(dbConnectionStringTextField);
@@ -51,10 +48,7 @@ public class SettingsWindow extends Stage {
             TextField dbUsernameTextField = new TextField();
             dbUsernameTextField.setPrefWidth(200.0);
             dbUsernameTextField.setText(AppParams.MYSQL_USERNAME);
-            dbUsernameTextField.setOnAction(event -> {
-                AppParams.MYSQL_USERNAME = ((TextField) event.getSource()).getText();
-                AppProperties.saveToXML();
-            });
+            dbUsernameTextField.setOnKeyReleased(event -> AppParams.MYSQL_USERNAME = ((TextField) event.getSource()).getText());
 
             dbUsernameRow.getChildren().add(dbUsernameLabel);
             dbUsernameRow.getChildren().add(dbUsernameTextField);
@@ -69,16 +63,17 @@ public class SettingsWindow extends Stage {
             TextField dbPasswordTextField = new TextField();
             dbPasswordTextField.setPrefWidth(200.0);
             dbPasswordTextField.setText(AppParams.MYSQL_PASSWORD);
-            dbPasswordTextField.setOnAction(event -> {
-                AppParams.MYSQL_PASSWORD = ((TextField) event.getSource()).getText();
-                AppProperties.saveToXML();
-            });
+            dbPasswordTextField.setOnKeyReleased(event -> AppParams.MYSQL_PASSWORD = ((TextField) event.getSource()).getText());
 
             dbPasswordRow.getChildren().add(dbPasswordLabel);
             dbPasswordRow.getChildren().add(dbPasswordTextField);
 
             Button saveButton = new Button();
             saveButton.setText("Save");
+            saveButton.setOnAction(event -> {
+                AppProperties.saveToXML();
+                this.close();
+            });
 
             rows.getChildren().add(dbConnectionStringRow);
             rows.getChildren().add(dbUsernameRow);

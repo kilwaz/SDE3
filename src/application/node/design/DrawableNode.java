@@ -5,7 +5,6 @@ import application.data.SavableAttribute;
 import application.gui.canvas.DrawablePoint;
 import application.node.objects.Trigger;
 import application.utils.AppParams;
-import application.utils.ClassFinder;
 import application.utils.NodeRunParams;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
@@ -13,7 +12,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class DrawableNode {
@@ -35,16 +33,42 @@ public class DrawableNode {
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
 
-        List<Class<?>> classes = ClassFinder.find("application.node.implementations");
+        //Reflections reflections = new Reflections("application.node.implementations");
+        //reflections.getTypesAnnotatedWith()
 
-        for (Class clazz : classes) {
-            String simpleClassName = clazz.getSimpleName();
+        // TEMP FIX UNTIL I CAN GET THIS WORKING!!
+        NODE_NAMES.add("BashNode");
+        NODE_NAMES.add("BatchNode");
+        NODE_NAMES.add("ChartNode");
+        NODE_NAMES.add("ConsoleNode");
+        NODE_NAMES.add("CopyNode");
+        NODE_NAMES.add("CustomObjectNode");
+        NODE_NAMES.add("DataBaseNode");
+        NODE_NAMES.add("EmailNode");
+        NODE_NAMES.add("ExportNode");
+        NODE_NAMES.add("InputNode");
+        NODE_NAMES.add("LinuxNode");
+        NODE_NAMES.add("LogicNode");
+        NODE_NAMES.add("RequestTrackerNode");
+        NODE_NAMES.add("SwitchNode");
+        NODE_NAMES.add("TestNode");
+        NODE_NAMES.add("TestResultNode");
+        NODE_NAMES.add("TimerNode");
+        NODE_NAMES.add("TriggerNode");
+        NODE_NAMES.add("WindowsNode");
+        // !!!!!!!!!!!!!!!!!!
 
-            if (simpleClassName.endsWith("Node")) {
-                NODE_NAMES.add(clazz.getSimpleName());
-                Collections.sort(NODE_NAMES);
-            }
-        }
+
+//        List<Class<?>> classes = ClassFinder.find("application.node.implementations");
+//
+//        for (Class clazz : classes) {
+//            String simpleClassName = clazz.getSimpleName();
+//
+//            if (simpleClassName.endsWith("Node")) {
+//                NODE_NAMES.add(clazz.getSimpleName());
+//                Collections.sort(NODE_NAMES);
+//            }
+//        }
     }
 
     public DrawableNode() {

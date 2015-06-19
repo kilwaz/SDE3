@@ -1,5 +1,6 @@
 package application.gui;
 
+import application.Main;
 import application.node.design.DrawableNode;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -16,7 +17,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -32,19 +35,28 @@ public class AceTextArea extends VBox {
         browser = new WebView();
         webEngine = browser.getEngine();
 
-        URL editorURL = getClass().getResource("/ace-editor/src/ace.js");
-        URL bashEditorURL = getClass().getResource("/aceCodeEditor.html");
+        String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        try {
+            resourcesPath = resourcesPath.replace("SDE3.jar", ""); // Removes the jar name
+            resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
+            resourcesPath = URLDecoder.decode(resourcesPath + "../resources", "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        String bashEditorPath = resourcesPath + "/aceCodeEditor.html";
+        String editorPath = resourcesPath + "/ace-editor/src/ace.js";
 
         String content = "";
         try {
-            byte[] encoded = Files.readAllBytes(Paths.get(bashEditorURL.toExternalForm().replaceFirst("file:/", "")));
+            byte[] encoded = Files.readAllBytes(Paths.get(bashEditorPath));
             content = new String(encoded, "UTF8");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         content = content.replace("[[logic]]", StringEscapeUtils.escapeHtml4(node.getAceTextAreaText()));
-        content = content.replace("[[ace]]", editorURL.toExternalForm());
+        content = content.replace("[[ace]]", "file:/" + editorPath);
         content = content.replace("[[mode]]", textMode);
 
         webEngine.loadContent(content);

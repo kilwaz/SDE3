@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.net.URL;
 
 public class Main extends Application {
+    private static Main instance;
+
     private Pane splashLayout;
     private ProgressBar loadProgress;
     private Label progressText;
@@ -39,6 +41,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        instance = this;
         this.splashStage = stage;
         showSplash();
 
@@ -48,6 +51,7 @@ public class Main extends Application {
         new SSHConnectionManager();
         new BrowserManager();
         new WebProxyManager();
+        new JobManager();
 
         loadProgress.setProgress(0.5);
         new AppProperties(); // Set the location of where to find the properties xml file
@@ -123,6 +127,7 @@ public class Main extends Application {
             BrowserManager.getInstance().closeBrowsers();
             WebProxyManager.getInstance().closeProxies();
             DBConnectionManager.getInstance().closeConnections();
+            JobManager.getInstance().closeAllJobs();
 
             // Cleans up any class or java files previously compiled.
             String userHome = System.getProperty("user.home");
@@ -168,5 +173,13 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public Stage getMainStage() {
+        return mainStage;
+    }
+
+    public static Main getInstance() {
+        return instance;
     }
 }
