@@ -1,8 +1,5 @@
 package application.test;
 
-/**
- * Created by alex on 18/02/2015.
- */
 public class TestParameter {
     private String parameterName;
     private String parameterValue;

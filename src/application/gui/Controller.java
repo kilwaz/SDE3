@@ -3,6 +3,8 @@ package application.gui;
 import application.data.DataBank;
 import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
+import application.gui.window.ExportWindow;
+import application.gui.window.ImportWindow;
 import application.gui.window.SettingsWindow;
 import application.node.design.DrawableNode;
 import application.utils.AppParams;
@@ -79,6 +81,15 @@ public class Controller implements Initializable {
     private MenuItem menuBarMenuItemQuit;
 
     @FXML
+    private MenuItem menuBarMenuItemExportProgram;
+
+    @FXML
+    private MenuItem menuBarMenuItemExportNode;
+
+    @FXML
+    private MenuItem menuBarMenuItemImport;
+
+    @FXML
     private SplitPane splitPanePageCentral;
 
     @FXML
@@ -138,6 +149,9 @@ public class Controller implements Initializable {
         assert nodeTabPane != null : "fx:id=\"nodeTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert menuBarMenuItemExportProgram != null : "fx:id=\"menuBarMenuItemExportProgram\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert menuBarMenuItemExportNode != null : "fx:id=\"menuBarMenuItemExportNode\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert menuBarMenuItemImport != null : "fx:id=\"menuBarMenuItemImport\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
@@ -479,6 +493,18 @@ public class Controller implements Initializable {
 
         // Setup menu bar here
         menuBarMenuItemQuit.setOnAction(event -> ((Stage) scene.getWindow()).close());
+
+        menuBarMenuItemExportProgram.setOnAction(event -> {
+            new ExportWindow(ExportWindow.EXPORT_PROGRAM);
+        });
+
+        menuBarMenuItemExportNode.setOnAction(event -> {
+            new ExportWindow(ExportWindow.EXPORT_NODE);
+        });
+
+        menuBarMenuItemImport.setOnAction(event -> {
+            new ImportWindow();
+        });
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());

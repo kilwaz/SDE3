@@ -10,7 +10,12 @@ import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,6 +131,51 @@ public class DrawableNode {
         drawablePoints.add(new DrawablePoint(0.0, 0.0, false));
 
         return drawablePoints;
+    }
+
+    public Document getXMLRepresentation() {
+        Document document;
+        Element elementNode = null;
+
+        // instance of a DocumentBuilderFactory
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            // use factory to get an instance of document builder
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            // create instance of DOM
+            document = db.newDocument();
+
+            // create the root element
+            Element nodeElement = document.createElement(this.getClass().getSimpleName());
+
+            // Loops through savable attributes
+            for (SavableAttribute savableAttribute : getDataToSave()) {
+                elementNode = document.createElement("Variable");
+
+                Element className = document.createElement("ClassName");
+                className.appendChild(document.createTextNode(savableAttribute.getClassName()));
+
+                Element variableName = document.createElement("VariableName");
+                variableName.appendChild(document.createTextNode(savableAttribute.getVariableName()));
+
+                Element variableValue = document.createElement("VariableValue");
+                variableValue.appendChild(document.createCDATASection(savableAttribute.getVariable().toString()));
+
+                elementNode.appendChild(variableName);
+                elementNode.appendChild(className);
+                elementNode.appendChild(variableValue);
+
+                nodeElement.appendChild(elementNode);
+            }
+
+            document.appendChild(nodeElement);
+
+            return document;
+        } catch (ParserConfigurationException ex) {
+            System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + ex);
+        }
+
+        return null;
     }
 
     public Double getCenterX() {

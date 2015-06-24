@@ -1,8 +1,5 @@
 package application.data;
 
-/**
- * Created by alex on 18/09/2014.
- */
 public class SavableAttribute {
     private String className;
     private String variableName;

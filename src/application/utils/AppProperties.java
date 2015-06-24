@@ -9,13 +9,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -29,7 +22,7 @@ public class AppProperties {
 
         String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         try {
-            path = path.replace("SDE.jar","");
+            path = path.replace("SDE.jar", "");
             propertiesPath = URLDecoder.decode(path + "/../../", "UTF-8") + "SDE.xml";
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -37,7 +30,7 @@ public class AppProperties {
     }
 
     public static boolean readXML() {
-        Document dom;
+        Document document;
         // Make an  instance of the DocumentBuilderFactory
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
@@ -45,9 +38,9 @@ public class AppProperties {
             DocumentBuilder db = dbf.newDocumentBuilder();
             // parse using the builder to get the DOM mapping of the
             // XML file
-            dom = db.parse(propertiesPath);
+            document = db.parse(propertiesPath);
 
-            Element doc = dom.getDocumentElement();
+            Element doc = document.getDocumentElement();
 
             AppParams.MYSQL_CONNECTION = getTextValue(AppParams.MYSQL_CONNECTION, doc, "DBConnectionString");
             AppParams.MYSQL_PASSWORD = getTextValue(AppParams.MYSQL_PASSWORD, doc, "DBPassword");
@@ -72,8 +65,8 @@ public class AppProperties {
     }
 
     public static void saveToXML() {
-        Document dom;
-        Element e = null;
+        Document document;
+        Element e;
 
         // instance of a DocumentBuilderFactory
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -81,48 +74,27 @@ public class AppProperties {
             // use factory to get an instance of document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
             // create instance of DOM
-            dom = db.newDocument();
+            document = db.newDocument();
 
             // create the root element
-            Element rootEle = dom.createElement("SDE");
+            Element rootEle = document.createElement("SDE");
 
             // create data elements and place them under root
-            e = dom.createElement("DBUsername");
-            e.appendChild(dom.createTextNode(AppParams.MYSQL_USERNAME));
+            e = document.createElement("DBUsername");
+            e.appendChild(document.createTextNode(AppParams.MYSQL_USERNAME));
             rootEle.appendChild(e);
 
-            e = dom.createElement("DBPassword");
-            e.appendChild(dom.createTextNode(AppParams.MYSQL_PASSWORD));
+            e = document.createElement("DBPassword");
+            e.appendChild(document.createTextNode(AppParams.MYSQL_PASSWORD));
             rootEle.appendChild(e);
 
-            e = dom.createElement("DBConnectionString");
-            e.appendChild(dom.createTextNode(AppParams.MYSQL_CONNECTION));
+            e = document.createElement("DBConnectionString");
+            e.appendChild(document.createTextNode(AppParams.MYSQL_CONNECTION));
             rootEle.appendChild(e);
 
-            dom.appendChild(rootEle);
+            document.appendChild(rootEle);
 
-            FileOutputStream fos = null;
-
-            try {
-                Transformer tr = TransformerFactory.newInstance().newTransformer();
-                tr.setOutputProperty(OutputKeys.INDENT, "yes");
-                tr.setOutputProperty(OutputKeys.METHOD, "xml");
-                tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-
-                // send DOM to file
-                fos = new FileOutputStream(propertiesPath);
-                tr.transform(new DOMSource(dom), new StreamResult(fos));
-            } catch (TransformerException | IOException ex) {
-                System.out.println(ex.getMessage());
-            } finally {
-                if(fos!= null){
-                    try {
-                        fos.close();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-            }
+            XMLTransform.writeXMLToFile(document, propertiesPath);
         } catch (ParserConfigurationException ex) {
             System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + ex);
         }

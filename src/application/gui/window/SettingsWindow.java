@@ -6,11 +6,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.net.URL;
 
 public class SettingsWindow extends Stage {
     public SettingsWindow() {
@@ -88,6 +91,10 @@ public class SettingsWindow extends Stage {
 
             this.setScene(new Scene(root, 450, 150));
             this.setTitle("Settings");
+
+            URL url = getClass().getResource("/icon.png");
+            this.getIcons().add(new Image(url.toExternalForm()));
+
             this.show();
         } catch (Exception ex) {
             ex.printStackTrace();

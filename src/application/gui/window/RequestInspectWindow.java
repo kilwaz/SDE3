@@ -5,10 +5,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.net.URL;
 import java.util.HashMap;
 
 public class RequestInspectWindow extends Stage {
@@ -92,6 +94,10 @@ public class RequestInspectWindow extends Stage {
 
             this.setScene(new Scene(root, 900, 800));
             this.setTitle(webProxyRequest.getRequestURL());
+
+            URL url = getClass().getResource("/icon.png");
+            this.getIcons().add(new Image(url.toExternalForm()));
+
             this.show();
         } catch (Exception ex) {
             ex.printStackTrace();

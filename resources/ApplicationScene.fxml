@@ -22,10 +22,32 @@
                                     </accelerator>
                                 </MenuItem>
                             </items>
-                            <accelerator>
-                                <KeyCodeCombination alt="DOWN" code="F" control="UP" meta="UP" shift="UP"
-                                                    shortcut="UP"/>
-                            </accelerator>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Export">
+                            <items>
+                                <MenuItem fx:id="menuBarMenuItemExportProgram" mnemonicParsing="false" text="Program">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="menuBarMenuItemExportNode" mnemonicParsing="false" text="Node">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Import">
+                            <items>
+                                <MenuItem fx:id="menuBarMenuItemImport" mnemonicParsing="false" text="Import">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
+                            </items>
                         </Menu>
                     </menus>
                 </MenuBar>
