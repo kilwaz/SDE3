@@ -6,6 +6,7 @@ import io.netty.util.CharsetUtil;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
 
+import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ public class WebProxyRequest {
     public static final Integer REQUEST_STATUS_PROXY_TO_CLIENT = 4;
     public static final Integer REQUEST_STATUS_COMPLETED = 5;
 
-    private HttpRequest httpRequest;
+    //private HttpRequest httpRequest;
     private Integer requestStatus = REQUEST_STATUS_NOT_STARTED;
 
     private Instant instantStartProxyToServer;
@@ -36,11 +37,21 @@ public class WebProxyRequest {
     private Integer requestID = 0;
     private String requestContent = "";
     private String responseContent = "";
+    private String requestUri = "";
+    private ByteBuffer responseBuffer;
     private HashMap<String, String> responseHeaders = new HashMap<>();
     private HashMap<String, String> requestHeaders = new HashMap<>();
 
+    public  WebProxyRequest() {
+
+    }
+
+    public WebProxyRequest(Integer requestID) {
+        this.requestID = requestID;
+    }
+
     public WebProxyRequest(HttpRequest httpRequest, Integer requestID) {
-        this.httpRequest = httpRequest;
+        //this.httpRequest = httpRequest;
         this.requestID = requestID;
     }
 
@@ -62,8 +73,8 @@ public class WebProxyRequest {
 
     public void addFullHttpRequest(FullHttpRequest fullHttpRequest) {
         HttpHeaders httpHeaders = fullHttpRequest.headers();
-        for (String headerName : httpHeaders.names()) {
-            requestHeaders.put(headerName, httpHeaders.get(headerName));
+        for (CharSequence headerName : httpHeaders.names()) {
+            requestHeaders.put(headerName.toString(), httpHeaders.get(headerName).toString());
         }
 
         ByteBuf buf = fullHttpRequest.content();
@@ -74,8 +85,8 @@ public class WebProxyRequest {
 
     public void addFullHttpResponse(FullHttpResponse fullHttpResponse) {
         HttpHeaders httpHeaders = fullHttpResponse.headers();
-        for (String headerName : httpHeaders.names()) {
-            responseHeaders.put(headerName, httpHeaders.get(headerName));
+        for (CharSequence headerName : httpHeaders.names()) {
+            responseHeaders.put(headerName.toString(), httpHeaders.get(headerName).toString());
         }
 
         ByteBuf buf = fullHttpResponse.content();
@@ -105,7 +116,7 @@ public class WebProxyRequest {
     }
 
     public String getRequestURL() {
-        return httpRequest.getUri();
+        return requestUri;
     }
 
     public Long getRequestDuration() {
@@ -149,5 +160,22 @@ public class WebProxyRequest {
 
     public Integer getResponseContentSize() {
         return responseContentSize;
+    }
+
+    public ByteBuffer getResponseBuffer() {
+        return responseBuffer;
+    }
+
+    public void setResponseBuffer(ByteBuffer responseBuffer) {
+        this.responseBuffer = responseBuffer;
+        this.requestContentSize = responseBuffer.limit();
+    }
+
+    public void setRequestID(Integer requestID) {
+        this.requestID = requestID;
+    }
+
+    public void setRequestUri(String requestUri) {
+        this.requestUri = requestUri;
     }
 }

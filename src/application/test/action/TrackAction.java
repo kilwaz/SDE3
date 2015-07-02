@@ -17,7 +17,7 @@ public class TrackAction extends ActionControl {
             DrawableNode resultNode = DataBank.currentlyEditProgram.getFlowController().getNodeThisControllerFromContainedText(trackerNode.getParameterValue());
             if (resultNode != null && resultNode instanceof RequestTrackerNode) {
                 RequestTrackerNode requestTrackerNode = (RequestTrackerNode) resultNode;
-                getWebProxy().addRequestTrackerNode(requestTrackerNode);
+                getHttpProxyServer().addRequestTrackerNode(requestTrackerNode);
             }
         }
     }

@@ -4,7 +4,6 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Controller;
-import application.net.proxy.WebProxy;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
@@ -14,6 +13,7 @@ import application.test.action.ActionControl;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
+import application.utils.snoop.HttpProxyServer;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.control.Button;
@@ -106,7 +106,6 @@ public class TestNode extends DrawableNode {
         return savableAttributes;
     }
 
-
     // Handles and runs all text typed in
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         // One Time Variable can be used to pass in a replacement Test object to run - for example one edited by an InputNode
@@ -129,8 +128,8 @@ public class TestNode extends DrawableNode {
             Integer lineCounter = 1;
 
             // Creates the WebProxy used for this node
-            WebProxy webProxy = new WebProxy();
-            SDEThread webProxyThread = new SDEThread(webProxy);
+            HttpProxyServer httpProxyServer = new HttpProxyServer();
+            SDEThread webProxyThread = new SDEThread(httpProxyServer);
 
             for (String command : commands) {
                 TestCommand testCommand = TestCommand.parseCommand(command);
@@ -148,9 +147,10 @@ public class TestNode extends DrawableNode {
                 try {
                     Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
                     ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
-                    actionControl.initialise(webProxy, driver, testCommand, testResult);
+                    actionControl.initialise(httpProxyServer, driver, testCommand, testResult);
                     actionControl.performAction();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    System.out.println("Are we exiting here?");
                     e.printStackTrace();
                 }
             }

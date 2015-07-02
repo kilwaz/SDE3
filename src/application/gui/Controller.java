@@ -1,6 +1,7 @@
 package application.gui;
 
 import application.data.DataBank;
+import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
 import application.gui.window.ExportWindow;
@@ -112,6 +113,8 @@ public class Controller implements Initializable {
 
     private Button settingsButtonToolBar = null;
 
+    private Label activeThreadsStatusBar = null;
+
     private CanvasController canvasController;
     private ContextMenu canvasFlowContextMenu;
     private ContextMenu programListContextMenu;
@@ -168,6 +171,13 @@ public class Controller implements Initializable {
             canvasFlow.setHeight(newSceneHeight.intValue());
             canvasController.drawProgram();
         });
+
+        activeThreadsStatusBar = new Label();
+        // Database connection read out, adds the current watcher
+        statusBar.getRightItems().add(DatabaseConnectionWatcher.getInstance());
+        // Active threads read out
+        statusBar.getLeftItems().add(activeThreadsStatusBar);
+        statusBar.setText(""); // Stops the status bar from saying OK
 
         stackPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> splitPanePageCentral.setPrefWidth(newSceneWidth.intValue()));
         stackPane.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> splitPanePageCentral.setPrefHeight(newSceneHeight.intValue()));
@@ -712,7 +722,7 @@ public class Controller implements Initializable {
             }
 
             public void run() {
-                statusBar.setText("Active threads: " + threadCount);
+                activeThreadsStatusBar.setText("Active threads: " + threadCount);
             }
         }
 

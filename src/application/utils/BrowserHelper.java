@@ -21,7 +21,7 @@ public class BrowserHelper {
         options.addArguments("test-type");
         capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 
-        String proxyConnectionString = "localhost:10000";
+        String proxyConnectionString = "localhost:8080";
         Proxy proxy = new Proxy();
         proxy.setHttpProxy(proxyConnectionString)
                 .setFtpProxy(proxyConnectionString)

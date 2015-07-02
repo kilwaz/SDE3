@@ -130,6 +130,7 @@ public class DBConnectionManager {
             new SettingsWindow();
             return false;
         }
+        DatabaseConnectionWatcher.getInstance().setConnected(true);
         return true;
     }
 

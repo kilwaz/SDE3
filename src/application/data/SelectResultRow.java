@@ -55,6 +55,10 @@ public class SelectResultRow {
         return (BigInteger) rowValues.get(colName);
     }
 
+    public Long getLong(String colName) {
+        return (Long) rowValues.get(colName);
+    }
+
     public String getBlobString(String colName) {
         return (String) rowValues.get(colName + "-String");
     }

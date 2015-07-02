@@ -1,26 +1,19 @@
 package application.test.action;
 
-import application.net.proxy.WebProxy;
 import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
+import application.utils.snoop.HttpProxyServer;
 import org.openqa.selenium.*;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class ActionControl {
     private WebDriver driver = null;
     private TestCommand testCommand = null;
     private TestResult testResult = null;
-    private WebProxy webProxy = null;
+    private HttpProxyServer httpProxyServer = null;
 
     // This is used as a reference to match up action names used within the TestNode to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
@@ -39,8 +32,8 @@ public class ActionControl {
     public ActionControl() {
     }
 
-    public void initialise(WebProxy webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult) {
-        this.webProxy = webProxy;
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult) {
+        this.httpProxyServer = webProxy;
         this.driver = driver;
         this.testCommand = testCommand;
         this.testResult = testResult;
@@ -72,8 +65,8 @@ public class ActionControl {
         return driver;
     }
 
-    public WebProxy getWebProxy() {
-        return webProxy;
+    public HttpProxyServer getHttpProxyServer() {
+        return httpProxyServer;
     }
 
     public TestCommand getTestCommand() {

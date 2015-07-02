@@ -2,6 +2,7 @@ package application;
 
 import application.data.DBConnectionManager;
 import application.data.DataBank;
+import application.data.DatabaseConnectionWatcher;
 import application.gui.Controller;
 import application.net.proxy.WebProxyManager;
 import application.utils.*;
@@ -60,7 +61,9 @@ public class Main extends Application {
         }
 
         new DBConnectionManager();
+        new DatabaseConnectionWatcher();  // Creates the database watcher which will let the user know when the database disconnects
         Boolean connectionSuccessful = DBConnectionManager.getInstance().createApplicationConnection();
+
         if (connectionSuccessful) {
             DataBank.loadFromDatabase();
         }

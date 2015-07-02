@@ -49,8 +49,6 @@ public class DataBaseNode extends DrawableNode {
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        //Object oneTimeVariable = nodeRunParams.getOneTimeVariable();
-
         dbConnection = new DBConnection(connectionString, username, password);
         dbConnection.connect();
     }
@@ -150,5 +148,17 @@ public class DataBaseNode extends DrawableNode {
 
     public void setConnectionString(String connectionString) {
         this.connectionString = connectionString;
+    }
+
+    public String getConnectionString() {
+        return connectionString;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

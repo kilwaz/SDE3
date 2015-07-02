@@ -4,7 +4,6 @@ import application.node.implementations.RequestTrackerNode;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,11 +35,10 @@ public class WebProxyRequestManager {
         activeRequests.get(httpRequestHash).addFullHttpRequest(fullHttpRequest);
     }
 
-    public void addNewActiveRequest(Integer httpRequestHash, HttpRequest httpRequest) {
-        WebProxyRequest webProxyRequest = new WebProxyRequest(httpRequest, requestCount);
+    public void addNewActiveRequest(Integer httpRequestHash, WebProxyRequest webProxyRequest) {
+        webProxyRequest.setRequestID(requestCount);
         requestCount++;
 
-        webProxyRequest.instantStartProxyToServer();
         activeRequests.put(httpRequestHash, webProxyRequest);
 
         // Add the result to linked request tracker nodes

@@ -9,8 +9,6 @@ import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -28,6 +26,7 @@ public class InputNode extends DrawableNode {
     private List<Input> inputs = new ArrayList<>();
 
     private VBox inputRows;
+    private InputNode instance;
 
     // This will make a copy of the node passed to it
     public InputNode(InputNode inputNode) {
@@ -82,6 +81,8 @@ public class InputNode extends DrawableNode {
     }
 
     public Tab createInterface() {
+        this.instance = this;
+
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
@@ -138,7 +139,7 @@ public class InputNode extends DrawableNode {
 
         inputNameField.setText(input.getVariableName());
         inputNameField.setId("inputNameField-" + input.getId() + "-" + getId());
-        inputNameField.setPrefWidth(80);
+        inputNameField.setPrefWidth(200);
         inputNameField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
 
@@ -161,7 +162,7 @@ public class InputNode extends DrawableNode {
         inputValueLabel.setId("inputValueLabel-" + input.getId() + "-" + getId());
 
         inputValueField.setText(input.getVariableValue());
-        inputValueField.setPrefWidth(80);
+        inputValueField.setPrefWidth(200);
         inputValueField.setId("inputValueField-" + input.getId() + "-" + getId());
         inputValueField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
@@ -209,7 +210,7 @@ public class InputNode extends DrawableNode {
         addButton.setTooltip(new Tooltip("Add new input"));
 
         addButton.setOnAction(event -> {
-            Input newInput = DataBank.createNewInput("", "", this);
+            Input newInput = DataBank.createNewInput("", "", instance);
 
             // Add the new switch just above the plus button
             inputRows.getChildren().add(inputRows.getChildren().size() - 1, createInputNodeRow(newInput));

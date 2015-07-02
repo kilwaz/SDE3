@@ -139,6 +139,10 @@ public class DataBank {
                 preparedStatement.close();
             }
         } catch (SQLException e) {
+            if (!dbConnection.isConnected()) { // If we are not connected anymore, report this to the user status bar
+                DatabaseConnectionWatcher.getInstance().setConnected(false);
+            }
+
             e.printStackTrace();
         }
 
@@ -159,6 +163,10 @@ public class DataBank {
                 preparedStatement.close();
             }
         } catch (SQLException e) {
+            if (!dbConnection.isConnected()) { // If we are not connected anymore, report this to the user status bar
+                DatabaseConnectionWatcher.getInstance().setConnected(false);
+            }
+
             e.printStackTrace();
         }
 
@@ -401,7 +409,7 @@ public class DataBank {
     }
 
     public static Input createNewInput(String variableName, String variableValue, InputNode parent) {
-        Input input = new Input(getNextId("trigger_condition"), variableName, variableValue, parent);
+        Input input = new Input(getNextId("input"), variableName, variableValue, parent);
 
         parent.addInput(input);
         DataBank.saveInput(input);

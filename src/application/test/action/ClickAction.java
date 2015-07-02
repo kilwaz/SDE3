@@ -13,28 +13,33 @@ public class ClickAction extends ActionControl {
     }
 
     public void performAction() {
-        TestStep testStep = DataBank.createNewTestStep(getTestResult());
-        getTestResult().addTestStep(testStep);
+        try {
+            TestStep testStep = DataBank.createNewTestStep(getTestResult());
+            getTestResult().addTestStep(testStep);
 
-        TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
-        TestParameter idElement = getTestCommand().getParameterByPath("id");
-        By testBy = null;
+            TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
+            TestParameter idElement = getTestCommand().getParameterByPath("id");
+            By testBy = null;
 
-        if (xPathElement != null) {
-            testBy = findElement(xPathElement);
-        } else if (idElement != null) {
-            testBy = findElement(idElement);
-        }
-
-        if (testBy != null) {
-            WebElement testElement = getDriver().findElement(testBy);
-            if (testElement != null) {
-                takeScreenshotOfElement(testStep, testElement);
-                testStep.setTestString(getTestCommand().getRawCommand());
-                testElement.click();
+            if (xPathElement != null) {
+                testBy = findElement(xPathElement);
+            } else if (idElement != null) {
+                testBy = findElement(idElement);
             }
-        }
 
-        DataBank.saveTestStep(testStep);
+            if (testBy != null) {
+                WebElement testElement = getDriver().findElement(testBy);
+                if (testElement != null) {
+                    takeScreenshotOfElement(testStep, testElement);
+                    testStep.setTestString(getTestCommand().getRawCommand());
+                    testElement.click();
+                }
+            }
+
+            DataBank.saveTestStep(testStep);
+        } catch (Exception ex) {
+            System.out.println("Within click failing");
+            ex.printStackTrace();
+        }
     }
 }

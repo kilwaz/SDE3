@@ -1,23 +1,25 @@
 package application.net.proxy;
 
+import application.utils.snoop.HttpProxyServer;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class WebProxyManager {
     private static WebProxyManager webProxyManager;
-    private List<WebProxy> openProxies;
+    private List<HttpProxyServer> openProxies;
 
     public WebProxyManager() {
         webProxyManager = this;
         openProxies = new ArrayList<>();
     }
 
-    public void addConnection(WebProxy webProxy) {
+    public void addConnection(HttpProxyServer webProxy) {
         openProxies.add(webProxy);
     }
 
     public void closeProxies() {
-        openProxies.forEach(WebProxy::close);
+        openProxies.forEach(HttpProxyServer::close);
     }
 
     public static WebProxyManager getInstance() {

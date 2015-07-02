@@ -117,7 +117,6 @@ public class ExportNode extends DrawableNode {
 
                         currentCell.setCellFormula(exportFormula.getFormula());
                         currentCell.setCellErrorValue(FormulaError.NA);
-
                     }
                 }
             }
