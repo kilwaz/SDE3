@@ -7,6 +7,7 @@ import application.utils.CompileCode;
 import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -23,10 +24,12 @@ public class Logic {
     private Integer id = -1;
     private String compiledClassName = "UNKNOWN";
 
+    private static Logger log = Logger.getLogger(Logic.class);
+
     public Logic(LogicNode parentLogicNode) {
         this.parentLogicNode = parentLogicNode;
         this.logic = "public void function() {\n" +
-                "   System.out.println(\"Sample code\");\n" +
+                "   log.info(\"Sample code\");\n" +
                 "}";
     }
 
@@ -100,8 +103,8 @@ public class Logic {
                 URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{root.toURI().toURL()});
                 Class<?> cls = Class.forName("programs." + compiledClassName, true, classLoader);
                 instance = cls.newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | MalformedURLException e) {
-                e.printStackTrace();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | MalformedURLException ex) {
+                log.error(ex);
             }
 
             if (instance != null) {
@@ -109,20 +112,11 @@ public class Logic {
                 try {
                     method = instance.getClass().getMethod("init", NodeRunParams.class);
                     method.invoke(instance, nodeRunParams);
-                } catch (NoSuchMethodException | InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
+                    log.error(ex);
                 }
 
                 new SDEThread((SDERunnable) instance);
-//                if (whileWaiting) {
-//                    try {
-//                        t.join();
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
             }
         }
     }

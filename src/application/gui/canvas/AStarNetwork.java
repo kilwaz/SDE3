@@ -4,6 +4,8 @@ import application.data.DataBank;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.design.DrawableNode;
+import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -16,6 +18,7 @@ public class AStarNetwork {
     private Integer nodeCornerPadding;
     //    private GraphicsContext gc;   // Used here for drawing debug view of network
     private List<AStarPoint> networkPoints;
+    private static Logger log = Logger.getLogger(AStarNetwork.class);
 
     public AStarNetwork(Integer nodeCornerPadding) {
         Program program = DataBank.currentlyEditProgram;
@@ -80,7 +83,7 @@ public class AStarNetwork {
             return aStarSolve(start, goal);
         } else {
             // Return empty list if no start or goal
-            System.out.println("Problems finding start or goal for path");
+            log.error("Problems finding start or goal for path");
             return new ArrayList<>();
         }
     }

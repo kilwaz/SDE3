@@ -18,6 +18,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 public class TriggerNode extends DrawableNode {
     private List<Trigger> triggers = new ArrayList<>();
+    private static Logger log = Logger.getLogger(TriggerNode.class);
 
     // This will make a copy of the node passed to it
     public TriggerNode(TriggerNode triggerNode) {
@@ -148,7 +150,7 @@ public class TriggerNode extends DrawableNode {
                     DataBank.saveTrigger(trigger);
                 }
 
-                System.out.println("Selected when item: " + newValue);
+                log.info("Selected when item: " + newValue);
             }
         });
 
@@ -173,7 +175,7 @@ public class TriggerNode extends DrawableNode {
                     DataBank.saveTrigger(trigger);
                 }
 
-                System.out.println("Selected then item: " + newValue);
+                log.info("Selected then item: " + newValue);
             }
         });
 

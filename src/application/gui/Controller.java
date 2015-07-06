@@ -6,6 +6,7 @@ import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
 import application.gui.window.ExportWindow;
 import application.gui.window.ImportWindow;
+import application.gui.window.LogWindow;
 import application.gui.window.SettingsWindow;
 import application.node.design.DrawableNode;
 import application.utils.AppParams;
@@ -33,6 +34,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.apache.log4j.Logger;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.Dialogs;
@@ -82,6 +84,9 @@ public class Controller implements Initializable {
     private MenuItem menuBarMenuItemQuit;
 
     @FXML
+    private MenuItem menuBarMenuItemLog;
+
+    @FXML
     private MenuItem menuBarMenuItemExportProgram;
 
     @FXML
@@ -126,6 +131,8 @@ public class Controller implements Initializable {
     private Double lastCanvasContextMenuX = 0d;
     private Double lastCanvasContextMenuY = 0d;
 
+    private static Logger log = Logger.getLogger(Controller.class);
+
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         Controller.controller = this;
@@ -151,6 +158,7 @@ public class Controller implements Initializable {
 
         assert nodeTabPane != null : "fx:id=\"nodeTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
+        assert menuBarMenuItemLog != null : "fx:id=\"menuBarMenuItemLog\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert menuBarMenuItemExportProgram != null : "fx:id=\"menuBarMenuItemExportProgram\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert menuBarMenuItemExportNode != null : "fx:id=\"menuBarMenuItemExportNode\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
@@ -278,8 +286,8 @@ public class Controller implements Initializable {
                                 program.getFlowController().addNode(newNode);
                                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                                 canvasController.drawProgram();
-                            } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
-                                e.printStackTrace();
+                            } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
+                                log.error(ex);
                             }
                             canvasPopOver.hide();
                         });
@@ -467,8 +475,10 @@ public class Controller implements Initializable {
                     canvasController.drawProgram();
                 });
 
-        programList.getSelectionModel().select(DataBank.currentUser.getCurrentProgram());
-        programList.scrollTo(DataBank.currentUser.getCurrentProgram());
+        if (DataBank.currentUser != null && DataBank.currentUser.getCurrentProgram() != null) {
+            programList.getSelectionModel().select(DataBank.currentUser.getCurrentProgram());
+            programList.scrollTo(DataBank.currentUser.getCurrentProgram());
+        }
 
         leftAccordion.setExpandedPane(programTitlePane);
 
@@ -503,18 +513,10 @@ public class Controller implements Initializable {
 
         // Setup menu bar here
         menuBarMenuItemQuit.setOnAction(event -> ((Stage) scene.getWindow()).close());
-
-        menuBarMenuItemExportProgram.setOnAction(event -> {
-            new ExportWindow(ExportWindow.EXPORT_PROGRAM);
-        });
-
-        menuBarMenuItemExportNode.setOnAction(event -> {
-            new ExportWindow(ExportWindow.EXPORT_NODE);
-        });
-
-        menuBarMenuItemImport.setOnAction(event -> {
-            new ImportWindow();
-        });
+        menuBarMenuItemLog.setOnAction(event -> new LogWindow());
+        menuBarMenuItemExportProgram.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_PROGRAM));
+        menuBarMenuItemExportNode.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE));
+        menuBarMenuItemImport.setOnAction(event -> new ImportWindow());
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());
@@ -533,8 +535,8 @@ public class Controller implements Initializable {
                 program.getFlowController().addNode(newNode);
                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                 canvasController.drawProgram();
-            } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | NoSuchMethodException | IllegalAccessException e) {
-                e.printStackTrace();
+            } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | NoSuchMethodException | IllegalAccessException ex) {
+                log.error(ex);
             }
         });
         menuItem.setId(className + "-");

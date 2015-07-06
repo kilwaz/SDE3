@@ -30,17 +30,12 @@ public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel
     public void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
 
-        //SSLContextProvider.print();
-
-        //System.out.println("INITING CHANNEL");
-
         if (HttpProxyServer.SSL) {
             SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
             sslEngine.setUseClientMode(false); // We are a server
             sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
 
             pipeline.addLast("ssl", new SslHandler(sslEngine));
-            //System.out.println("INIT SSL");
         }
 
         pipeline.addLast(new HttpRequestDecoder());

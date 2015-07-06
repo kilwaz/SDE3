@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.net.URL;
@@ -26,6 +27,8 @@ public class ExportWindow extends Stage {
 
     private Integer exportType;
     private List<DrawableNode> selectedNodes;
+
+    private static Logger log = Logger.getLogger(ExportWindow.class);
 
     public ExportWindow(Integer exportType) {
         this.exportType = exportType;
@@ -110,7 +113,7 @@ public class ExportWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error(ex);
         }
     }
 }

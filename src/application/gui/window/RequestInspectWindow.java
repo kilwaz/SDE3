@@ -9,12 +9,15 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
 import java.net.URL;
 import java.util.HashMap;
 
 public class RequestInspectWindow extends Stage {
     private WebProxyRequest webProxyRequest;
+
+    private static Logger log = Logger.getLogger(RequestInspectWindow.class);
 
     public RequestInspectWindow(WebProxyRequest webProxyRequest) {
         this.webProxyRequest = webProxyRequest;
@@ -100,7 +103,7 @@ public class RequestInspectWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error(ex);
         }
     }
 }

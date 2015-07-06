@@ -21,6 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -39,6 +40,7 @@ public class LinuxNode extends DrawableNode {
 
     // Not to be saved in the database
     private String consoleToWrite = "";
+    private static Logger log = Logger.getLogger(LinuxNode.class);
 
     // This will make a copy of the node passed to it
     public LinuxNode(LinuxNode linuxNode) {
@@ -102,7 +104,7 @@ public class LinuxNode extends DrawableNode {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
                 if (sshManager != null && sshManager.isConnected()) {
-                    System.out.println("Running command " + textField.getText());
+                    log.info("Running command " + textField.getText());
                     sshManager.runSSHCommand(new SSHCommand(textField.getText(), "$", null));
                     textField.setText("");
                 } else {
@@ -216,7 +218,6 @@ public class LinuxNode extends DrawableNode {
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         Object oneTimeVariable = nodeRunParams.getOneTimeVariable();
-        //System.out.println("Running linux, script is.. " + script);
         if (oneTimeVariable instanceof Bash) { // Runs bash script on target linux machine
             String script = ((Bash) oneTimeVariable).getScript();
             String userHome = System.getProperty("user.home");
@@ -228,13 +229,13 @@ public class LinuxNode extends DrawableNode {
             Boolean mkDirResult = sourceFile.getParentFile().mkdirs();
 
             if (!mkDirResult) {
-                System.out.println("Issue creating directory " + sourceFile.getAbsolutePath());
+                log.info("Issue creating directory " + sourceFile.getAbsolutePath());
             }
 
             try {
                 new FileWriter(sourceFile).append(script).close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                log.error(ex);
             }
 
             writeToConsole("Opening new connection to " + address + "\n\r");

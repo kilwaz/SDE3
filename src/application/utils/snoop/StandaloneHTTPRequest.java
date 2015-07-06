@@ -2,6 +2,7 @@ package application.utils.snoop;
 
 import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
+import org.apache.log4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.ByteArrayOutputStream;
@@ -25,6 +26,8 @@ public class StandaloneHTTPRequest {
     private WebProxyRequestManager webProxyRequestManager;
 
     private static Integer requestCount = 1;
+
+    private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
 
     public StandaloneHTTPRequest setUrl(String destinationURL) {
         this.destinationURL = destinationURL;
@@ -68,13 +71,13 @@ public class StandaloneHTTPRequest {
     private StandaloneHTTPRequest executeHttps() {
         HttpsURLConnection connection = null;
 
-        System.out.println("HTTPS TARGET IS " + destinationURL + " METHOD '" + method + "'");
+        //log.info("HTTPS TARGET IS " + destinationURL + " METHOD '" + method + "'");
 
         try {
             //Create connection
             URL url = new URL(destinationURL);
 
-            System.out.println("HTTPS");
+            //log.info("HTTPS");
             connection = (HttpsURLConnection) url.openConnection();
 
             connection.setRequestMethod(method);
@@ -88,7 +91,7 @@ public class StandaloneHTTPRequest {
                 if (!header.equals("If-None-Match")
                         && !header.equals("If-Modified-Since")
                         && !header.equals("Proxy-Connection")) {
-                    System.out.println("REQUEST TO SERVER HEADER " + header + " = " + requestHeaders.get(header));
+                    //log.info("REQUEST TO SERVER HEADER " + header + " = " + requestHeaders.get(header));
                     connection.setRequestProperty(header, requestHeaders.get(header));
                 }
             }
@@ -156,8 +159,8 @@ public class StandaloneHTTPRequest {
             byte[] array = tmpOut.toByteArray();
 
             response = ByteBuffer.wrap(array);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -170,7 +173,7 @@ public class StandaloneHTTPRequest {
     private void executeHttp() {
         HttpURLConnection connection = null;
 
-        System.out.println("HTTP TARGET IS " + destinationURL + " METHOD '" + method + "'");
+        //log.info("HTTP TARGET IS " + destinationURL + " METHOD '" + method + "'");
 
         try {
             WebProxyRequest webProxyRequest = new WebProxyRequest();
@@ -192,7 +195,7 @@ public class StandaloneHTTPRequest {
                 if (!header.equals("If-None-Match")
                         && !header.equals("If-Modified-Since")
                         && !header.equals("Proxy-Connection")) {
-                    System.out.println("REQUEST TO SERVER HEADER " + header + " = " + requestHeaders.get(header));
+                    //log.info("REQUEST TO SERVER HEADER " + header + " = " + requestHeaders.get(header));
                     connection.setRequestProperty(header, requestHeaders.get(header));
                 }
             }
@@ -262,8 +265,8 @@ public class StandaloneHTTPRequest {
             webProxyRequest.instantCompleteServerToProxy();
             webProxyRequest.setResponseBuffer(response);
             webProxyRequestManager.completeRequest(webProxyRequest.hashCode());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex);
         } finally {
             if (connection != null) {
                 connection.disconnect();

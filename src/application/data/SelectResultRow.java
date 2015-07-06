@@ -1,6 +1,8 @@
 package application.data;
 
 
+import org.apache.log4j.Logger;
+
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,6 +12,8 @@ import java.util.HashMap;
 
 public class SelectResultRow {
     HashMap<String, Object> rowValues = new HashMap<>();
+
+    private static Logger log = Logger.getLogger(SelectResultRow.class);
 
     public SelectResultRow() {
     }
@@ -41,8 +45,8 @@ public class SelectResultRow {
     public InputStream getBlobInputStream(String colName) {
         try {
             return ((Blob) rowValues.get(colName + "-Blob")).getBinaryStream();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            log.error(ex);
         }
         return null;
     }

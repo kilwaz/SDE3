@@ -1,7 +1,6 @@
 package application.utils.snoop;
 
 import application.net.proxy.WebProxyRequestManager;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +12,7 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.ssl.SslHandler;
+import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLEngine;
 import java.io.IOException;
@@ -29,6 +29,8 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
     private ChannelPipeline pipeline;
     private Boolean SSL = false;
     private WebProxyRequestManager webProxyRequestManager;
+
+    private static Logger log = Logger.getLogger(HttpProxyServerHandler.class);
 
     public HttpProxyServerHandler(ChannelPipeline pipeline, WebProxyRequestManager webProxyRequestManager) {
         this.pipeline = pipeline;
@@ -51,61 +53,38 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                 send100Continue(ctx);
             }
 
-            System.out.println("Method " + request.method());
+            //log.info("Method " + request.method());
 
             if ("CONNECT".equals(request.method().toString())) {
                 FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
                 ctx.write(response);
 
-                System.out.println("SWITCHING TO SSL");
+                //log.info("SWITCHING TO SSL");
 
                 SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
                 sslEngine.setUseClientMode(false); // We are a server
                 sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
 
                 pipeline.addFirst("ssl", new SslHandler(sslEngine));
-                System.out.println("SSL READY ON THIS CHANNEL NOW");
+                //log.info("SSL READY ON THIS CHANNEL NOW");
                 SSL = true;
 
                 return;
             } else {
-                //runRequest(request.uri(), "", request.method().toString());
-                //System.out.println("RESPONSE " + responseSrc);
-                //buf.setLength(0);
-                //buf.append("WELCOME TO THE WILD WILD WEB SERVER\r\n");
-                // buf.append("===================================\r\n");
+//                try {
+//                    HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), request);
+//
+//                    for (InterfaceHttpData data : decoder.getBodyHttpDatas()) {
+//                        if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
+//                            Attribute attribute = (Attribute) data;
+//                            //log.info(attribute.getName() + ":" + attribute.getValue());
+//                        }
+//                    }
+//                } catch (IOException ex) {
+//                    log.error(ex);
+//                }
 
-                //buf.append(responseSrc);
-
-                //buf.append("VERSION: ").append(request.protocolVersion()).append("\r\n");
-                //buf.append("HOSTNAME: ").append(request.headers().get(HOST, "unknown")).append("\r\n");
-                //buf.append("REQUEST_URI: ").append(request.uri()).append("\r\n\r\n");
-
-
-                HttpHeaders headers = request.headers();
-                if (!headers.isEmpty()) {
-                    for (Map.Entry<CharSequence, CharSequence> h : headers) {
-                        CharSequence key = h.getKey();
-                        CharSequence value = h.getValue();
-                        //buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
-                    }
-                    //buf.append("\r\n");
-                }
-
-                try {
-                    HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), request);
-
-                    for (InterfaceHttpData data : decoder.getBodyHttpDatas()) {
-                        if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
-                            Attribute attribute = (Attribute) data;
-                            System.out.println(attribute.getName() + ":" + attribute.getValue());
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                System.out.println("URI!!! " + request.uri() + " " + request);
+                //log.info("URI!!! " + request.uri() + " " + request);
 
                 QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
                 Map<String, List<String>> params = queryStringDecoder.parameters();
@@ -114,65 +93,21 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                         String key = p.getKey();
                         List<String> vals = p.getValue();
                         for (String val : vals) {
-                            System.out.println("PARAMS " + key + " = " + val);
-
-
-                            //buf.append("PARAM: ").append(key).append(" = ").append(val).append("\r\n");
+                            //log.info("PARAMS " + key + " = " + val);
                         }
                     }
-                    //buf.append("\r\n");
-                }
-
-//                appendDecoderResult(buf, request);
-            }
-        }
-
-        if (msg instanceof HttpContent) {
-            HttpContent httpContent = (HttpContent) msg;
-
-            ByteBuf content = httpContent.content();
-            if (content.isReadable()) {
-                //buf.append("CONTENT: ");
-                //buf.append(content.toString(CharsetUtil.UTF_8));
-                //buf.append("\r\n");
-//                appendDecoderResult(buf, request);
-            }
-
-            if (msg instanceof LastHttpContent) {
-                //buf.append("END OF CONTENT\r\n");
-
-                LastHttpContent trailer = (LastHttpContent) msg;
-                if (!trailer.trailingHeaders().isEmpty()) {
-                    //buf.append("\r\n");
-                    for (CharSequence name : trailer.trailingHeaders().names()) {
-                        for (CharSequence value : trailer.trailingHeaders().getAll(name)) {
-                            //buf.append("TRAILING HEADER: ");
-                            //buf.append(name).append(" = ").append(value).append("\r\n");
-                        }
-                    }
-                    //buf.append("\r\n");
-                }
-
-                if (!writeResponse(trailer, ctx)) {
-                    // If keep-alive is off, close the connection once the content is fully written.
-                    ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
                 }
             }
         }
 
-        //System.out.println(buf.toString());
+        if (msg instanceof LastHttpContent) {
+            LastHttpContent trailer = (LastHttpContent) msg;
+            if (!writeResponse(trailer, ctx)) {
+                // If keep-alive is off, close the connection once the content is fully written.
+                ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            }
+        }
     }
-
-//    private static void appendDecoderResult(StringBuilder buf, HttpObject o) {
-//        DecoderResult result = o.decoderResult();
-//        if (result.isSuccess()) {
-//            return;
-//        }
-//
-//        buf.append(".. WITH DECODER FAILURE: ");
-//        buf.append(result.cause());
-//        buf.append("\r\n");
-//    }
 
     private boolean writeResponse(HttpObject currentObj, ChannelHandlerContext ctx) {
         // Decide whether to close the connection or not.
@@ -185,11 +120,9 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
             for (Map.Entry<CharSequence, CharSequence> h : headers) {
                 CharSequence key = h.getKey();
                 CharSequence value = h.getValue();
-                System.out.println("REQUEST TO PROXY HEADER " + key + " = " + value);
+                //log.info("REQUEST TO PROXY HEADER " + key + " = " + value);
                 requestHeaders.put(key.toString(), value.toString());
-                //buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
             }
-            //buf.append("\r\n");
         }
 
         // Pass on the parameters sent by the proxy
@@ -203,8 +136,8 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                     requestParameters.put(attribute.getName(), attribute.getValue());
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
 
         String uri = request.uri();
@@ -230,14 +163,13 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
         HashMap<String, String> responseHeaders = standaloneHTTPRequest.getResponseHeaders();
         for (String header : responseHeaders.keySet()) {
             response.headers().set(header, responseHeaders.get(header));
-            System.out.println("RESPONSE FROM SERVER THEN TO CLIENT HEADER " + header + " - " + responseHeaders.get(header));
+            //log.info("RESPONSE FROM SERVER THEN TO CLIENT HEADER " + header + " - " + responseHeaders.get(header));
         }
 
         if (keepAlive) {
             // Add 'Content-Length' header only for a keep-alive connection.
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
             // Add keep alive header as per:
-            // - http://www.w3.org/Protocols/HTTP/1.1/draft-ietf-http-v11-spec-01.html#Connection
             response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }
 

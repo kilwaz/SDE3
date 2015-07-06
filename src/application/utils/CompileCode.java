@@ -3,6 +3,7 @@ package application.utils;
 import application.gui.Controller;
 import application.gui.FlowController;
 import application.node.objects.Logic;
+import org.apache.log4j.Logger;
 import org.controlsfx.dialog.Dialogs;
 
 import javax.tools.JavaCompiler;
@@ -14,6 +15,8 @@ import java.nio.charset.Charset;
 
 public class CompileCode {
     static int counter = 0;
+
+    private static Logger log = Logger.getLogger(CompileCode.class);
 
     public static String compileCode(Logic logic) {
         String className = "SDEClass" + logic.getId() + "C" + counter;
@@ -38,10 +41,12 @@ public class CompileCode {
                     "import application.node.design.*;" +
                     "import application.node.objects.*;" +
                     "import application.net.proxy.*;" +
+                    "import org.apache.log4j.Logger;" +
                     "public class " + className + " extends SDERunnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String logicReferenceId = \"" + logicReferenceId + "\";" +
                     "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
+                    "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getId() + ")\");" +
                     "   " + logic.getLogic() + "" +
                     "   public void threadRun() {" +
                     "      FlowController.sourceStarted(this.logicReferenceId);" +
@@ -84,10 +89,6 @@ public class CompileCode {
             File sourceFile = new File(root, "programs/" + className + ".java");
             Boolean mkDirResult = sourceFile.getParentFile().mkdirs();
 
-//            if (!mkDirResult) {
-//                System.out.println("Did not create directory " + sourceFile.getAbsolutePath());
-//            }
-
             new FileWriter(sourceFile).append(logicString).close();
             // Compile source file.
             JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -105,7 +106,7 @@ public class CompileCode {
                 if (lineNumber.contains(":")) {
                     lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
                 }
-                System.out.println("Error compiling " + logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString);
+                log.info("Error compiling " + logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString);
                 Controller.getInstance().showError(Dialogs.create()
                         .owner(null)
                         .title("Compile error on " + logic.getParentLogicNode().getContainedText())
@@ -114,7 +115,7 @@ public class CompileCode {
                 className = null;
             }
             if (outString.length() > 1) {
-                System.out.println("Error compiling " + outString);
+                log.info("Error compiling " + outString);
                 Dialogs.create()
                         .owner(null)
                         .title("ERR")

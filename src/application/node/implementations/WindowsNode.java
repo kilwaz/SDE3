@@ -17,6 +17,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,6 +27,7 @@ import java.util.List;
 
 public class WindowsNode extends DrawableNode {
     private TextArea consoleTextArea = new TextArea();
+    private static Logger log = Logger.getLogger(WindowsNode.class);
 
     // This will make a copy of the node passed to it
     public WindowsNode(LinuxNode linuxNode) {
@@ -149,16 +151,16 @@ public class WindowsNode extends DrawableNode {
             Boolean mkDirResult = batchFile.getParentFile().mkdirs();
 
             if (!mkDirResult) {
-                System.out.println("Did not create directory " + batchFile.getAbsolutePath());
+                log.info("Did not create directory " + batchFile.getAbsolutePath());
             }
 
             try {
                 new FileWriter(batchFile).append(script).close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                log.error(ex);
             }
 
-            System.out.println("Running " + batchFile.getPath());
+            log.info("Running " + batchFile.getPath());
 
             String output = SDEUtils.runCMDCommand(batchFile.getPath());
 

@@ -4,6 +4,8 @@ import application.data.DBConnectionManager;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.gui.Controller;
+import application.gui.window.LogWindow;
+import application.log.LogManager;
 import application.net.proxy.WebProxyManager;
 import application.utils.*;
 import javafx.animation.FadeTransition;
@@ -42,6 +44,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        // This lets all logging be captured and then displayed
+        new LogManager();
+
         instance = this;
         this.splashStage = stage;
         showSplash();

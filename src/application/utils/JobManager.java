@@ -1,6 +1,7 @@
 package application.utils;
 
 
+import org.apache.log4j.Logger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -11,12 +12,14 @@ public class JobManager {
     private static Scheduler scheduler;
     private static JobManager instance;
 
+    private static Logger log = Logger.getLogger(JobManager.class);
+
     public JobManager() {
         try {
             scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
-        } catch (SchedulerException e) {
-            e.printStackTrace();
+        } catch (SchedulerException ex) {
+            log.error(ex);
         }
 
         instance = this;
@@ -25,16 +28,16 @@ public class JobManager {
     public void closeAllJobs() {
         try {
             scheduler.shutdown();
-        } catch (SchedulerException e) {
-            e.printStackTrace();
+        } catch (SchedulerException ex) {
+            log.error(ex);
         }
     }
 
     public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
         try {
             scheduler.scheduleJob(jobDetail, trigger);
-        } catch (SchedulerException e) {
-            e.printStackTrace();
+        } catch (SchedulerException ex) {
+            log.error(ex);
         }
     }
 

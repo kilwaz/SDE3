@@ -8,6 +8,7 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ public class RemoteDebug implements Runnable {
     private String port;
     private VirtualMachine vm;
     private List<BreakPoint> breakPoints = new ArrayList<BreakPoint>();
+
+    private static Logger log = Logger.getLogger(RemoteDebug.class);
 
     private class BreakPoint {
         private String className;
@@ -75,7 +78,7 @@ public class RemoteDebug implements Runnable {
                 bReq.enable();
             }
         } catch (AbsentInformationException ex) {
-            ex.printStackTrace();
+            log.error(ex);
         }
     }
 
@@ -113,11 +116,11 @@ public class RemoteDebug implements Runnable {
                                 for (LocalVariable visibleVar : visVars) {
                                     for (BreakPoint breakPoint : breakPoints) {
                                         if (breakPoint.getLineNumber() == bpReq.location().lineNumber() && visibleVar.name().equals(breakPoint.getVariableName())) {
-                                            System.out.println("Breakpoint at line " + bpReq.location().lineNumber() + ": ");
+                                            log.info("Breakpoint at line " + bpReq.location().lineNumber() + ": ");
                                             Value val = stackFrame.getValue(visibleVar);
                                             if (val instanceof StringReference) {
                                                 String varNameValue = ((StringReference) val).value();
-                                                System.out.println(visibleVar.name() + " = '" + varNameValue + "'");
+                                                log.info(visibleVar.name() + " = '" + varNameValue + "'");
                                             } else if (val instanceof ObjectReference) {
                                                 ObjectReference reference = ((ObjectReference) val);
                                                 ReferenceType thing = reference.referenceType();
@@ -127,32 +130,28 @@ public class RemoteDebug implements Runnable {
                                                 Value value = reference.invokeMethod(stackFrame.thread(), method, new ArrayList<Value>(), 0);
                                                 if (value instanceof StringReference) {
                                                     String varNameValue = ((StringReference) value).value();
-                                                    System.out.println("RESULT! -> " + varNameValue);
+                                                    log.info("RESULT! -> " + varNameValue);
                                                 }
                                                 for (Field field : thing.fields()) {
-                                                    System.out.println("    " + field + "->" + reference.getValue(field));
+                                                    log.info("    " + field + "->" + reference.getValue(field));
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-                        } catch (AbsentInformationException aie) {
-                            System.out.println("AbsentInformationException: did you compile your target application with -g option?");
-                        } catch (Exception exc) {
-                            System.out.println(exc.getClass().getName() + ": " + exc.getMessage());
+                        } catch (AbsentInformationException ex) {
+                            log.error("AbsentInformationException: did you compile your target application with -g option?", ex);
+                        } catch (Exception ex) {
+                            log.error(ex);
                         } finally {
                             evtSet.resume();
                         }
                     }
                 }
             }
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        } catch (IllegalConnectorArgumentsException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        } catch (InterruptedException | IllegalConnectorArgumentsException | IOException ex) {
+            log.error(ex);
         }
     }
 }

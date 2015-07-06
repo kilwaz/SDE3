@@ -1,5 +1,7 @@
 package application.utils.snoop;
 
+import org.apache.log4j.Logger;
+
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -13,6 +15,7 @@ import java.util.Iterator;
 
 public class SSLContextProvider {
     private static SSLContext sslContext = null;
+    private static Logger log = Logger.getLogger(SSLContextProvider.class);
 
     public static SSLContext get() {
         if (sslContext == null) {
@@ -34,8 +37,8 @@ public class SSLContextProvider {
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
                 kmf.init(ks, "secret".toCharArray());
                 sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ex) {
+                log.error(ex);
             }
         }
 
@@ -44,6 +47,8 @@ public class SSLContextProvider {
 
     public static void print() {
         try {
+
+
             // Load the JDK's cacerts keystore file
             String filename = System.getProperty("java.home") + "/lib/security/cacerts".replace('/', File.separatorChar);
             FileInputStream is = new FileInputStream(filename);
@@ -60,11 +65,13 @@ public class SSLContextProvider {
                 TrustAnchor ta = (TrustAnchor) it.next();
                 // Get certificate
                 X509Certificate cert = ta.getTrustedCert();
-                System.out.println(cert);
+
+                Logger log = Logger.getLogger(SSLContextProvider.class);
+                log.info(cert);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex);
         }
     }
 }

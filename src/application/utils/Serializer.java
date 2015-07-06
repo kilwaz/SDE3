@@ -1,8 +1,12 @@
 package application.utils;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 
 public class Serializer {
+
+    private static Logger log = Logger.getLogger(Serializer.class);
 
     // Return the input stream ready to be used of the object passed in, generally this will be saved to the database straight away
     public static InputStream serializeToInputStream(Object object) {
@@ -14,8 +18,8 @@ public class Serializer {
             inputStream = new ByteArrayInputStream(baos.toByteArray());
             baos.close();
             oos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
 
         return inputStream;
@@ -43,8 +47,8 @@ public class Serializer {
             output = in.readObject();
 
             bin.close();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException ex) {
+            log.error(ex);
         }
 
         return output;

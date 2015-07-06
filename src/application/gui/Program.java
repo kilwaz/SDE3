@@ -6,11 +6,14 @@ import application.node.objects.Logic;
 import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
+import org.apache.log4j.Logger;
 
 public class Program {
     private String name;
     private FlowController flowController;
     private Integer id = -1;
+
+    private static Logger log = Logger.getLogger(Program.class);
 
     public Program(String name) {
         this.name = name;
@@ -97,11 +100,9 @@ public class Program {
                     triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
                     drawableNode.run(whileWaiting, nodeRunParams);
                 } else {
-                    System.out.println("Wasn't able to run the program '" + name + "' '" + referenceID + "'");
+                    log.info("Wasn't able to run the program '" + name + "' '" + referenceID + "'");
                 }
 
-                // Main is only true when using the main path of execution
-//              if (main) {
                 DrawableNode drawableNode = null;
                 if (node instanceof DrawableNode) {
                     drawableNode = ((DrawableNode) node);
@@ -113,7 +114,6 @@ public class Program {
                     triggerConnections(drawableNode, drawableNode.getNextNodeToRun(), referenceID);
                     Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, drawableNode, true, main, nodeRunParams);
                 }
-//              }
             }
         }
 
@@ -124,8 +124,8 @@ public class Program {
         if (whileWaiting) {
             try {
                 sdeThread.getThread().join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex);
             }
         }
     }

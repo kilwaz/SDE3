@@ -7,6 +7,7 @@ import application.node.design.DrawableNode;
 import application.node.implementations.ConsoleNode;
 import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.JSch;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,11 +15,13 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 
 public class SDEUtils {
+    private static Logger log = Logger.getLogger(SDEUtils.class);
+
     static {
         try {
             knownHosts = new File(System.getProperty("user.home"), ".ssh/known_hosts").getCanonicalPath();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
     }
 
@@ -60,7 +63,7 @@ public class SDEUtils {
         instance.setDrawableNode(drawableNode);
 
         if (errorMessage != null) {
-            System.out.println("ERROR " + errorMessage);
+            log.info("ERROR " + errorMessage);
         }
 
         return instance;
@@ -92,8 +95,8 @@ public class SDEUtils {
                 //System.out.print(((char) in));
                 returnString.append((char) in);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
 
         return returnString.toString();
@@ -128,8 +131,8 @@ public class SDEUtils {
             fileOut.println("JBOSS-OUTPUT-DIR=" + outputDirectory);
             fileOut.println("client-name=" + project);
             fileOut.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
 
         runCMDCommand("cd " + projectLocation + "\\app-builder & mvn -Dclient-name=" + project + " clean package");

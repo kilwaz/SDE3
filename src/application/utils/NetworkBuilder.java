@@ -1,11 +1,14 @@
 package application.utils;
 
 import application.data.NetworkNodeInfo;
+import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
 
 public class NetworkBuilder {
     public static String networkAddress = "0.0.0.";
+
+    private static Logger log = Logger.getLogger(NetworkBuilder.class);
 
     public NetworkBuilder() {
         try {
@@ -13,7 +16,7 @@ public class NetworkBuilder {
                 networkAddress = InetAddress.getLocalHost().getHostAddress().substring(0, InetAddress.getLocalHost().getHostAddress().lastIndexOf(".") + 1);
             }
         } catch (Exception ex) {
-            System.out.println("Exception occurred while trying to retrieve networkAddress stack: " + ex);
+            log.error("Exception occurred while trying to retrieve networkAddress stack:", ex);
         }
         for (Integer i = 1; i < 254; i++) {
             new SDEThread(new BuildNetwork(i.toString()));
@@ -35,7 +38,7 @@ public class NetworkBuilder {
                     NetworkManager.getInstance().addNetworkNodeInfo(new NetworkNodeInfo(host, InetAddress.getByName(host).getHostName(), true));
                 }
             } catch (Exception ex) {
-                System.out.println("Exception occurred while trying to reach host " + host + " stack: " + ex);
+                log.error("Exception occurred while trying to reach host " + host + " stack: ", ex);
             }
         }
     }

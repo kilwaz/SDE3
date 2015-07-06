@@ -36,10 +36,8 @@ public class TestAction extends ActionControl {
                 takeScreenshotOfElement(testStep, testElement);
 
                 if (contentToEqual.equals(content)) {
-                    //System.out.println("SAME - EXPECTED " + contentToEqual + " GOT " + content);
                     testStep.setSuccessful(true);
                 } else {
-                    //System.out.println("DIFFERENT - EXPECTED " + contentToEqual + " GOT " + content);
                     testStep.setSuccessful(false);
                 }
                 testStep.setExpectedEqual(contentToEqual);

@@ -7,15 +7,13 @@ import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import application.utils.SSHConnectionManager;
 import com.jcraft.jsch.*;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SSHManager {
-    private static final Logger LOGGER = Logger.getLogger(SSHManager.class.getName());
     private JSch jschSSHChannel;
     private String strUserName;
     private String strConnectionIP;
@@ -31,13 +29,15 @@ public class SSHManager {
     private List<SSHCommand> SSHCommandList = new ArrayList<>();
     private Boolean processingCommand = false;
 
+    private static Logger log = Logger.getLogger(SSHManager.class);
+
     private void doCommonConstructorActions(String userName, String password, String connectionIP, String knownHostsFileName) {
         jschSSHChannel = new JSch();
 
         try {
             jschSSHChannel.setKnownHosts(knownHostsFileName);
-        } catch (JSchException jschX) {
-            logError(jschX.getMessage());
+        } catch (JSchException ex) {
+            log.error(ex);
         }
 
         strUserName = userName;
@@ -67,29 +67,11 @@ public class SSHManager {
             // UNCOMMENT THIS FOR TESTING PURPOSES, BUT DO NOT USE IN PRODUCTION
             // sesConnection.setConfig("StrictHostKeyChecking", "no");
             sesConnection.connect(intTimeOut);
-        } catch (JSchException jschX) {
-            errorMessage = jschX.getMessage();
+        } catch (JSchException ex) {
+            log.error(ex);
         }
 
         return errorMessage;
-    }
-
-    private String logError(String errorMessage) {
-        if (errorMessage != null) {
-            LOGGER.log(Level.SEVERE, "{0}:{1} - {2}",
-                    new Object[]{strConnectionIP, intConnectionPort, errorMessage});
-        }
-
-        return errorMessage;
-    }
-
-    private String logWarning(String warnMessage) {
-        if (warnMessage != null) {
-            LOGGER.log(Level.WARNING, "{0}:{1} - {2}",
-                    new Object[]{strConnectionIP, intConnectionPort, warnMessage});
-        }
-
-        return warnMessage;
     }
 
     private String sendCommand(String command) {
@@ -109,10 +91,10 @@ public class SSHManager {
 
             channel.disconnect();
         } catch (IOException ex) {
-            logWarning(ex.getMessage());
+            log.error(ex);
             return null;
         } catch (JSchException ex) {
-            logWarning(ex.getMessage());
+            log.error(ex);
             return null;
         }
 
@@ -125,22 +107,22 @@ public class SSHManager {
             if (sink != null) {
                 sink.close();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
         try {
             if (pip != null) {
                 pip.close();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
         try {
             if (pop != null) {
                 pop.close();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
 
         if (print != null) {
@@ -229,8 +211,6 @@ public class SSHManager {
                     }
                 }
 
-                //System.out.println("filesize="+filesize+", file="+file);
-
                 // send '\0'
                 buf[0] = 0;
                 out.write(buf, 0, 1);
@@ -263,12 +243,12 @@ public class SSHManager {
                 out.write(buf, 0, 1);
                 out.flush();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex);
             try {
                 if (fos != null) fos.close();
-            } catch (Exception ee) {
-                e.printStackTrace();
+            } catch (Exception ex2) {
+                log.error(ex2);
             }
         }
     }
@@ -276,8 +256,8 @@ public class SSHManager {
     public Channel openExecChannel() {
         try {
             return sesConnection.openChannel("exec");
-        } catch (JSchException e) {
-            e.printStackTrace();
+        } catch (JSchException ex) {
+            log.error(ex);
         }
         return null;
     }
@@ -339,7 +319,7 @@ public class SSHManager {
                 out.write(buf, 0, len); //out.flush();
                 sendBytesCount += buf.length;
 
-                System.out.println(LinuxNode.humanReadableByteCount(sendBytesCount, false));
+                log.info(LinuxNode.humanReadableByteCount(sendBytesCount, false));
             }
             fis.close();
             // send '\0'
@@ -352,13 +332,12 @@ public class SSHManager {
             out.close();
 
             channel.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex);
         }
     }
 
     public void runSSHCommand(SSHCommand command) {
-        //System.out.println("Added command " + command.getCommand());
         SSHCommandList.add(command);
 
         runNextCommand();
@@ -400,7 +379,7 @@ public class SSHManager {
                             if (SSHCommandList.size() > 0) {
                                 if ("".equals(SSHCommandList.get(0).getReturnString()) || responseString.contains(SSHCommandList.get(0).getReturnString())) {
                                     if (!responseString.equals(previousString)) {
-                                        System.out.println("responseString - " + responseString + " - Completed command " + SSHCommandList.get(0).getCommand());
+                                        log.info("responseString - " + responseString + " - Completed command " + SSHCommandList.get(0).getCommand());
                                         SSHCommandList.remove(SSHCommandList.get(0));
                                         processingCommand = false;
                                         runNextCommand();
@@ -417,8 +396,8 @@ public class SSHManager {
                             }
                             i = sink.read(data, 0, bufferSize);
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ex) {
+                        log.error(ex);
                     }
                 }
             });
@@ -426,13 +405,13 @@ public class SSHManager {
             channel.setInputStream(pip);
             channel.setOutputStream(source);
             channel.connect(3 * 1000);
-        } catch (JSchException | IOException e) {
-            e.printStackTrace();
+        } catch (JSchException | IOException ex) {
+            log.error(ex);
         }
     }
 
     private void sendShellCommand(String command) {
-        System.out.println("running command " + command);
+        log.info("running command " + command);
         print.print("  " + "\n");
         print.print(command + "\n");
         print.print("  " + "\n");

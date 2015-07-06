@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,6 +38,8 @@ public class ImportWindow extends Stage {
     public ImportWindow() {
         init();
     }
+
+    private static Logger log = Logger.getLogger(ImportWindow.class);
 
     private void init() {
         try {
@@ -74,7 +77,7 @@ public class ImportWindow extends Stage {
 
                         importTextArea.setText(XMLTransform.writeXMLToString(dom));
                     } catch (ParserConfigurationException | SAXException | IOException ex) {
-                        System.out.println(ex.getMessage());
+                        log.error(ex);
                     }
                 }
             });
@@ -116,8 +119,8 @@ public class ImportWindow extends Stage {
                                     method = importedNode.getClass().getMethod("set" + variableName, Class.forName(className));
                                     method.invoke(importedNode, integerValue);
                                 }
-                            } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
-                                e.printStackTrace();
+                            } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
+                                log.error(ex);
                             }
                         }
                     }
@@ -165,7 +168,7 @@ public class ImportWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error(ex);
         }
     }
 

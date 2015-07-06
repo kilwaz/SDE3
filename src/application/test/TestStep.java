@@ -3,6 +3,7 @@ package application.test;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.control.Label;
+import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,6 +14,8 @@ import java.io.InputStream;
 
 public class TestStep {
     public static final Integer TEST_TYPE_EQUAL = 1;
+
+    private static Logger log = Logger.getLogger(TestStep.class);
 
     private Integer id = -1;
     private String testString = "";
@@ -43,8 +46,8 @@ public class TestStep {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ImageIO.write(screenshot, "png", os);
                 inputStream = new ByteArrayInputStream(os.toByteArray());
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                log.error(ex);
             }
         }
 

@@ -11,6 +11,7 @@ import javafx.embed.swing.SwingNode;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -26,6 +27,8 @@ import java.util.List;
 public class ChartNode extends DrawableNode {
     private JFreeChart jFreeChart = null;
     private SwingNode chartSwingNode = new SwingNode();
+
+    private static Logger log = Logger.getLogger(ChartNode.class);
 
     // This will make a copy of the node passed to it
     public ChartNode(ChartNode chartNode) {
@@ -109,7 +112,7 @@ public class ChartNode extends DrawableNode {
             ChartPanel cpanel = new ChartPanel(jFreeChart);
             chartSwingNode.setContent(cpanel);
         } else {
-            System.out.println("Chart data was empty, nothing was passed in");
+            log.info("Chart data was empty, nothing was passed in");
         }
     }
 }

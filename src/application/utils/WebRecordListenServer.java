@@ -3,6 +3,7 @@ package application.utils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 public class WebRecordListenServer {
     HttpServer server = null;
+    private static Logger log = Logger.getLogger(WebRecordListenServer.class);
 
     public WebRecordListenServer() {
         try {
@@ -19,9 +21,9 @@ public class WebRecordListenServer {
             server.createContext("/record", new MyHandler());
             server.setExecutor(null); // creates a default executor
             server.start();
-            System.out.println("Started record listen server!");
-        } catch (IOException e) {
-            e.printStackTrace();
+            log.info("Started record listen server!");
+        } catch (IOException ex) {
+            log.error(ex);
         }
     }
 
@@ -29,12 +31,12 @@ public class WebRecordListenServer {
         public void handle(HttpExchange t) throws IOException {
             Map<String, String> params = queryToMap(t.getRequestURI().getQuery());
 
-            System.out.println("*** Action ***");
-            System.out.println("Action is " + params.get("action"));
-            System.out.println("Type is " + params.get("tag"));
-            System.out.println("ID is " + params.get("id"));
-            System.out.println("Value is " + params.get("value"));
-            System.out.println("");
+            log.info("*** Action ***");
+            log.info("Action is " + params.get("action"));
+            log.info("Type is " + params.get("tag"));
+            log.info("ID is " + params.get("id"));
+            log.info("Value is " + params.get("value"));
+            log.info("");
 
             String response = "Action recorded";
             t.sendResponseHeaders(200, response.length());

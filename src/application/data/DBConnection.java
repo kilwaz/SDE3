@@ -1,5 +1,7 @@
 package application.data;
 
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,6 +14,8 @@ public class DBConnection {
 
     private Connection connection = null;
 
+    private static Logger log = Logger.getLogger(DBConnection.class);
+
     public DBConnection(String connectionString, String username, String password) {
         this.password = password;
         this.username = username;
@@ -22,8 +26,8 @@ public class DBConnection {
         try {
             connection = DriverManager.getConnection(connectionString, username, password);
             return true;
-        } catch (SQLException e) {
-            System.out.println("Trouble connecting to the database with details - Connection String:" + connectionString + " Username:" + username + " Password:" + password);
+        } catch (SQLException ex) {
+            log.error("Trouble connecting to the database with details - Connection String:" + connectionString + " Username:" + username + " Password:" + password, ex);
             return false;
         }
     }
@@ -32,7 +36,7 @@ public class DBConnection {
         try {
             return connection.prepareStatement(sql);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e);
         }
         return null;
     }
@@ -44,16 +48,18 @@ public class DBConnection {
         try {
             return !connection.isClosed();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         return false;
     }
 
     public void close() {
         try {
-            connection.close();
+            if (connection != null) {
+                connection.close();
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 }

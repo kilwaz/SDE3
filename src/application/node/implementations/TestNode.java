@@ -22,6 +22,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,6 +34,7 @@ import java.util.regex.Pattern;
 public class TestNode extends DrawableNode {
     private Test test;
     private AceTextArea aceTextArea = null;
+    private static Logger log = Logger.getLogger(TestNode.class);
 
     // This will make a copy of the node passed to it
     public TestNode(TestNode testNode) {
@@ -134,7 +136,7 @@ public class TestNode extends DrawableNode {
             for (String command : commands) {
                 TestCommand testCommand = TestCommand.parseCommand(command);
 
-                System.out.println("Command " + command);
+                log.info("Command " + command);
 
                 // If the user is viewing the node at the time we can select the line that is currently being run
                 if (aceTextArea != null) {
@@ -149,9 +151,8 @@ public class TestNode extends DrawableNode {
                     ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
                     actionControl.initialise(httpProxyServer, driver, testCommand, testResult);
                     actionControl.performAction();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    System.out.println("Are we exiting here?");
-                    e.printStackTrace();
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+                    log.error(ex);
                 }
             }
 
@@ -164,8 +165,8 @@ public class TestNode extends DrawableNode {
 //            for (TestStep testStep : testResultReloaded.getTestSteps()) {
 //                try {
 //                    ImageIO.write(testStep.getScreenshot(), "png", new File("C:\\Users\\alex\\Desktop\\TestStep" + testResultReloaded.getId() + "-" + counter + ".png"));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
+//                } catch (IOException ex) {
+//                    log.error(ex);
 //                }
 //                counter++;
 //            }

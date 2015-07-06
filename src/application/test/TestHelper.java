@@ -2,6 +2,7 @@ package application.test;
 
 import application.data.DataBank;
 import application.node.implementations.TestResultNode;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -13,6 +14,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class TestHelper {
+
+    private static Logger log = Logger.getLogger(TestHelper.class);
+
     public static TestCase createTestCase(String elementId, String elementFrame, String inputValue, String expectedOutputValue, String testType) {
         TestCase testCase = new TestCase();
 
@@ -80,8 +84,8 @@ public class TestHelper {
         driver.manage().timeouts().implicitlyWait(milliseconds, TimeUnit.MILLISECONDS);
         try {
             Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ex) {
+            log.error(ex);
         }
     }
 

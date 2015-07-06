@@ -56,8 +56,8 @@ public class ActionControl {
 //            g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
 //
 //            testStep.setScreenshot(bufferedImage);
-//        } catch (IOException e) {
-//            e.printStackTrace();
+//        } catch (IOException ex) {
+//            log.error(ex);
 //        }
     }
 

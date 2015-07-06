@@ -11,6 +11,7 @@ import application.node.objects.Logic;
 import application.node.objects.Switch;
 import application.node.objects.Trigger;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -32,6 +33,8 @@ public class FlowController {
     private Double viewOffsetWidth = 0d;
     private Double viewOffsetHeight = 0d;
 
+    private static Logger log = Logger.getLogger(FlowController.class);
+
     public FlowController(Program parentProgram) {
         this.parentProgram = parentProgram;
         startNode = new LogicNode(30.0, 30.0, "Start");
@@ -47,8 +50,8 @@ public class FlowController {
             Class<?> clazz = Class.forName("application.node.implementations." + nodeType);
             Constructor<?> ctor = clazz.getConstructor(Integer.class, Integer.class);
             newNode = (DrawableNode) ctor.newInstance(id, programId);
-        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
+            log.error(ex);
         }
 
         if (newNode != null) {

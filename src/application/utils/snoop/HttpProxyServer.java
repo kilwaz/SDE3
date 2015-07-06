@@ -13,6 +13,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
@@ -24,6 +25,8 @@ public final class HttpProxyServer extends SDERunnable {
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+
+    private static Logger log = Logger.getLogger(HttpProxyServer.class);
 
     public HttpProxyServer() {
         WebProxyManager.getInstance().addConnection(this);
@@ -61,8 +64,8 @@ public final class HttpProxyServer extends SDERunnable {
             System.err.println("Open your web browser and navigate to " + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 
             ch.closeFuture().sync();
-        } catch (InterruptedException | CertificateException | SSLException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | CertificateException | SSLException ex) {
+            log.error(ex);
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

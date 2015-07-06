@@ -15,6 +15,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class SwitchNode extends DrawableNode {
     private List<Switch> aSwitches = new ArrayList<>();
 
     private VBox switchRows;
+    private static Logger log = Logger.getLogger(SwitchNode.class);
 
     // This will make a copy of the node passed to it
     public SwitchNode(SwitchNode switchNode) {
@@ -102,7 +104,7 @@ public class SwitchNode extends DrawableNode {
         if (switchToRemove != null) {
             aSwitches.remove(switchToRemove);
         } else {
-            System.out.println("Cannot find switch to remove with id " + switchObj.getId());
+            log.info("Cannot find switch to remove with id " + switchObj.getId());
         }
     }
 

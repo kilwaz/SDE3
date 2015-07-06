@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
 import java.net.URL;
 
@@ -19,6 +20,8 @@ public class SettingsWindow extends Stage {
     public SettingsWindow() {
         init();
     }
+
+    private static Logger log = Logger.getLogger(SettingsWindow.class);
 
     private void init() {
         try {
@@ -97,7 +100,7 @@ public class SettingsWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error(ex);
         }
     }
 }

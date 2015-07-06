@@ -123,11 +123,9 @@ public class DBConnectionManager {
     }
 
     public Boolean createApplicationConnection() {
-//        applicationConnection = new DBConnection("jdbc:mysql://172.16.10.213/sde", "spiralinks", "spiralinks");
         applicationConnection = new DBConnection(AppParams.MYSQL_CONNECTION, AppParams.MYSQL_USERNAME, AppParams.MYSQL_PASSWORD);
         addOracleConnection(applicationConnection);
         if (!applicationConnection.connect()) {
-            new SettingsWindow();
             return false;
         }
         DatabaseConnectionWatcher.getInstance().setConnected(true);

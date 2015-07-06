@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
+import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.FormulaError;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -43,6 +44,8 @@ public class ExportNode extends DrawableNode {
 
     private TextField directoryField;
     private Label constructedFileNameLabel;
+
+    private static Logger log = Logger.getLogger(ExportNode.class);
 
     // This will make a copy of the node passed to it
     public ExportNode(ExportNode exportNode) {
@@ -143,15 +146,15 @@ public class ExportNode extends DrawableNode {
                 // Try writing the file
                 fos = new FileOutputStream(exportOutputFile);
                 workbook.write(fos);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                log.error(ex);
             } finally {
                 try {
                     if (fos != null) {
                         fos.close();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException ex) {
+                    log.error(ex);
                 }
             }
         }

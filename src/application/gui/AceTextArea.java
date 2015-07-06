@@ -10,6 +10,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -31,6 +32,7 @@ public class AceTextArea extends VBox {
     private String textMode;
 
     private String textToBeSet;
+    private static Logger log = Logger.getLogger(AceTextArea.class);
 
     public AceTextArea(String textMode) {
         this.textMode = textMode;
@@ -52,8 +54,8 @@ public class AceTextArea extends VBox {
             resourcesPath = resourcesPath.replace("SDE3.jar", ""); // Removes the jar name
             resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
             resourcesPath = URLDecoder.decode(resourcesPath + "../resources", "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException ex) {
+            log.error(ex);
         }
 
         String bashEditorPath = resourcesPath + "/aceCodeEditor.html";
@@ -63,8 +65,8 @@ public class AceTextArea extends VBox {
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(bashEditorPath));
             content = new String(encoded, "UTF8");
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            log.error(ex);
         }
 
         // If no logic node is linked then we remove the content placeholder
@@ -110,8 +112,8 @@ public class AceTextArea extends VBox {
                     String pasteText = "";
                     try {
                         pasteText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-                    } catch (UnsupportedFlavorException | IOException e) {
-                        e.printStackTrace();
+                    } catch (UnsupportedFlavorException | IOException ex) {
+                        log.error(ex);
                     }
                     jsObject.call("pasteText", pasteText);
                 }

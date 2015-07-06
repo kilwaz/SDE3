@@ -14,6 +14,7 @@ import application.test.TestResult;
 import application.test.TestStep;
 import application.utils.CustomObject;
 import application.utils.Serializer;
+import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class DataBank {
     static private NodeColours nodeColours = new NodeColours();
 
     static public User currentUser;
+    private static Logger log = Logger.getLogger(DataBank.class);
 
     static public List<String> getProgramNames() {
         return programs.values().stream().map(Program::getName).collect(Collectors.toList());
@@ -112,38 +114,44 @@ public class DataBank {
     public static SelectResult runSelectQuery(DBConnection dbConnection, SelectQuery selectQuery) {
         SelectResult selectResult = new SelectResult();
         try {
-            PreparedStatement preparedStatement = dbConnection.getPreparedStatement(selectQuery.getQuery());
-            if (preparedStatement != null) {
-                setParameters(preparedStatement, selectQuery);
+            if (dbConnection.isConnected()) {
+                PreparedStatement preparedStatement = dbConnection.getPreparedStatement(selectQuery.getQuery());
+                if (preparedStatement != null) {
+                    setParameters(preparedStatement, selectQuery);
 
-                ResultSet resultSet = preparedStatement.executeQuery();
+                    ResultSet resultSet = preparedStatement.executeQuery();
 
-                while (resultSet.next()) {
-                    SelectResultRow selectResultRow = new SelectResultRow();
+                    while (resultSet.next()) {
+                        SelectResultRow selectResultRow = new SelectResultRow();
 
-                    for (int i = 1; i < resultSet.getMetaData().getColumnCount() + 1; i++) {
-                        if (resultSet.getMetaData().getColumnType(i) == -4) {  // Column type '-4' is BLOB
-                            // '-Blob' is appended to the end of the result to show that it is the blob representation of the object out of the database
-                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i) + "-Blob", resultSet.getBlob(i));
-                            // '-String' is appended to the end of the result to show that it is the string representation of the object out of the database
-                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i) + "-String", resultSet.getString(i));
-                        } else {
-                            selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i), resultSet.getObject(i));
+                        for (int i = 1; i < resultSet.getMetaData().getColumnCount() + 1; i++) {
+                            if (resultSet.getMetaData().getColumnType(i) == -4) {  // Column type '-4' is BLOB
+                                // '-Blob' is appended to the end of the result to show that it is the blob representation of the object out of the database
+                                selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i) + "-Blob", resultSet.getBlob(i));
+                                // '-String' is appended to the end of the result to show that it is the string representation of the object out of the database
+                                selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i) + "-String", resultSet.getString(i));
+                            } else {
+                                selectResultRow.addColumn(resultSet.getMetaData().getColumnName(i), resultSet.getObject(i));
+                            }
                         }
-                    }
 
-                    selectResult.addResultRow(selectResultRow);
+                        selectResult.addResultRow(selectResultRow);
+                    }
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } else {
+                if (DatabaseConnectionWatcher.getInstance().getConnected()) {
+                    DatabaseConnectionWatcher.getInstance().setConnected(false);
                 }
             }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-        } catch (SQLException e) {
+        } catch (SQLException ex) {
             if (!dbConnection.isConnected()) { // If we are not connected anymore, report this to the user status bar
                 DatabaseConnectionWatcher.getInstance().setConnected(false);
             }
 
-            e.printStackTrace();
+            log.error(ex);
         }
 
         return selectResult;
@@ -156,18 +164,24 @@ public class DataBank {
     public static UpdateResult runUpdateQuery(DBConnection dbConnection, UpdateQuery updateQuery) {
         UpdateResult updateResult = new UpdateResult();
         try {
-            PreparedStatement preparedStatement = dbConnection.getPreparedStatement(updateQuery.getQuery());
-            if (preparedStatement != null) {
-                setParameters(preparedStatement, updateQuery);
-                updateResult.setResultNumber(preparedStatement.executeUpdate());
-                preparedStatement.close();
+            if (dbConnection.isConnected()) {
+                PreparedStatement preparedStatement = dbConnection.getPreparedStatement(updateQuery.getQuery());
+                if (preparedStatement != null) {
+                    setParameters(preparedStatement, updateQuery);
+                    updateResult.setResultNumber(preparedStatement.executeUpdate());
+                    preparedStatement.close();
+                }
+            } else {
+                if (DatabaseConnectionWatcher.getInstance().getConnected()) {
+                    DatabaseConnectionWatcher.getInstance().setConnected(false);
+                }
             }
-        } catch (SQLException e) {
+        } catch (SQLException ex) {
             if (!dbConnection.isConnected()) { // If we are not connected anymore, report this to the user status bar
                 DatabaseConnectionWatcher.getInstance().setConnected(false);
             }
 
-            e.printStackTrace();
+            log.error(ex);
         }
 
         return updateResult;
@@ -358,8 +372,8 @@ public class DataBank {
                                 method = drawableNode.getClass().getMethod("set" + resultRowNodeDetail.getString("object_name"), Class.forName(resultRowNodeDetail.getString("object_class")));
                                 method.invoke(drawableNode, integerValue);
                             }
-                        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
+                        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
+                            log.error(ex);
                         }
                     }
 
@@ -565,8 +579,8 @@ public class DataBank {
                         resultRow.getBoolean("successful"),
                         ImageIO.read(resultRow.getBlobInputStream("screenshot")),
                         testResult));
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                log.error(ex);
             }
         }
     }

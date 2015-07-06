@@ -1,5 +1,7 @@
 package application.utils;
 
+import org.apache.log4j.Logger;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,6 +13,8 @@ public class ScreenShotClass {
     public static final int PRIMARY_SCREEN = 1;
     public static final int APPLICATION_SCREEN = 2;
     public static final int BROWSER_SCREEN = 3;
+
+    private static Logger log = Logger.getLogger(ScreenShotClass.class);
 
     public static void takeScreenShot(String name) {
         takeScreenShot(PRIMARY_SCREEN, name);
@@ -51,8 +55,8 @@ public class ScreenShotClass {
 
             image = new Robot().createScreenCapture(screenRectangle);
             ImageIO.write(image, "png", new File(userHome, "/SDE/" + name + ".png"));
-        } catch (AWTException | IOException e) {
-            e.printStackTrace();
+        } catch (AWTException | IOException ex) {
+            log.error(ex);
         }
     }
 

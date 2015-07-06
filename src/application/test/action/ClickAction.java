@@ -3,10 +3,13 @@ package application.test.action;
 import application.data.DataBank;
 import application.test.TestParameter;
 import application.test.TestStep;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 public class ClickAction extends ActionControl {
+
+    private static Logger log = Logger.getLogger(ClickAction.class);
 
     // This class is used to click on an element
     public ClickAction() {
@@ -38,8 +41,7 @@ public class ClickAction extends ActionControl {
 
             DataBank.saveTestStep(testStep);
         } catch (Exception ex) {
-            System.out.println("Within click failing");
-            ex.printStackTrace();
+            log.error("Within click failing", ex);
         }
     }
 }

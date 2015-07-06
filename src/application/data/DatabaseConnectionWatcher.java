@@ -41,4 +41,8 @@ public class DatabaseConnectionWatcher extends HBox {
         this.getChildren().add(databaseDescription);
         this.getChildren().add(databaseIcon);
     }
+
+    public Boolean getConnected() {
+        return connected;
+    }
 }

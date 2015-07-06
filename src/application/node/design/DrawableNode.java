@@ -10,6 +10,7 @@ import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -34,6 +35,7 @@ public class DrawableNode {
     private List<Trigger> listeners = new ArrayList<>();
 
     public static final List<String> NODE_NAMES = new ArrayList<>();
+    private static Logger log = Logger.getLogger(DrawableNode.class);
 
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
@@ -172,7 +174,7 @@ public class DrawableNode {
 
             return document;
         } catch (ParserConfigurationException ex) {
-            System.out.println("UsersXML: Error trying to instantiate DocumentBuilder " + ex);
+            log.error("UsersXML: Error trying to instantiate DocumentBuilder", ex);
         }
 
         return null;

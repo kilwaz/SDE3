@@ -1,6 +1,7 @@
 package application.utils;
 
 import application.node.implementations.EmailNode;
+import org.apache.log4j.Logger;
 
 import javax.mail.*;
 import javax.mail.event.MessageCountEvent;
@@ -20,6 +21,8 @@ public class Email implements MessageCountListener {
     private String emailUsername = "";
     private String emailPassword = "";
 
+    private static Logger log = Logger.getLogger(Email.class);
+
     public Email(String emailUrl, String emailUsername, String emailPassword, EmailNode nodeReference) {
         this.nodeReference = nodeReference;
         this.emailPassword = emailPassword;
@@ -35,49 +38,48 @@ public class Email implements MessageCountListener {
             inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
             Message msg = inbox.getMessage(inbox.getMessageCount());
-            System.out.println("Message count " + inbox.getMessageCount());
+            log.info("Message count " + inbox.getMessageCount());
             inbox.addMessageCountListener(this);
             triggerCheckEmailTimer();
 
             Address[] in = msg.getFrom();
             for (Address address : in) {
-                System.out.println("FROM:" + address.toString());
+                log.info("FROM:" + address.toString());
             }
 //            Multipart mp = (Multipart) msg.getContent();
 //            BodyPart bp = mp.getBodyPart(0);
-            System.out.println("SENT DATE:" + msg.getSentDate());
-            System.out.println("SUBJECT:" + msg.getSubject());
-            //System.out.println("CONTENT:" + msg.getContent());
-        } catch (Exception mex) {
-            mex.printStackTrace();
+            log.info("SENT DATE:" + msg.getSentDate());
+            log.info("SUBJECT:" + msg.getSubject());
+        } catch (Exception ex) {
+            log.error(ex);
         }
     }
 
     @Override
     public void messagesAdded(MessageCountEvent messageCountEvent) {
-        System.out.println("New Email!");
+        log.info("New Email!");
         Message[] messages = messageCountEvent.getMessages();
         try {
             for (Message message : messages) {
                 Address[] in = message.getFrom();
                 for (Address address : in) {
-                    System.out.println("FROM:" + address.toString());
+                    log.info("FROM:" + address.toString());
                 }
-                System.out.println("SENT DATE:" + message.getSentDate());
-                System.out.println("SUBJECT:" + message.getSubject());
+                log.info("SENT DATE:" + message.getSentDate());
+                log.info("SUBJECT:" + message.getSubject());
 
                 if (message.getContent() instanceof String) {
-                    System.out.println("CONTENT:" + message.getContent());
+                    log.info("CONTENT:" + message.getContent());
                 } else if (message.getContent() instanceof Multipart) {
                     Multipart mp = (Multipart) message.getContent();
                     BodyPart bp = mp.getBodyPart(0);
-                    System.out.println("CONTENT:" + bp.getContent());
+                    log.info("CONTENT:" + bp.getContent());
                 }
 
                 nodeReference.newEmailTrigger();
             }
-        } catch (Exception mex) {
-            mex.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex);
         }
     }
 
@@ -99,9 +101,9 @@ public class Email implements MessageCountListener {
 
             try {
                 // This is to update the inbox to trigger the change listener, we don't actually use the result of this
-                System.out.println("Checking email count.. " + inbox.getMessageCount());
-            } catch (MessagingException e) {
-                e.printStackTrace();
+                log.info("Checking email count.. " + inbox.getMessageCount());
+            } catch (MessagingException ex) {
+                log.error(ex);
             }
 
             currentEmailCheckTimer = null;

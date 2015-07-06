@@ -1,12 +1,15 @@
 package application.test.action;
 
 import application.test.TestParameter;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WaitAction extends ActionControl {
+    private static Logger log = Logger.getLogger(WaitAction.class);
+
     // This class is used to close the web driver which in turn closes the window
     public WaitAction() {
     }
@@ -39,10 +42,9 @@ public class WaitAction extends ActionControl {
                 Thread.sleep(Long.parseLong(waitForTime.getParameterValue()));
             }
         } catch (org.openqa.selenium.TimeoutException ex) {
-            System.out.println("Element could not be found within the set time limit of 10 seconds");
-            ex.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Element could not be found within the set time limit of 10 seconds", ex);
+        } catch (InterruptedException ex) {
+            log.error(ex);
         }
     }
 }

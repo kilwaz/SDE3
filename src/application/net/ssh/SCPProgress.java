@@ -4,6 +4,7 @@ import application.node.implementations.CopyNode;
 import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +16,8 @@ public class SCPProgress {
     private String remoteFile;
     private String localFile;
     private CopyNode copyNode;
+
+    private static Logger log = Logger.getLogger(SCPProgress.class);
 
     public SCPProgress(SSHManager sshManager, String remoteFile, String localFile, CopyNode copyNode) {
         this.sshManager = sshManager;
@@ -101,8 +104,8 @@ public class SCPProgress {
 
             copyNode.updateProgressBar(1.0);
             copyNode.updateProgressBarLabel("Completed " + localFile);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            log.error(ex);
         }
     }
 }
