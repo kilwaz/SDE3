@@ -1,5 +1,6 @@
 package application.utils;
 
+import application.Main;
 import application.gui.FlowController;
 import application.net.ssh.SSHCommand;
 import application.net.ssh.SSHManager;
@@ -9,10 +10,8 @@ import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.JSch;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.URLDecoder;
 
 public class SDEUtils {
     private static Logger log = Logger.getLogger(SDEUtils.class);
@@ -136,6 +135,44 @@ public class SDEUtils {
         }
 
         runCMDCommand("cd " + projectLocation + "\\app-builder & mvn -Dclient-name=" + project + " clean package");
+    }
+
+    // Figure out the absolute path for if the application is being run via jar or compiled within an IDE
+    public static String getResourcePath() {
+        String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        try {
+            if (resourcesPath.contains("SDE3.jar")) {
+                resourcesPath = resourcesPath.replace("SDE3.jar", ""); // Removes the jar name
+                resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
+                resourcesPath = URLDecoder.decode(resourcesPath + "../resources", "UTF-8");
+            } else {
+                resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
+                resourcesPath = URLDecoder.decode(resourcesPath, "UTF-8");
+            }
+        } catch (UnsupportedEncodingException ex) {
+            log.error(ex);
+        }
+
+        return resourcesPath;
+    }
+
+    // Figure out the absolute path for if the application is being run via jar or compiled within an IDE
+    public static String getNodeImplementationsClassPath() {
+        String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        try {
+            if (resourcesPath.contains("SDE3.jar")) {
+                //resourcesPath = resourcesPath.replace("SDE3.jar", ""); // Removes the jar name
+                resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
+                resourcesPath = URLDecoder.decode(resourcesPath + "!/application", "UTF-8");
+            } else {
+                resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
+                resourcesPath = URLDecoder.decode(resourcesPath, "UTF-8");
+            }
+        } catch (UnsupportedEncodingException ex) {
+            log.error(ex);
+        }
+
+        return resourcesPath;
     }
 
 //    public static void dropDatabaseUser(SSHManager sshManager, String user) {

@@ -13,6 +13,9 @@
         <element id="directory" name="ace-editor">
           <element id="dir-copy" path="$PROJECT_DIR$/resources/ace-editor" />
         </element>
+        <element id="directory" name="SQL-Migration">
+          <element id="dir-copy" path="$PROJECT_DIR$/resources/SQL-Migration" />
+        </element>
       </element>
       <element id="file-copy" path="$PROJECT_DIR$/resources/SDE3 - No Console.bat" />
     </root>

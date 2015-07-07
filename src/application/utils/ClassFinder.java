@@ -30,7 +30,7 @@ public final class ClassFinder {
         return classes;
     }
 
-    private static List<Class<?>> find(final File file, final String scannedPackage) {
+    public static List<Class<?>> find(final File file, final String scannedPackage) {
         final List<Class<?>> classes = new LinkedList<>();
         final String resource = scannedPackage + DOT + file.getName();
         if (file.isDirectory()) {

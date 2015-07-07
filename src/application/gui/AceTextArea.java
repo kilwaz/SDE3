@@ -1,7 +1,7 @@
 package application.gui;
 
-import application.Main;
 import application.node.design.DrawableNode;
+import application.utils.SDEUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.scene.input.KeyCode;
@@ -18,8 +18,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -49,15 +47,7 @@ public class AceTextArea extends VBox {
         browser = new WebView();
         webEngine = browser.getEngine();
 
-        String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        try {
-            resourcesPath = resourcesPath.replace("SDE3.jar", ""); // Removes the jar name
-            resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
-            resourcesPath = URLDecoder.decode(resourcesPath + "../resources", "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            log.error(ex);
-        }
-
+        String resourcesPath = SDEUtils.getResourcePath();
         String bashEditorPath = resourcesPath + "/aceCodeEditor.html";
         String editorPath = resourcesPath + "/ace-editor/src/ace.js";
 

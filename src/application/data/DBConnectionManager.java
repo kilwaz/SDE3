@@ -1,7 +1,9 @@
 package application.data;
 
-import application.gui.window.SettingsWindow;
 import application.utils.AppParams;
+import application.utils.SDEUtils;
+import org.apache.log4j.Logger;
+import org.flywaydb.core.Flyway;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +112,8 @@ public class DBConnectionManager {
     private List<DBConnection> DBConnectionList = new ArrayList<>();
     private DBConnection applicationConnection;
 
+    private static Logger log = Logger.getLogger(DBConnectionManager.class);
+
     public DBConnectionManager() {
         instance = this;
     }
@@ -129,6 +133,23 @@ public class DBConnectionManager {
             return false;
         }
         DatabaseConnectionWatcher.getInstance().setConnected(true);
+
+        // Migrate the database
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(AppParams.MYSQL_CONNECTION, AppParams.MYSQL_USERNAME, AppParams.MYSQL_PASSWORD);
+
+        String sqlMigrationPath = "filesystem:" + SDEUtils.getResourcePath() + "/SQL-Migration/";
+
+        flyway.setLocations(sqlMigrationPath);
+
+        String[] flywayLocations = flyway.getLocations();
+        for (String aLoc : flywayLocations) {
+            log.info("Flyway location for sql = " + aLoc);
+        }
+
+        flyway.setBaselineOnMigrate(true);
+        flyway.migrate();
+
         return true;
     }
 

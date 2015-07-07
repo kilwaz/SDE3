@@ -1,11 +1,14 @@
 package application.node.design;
 
+import application.Main;
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.canvas.DrawablePoint;
 import application.node.objects.Trigger;
 import application.utils.AppParams;
+import application.utils.ClassFinder;
 import application.utils.NodeRunParams;
+import application.utils.SDEUtils;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
@@ -17,8 +20,15 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.security.CodeSource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class DrawableNode {
     private Integer id = -1;
@@ -40,42 +50,62 @@ public class DrawableNode {
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
 
-        //Reflections reflections = new Reflections("application.node.implementations");
-        //reflections.getTypesAnnotatedWith()
-
         // TEMP FIX UNTIL I CAN GET THIS WORKING!!
-        NODE_NAMES.add("BashNode");
-        NODE_NAMES.add("BatchNode");
-        NODE_NAMES.add("ChartNode");
-        NODE_NAMES.add("ConsoleNode");
-        NODE_NAMES.add("CopyNode");
-        NODE_NAMES.add("CustomObjectNode");
-        NODE_NAMES.add("DataBaseNode");
-        NODE_NAMES.add("EmailNode");
-        NODE_NAMES.add("ExportNode");
-        NODE_NAMES.add("InputNode");
-        NODE_NAMES.add("LinuxNode");
-        NODE_NAMES.add("LogicNode");
-        NODE_NAMES.add("RequestTrackerNode");
-        NODE_NAMES.add("SwitchNode");
-        NODE_NAMES.add("TestNode");
-        NODE_NAMES.add("TestResultNode");
-        NODE_NAMES.add("TimerNode");
-        NODE_NAMES.add("TriggerNode");
-        NODE_NAMES.add("WindowsNode");
+//        NODE_NAMES.add("BashNode");
+//        NODE_NAMES.add("BatchNode");
+//        NODE_NAMES.add("ChartNode");
+//        NODE_NAMES.add("ConsoleNode");
+//        NODE_NAMES.add("CopyNode");
+//        NODE_NAMES.add("CustomObjectNode");
+//        NODE_NAMES.add("DataBaseNode");
+//        NODE_NAMES.add("EmailNode");
+//        NODE_NAMES.add("ExportNode");
+//        NODE_NAMES.add("InputNode");
+//        NODE_NAMES.add("LinuxNode");
+//        NODE_NAMES.add("LogicNode");
+//        NODE_NAMES.add("RequestTrackerNode");
+//        NODE_NAMES.add("SwitchNode");
+//        NODE_NAMES.add("TestNode");
+//        NODE_NAMES.add("TestResultNode");
+//        NODE_NAMES.add("TimerNode");
+//        NODE_NAMES.add("TriggerNode");
+//        NODE_NAMES.add("WindowsNode");
         // !!!!!!!!!!!!!!!!!!
 
+        String path = SDEUtils.getNodeImplementationsClassPath();
+        List<Class<?>> classes = ClassFinder.find(new File(path), "application.node.implementations");
 
-//        List<Class<?>> classes = ClassFinder.find("application.node.implementations");
-//
-//        for (Class clazz : classes) {
-//            String simpleClassName = clazz.getSimpleName();
-//
-//            if (simpleClassName.endsWith("Node")) {
-//                NODE_NAMES.add(clazz.getSimpleName());
-//                Collections.sort(NODE_NAMES);
-//            }
-//        }
+        // Used for finding node class name when we are running from an exploded jar
+        for (Class clazz : classes) {
+            String simpleClassName = clazz.getSimpleName();
+
+            if (simpleClassName.endsWith("Node")) {
+                NODE_NAMES.add(clazz.getSimpleName());
+                Collections.sort(NODE_NAMES);
+            }
+        }
+
+        // Used for finding node class names when running inside a jar
+        try {
+            CodeSource src = Main.class.getProtectionDomain().getCodeSource();
+            if (src != null) {
+                URL jar = src.getLocation();
+                ZipInputStream zip = new ZipInputStream(jar.openStream());
+                while (true) {
+                    ZipEntry e = zip.getNextEntry();
+                    if (e == null)
+                        break;
+                    String name = e.getName();
+                    if (name.startsWith("application/node/implementation") && name.contains("Node.class")) {
+                        String className = name.substring(name.lastIndexOf("/") + 1, name.indexOf("."));
+                        NODE_NAMES.add(className);
+                        Collections.sort(NODE_NAMES);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            log.error(ex);
+        }
     }
 
     public DrawableNode() {
