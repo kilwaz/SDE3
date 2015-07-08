@@ -15,6 +15,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,8 @@ public class CanvasController {
     private HashMap<NodeConnection, List<AStarPoint>> solvedPathsCache = new HashMap<>();
     private HashMap<NodeConnection, AStarPoint> startPointsCache = new HashMap<>();
     private AStarNetwork network = null;
+
+    private static Logger log = Logger.getLogger(CanvasController.class);
 
     public CanvasController(Canvas canvasFlow) {
         this.canvasFlow = canvasFlow;
@@ -167,7 +170,9 @@ public class CanvasController {
     public void updateAStarNetwork() {
         Program program = DataBank.currentlyEditProgram;
         network = null;
-        updateAStarNetwork(program.getFlowController().getNodes());
+        if (program != null) {
+            updateAStarNetwork(program.getFlowController().getNodes());
+        }
     }
 
     public void updateAStarNetwork(List<DrawableNode> nodesToUpdate) {

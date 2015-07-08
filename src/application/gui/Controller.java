@@ -200,6 +200,7 @@ public class Controller implements Initializable {
 
         canvasFlow.setOnScroll(event -> {
             canvasController.setScale(canvasController.getScale() + event.getDeltaY() / 400);
+            canvasController.updateAStarNetwork();
             canvasController.drawProgram();
         });
 
@@ -391,7 +392,9 @@ public class Controller implements Initializable {
                     programListContextMenu.hide();
                 }
 
-                clickedName = programList.getSelectionModel().getSelectedItem().getName();
+                if (programList.getSelectionModel().getSelectedItem() != null) {
+                    clickedName = programList.getSelectionModel().getSelectedItem().getName();
+                }
 
                 MenuItem menuItemNewProgram = new MenuItem("New Program");
                 menuItemNewProgram.setOnAction(event1 -> {
@@ -468,10 +471,16 @@ public class Controller implements Initializable {
 
         programList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldProgram, newProgram) -> {
-                    DataBank.currentlyEditProgram = newProgram;
-                    DataBank.currentUser.setCurrentProgram(newProgram);
-                    DataBank.saveUser(DataBank.currentUser);
-                    newProgram.getFlowController().checkConnections();
+                    // If we only have one program in the list and we rename it newProgram is null and gets deselected in the list
+                    // But we still want the flow to show this renamed program so don't update these values with null
+                    if (newProgram != null) {
+                        DataBank.currentlyEditProgram = newProgram;
+                        DataBank.currentUser.setCurrentProgram(newProgram);
+                        DataBank.saveUser(DataBank.currentUser);
+
+                        newProgram.getFlowController().checkConnections();
+                    }
+                    canvasController.updateAStarNetwork();
                     canvasController.drawProgram();
                 });
 
@@ -520,6 +529,10 @@ public class Controller implements Initializable {
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());
+
+        // As a final step we draw the loaded program with a fully updated network
+        canvasController.updateAStarNetwork();
+        canvasController.drawProgram();
     }
 
     public MenuItem createNodeMenuItem(String className) {

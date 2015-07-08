@@ -209,8 +209,13 @@ public class DataBank {
     }
 
     public static void saveUser(User user) {
+        Integer currentProgramId = -1;
+        if(user.getCurrentProgram() != null){
+            currentProgramId = user.getCurrentProgram().getId();
+        }
+
         new UpdateQuery("update user set last_program = ? where id = ?")
-                .addParameter(user.getCurrentProgram().getId()) // 1
+                .addParameter(currentProgramId) // 1
                 .addParameter(user.getId()) // 2
                 .execute();
     }
