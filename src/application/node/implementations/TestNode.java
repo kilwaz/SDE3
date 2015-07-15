@@ -80,6 +80,8 @@ public class TestNode extends DrawableNode {
         recordButton.setTooltip(new Tooltip("Record from browser"));
         recordButton.setId("recordButton-" + getId());
         recordButton.setOnAction(event -> {
+            HttpProxyServer httpProxyServer = new HttpProxyServer();
+            SDEThread webProxyThread = new SDEThread(httpProxyServer);
             WebDriver driver = BrowserHelper.getChrome();
             driver.get("http://jboss-alex:8080/spl/focal/Login");
         });

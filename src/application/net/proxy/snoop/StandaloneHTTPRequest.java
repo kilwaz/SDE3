@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -109,52 +110,60 @@ public class StandaloneHTTPRequest {
             // This starts the response timer
             webProxyRequest.instantStartProxyToServer();
 
-            //Get Response
-            InputStream is = connection.getInputStream();
-            int contentLength = connection.getContentLength();
+            InputStream is = null;
+            int contentLength = 0;
+            try {
+                //Get Response
+                is = connection.getInputStream();
+                contentLength = connection.getContentLength();
 
-            Map<String, List<String>> connectionHeaders = connection.getHeaderFields();
-            for (String header : connectionHeaders.keySet()) {
-                String concatHeader = "";
-                for (String headerValue : connectionHeaders.get(header)) {
-                    concatHeader += " " + headerValue;
+
+                Map<String, List<String>> connectionHeaders = connection.getHeaderFields();
+                for (String header : connectionHeaders.keySet()) {
+                    String concatHeader = "";
+                    for (String headerValue : connectionHeaders.get(header)) {
+                        concatHeader += " " + headerValue;
+                    }
+
+                    // We don't want these responseHeaders
+                    // null is the response code
+                    // As we are a proxy we don't want to keep their content length or transfer encoding as we will decide our own
+                    if (header != null && !header.equals("Transfer-Encoding") && !header.equals("Content-Length")) {
+                        responseHeaders.put(header, concatHeader);
+                    }
                 }
 
-                // We don't want these responseHeaders
-                // null is the response code
-                // As we are a proxy we don't want to keep their content length or transfer encoding as we will decide our own
-                if (header != null && !header.equals("Transfer-Encoding") && !header.equals("Content-Length")) {
-                    responseHeaders.put(header, concatHeader);
+                ByteArrayOutputStream tmpOut;
+                if (contentLength != -1) {
+                    tmpOut = new ByteArrayOutputStream(contentLength);
+                } else {
+                    tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
                 }
-            }
 
-            ByteArrayOutputStream tmpOut;
-            if (contentLength != -1) {
-                tmpOut = new ByteArrayOutputStream(contentLength);
-            } else {
-                tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
-            }
-
-            byte[] buf = new byte[512];
-            while (true) {
-                int len = is.read(buf);
-                if (len == -1) {
-                    break;
+                byte[] buf = new byte[512];
+                while (true) {
+                    int len = is.read(buf);
+                    if (len == -1) {
+                        break;
+                    }
+                    tmpOut.write(buf, 0, len);
                 }
-                tmpOut.write(buf, 0, len);
+                is.close();
+                tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
+
+                byte[] array = tmpOut.toByteArray();
+                response = ByteBuffer.wrap(array);
+            } catch (FileNotFoundException ex) { // 404
+                String notFoundResponse = "HTTP/1.0 404 Not Found";
+                response = ByteBuffer.wrap(notFoundResponse.getBytes());
             }
-            is.close();
-            tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
-
-            byte[] array = tmpOut.toByteArray();
-
-            response = ByteBuffer.wrap(array);
 
             webProxyRequest.instantCompleteServerToProxy();
             webProxyRequest.setResponseBuffer(response);
             webProxyRequest.setResponseHeaders(responseHeaders);
             webProxyRequestManager.completeRequest(webProxyRequest.hashCode());
         } catch (Exception ex) {
+            ex.printStackTrace();
             log.error(ex);
         } finally {
             if (connection != null) {

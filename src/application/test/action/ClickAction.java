@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import java.util.concurrent.TimeUnit;
+
 public class ClickAction extends ActionControl {
 
     private static Logger log = Logger.getLogger(ClickAction.class);
@@ -30,6 +32,9 @@ public class ClickAction extends ActionControl {
                 testBy = findElement(idElement);
             }
 
+            // We only wait for 10 seconds for page loads, sometimes the click hangs forever otherwise
+            getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+
             if (testBy != null) {
                 WebElement testElement = getDriver().findElement(testBy);
                 if (testElement != null) {
@@ -38,6 +43,9 @@ public class ClickAction extends ActionControl {
                     testElement.click();
                 }
             }
+
+            // We sent the driver back to being unlimited timeout for page loads
+            getDriver().manage().timeouts().pageLoadTimeout(-1, TimeUnit.SECONDS);
 
             DataBank.saveTestStep(testStep);
         } catch (Exception ex) {
