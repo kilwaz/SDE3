@@ -61,16 +61,26 @@ public class ExportWindow extends Stage {
                 fileChooser.setTitle("Save File");
 
                 String fileName = "Blank Node";
-                for (DrawableNode drawableNode : selectedNodes) {
-                    fileName = drawableNode.getContainedText();
+                if (exportType.equals(EXPORT_NODE)) {
+                    for (DrawableNode drawableNode : selectedNodes) {
+                        fileName = drawableNode.getContainedText();
+                    }
+                } else if (exportType.equals(EXPORT_PROGRAM)) {
+                    if (program != null) {
+                        fileName = program.getName();
+                    }
                 }
 
                 fileChooser.setInitialFileName(fileName + ".xml");
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
                 File file = fileChooser.showSaveDialog(this);
                 if (file != null) {
-                    for (DrawableNode drawableNode : selectedNodes) {
-                        XMLTransform.writeXMLToFile(drawableNode.getXMLRepresentation(), file.getAbsolutePath());
+                    if (exportType.equals(EXPORT_NODE)) {
+                        for (DrawableNode drawableNode : selectedNodes) {
+                            XMLTransform.writeXMLToFile(drawableNode.getXMLRepresentation(), file.getAbsolutePath());
+                        }
+                    } else if (exportType.equals(EXPORT_PROGRAM)) {
+                        XMLTransform.writeXMLToFile(DataBank.currentlyEditProgram.getXMLRepresentation(), file.getAbsolutePath());
                     }
                 }
             });
@@ -102,9 +112,10 @@ public class ExportWindow extends Stage {
             if (exportType.equals(EXPORT_NODE)) {
                 this.setTitle("Export Node");
                 for (DrawableNode drawableNode : selectedNodes) {
-                    exportTextArea.setText(XMLTransform.writeXMLToString(drawableNode.getXMLRepresentation()));
+                    exportTextArea.setText(exportTextArea.getText() + "\r\n" + XMLTransform.writeXMLToString(drawableNode.getXMLRepresentation()));
                 }
             } else if (exportType.equals(EXPORT_PROGRAM)) {
+                exportTextArea.setText(XMLTransform.writeXMLToString(DataBank.currentlyEditProgram.getXMLRepresentation()));
                 this.setTitle("Export Program");
             }
 

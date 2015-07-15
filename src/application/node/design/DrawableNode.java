@@ -49,29 +49,6 @@ public class DrawableNode {
 
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
-
-        // TEMP FIX UNTIL I CAN GET THIS WORKING!!
-//        NODE_NAMES.add("BashNode");
-//        NODE_NAMES.add("BatchNode");
-//        NODE_NAMES.add("ChartNode");
-//        NODE_NAMES.add("ConsoleNode");
-//        NODE_NAMES.add("CopyNode");
-//        NODE_NAMES.add("CustomObjectNode");
-//        NODE_NAMES.add("DataBaseNode");
-//        NODE_NAMES.add("EmailNode");
-//        NODE_NAMES.add("ExportNode");
-//        NODE_NAMES.add("InputNode");
-//        NODE_NAMES.add("LinuxNode");
-//        NODE_NAMES.add("LogicNode");
-//        NODE_NAMES.add("RequestTrackerNode");
-//        NODE_NAMES.add("SwitchNode");
-//        NODE_NAMES.add("TestNode");
-//        NODE_NAMES.add("TestResultNode");
-//        NODE_NAMES.add("TimerNode");
-//        NODE_NAMES.add("TriggerNode");
-//        NODE_NAMES.add("WindowsNode");
-        // !!!!!!!!!!!!!!!!!!
-
         String path = SDEUtils.getNodeImplementationsClassPath();
         List<Class<?>> classes = ClassFinder.find(new File(path), "application.node.implementations");
 
@@ -167,7 +144,6 @@ public class DrawableNode {
 
     public Document getXMLRepresentation() {
         Document document;
-        Element elementNode = null;
 
         // instance of a DocumentBuilderFactory
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -177,37 +153,42 @@ public class DrawableNode {
             // create instance of DOM
             document = db.newDocument();
 
-            // create the root element
-            Element nodeElement = document.createElement(this.getClass().getSimpleName());
-
-            // Loops through savable attributes
-            for (SavableAttribute savableAttribute : getDataToSave()) {
-                elementNode = document.createElement("Variable");
-
-                Element className = document.createElement("ClassName");
-                className.appendChild(document.createTextNode(savableAttribute.getClassName()));
-
-                Element variableName = document.createElement("VariableName");
-                variableName.appendChild(document.createTextNode(savableAttribute.getVariableName()));
-
-                Element variableValue = document.createElement("VariableValue");
-                variableValue.appendChild(document.createCDATASection(savableAttribute.getVariable().toString()));
-
-                elementNode.appendChild(variableName);
-                elementNode.appendChild(className);
-                elementNode.appendChild(variableValue);
-
-                nodeElement.appendChild(elementNode);
-            }
-
-            document.appendChild(nodeElement);
+            document.appendChild(getXMLRepresentation(document));
 
             return document;
         } catch (ParserConfigurationException ex) {
-            log.error("UsersXML: Error trying to instantiate DocumentBuilder", ex);
+            log.error("NodeXML: Error trying to instantiate DocumentBuilder", ex);
         }
 
         return null;
+    }
+
+    public Element getXMLRepresentation(Document document) {
+        Element elementNode = null;
+        // create the root element
+        Element nodeElement = document.createElement(this.getClass().getSimpleName());
+
+        // Loops through savable attributes
+        for (SavableAttribute savableAttribute : getDataToSave()) {
+            elementNode = document.createElement("Variable");
+
+            Element className = document.createElement("ClassName");
+            className.appendChild(document.createTextNode(savableAttribute.getClassName()));
+
+            Element variableName = document.createElement("VariableName");
+            variableName.appendChild(document.createTextNode(savableAttribute.getVariableName()));
+
+            Element variableValue = document.createElement("VariableValue");
+            variableValue.appendChild(document.createCDATASection(savableAttribute.getVariable().toString()));
+
+            elementNode.appendChild(variableName);
+            elementNode.appendChild(className);
+            elementNode.appendChild(variableValue);
+
+            nodeElement.appendChild(elementNode);
+        }
+
+        return nodeElement;
     }
 
     public Double getCenterX() {

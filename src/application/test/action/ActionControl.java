@@ -1,11 +1,13 @@
 package application.test.action;
 
+import application.net.proxy.snoop.HttpProxyServer;
 import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
-import application.utils.snoop.HttpProxyServer;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 import java.util.HashMap;
 
@@ -27,6 +29,9 @@ public class ActionControl {
         actionClasses.put("test", TestAction.class);
         actionClasses.put("wait", WaitAction.class);
         actionClasses.put("track", TrackAction.class);
+        actionClasses.put("log", LogAction.class);
+        actionClasses.put("set", SetAction.class);
+        actionClasses.put("loop", LoopAction.class);
     }
 
     public ActionControl() {

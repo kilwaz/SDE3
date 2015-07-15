@@ -3,10 +3,10 @@ package application.node.objects;
 import application.node.implementations.SwitchNode;
 
 public class Switch {
+    private Integer id;
     private Boolean enabled = false;
     private String target;
     private SwitchNode parent;
-    private Integer id;
 
     public Switch(Switch copySwitch, SwitchNode parent) {
         this.enabled = copySwitch.isEnabled();

@@ -1,4 +1,4 @@
-package application.utils.snoop;
+package application.net.proxy.snoop;
 
 import org.apache.log4j.Logger;
 

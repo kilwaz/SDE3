@@ -1,6 +1,6 @@
 package application.net.proxy;
 
-import application.utils.snoop.HttpProxyServer;
+import application.net.proxy.snoop.HttpProxyServer;
 
 import java.util.ArrayList;
 import java.util.List;

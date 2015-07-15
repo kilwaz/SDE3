@@ -13,7 +13,7 @@ import application.test.action.ActionControl;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
-import application.utils.snoop.HttpProxyServer;
+import application.net.proxy.snoop.HttpProxyServer;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.control.Button;

@@ -210,7 +210,7 @@ public class DataBank {
 
     public static void saveUser(User user) {
         Integer currentProgramId = -1;
-        if(user.getCurrentProgram() != null){
+        if (user.getCurrentProgram() != null) {
             currentProgramId = user.getCurrentProgram().getId();
         }
 
@@ -418,7 +418,7 @@ public class DataBank {
         inputNode.setInputs(inputs);
     }
 
-    public static Switch createNewSwitch(String target, SwitchNode parent, Boolean enabled) {
+    public static Switch createNewSwitch(String target, Boolean enabled, SwitchNode parent) {
         Switch aSwitch = new Switch(getNextId("switch"), parent, target, enabled);
 
         parent.addSwitch(aSwitch);

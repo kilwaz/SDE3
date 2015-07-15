@@ -313,23 +313,7 @@ public class Controller implements Initializable {
 
                             canvasController.drawProgram();
 
-                            Tab tabToRemove = null;
-                            for (Tab loopTab : nodeTabPane.getTabs()) {
-                                if (loopTab.getId() != null) {
-                                    if (loopTab.getId().equals(removedNode.getId().toString())) {
-                                        tabToRemove = loopTab;
-                                    }
-                                }
-                            }
-
-                            if (tabToRemove != null) {
-                                EventHandler<Event> handler = tabToRemove.getOnClosed();
-                                if (null != handler) {
-                                    handler.handle(null);
-                                } else {
-                                    tabToRemove.getTabPane().getTabs().remove(tabToRemove);
-                                }
-                            }
+                            closeDeleteNodeTabs(removedNode);
                             canvasPopOver.hide();
                         });
                         removeNodeButton.setId("RemoveNode-" + drawableNode.getId());
@@ -412,6 +396,9 @@ public class Controller implements Initializable {
                             .title("Deleting program")
                             .message("Are you sure you want to delete " + program.getName()).showConfirm();
                     if ("DialogAction.YES".equals(action.toString())) {
+                        // First close all the node tabs that are open as we will be deleting these nodes
+                        program.getFlowController().getNodes().forEach(Controller.this::closeDeleteNodeTabs);
+                        // Finally delete the program
                         DataBank.deleteProgram(program);
                         programList.getItems().remove(program);
                     }
@@ -742,5 +729,29 @@ public class Controller implements Initializable {
         }
 
         Platform.runLater(new OneShotTask(threadCount));
+    }
+
+    public void addNewProgram(Program program) {
+        programList.getItems().add(program);
+    }
+
+    public void closeDeleteNodeTabs(DrawableNode removedNode) {
+        Tab tabToRemove = null;
+        for (Tab loopTab : nodeTabPane.getTabs()) {
+            if (loopTab.getId() != null) {
+                if (loopTab.getId().equals(removedNode.getId().toString())) {
+                    tabToRemove = loopTab;
+                }
+            }
+        }
+
+        if (tabToRemove != null) {
+            EventHandler<Event> handler = tabToRemove.getOnClosed();
+            if (null != handler) {
+                handler.handle(null);
+            } else {
+                tabToRemove.getTabPane().getTabs().remove(tabToRemove);
+            }
+        }
     }
 }

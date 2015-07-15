@@ -87,11 +87,9 @@ public class SDEUtils {
             int in = -1;
 
             while ((in = is.read()) != -1) {
-                //System.out.print(((char) in));
                 returnString.append((char) in);
             }
             while ((in = errSt.read()) != -1) {
-                //System.out.print(((char) in));
                 returnString.append((char) in);
             }
         } catch (IOException ex) {
@@ -106,7 +104,6 @@ public class SDEUtils {
     }
 
     public static void svnCheckout(String branch, String targetDirectory) {
-        // https://ibis.spl.com/svn/focal-v4/branches/spl-demo-v6/
         runCMDCommand("svn checkout " + branch + " " + targetDirectory);
     }
 
@@ -123,7 +120,7 @@ public class SDEUtils {
             if (f.exists()) {
                 f.delete();
             }
-            //(works for both Windows and Linux)
+            // Works for both Windows and Linux
             f.createNewFile();
 
             PrintWriter fileOut = new PrintWriter(f);
@@ -161,7 +158,6 @@ public class SDEUtils {
         String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         try {
             if (resourcesPath.contains("SDE3.jar")) {
-                //resourcesPath = resourcesPath.replace("SDE3.jar", ""); // Removes the jar name
                 resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string
                 resourcesPath = URLDecoder.decode(resourcesPath + "!/application", "UTF-8");
             } else {
@@ -174,54 +170,4 @@ public class SDEUtils {
 
         return resourcesPath;
     }
-
-//    public static void dropDatabaseUser(SSHManager sshManager, String user) {
-//        OracleConnectionManager.getInstance().runQuery("drop user " + user + " cascade");
-//
-//        sshManager.runSSHCommand(new SSHCommand("sqlplus / as sysdba", "SQL>", 1000));
-//        sshManager.runSSHCommand(new SSHCommand("drop user " + user + " cascade;", "SQL>", 1000));
-//        sshManager.runSSHCommand(new SSHCommand("exit", "]$", 1000));
-//    }
-//
-//    public static void createDatabaseUser(SSHManager sshManager, String user, String password) {
-//        OracleConnectionManager.getInstance().runQuery("create user " + user + " identified by " + password);
-//        OracleConnectionManager.getInstance().runQuery("grant resource,dba,connect to " + user);
-//
-//        sshManager.runSSHCommand(new SSHCommand("sqlplus / as sysdba", "SQL>", 1000));
-//        sshManager.runSSHCommand(new SSHCommand("create user " + user + " identified by " + password + ";", "", 1000));
-//        sshManager.runSSHCommand(new SSHCommand("grant resource,dba,connect to " + user + ";", "", 1000));
-//        sshManager.runSSHCommand(new SSHCommand("exit", "]$", 1000));
-//    }
-//
-//    public static void importDatabase(SSHManager sshManager, String user, String password, String dumpSchema, String dumpFile, String databaseType) {
-//        String command = "";
-//
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMMdd_HHmmss");
-//        String dateFormat = sdf.format(new Date());
-//        String fileName = "";
-//        if ("ORACLE".equals(databaseType)) {
-//            fileName = dateFormat + "_" + user;
-//            command = "impdp " + user + "/" + password + " directory=dmptmp dumpfile=" + dumpFile + " logfile=" + fileName + ".log remap_schema=" + dumpSchema + ":" + user;
-//        }
-//        if (!"".equals(command)) {
-//            sshManager.runSSHCommand(new SSHCommand(command, "]$", 1000));
-//        }
-//    }
-//
-//    public static void exportDatabase(SSHManager sshManager, String user, String password, String schema, String databaseType, Boolean zipFile) {
-//        String command = "";
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMMdd_HHmmss");
-//        String dateFormat = sdf.format(new Date());
-//        String fileName = "";
-//        if ("ORACLE".equals(databaseType)) {
-//            fileName = dateFormat + "_" + user;
-//            command = "expdp " + user + "/" + password + " schemas=" + schema + " directory=dmptmp dumpfile=" + fileName + ".dmp logfile=" + fileName + ".log";
-//        }
-//        if (!"".equals(command)) {
-//            sshManager.runSSHCommand(new SSHCommand(command, "]$", 1000));
-//            if (zipFile) {
-//                sshManager.runSSHCommand(new SSHCommand("gzip -9 " + fileName + ".dmp", "]$", 1000));
-//            }
-//        }
-//    }
 }

@@ -1,4 +1,4 @@
-package application.utils.snoop;
+package application.net.proxy.snoop;
 
 import application.net.proxy.WebProxyManager;
 import application.net.proxy.WebProxyRequestManager;
@@ -61,8 +61,6 @@ public final class HttpProxyServer extends SDERunnable {
 
             Channel ch = b.bind(PORT).sync().channel();
 
-            System.err.println("Open your web browser and navigate to " + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
-
             ch.closeFuture().sync();
         } catch (InterruptedException | CertificateException | SSLException ex) {
             log.error(ex);
@@ -79,9 +77,5 @@ public final class HttpProxyServer extends SDERunnable {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        new HttpProxyServer();
     }
 }

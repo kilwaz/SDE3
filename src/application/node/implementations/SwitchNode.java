@@ -17,6 +17,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -271,7 +273,7 @@ public class SwitchNode extends DrawableNode {
         addButton.setPrefWidth(35);
 
         addButton.setOnAction(event -> {
-            Switch newSwitch = DataBank.createNewSwitch("target", this, false);
+            Switch newSwitch = DataBank.createNewSwitch("target", false, this);
 
             // Add the new switch just above the plus button
             switchRows.getChildren().add(switchRows.getChildren().size() - 1, createSwitchNodeRow(newSwitch));
@@ -280,5 +282,30 @@ public class SwitchNode extends DrawableNode {
         addSwitchRow.getChildren().add(addButton);
 
         return addSwitchRow;
+    }
+
+    public Element getXMLRepresentation(Document document) {
+        Element nodeElement = super.getXMLRepresentation(document);
+
+        // Create a new element to save all inputs inside
+        Element switchElements = document.createElement("Switches");
+
+        for (Switch aSwitch : aSwitches) {
+            Element switchElement = document.createElement("Input");
+
+            Element targetElement = document.createElement("Target");
+            targetElement.appendChild(document.createTextNode(aSwitch.getTarget()));
+
+            Element enabledElement = document.createElement("Enabled");
+            enabledElement.appendChild(document.createTextNode(aSwitch.isEnabled().toString()));
+
+            switchElement.appendChild(targetElement);
+            switchElement.appendChild(enabledElement);
+            switchElements.appendChild(switchElement);
+        }
+
+        nodeElement.appendChild(switchElements);
+
+        return nodeElement;
     }
 }

@@ -7,21 +7,25 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-public class ClickAction extends ActionControl {
+public class LogAction extends ActionControl {
 
-    private static Logger log = Logger.getLogger(ClickAction.class);
+    private static Logger log = Logger.getLogger(LogAction.class);
 
-    // This class is used to click on an element
-    public ClickAction() {
+    // This class is used to input a value into an element
+    public LogAction() {
     }
 
     public void performAction() {
-        try {
-            TestStep testStep = DataBank.createNewTestStep(getTestResult());
-            getTestResult().addTestStep(testStep);
+        TestStep testStep = DataBank.createNewTestStep(getTestResult());
+        getTestResult().addTestStep(testStep);
 
-            TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
-            TestParameter idElement = getTestCommand().getParameterByPath("id");
+        TestParameter idElement = getTestCommand().getParameterByName("id");
+        TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
+        TestParameter message = getTestCommand().getParameterByName("message");
+        if (message != null) {
+            log.info(message.getParameterValue());
+            testStep.setTestString(getTestCommand().getRawCommand());
+        } else if (idElement != null || xPathElement != null) {
             By testBy = null;
 
             if (xPathElement != null) {
@@ -35,13 +39,11 @@ public class ClickAction extends ActionControl {
                 if (testElement != null) {
                     takeScreenshotOfElement(testStep, testElement);
                     testStep.setTestString(getTestCommand().getRawCommand());
-                    testElement.click();
+                    log.info(testElement);
                 }
             }
-
-            DataBank.saveTestStep(testStep);
-        } catch (Exception ex) {
-            log.error("Click Action is failing", ex);
         }
+
+        DataBank.saveTestStep(testStep);
     }
 }

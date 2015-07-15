@@ -1,14 +1,12 @@
-package application.utils.snoop;
+package application.net.proxy.snoop;
 
 import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
 import org.apache.log4j.Logger;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -24,8 +22,6 @@ public class StandaloneHTTPRequest {
     private ByteBuffer response;
     private Boolean https = false;
     private WebProxyRequestManager webProxyRequestManager;
-
-    private static Integer requestCount = 1;
 
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
 
@@ -55,11 +51,7 @@ public class StandaloneHTTPRequest {
     }
 
     public StandaloneHTTPRequest execute() {
-        if (https) {
-            executeHttps();
-        } else {
-            executeHttp();
-        }
+        executeHttp();
         return this;
     }
 
@@ -68,113 +60,8 @@ public class StandaloneHTTPRequest {
         return this;
     }
 
-    private StandaloneHTTPRequest executeHttps() {
-        HttpsURLConnection connection = null;
-
-        //log.info("HTTPS TARGET IS " + destinationURL + " METHOD '" + method + "'");
-
-        try {
-            //Create connection
-            URL url = new URL(destinationURL);
-
-            //log.info("HTTPS");
-            connection = (HttpsURLConnection) url.openConnection();
-
-            connection.setRequestMethod(method);
-            if ("POST".equals(method) || "PUT".equals(method)) {
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                connection.setDoOutput(true);
-            }
-
-            // Sets the headers for the outgoing request
-            for (String header : requestHeaders.keySet()) {
-                if (!header.equals("If-None-Match")
-                        && !header.equals("If-Modified-Since")
-                        && !header.equals("Proxy-Connection")) {
-                    //log.info("REQUEST TO SERVER HEADER " + header + " = " + requestHeaders.get(header));
-                    connection.setRequestProperty(header, requestHeaders.get(header));
-                }
-            }
-
-            // Sets the headers for the outgoing request
-            String urlParameters = "";
-            for (String parameter : requestParameters.keySet()) {
-                if (urlParameters.equals("")) {
-                    urlParameters = parameter + "=" + requestParameters.get(parameter);
-                } else {
-                    urlParameters += "&" + parameter + "=" + requestParameters.get(parameter);
-                }
-            }
-
-            //connection.setRequestProperty("Content-Length", Integer.toString(urlParameters.getBytes().length));
-            //connection.setRequestProperty("Content-Language", "en-US");
-
-            //connection.setUseCaches(false);
-            //connection.setDoOutput(true);
-
-            // Write request body, only if we are doing post or put
-            if ("POST".equals(method) || "PUT".equals(method)) {
-                DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-                wr.writeBytes(urlParameters);
-                wr.close();
-            }
-
-            //Get Response
-            InputStream is = connection.getInputStream();
-            int contentLength = connection.getContentLength();
-
-            Map<String, List<String>> connectionHeaders = connection.getHeaderFields();
-            for (String header : connectionHeaders.keySet()) {
-                String concatHeader = "";
-                for (String headerValue : connectionHeaders.get(header)) {
-                    concatHeader += " " + headerValue;
-                }
-
-                // We don't want these responseHeaders
-                // null is the response code
-                // As we are a proxy we don't want to keep their content length or transfer encoding as we will decide our own
-                if (header != null && !header.equals("Transfer-Encoding") && !header.equals("Content-Length")) {
-                    responseHeaders.put(header, concatHeader);
-                }
-            }
-
-            ByteArrayOutputStream tmpOut;
-            if (contentLength != -1) {
-                tmpOut = new ByteArrayOutputStream(contentLength);
-            } else {
-                tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
-            }
-
-            byte[] buf = new byte[512];
-            while (true) {
-                int len = is.read(buf);
-                if (len == -1) {
-                    break;
-                }
-                tmpOut.write(buf, 0, len);
-            }
-            is.close();
-            tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
-
-            byte[] array = tmpOut.toByteArray();
-
-            response = ByteBuffer.wrap(array);
-        } catch (Exception ex) {
-            log.error(ex);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-
-        return this;
-    }
-
-    private void executeHttp() {
-        HttpURLConnection connection = null;
-
-        //log.info("HTTP TARGET IS " + destinationURL + " METHOD '" + method + "'");
-
+    private StandaloneHTTPRequest executeHttp() {
+        ProxyConnectionWrapper connection = null;
         try {
             WebProxyRequest webProxyRequest = new WebProxyRequest();
             webProxyRequest.setRequestUri(destinationURL);
@@ -182,8 +69,8 @@ public class StandaloneHTTPRequest {
 
             //Create connection
             URL url = new URL(destinationURL);
-            connection = (HttpURLConnection) url.openConnection();
 
+            connection = new ProxyConnectionWrapper(url, https);
             connection.setRequestMethod(method);
             if ("POST".equals(method) || "PUT".equals(method)) {
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -195,7 +82,6 @@ public class StandaloneHTTPRequest {
                 if (!header.equals("If-None-Match")
                         && !header.equals("If-Modified-Since")
                         && !header.equals("Proxy-Connection")) {
-                    //log.info("REQUEST TO SERVER HEADER " + header + " = " + requestHeaders.get(header));
                     connection.setRequestProperty(header, requestHeaders.get(header));
                 }
             }
@@ -210,7 +96,10 @@ public class StandaloneHTTPRequest {
                 }
             }
 
-            //Send request
+            webProxyRequest.setRequestHeaders(requestHeaders);
+            webProxyRequest.setRequestContent(urlParameters);
+
+            // Write request body, only if we are doing post or put
             if ("POST".equals(method) || "PUT".equals(method)) {
                 DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
                 wr.writeBytes(urlParameters);
@@ -261,9 +150,9 @@ public class StandaloneHTTPRequest {
 
             response = ByteBuffer.wrap(array);
 
-
             webProxyRequest.instantCompleteServerToProxy();
             webProxyRequest.setResponseBuffer(response);
+            webProxyRequest.setResponseHeaders(responseHeaders);
             webProxyRequestManager.completeRequest(webProxyRequest.hashCode());
         } catch (Exception ex) {
             log.error(ex);
@@ -272,6 +161,8 @@ public class StandaloneHTTPRequest {
                 connection.disconnect();
             }
         }
+
+        return this;
     }
 
     public HashMap<String, String> getResponseHeaders() {

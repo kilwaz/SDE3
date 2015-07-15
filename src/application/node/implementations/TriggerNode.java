@@ -20,6 +20,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,6 +189,35 @@ public class TriggerNode extends DrawableNode {
         row.getChildren().add(thenChoice);
 
         return row;
+    }
+
+    public Element getXMLRepresentation(Document document) {
+        Element nodeElement = super.getXMLRepresentation(document);
+
+        // Create a new element to save all inputs inside
+        Element triggersElements = document.createElement("Triggers");
+
+        for (Trigger trigger : triggers) {
+            Element triggerElement = document.createElement("Input");
+
+            Element watchElement = document.createElement("Watch");
+            watchElement.appendChild(document.createTextNode(trigger.getWatch()));
+
+            Element whenElement = document.createElement("When");
+            whenElement.appendChild(document.createTextNode(trigger.getWhen()));
+
+            Element thenElement = document.createElement("Then");
+            thenElement.appendChild(document.createTextNode(trigger.getThen()));
+
+            triggerElement.appendChild(watchElement);
+            triggerElement.appendChild(whenElement);
+            triggerElement.appendChild(thenElement);
+            triggersElements.appendChild(triggerElement);
+        }
+
+        nodeElement.appendChild(triggersElements);
+
+        return nodeElement;
     }
 
     public void addTrigger(Trigger trigger) {

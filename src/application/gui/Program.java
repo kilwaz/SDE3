@@ -7,6 +7,12 @@ import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class Program {
     private String name;
@@ -150,6 +156,45 @@ public class Program {
                 Controller.getInstance().updateCanvasControllerLater();
             }
         }
+    }
+
+    public Document getXMLRepresentation() {
+        Document document;
+        Element elementNode = null;
+
+        // instance of a DocumentBuilderFactory
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            // use factory to get an instance of document builder
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            // create instance of DOM
+            document = db.newDocument();
+
+            // Create the root element for the program
+            Element programElement = document.createElement("Program");
+
+            // Create and append the programs name
+            Element programName = document.createElement("ProgramName");
+            programName.appendChild(document.createTextNode(getName()));
+            programElement.appendChild(programName);
+
+            // Create the element which will hold all of the node information
+            Element nodesElement = document.createElement("Nodes");
+
+            // Loops through savable attributes
+            for (DrawableNode node : flowController.getNodes()) {
+                nodesElement.appendChild(node.getXMLRepresentation(document));
+            }
+
+            programElement.appendChild(nodesElement);
+            document.appendChild(programElement);
+
+            return document;
+        } catch (ParserConfigurationException ex) {
+            log.error("ProgramXML: Error trying to instantiate DocumentBuilder", ex);
+        }
+
+        return null;
     }
 
     public String toString() {

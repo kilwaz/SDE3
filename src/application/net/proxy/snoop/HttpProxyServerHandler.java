@@ -1,4 +1,4 @@
-package application.utils.snoop;
+package application.net.proxy.snoop;
 
 import application.net.proxy.WebProxyRequestManager;
 import io.netty.buffer.Unpooled;
@@ -16,8 +16,8 @@ import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLEngine;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
@@ -53,50 +53,18 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                 send100Continue(ctx);
             }
 
-            //log.info("Method " + request.method());
-
             if ("CONNECT".equals(request.method().toString())) {
                 FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
                 ctx.write(response);
-
-                //log.info("SWITCHING TO SSL");
 
                 SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
                 sslEngine.setUseClientMode(false); // We are a server
                 sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
 
                 pipeline.addFirst("ssl", new SslHandler(sslEngine));
-                //log.info("SSL READY ON THIS CHANNEL NOW");
                 SSL = true;
 
                 return;
-            } else {
-//                try {
-//                    HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), request);
-//
-//                    for (InterfaceHttpData data : decoder.getBodyHttpDatas()) {
-//                        if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
-//                            Attribute attribute = (Attribute) data;
-//                            //log.info(attribute.getName() + ":" + attribute.getValue());
-//                        }
-//                    }
-//                } catch (IOException ex) {
-//                    log.error(ex);
-//                }
-
-                //log.info("URI!!! " + request.uri() + " " + request);
-
-                QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
-                Map<String, List<String>> params = queryStringDecoder.parameters();
-                if (!params.isEmpty()) {
-                    for (Map.Entry<String, List<String>> p : params.entrySet()) {
-                        String key = p.getKey();
-                        List<String> vals = p.getValue();
-                        for (String val : vals) {
-                            //log.info("PARAMS " + key + " = " + val);
-                        }
-                    }
-                }
             }
         }
 
@@ -120,7 +88,6 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
             for (Map.Entry<CharSequence, CharSequence> h : headers) {
                 CharSequence key = h.getKey();
                 CharSequence value = h.getValue();
-                //log.info("REQUEST TO PROXY HEADER " + key + " = " + value);
                 requestHeaders.put(key.toString(), value.toString());
             }
         }
@@ -145,6 +112,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
             uri = "https://" + requestHeaders.get("Host") + request.uri();
         }
 
+        // Performs and returns the request we want to make from proxy server to outside world
         StandaloneHTTPRequest standaloneHTTPRequest = new StandaloneHTTPRequest()
                 .setUrl(uri)
                 .setMethod(request.method().toString())
@@ -154,27 +122,31 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                 .setRequestManager(webProxyRequestManager)
                 .execute();
 
+        // This can happen if we get an exception when executing the request, for example a bad URL
+        if (standaloneHTTPRequest != null) {
+            // Create our response object
+            ByteBuffer responseBuffer = standaloneHTTPRequest.getResponse();
+            if (responseBuffer != null) {
+                FullHttpResponse response = new DefaultFullHttpResponse(
+                        HTTP_1_1, currentObj.decoderResult().isSuccess() ? OK : BAD_REQUEST,
+                        Unpooled.copiedBuffer(responseBuffer.array()));
 
-        // Create our response object
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HTTP_1_1, currentObj.decoderResult().isSuccess() ? OK : BAD_REQUEST,
-                Unpooled.copiedBuffer(standaloneHTTPRequest.getResponse().array()));
+                HashMap<String, String> responseHeaders = standaloneHTTPRequest.getResponseHeaders();
+                for (String header : responseHeaders.keySet()) {
+                    response.headers().set(header, responseHeaders.get(header));
+                }
 
-        HashMap<String, String> responseHeaders = standaloneHTTPRequest.getResponseHeaders();
-        for (String header : responseHeaders.keySet()) {
-            response.headers().set(header, responseHeaders.get(header));
-            //log.info("RESPONSE FROM SERVER THEN TO CLIENT HEADER " + header + " - " + responseHeaders.get(header));
+                if (keepAlive) {
+                    // Add 'Content-Length' header only for a keep-alive connection.
+                    response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
+                    // Add keep alive header as per:
+                    response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+                }
+
+                // Write the response.
+                ctx.write(response);
+            }
         }
-
-        if (keepAlive) {
-            // Add 'Content-Length' header only for a keep-alive connection.
-            response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
-            // Add keep alive header as per:
-            response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        }
-
-        // Write the response.
-        ctx.write(response);
 
         return keepAlive;
     }

@@ -16,7 +16,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,8 @@ public class InputNode extends DrawableNode {
 
     private VBox inputRows;
     private InputNode instance;
+
+    private static Logger log = Logger.getLogger(InputNode.class);
 
     // This will make a copy of the node passed to it
     public InputNode(InputNode inputNode) {
@@ -227,6 +232,31 @@ public class InputNode extends DrawableNode {
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
+    }
+
+    public Element getXMLRepresentation(Document document) {
+        Element nodeElement = super.getXMLRepresentation(document);
+
+        // Create a new element to save all inputs inside
+        Element inputsElement = document.createElement("Inputs");
+
+        for (Input input : inputs) {
+            Element inputElement = document.createElement("Input");
+
+            Element variableNameElement = document.createElement("VariableName");
+            variableNameElement.appendChild(document.createTextNode(input.getVariableName()));
+
+            Element variableValueElement = document.createElement("VariableValue");
+            variableValueElement.appendChild(document.createTextNode(input.getVariableValue()));
+
+            inputElement.appendChild(variableNameElement);
+            inputElement.appendChild(variableValueElement);
+            inputsElement.appendChild(inputElement);
+        }
+
+        nodeElement.appendChild(inputsElement);
+
+        return nodeElement;
     }
 
     public void addInput(Input input) {

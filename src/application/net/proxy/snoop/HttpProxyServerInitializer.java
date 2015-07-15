@@ -1,4 +1,4 @@
-package application.utils.snoop;
+package application.net.proxy.snoop;
 
 import application.net.proxy.WebProxyRequestManager;
 import io.netty.channel.ChannelInitializer;

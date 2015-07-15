@@ -121,7 +121,19 @@ public class RequestTrackerNode extends DrawableNode {
 
         TableColumn requestSize = new TableColumn("Request Size");
         requestSize.setMinWidth(30);
-        requestSize.setCellValueFactory(new PropertyValueFactory<WebProxyRequest, String>("RequestContentSize"));
+        requestSize.setCellValueFactory(new PropertyValueFactory<WebProxyRequest, Integer>("RequestContentSize"));
+        requestSize.setCellFactory(column -> new TableCell<WebProxyRequest, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty && item != null) {
+                    String formattedItemStr = formatter.format(item);
+                    setText(formattedItemStr + " bytes");
+                } else {
+                    setText("Processing...");
+                }
+            }
+        });
 
         TableColumn responseSize = new TableColumn("Response Size");
         responseSize.setMinWidth(30);

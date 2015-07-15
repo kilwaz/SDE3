@@ -1,9 +1,6 @@
 package application.net.proxy;
 
 import application.node.implementations.RequestTrackerNode;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,14 +24,6 @@ public class WebProxyRequestManager {
         return activeRequests.containsKey(httpRequestHash);
     }
 
-    public void addFullHttpRepsonse(Integer httpRequestHash, FullHttpResponse fullHttpResponse) {
-        activeRequests.get(httpRequestHash).addFullHttpResponse(fullHttpResponse);
-    }
-
-    public void addFullHttpRequest(Integer httpRequestHash, FullHttpRequest fullHttpRequest) {
-        activeRequests.get(httpRequestHash).addFullHttpRequest(fullHttpRequest);
-    }
-
     public void addNewActiveRequest(Integer httpRequestHash, WebProxyRequest webProxyRequest) {
         webProxyRequest.setRequestID(requestCount);
         requestCount++;
@@ -45,14 +34,6 @@ public class WebProxyRequestManager {
         for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
             requestTrackerNode.addResult(webProxyRequest);
         }
-    }
-
-    public void addRequestHttpContentToRequest(Integer httpRequestHash, HttpObject httpObject) {
-        activeRequests.get(httpRequestHash).addRequestHttpObject(httpObject);
-    }
-
-    public void addResponseHttpContentToRequest(Integer httpRequestHash, HttpObject httpObject) {
-        activeRequests.get(httpRequestHash).addResponseHttpObject(httpObject);
     }
 
     public void setRequestStatus(Integer httpRequestHash, Integer status) {
