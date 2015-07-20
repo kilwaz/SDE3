@@ -1,27 +1,29 @@
 package application.utils;
 
 import application.gui.Controller;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class ThreadManager {
     private static ThreadManager threadManager;
-    private CopyOnWriteArrayList<SDEThread> runningThreads;
+    private ObservableList<SDEThread> runningThreads;
     private Integer activeThreads = 0;
 
     public ThreadManager() {
         threadManager = this;
-        runningThreads = new CopyOnWriteArrayList<>();
+        runningThreads = FXCollections.observableArrayList();
     }
 
+    // Synchronized method as we are accessing runningThreads list
     public synchronized void addThread(SDEThread thread) {
         runningThreads.add(thread);
     }
 
-    public void closeThreads() {
+    // Synchronized method as we are accessing runningThreads list
+    public synchronized void closeThreads() {
         List<SDEThread> threadsToRemove = runningThreads.stream().filter(thread -> !thread.getThread().isAlive()).collect(Collectors.toList());
 
         runningThreads.removeAll(threadsToRemove);
@@ -40,6 +42,10 @@ public class ThreadManager {
             Controller.getInstance().updateThreadCount(activeThreads);
             closeThreads();
         }
+    }
+
+    public ObservableList<SDEThread> getRunningThreads() {
+        return runningThreads;
     }
 
     public static ThreadManager getInstance() {

@@ -1,6 +1,7 @@
 package application.test.action;
 
 import application.data.DataBank;
+import application.test.LoopTracker;
 import application.test.TestParameter;
 import application.test.TestStep;
 import org.apache.log4j.Logger;
@@ -22,6 +23,8 @@ public class LogAction extends ActionControl {
         TestParameter idElement = getTestCommand().getParameterByName("id");
         TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
         TestParameter message = getTestCommand().getParameterByName("message");
+        TestParameter loopElement = getTestCommand().getParameterByName("loop");
+
         if (message != null) {
             log.info(message.getParameterValue());
             testStep.setTestString(getTestCommand().getRawCommand());
@@ -36,14 +39,22 @@ public class LogAction extends ActionControl {
 
             if (testBy != null) {
                 WebElement testElement = getDriver().findElement(testBy);
-                if (testElement != null) {
-                    takeScreenshotOfElement(testStep, testElement);
-                    testStep.setTestString(getTestCommand().getRawCommand());
-                    log.info(testElement);
-                }
+                processElement(testElement, testStep);
+
             }
+        } else if (loopElement != null) {
+            WebElement loopedElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
+            processElement(loopedElement, testStep);
         }
 
         DataBank.saveTestStep(testStep);
+    }
+
+    private void processElement(WebElement webElement, TestStep testStep) {
+        if (webElement != null) {
+            takeScreenshotOfElement(testStep, webElement);
+            testStep.setTestString(getTestCommand().getRawCommand());
+            log.info(webElement.getAttribute("outerHTML"));
+        }
     }
 }

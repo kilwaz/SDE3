@@ -9,9 +9,12 @@ import application.node.implementations.ConsoleNode;
 import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.JSch;
 import org.apache.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 import java.io.*;
 import java.net.URLDecoder;
+import java.util.List;
 
 public class SDEUtils {
     private static Logger log = Logger.getLogger(SDEUtils.class);
@@ -169,5 +172,20 @@ public class SDEUtils {
         }
 
         return resourcesPath;
+    }
+
+    public static String generateXPath(WebElement webElement) {
+        if (!webElement.getAttribute("id").equals("")) { // If the element has an ID we just use that as we found an anchor
+            return "//[@id=\"" + webElement.getAttribute("id") + "\"]";
+        } else { // If not we put the tag and go up
+            WebElement parent = webElement.findElement(By.xpath(".."));
+            List<WebElement> parentTagList = parent.findElements(By.tagName(webElement.getTagName()));
+
+            if (parentTagList.size() == 1) { // If the tag was the only one of its kind we don't need to specify index
+                return generateXPath(parent) + "/" + webElement.getTagName();
+            } else { // We need to specify index here
+                return generateXPath(parent) + "/" + webElement.getTagName() + "[" + (parentTagList.indexOf(webElement) + 1) + "]";
+            }
+        }
     }
 }

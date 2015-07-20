@@ -19,7 +19,7 @@ public class NetworkBuilder {
             log.error("Exception occurred while trying to retrieve networkAddress stack:", ex);
         }
         for (Integer i = 1; i < 254; i++) {
-            new SDEThread(new BuildNetwork(i.toString()));
+            new SDEThread(new BuildNetwork(i.toString()), "Network Builder for ip " + i.toString());
         }
     }
 

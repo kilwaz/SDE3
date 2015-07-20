@@ -53,8 +53,10 @@ public class WebProxyRequestManager {
     public void completeRequest(Integer httpRequestHash) {
         WebProxyRequest webProxyRequest = getRequest(httpRequestHash);
 
-        completedRequests.put(httpRequestHash, webProxyRequest);
-        activeRequests.remove(httpRequestHash);
-        webProxyRequest.instantCompleteServerToProxy();
+        if (webProxyRequest != null) {
+            completedRequests.put(httpRequestHash, webProxyRequest);
+            activeRequests.remove(httpRequestHash);
+            webProxyRequest.instantCompleteServerToProxy();
+        }
     }
 }

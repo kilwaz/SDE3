@@ -4,6 +4,7 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Controller;
+import application.net.proxy.snoop.HttpProxyServer;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
@@ -13,7 +14,6 @@ import application.test.action.ActionControl;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
-import application.net.proxy.snoop.HttpProxyServer;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.control.Button;
@@ -35,6 +35,7 @@ public class TestNode extends DrawableNode {
     private Test test;
     private AceTextArea aceTextArea = null;
     private static Logger log = Logger.getLogger(TestNode.class);
+    private Integer currentTestLine = 0;
 
     // This will make a copy of the node passed to it
     public TestNode(TestNode testNode) {
@@ -81,7 +82,7 @@ public class TestNode extends DrawableNode {
         recordButton.setId("recordButton-" + getId());
         recordButton.setOnAction(event -> {
             HttpProxyServer httpProxyServer = new HttpProxyServer();
-            SDEThread webProxyThread = new SDEThread(httpProxyServer);
+            SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server - http://jboss-alex:8080/spl/focal/Login");
             WebDriver driver = BrowserHelper.getChrome();
             driver.get("http://jboss-alex:8080/spl/focal/Login");
         });
@@ -129,29 +130,32 @@ public class TestNode extends DrawableNode {
 
             WebDriver driver = BrowserHelper.getChrome();
 
-            Integer lineCounter = 1;
+            currentTestLine = 0;
 
             // Creates the WebProxy used for this node
             HttpProxyServer httpProxyServer = new HttpProxyServer();
-            SDEThread webProxyThread = new SDEThread(httpProxyServer);
+            SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server for node - " + getContainedText());
 
-            for (String command : commands) {
+            log.info("Command size is " + commands.size());
+
+            while (currentTestLine < commands.size()) {
+                String command = commands.get(currentTestLine);
                 TestCommand testCommand = TestCommand.parseCommand(command);
 
                 log.info("Command " + command);
 
                 // If the user is viewing the node at the time we can select the line that is currently being run
                 if (aceTextArea != null) {
-                    aceTextArea.goToLine(lineCounter);
+                    aceTextArea.goToLine(currentTestLine + 1);
                 }
-                lineCounter++;
+                currentTestLine++;
 
                 // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
                 // and initialising the object and performing the required action which is then handled by the object
                 try {
                     Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
                     ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
-                    actionControl.initialise(httpProxyServer, driver, testCommand, testResult);
+                    actionControl.initialise(httpProxyServer, driver, testCommand, testResult, this);
                     actionControl.performAction();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                     log.error(ex);
@@ -185,6 +189,14 @@ public class TestNode extends DrawableNode {
         }
 
         return editedTest;
+    }
+
+    public void setCurrentTestLine(Integer currentTestLine) {
+        this.currentTestLine = currentTestLine;
+    }
+
+    public Integer getCurrentTestLine() {
+        return currentTestLine;
     }
 
     public String getAceTextAreaText() {

@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 
 public class SetAction extends ActionControl {
 
-    private static Logger log = Logger.getLogger(LogAction.class);
+    private static Logger log = Logger.getLogger(SetAction.class);
 
     // This class is used to input a value into an element
     public SetAction() {

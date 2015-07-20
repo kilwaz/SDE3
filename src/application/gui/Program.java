@@ -6,6 +6,7 @@ import application.node.objects.Logic;
 import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
+import application.utils.ThreadManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -67,7 +68,7 @@ public class Program {
             }
         }
 
-        new SDEThread(new CompileRunnable());
+        new SDEThread(new CompileRunnable(), "Compile Thread for program - " + this.getName());
 
         // err this should return what the threaded compile returns but not sure how to do that yet..
         return true;
@@ -87,7 +88,7 @@ public class Program {
         }
 
         // Starts the program in a new thread separate from the GUI thread.
-        new SDEThread(new OneShotTask());
+        new SDEThread(new OneShotTask(), "Running program - " + this.getName());
     }
 
     public static void runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean main, NodeRunParams nodeRunParams) {
@@ -124,12 +125,13 @@ public class Program {
         }
 
         // Starts a new thread for each time this is called.
-        SDEThread sdeThread = new SDEThread(new OneShotTask());
+        SDEThread sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + DataBank.currentlyEditProgram.getName() : " Node - " + sourceNode.getContainedText()));
 
         // If we need to wait for this thread to finish first we join to the current thread.
         if (whileWaiting) {
             try {
                 sdeThread.getThread().join();
+                ThreadManager.getInstance().closeThreads(); // Check to see if this thread has finished yet
             } catch (InterruptedException ex) {
                 log.error(ex);
             }

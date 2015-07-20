@@ -4,10 +4,7 @@ import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
-import application.gui.window.ExportWindow;
-import application.gui.window.ImportWindow;
-import application.gui.window.LogWindow;
-import application.gui.window.SettingsWindow;
+import application.gui.window.*;
 import application.node.design.DrawableNode;
 import application.utils.AppParams;
 import application.utils.ThreadManager;
@@ -87,6 +84,9 @@ public class Controller implements Initializable {
     private MenuItem menuBarMenuItemLog;
 
     @FXML
+    private MenuItem menuBarMenuItemThread;
+
+    @FXML
     private MenuItem menuBarMenuItemExportProgram;
 
     @FXML
@@ -163,6 +163,7 @@ public class Controller implements Initializable {
         assert menuBarMenuItemExportProgram != null : "fx:id=\"menuBarMenuItemExportProgram\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert menuBarMenuItemExportNode != null : "fx:id=\"menuBarMenuItemExportNode\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert menuBarMenuItemImport != null : "fx:id=\"menuBarMenuItemImport\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert menuBarMenuItemThread != null : "fx:id=\"menuBarMenuItemThread\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
@@ -510,6 +511,7 @@ public class Controller implements Initializable {
         // Setup menu bar here
         menuBarMenuItemQuit.setOnAction(event -> ((Stage) scene.getWindow()).close());
         menuBarMenuItemLog.setOnAction(event -> new LogWindow());
+        menuBarMenuItemThread.setOnAction(event -> new ThreadWindow());
         menuBarMenuItemExportProgram.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_PROGRAM));
         menuBarMenuItemExportNode.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE));
         menuBarMenuItemImport.setOnAction(event -> new ImportWindow());

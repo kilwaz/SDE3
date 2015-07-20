@@ -2,7 +2,7 @@
 
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.StatusBar?>
 <StackPane fx:id="stackPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
@@ -18,6 +18,12 @@
                                 <MenuItem fx:id="menuBarMenuItemLog" mnemonicParsing="false" text="Log">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="L" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="menuBarMenuItemThread" mnemonicParsing="false" text="Threads">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="T" control="DOWN" meta="UP" shift="UP"
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>

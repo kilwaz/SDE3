@@ -116,7 +116,7 @@ public class Logic {
                     log.error(ex);
                 }
 
-                new SDEThread((SDERunnable) instance);
+                new SDEThread((SDERunnable) instance, "Running logic for - " + this.getParentLogicNode().getContainedText());
             }
         }
     }

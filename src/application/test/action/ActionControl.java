@@ -1,6 +1,7 @@
 package application.test.action;
 
 import application.net.proxy.snoop.HttpProxyServer;
+import application.node.implementations.TestNode;
 import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
@@ -16,6 +17,7 @@ public class ActionControl {
     private TestCommand testCommand = null;
     private TestResult testResult = null;
     private HttpProxyServer httpProxyServer = null;
+    private TestNode parentTestNode = null;
 
     // This is used as a reference to match up action names used within the TestNode to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
@@ -37,7 +39,8 @@ public class ActionControl {
     public ActionControl() {
     }
 
-    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult) {
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, TestNode parentTestNode) {
+        this.parentTestNode = parentTestNode;
         this.httpProxyServer = webProxy;
         this.driver = driver;
         this.testCommand = testCommand;
@@ -80,6 +83,10 @@ public class ActionControl {
 
     public TestResult getTestResult() {
         return testResult;
+    }
+
+    public TestNode getParentTestNode() {
+        return parentTestNode;
     }
 
     public static Class getClassMapping(String actionName) {
