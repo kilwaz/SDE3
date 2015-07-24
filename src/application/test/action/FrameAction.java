@@ -1,8 +1,11 @@
 package application.test.action;
 
 import application.test.TestParameter;
+import org.apache.log4j.Logger;
 
 public class FrameAction extends ActionControl {
+    private static Logger log = Logger.getLogger(FrameAction.class);
+
     // This class is used to close the web driver which in turn closes the window
     public FrameAction() {
     }
@@ -18,5 +21,7 @@ public class FrameAction extends ActionControl {
         if (frameToSelect != null) {
             getDriver().switchTo().defaultContent();
         }
+
+        refreshCurrentDocument();
     }
 }

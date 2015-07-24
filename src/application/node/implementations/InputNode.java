@@ -7,6 +7,7 @@ import application.gui.Program;
 import application.gui.SDETextField;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
+import application.utils.SDEUtils;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.geometry.Pos;
@@ -16,6 +17,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 import org.w3c.dom.Document;
@@ -244,10 +246,10 @@ public class InputNode extends DrawableNode {
             Element inputElement = document.createElement("Input");
 
             Element variableNameElement = document.createElement("VariableName");
-            variableNameElement.appendChild(document.createTextNode(input.getVariableName()));
+            variableNameElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(input.getVariableName())));
 
             Element variableValueElement = document.createElement("VariableValue");
-            variableValueElement.appendChild(document.createTextNode(input.getVariableValue()));
+            variableValueElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(input.getVariableValue())));
 
             inputElement.appendChild(variableNameElement);
             inputElement.appendChild(variableValueElement);

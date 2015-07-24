@@ -1,34 +1,36 @@
 package application.test;
 
 import application.utils.SDEUtils;
+import org.apache.log4j.Logger;
+import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
-import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import java.util.NoSuchElementException;
+
 public class LoopedWebElement {
-    private WebElement webElement = null;
+    private Element element = null;
     private String xPath = "";
 
-    public LoopedWebElement(WebElement webElement) {
-        this.webElement = webElement;
-        xPath = SDEUtils.generateXPath(webElement);
+    private static Logger log = Logger.getLogger(LoopedWebElement.class);
+
+    public LoopedWebElement(Element element) {
+        this.element = element;
+        xPath = SDEUtils.generateXPath(element);
     }
 
-    private Boolean isStale() {
-        try {
-            // Calling any method forces a staleness check
-            webElement.isEnabled();
-            return false;
-        } catch (StaleElementReferenceException expected) {
-            return true;
-        }
+    public Element getElement() {
+        return element;
     }
 
     public WebElement getWebElement(WebDriver webDriver) {
-        // Here we check to see if the element is stale, if it is then we try to get it with the xPath we generated on object creation
-        if (isStale()) {
-            return webDriver.findElement(By.xpath(xPath));
+        // Here we get the element from Selenium as it is ready to be used
+        WebElement webElement = null;
+        try {
+            webElement = webDriver.findElement(By.xpath(xPath));
+        } catch (Exception ex) {
+            log.info("Selenium could not find the element with xPath " + xPath, ex);
         }
 
         return webElement;

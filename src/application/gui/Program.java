@@ -3,10 +3,8 @@ package application.gui;
 import application.data.DataBank;
 import application.node.design.DrawableNode;
 import application.node.objects.Logic;
-import application.utils.NodeRunParams;
-import application.utils.SDERunnable;
-import application.utils.SDEThread;
-import application.utils.ThreadManager;
+import application.utils.*;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -177,7 +175,7 @@ public class Program {
 
             // Create and append the programs name
             Element programName = document.createElement("ProgramName");
-            programName.appendChild(document.createTextNode(getName()));
+            programName.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(getName())));
             programElement.appendChild(programName);
 
             // Create the element which will hold all of the node information

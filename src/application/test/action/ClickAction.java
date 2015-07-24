@@ -6,6 +6,7 @@ import application.test.LoopedWebElement;
 import application.test.TestParameter;
 import application.test.TestStep;
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -44,7 +45,12 @@ public class ClickAction extends ActionControl {
                     processElement(testElement, testStep);
                 }
             } else if (loopElement != null) {
-                WebElement loopedElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
+                WebElement loopedElement = null;
+                LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
+                if (loopedWebElement != null) {
+                    loopedElement = loopedWebElement.getWebElement(getDriver());
+                }
+
                 processElement(loopedElement, testStep);
             }
 

@@ -13,6 +13,7 @@ import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -173,13 +174,13 @@ public class DrawableNode {
             elementNode = document.createElement("Variable");
 
             Element className = document.createElement("ClassName");
-            className.appendChild(document.createTextNode(savableAttribute.getClassName()));
+            className.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(savableAttribute.getClassName())));
 
             Element variableName = document.createElement("VariableName");
-            variableName.appendChild(document.createTextNode(savableAttribute.getVariableName()));
+            variableName.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(savableAttribute.getVariableName())));
 
             Element variableValue = document.createElement("VariableValue");
-            variableValue.appendChild(document.createCDATASection(savableAttribute.getVariable().toString()));
+            variableValue.appendChild(document.createCDATASection(SDEUtils.escapeXMLCData(savableAttribute.getVariable().toString())));
 
             elementNode.appendChild(variableName);
             elementNode.appendChild(className);

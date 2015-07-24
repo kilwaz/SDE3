@@ -8,6 +8,7 @@ import application.net.proxy.snoop.HttpProxyServer;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
+import application.test.IfTracker;
 import application.test.TestCommand;
 import application.test.TestResult;
 import application.test.action.ActionControl;
@@ -126,7 +127,7 @@ public class TestNode extends DrawableNode {
             TestResult testResult = DataBank.createNewTestResult();
 
             List<String> commands = new ArrayList<>();
-            Collections.addAll(commands, testToRun.getText().split("[\\r\\n]+"));
+            Collections.addAll(commands, testToRun.getText().split("[\\r\\n]"));
 
             WebDriver driver = BrowserHelper.getChrome();
 
@@ -136,29 +137,43 @@ public class TestNode extends DrawableNode {
             HttpProxyServer httpProxyServer = new HttpProxyServer();
             SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server for node - " + getContainedText());
 
-            log.info("Command size is " + commands.size());
+            log.info("Number of commands in test " + commands.size());
 
             while (currentTestLine < commands.size()) {
-                String command = commands.get(currentTestLine);
+                String command = commands.get(currentTestLine).trim(); // We need to trim this to remove spaces and tabs
+
+                if (command.startsWith("//") || command.equals("")) { // Ignore the command if it is a comment
+                    currentTestLine++;
+                    continue;
+                }
+
                 TestCommand testCommand = TestCommand.parseCommand(command);
 
-                log.info("Command " + command);
+                // Here we are checking if an if statement is currently happening, if so we need to move to end if statement
+                if (IfTracker.isSkippingIf()) {  // Maybe move this so somewhere else?
+                    if (command.equals("if>end::" + IfTracker.getIfReference())) {
+                        IfTracker.setIsSkippingIf(false);
+                    }
+                    currentTestLine++;
+                } else { // If no if is being skipped we continue as normal
+                    log.info("Command " + command);
 
-                // If the user is viewing the node at the time we can select the line that is currently being run
-                if (aceTextArea != null) {
-                    aceTextArea.goToLine(currentTestLine + 1);
-                }
-                currentTestLine++;
+                    // If the user is viewing the node at the time we can select the line that is currently being run
+                    if (aceTextArea != null) {
+                        aceTextArea.goToLine(currentTestLine + 1);
+                    }
+                    currentTestLine++;
 
-                // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
-                // and initialising the object and performing the required action which is then handled by the object
-                try {
-                    Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
-                    ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
-                    actionControl.initialise(httpProxyServer, driver, testCommand, testResult, this);
-                    actionControl.performAction();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-                    log.error(ex);
+                    // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
+                    // and initialising the object and performing the required action which is then handled by the object
+                    try {
+                        Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
+                        ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
+                        actionControl.initialise(httpProxyServer, driver, testCommand, testResult, this);
+                        actionControl.performAction();
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+                        log.error(ex);
+                    }
                 }
             }
 

@@ -54,7 +54,7 @@ public class CompileCode {
                     "      FlowController.sourceFinished(this.logicReferenceId);" +
                     "   }" +
                     "   public void init(NodeRunParams nodeRunParams) {" +
-                    "      this.nodeRunParams = nodeRunParams;" +
+                    "      this.nodeRunParams = new NodeRunParams(nodeRunParams);" +
                     "   }" +
                     "   private void save(String name, Object object) {" +
                     "      DataBank.saveVariable(name, object, this.flowControllerReferenceId);" +
@@ -69,13 +69,13 @@ public class CompileCode {
                     "      return SDEUtils.openSSHSession(connection,username,password,consoleName,this.flowControllerReferenceId);" +
                     "   }" +
                     "   private void run(String name, NodeRunParams nodeRunParams) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, nodeRunParams);" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams(nodeRunParams));" +
                     "   }" +
                     "   private void runAndWait(String name) {" +
                     "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams());" +
                     "   }" +
                     "   private void runAndWait(String name, NodeRunParams nodeRunParams) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, nodeRunParams);" +
+                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams(nodeRunParams));" +
                     "   }" +
                     "   private DrawableNode getNode(String name) {" +
                     "      return FlowController.getFlowControllerFromReference(this.flowControllerReferenceId).getNodeThisControllerFromContainedText(name);" +

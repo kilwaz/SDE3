@@ -2,11 +2,12 @@ package application.test.action;
 
 import application.data.DataBank;
 import application.test.LoopTracker;
+import application.test.LoopedWebElement;
 import application.test.TestParameter;
 import application.test.TestStep;
+import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.jsoup.nodes.Element;
 
 public class LogAction extends ActionControl {
 
@@ -29,32 +30,39 @@ public class LogAction extends ActionControl {
             log.info(message.getParameterValue());
             testStep.setTestString(getTestCommand().getRawCommand());
         } else if (idElement != null || xPathElement != null) {
-            By testBy = null;
-
+            String xPath = null;
             if (xPathElement != null) {
-                testBy = findElement(xPathElement);
+                xPath = xPathElement.getParameterValue();
             } else if (idElement != null) {
-                testBy = findElement(idElement);
+                xPath = "//*[@id=\"" + idElement.getParameterValue() + "\"]";
             }
 
-            if (testBy != null) {
-                WebElement testElement = getDriver().findElement(testBy);
+            if (xPath != null) {
+                Element testElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
                 processElement(testElement, testStep);
 
             }
         } else if (loopElement != null) {
-            WebElement loopedElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
+            Element loopedElement = null;
+            LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
+            if (loopedWebElement != null) {
+                loopedElement = loopedWebElement.getElement();
+            }
+
             processElement(loopedElement, testStep);
         }
 
         DataBank.saveTestStep(testStep);
     }
 
-    private void processElement(WebElement webElement, TestStep testStep) {
-        if (webElement != null) {
-            takeScreenshotOfElement(testStep, webElement);
-            testStep.setTestString(getTestCommand().getRawCommand());
-            log.info(webElement.getAttribute("outerHTML"));
+    private void processElement(Element element, TestStep testStep) {
+        //takeScreenshotOfElement(testStep, webElement);
+        testStep.setTestString(getTestCommand().getRawCommand());
+
+        if (element != null) {
+            log.info(element.outerHtml());
+        } else {
+            log.info("Null Element passed to LogAction");
         }
     }
 }

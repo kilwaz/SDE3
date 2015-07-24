@@ -8,6 +8,7 @@ import application.node.design.DrawableNode;
 import application.node.implementations.InputNode;
 import application.node.implementations.SwitchNode;
 import application.node.implementations.TriggerNode;
+import application.utils.SDEUtils;
 import application.utils.XMLTransform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -261,6 +262,6 @@ public class ImportWindow extends Stage {
         if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
             value = nl.item(0).getFirstChild().getNodeValue();
         }
-        return value;
+        return SDEUtils.unescapeXMLCData(value);
     }
 }

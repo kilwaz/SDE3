@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Class-Path: jna.jar mail.jar tools.jar ojdbc6.jar jflex-1.6.0.jar jsch
- -0.1.51.jar jsoup-1.8.1.jar autocomplete.jar joda-time-2.4.jar rsynta
+ -0.1.51.jar jsoup-1.8.2.jar autocomplete.jar joda-time-2.4.jar rsynta
  xtextarea.jar controlsfx-8.40.9.jar microemu-midp-2.0.1.jar fontaweso
  mefx-8.0.10.jar selenium-java-2.45.0.jar netty-all-5.0.0.Alpha2.jar j
  sch.agentproxy.core-0.0.6.jar jsch.agentproxy.pageant-0.0.6.jar jsch.

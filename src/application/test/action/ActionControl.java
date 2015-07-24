@@ -6,6 +6,9 @@ import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
+import org.apache.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -18,6 +21,9 @@ public class ActionControl {
     private TestResult testResult = null;
     private HttpProxyServer httpProxyServer = null;
     private TestNode parentTestNode = null;
+    private static Document currentDocument = null;
+
+    private static Logger log = Logger.getLogger(ActionControl.class);
 
     // This is used as a reference to match up action names used within the TestNode to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
@@ -34,6 +40,7 @@ public class ActionControl {
         actionClasses.put("log", LogAction.class);
         actionClasses.put("set", SetAction.class);
         actionClasses.put("loop", LoopAction.class);
+        actionClasses.put("if", IfAction.class);
     }
 
     public ActionControl() {
@@ -67,6 +74,15 @@ public class ActionControl {
 //        } catch (IOException ex) {
 //            log.error(ex);
 //        }
+    }
+
+    public void refreshCurrentDocument() {
+        currentDocument = Jsoup.parse(getDriver().getPageSource());
+        //log.info("Updated current doc to " + currentDocument.html());
+    }
+
+    public Document getCurrentDocument() {
+        return currentDocument;
     }
 
     public WebDriver getDriver() {

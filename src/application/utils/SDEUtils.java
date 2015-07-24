@@ -9,11 +9,14 @@ import application.node.implementations.ConsoleNode;
 import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.JSch;
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.io.*;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SDEUtils {
@@ -176,7 +179,7 @@ public class SDEUtils {
 
     public static String generateXPath(WebElement webElement) {
         if (!webElement.getAttribute("id").equals("")) { // If the element has an ID we just use that as we found an anchor
-            return "//[@id=\"" + webElement.getAttribute("id") + "\"]";
+            return "//*[@id=\"" + webElement.getAttribute("id") + "\"]";
         } else { // If not we put the tag and go up
             WebElement parent = webElement.findElement(By.xpath(".."));
             List<WebElement> parentTagList = parent.findElements(By.tagName(webElement.getTagName()));
@@ -187,5 +190,69 @@ public class SDEUtils {
                 return generateXPath(parent) + "/" + webElement.getTagName() + "[" + (parentTagList.indexOf(webElement) + 1) + "]";
             }
         }
+    }
+
+    public static String generateXPath(Element element) {
+        if (!element.attr("id").equals("")) { // If the element has an ID we just use that as we found an anchor
+            return "//*[@id=\"" + element.attr("id") + "\"]";
+        } else { // If not we put the tag and go up
+            Element parent = element.parent();
+            // We only only direct children for xPath
+            List<Element> parentTagList = new ArrayList<>();
+            for (Element childElement : parent.children()) {
+                if (childElement.tagName().equals(element.tagName())) { // Only count the children with the same tags as our element
+                    parentTagList.add(childElement);
+                }
+            }
+
+            if (parentTagList.size() == 1) { // If the tag was the only one of its kind we don't need to specify index
+                return generateXPath(parent) + "/" + element.tagName();
+            } else { // We need to specify index here
+                return generateXPath(parent) + "/" + element.tagName() + "[" + (parentTagList.indexOf(element) + 1) + "]";
+            }
+        }
+    }
+
+    public static String unescapeXMLCData(String source) {
+        source = source.replace("&amp;", "&");
+        source = source.replace("&gt;", ">");
+        return source;
+    }
+
+    public static String escapeXMLCData(String source) {
+        source = source.replace("&", "&amp;");
+        source = source.replace(">", "&gt;");
+        return source;
+    }
+
+//    public static Elements getElementsFromXPath(String xPath, Element element) {
+//
+//    }
+
+    public static Element getElementFromXPath(String xPath, Document document) {
+        List<Element> elements = getElementsFromXPath(xPath, document);
+        if (elements.size() > 0) {
+            return elements.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public static List<Element> getElementsFromXPath(String xPath, Document document) {
+        String startingId = xPath;
+        startingId = startingId.replace("//*[@id=\"", "");  // Removes the initial id
+        startingId = startingId.substring(0, startingId.indexOf("\""));
+
+        //log.info("Document is " + document);
+
+        Element startingElement = document.getElementById(startingId);
+
+        List<Element> returnedElement = new ArrayList<>();
+
+        if (startingElement != null) {
+            returnedElement.add(startingElement);
+        }
+
+        return returnedElement;
     }
 }

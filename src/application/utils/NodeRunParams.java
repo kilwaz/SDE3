@@ -10,6 +10,15 @@ public class NodeRunParams {
 
     }
 
+    // This copies over all the values from the previous nodeRunParams that is passed into it
+    public NodeRunParams(NodeRunParams nodeRunParams) {
+        for (String name : nodeRunParams.getParams().keySet()) {
+            addVariable(name, nodeRunParams.getParams().get(name));
+        }
+
+        setOneTimeVariable(nodeRunParams.getOneTimeVariable());
+    }
+
     public void addVariable(String name, Object obj) {
         params.put(name, obj);
     }

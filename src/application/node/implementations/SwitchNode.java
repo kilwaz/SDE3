@@ -7,6 +7,7 @@ import application.gui.Program;
 import application.node.design.DrawableNode;
 import application.node.objects.Switch;
 import application.utils.NodeRunParams;
+import application.utils.SDEUtils;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.Node;
@@ -15,6 +16,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 import org.w3c.dom.Document;
@@ -294,10 +296,10 @@ public class SwitchNode extends DrawableNode {
             Element switchElement = document.createElement("Input");
 
             Element targetElement = document.createElement("Target");
-            targetElement.appendChild(document.createTextNode(aSwitch.getTarget()));
+            targetElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(aSwitch.getTarget())));
 
             Element enabledElement = document.createElement("Enabled");
-            enabledElement.appendChild(document.createTextNode(aSwitch.isEnabled().toString()));
+            enabledElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(aSwitch.isEnabled().toString())));
 
             switchElement.appendChild(targetElement);
             switchElement.appendChild(enabledElement);

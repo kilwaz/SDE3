@@ -64,6 +64,10 @@ public class Loop {
     }
 
     public LoopedWebElement getCurrentLoopWebElement() {
-        return loopElements.get(currentLoopCount - 1);
+        if (loopElements.size() > 0) {
+            return loopElements.get(currentLoopCount - 1);
+        } else {
+            return null;
+        }
     }
 }
