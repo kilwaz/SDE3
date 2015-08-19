@@ -4,7 +4,7 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
-import application.utils.JobManager;
+import application.utils.managers.JobManager;
 import application.utils.NodeRunParams;
 import application.utils.TimerJob;
 import javafx.beans.value.ChangeListener;

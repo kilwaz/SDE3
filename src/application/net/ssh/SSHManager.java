@@ -5,7 +5,7 @@ import application.node.implementations.ConsoleNode;
 import application.node.implementations.LinuxNode;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
-import application.utils.SSHConnectionManager;
+import application.utils.managers.SSHConnectionManager;
 import com.jcraft.jsch.*;
 import org.apache.log4j.Logger;
 

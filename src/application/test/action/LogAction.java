@@ -1,8 +1,8 @@
 package application.test.action;
 
 import application.data.DataBank;
-import application.test.LoopTracker;
-import application.test.LoopedWebElement;
+import application.test.action.helpers.LoopTracker;
+import application.test.action.helpers.LoopedWebElement;
 import application.test.TestParameter;
 import application.test.TestStep;
 import application.utils.SDEUtils;

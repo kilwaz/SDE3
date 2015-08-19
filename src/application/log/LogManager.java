@@ -15,6 +15,9 @@ public class LogManager {
     }
 
     public static LogManager getInstance() {
+        if (instance == null) {
+            instance = new LogManager();
+        }
         return instance;
     }
 

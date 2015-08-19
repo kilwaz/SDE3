@@ -92,6 +92,9 @@ public class BashNode extends DrawableNode {
         if (this.bash == null) {
             this.bash = new Bash(this);
         }
+        if (bashString == null) {
+            bashString = "";
+        }
         this.bash.setScript(bashString);
     }
 

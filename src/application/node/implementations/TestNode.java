@@ -4,11 +4,12 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Controller;
+import application.gui.window.PreviousTestsWindow;
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
-import application.test.IfTracker;
+import application.test.action.helpers.IfTracker;
 import application.test.TestCommand;
 import application.test.TestResult;
 import application.test.action.ActionControl;
@@ -17,10 +18,12 @@ import application.utils.NodeRunParams;
 import application.utils.SDEThread;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
@@ -37,6 +40,7 @@ public class TestNode extends DrawableNode {
     private AceTextArea aceTextArea = null;
     private static Logger log = Logger.getLogger(TestNode.class);
     private Integer currentTestLine = 0;
+    private List<Test> previousTests = new ArrayList<>();
 
     // This will make a copy of the node passed to it
     public TestNode(TestNode testNode) {
@@ -88,9 +92,20 @@ public class TestNode extends DrawableNode {
             driver.get("http://jboss-alex:8080/spl/focal/Login");
         });
 
+        Button previousTestsButton = new Button();
+        previousTestsButton.setText("Previous Tests");
+        previousTestsButton.setOnAction(event -> {
+            new PreviousTestsWindow(this);
+        });
+
         aceTextArea = new AceTextArea(this, "ace/mode/text");
 
-        vBox.getChildren().add(recordButton);
+        HBox hBox = new HBox(5);
+        hBox.getChildren().add(recordButton);
+        hBox.getChildren().add(previousTestsButton);
+        hBox.setAlignment(Pos.BASELINE_LEFT);
+
+        vBox.getChildren().add(hBox);
         vBox.getChildren().add(aceTextArea);
 
         AnchorPane.setBottomAnchor(vBox, 0.0);

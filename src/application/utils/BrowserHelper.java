@@ -1,5 +1,6 @@
 package application.utils;
 
+import application.utils.managers.BrowserManager;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.Proxy;

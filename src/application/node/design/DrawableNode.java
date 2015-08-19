@@ -13,7 +13,6 @@ import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,6 +22,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
@@ -30,6 +31,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+/**
+ * @author Alex Brown
+ */
 
 public class DrawableNode {
     private Integer id = -1;
@@ -354,5 +359,26 @@ public class DrawableNode {
 
     public String toString() {
         return this.containedText;
+    }
+
+    /**
+     * Generic method to copy a node.
+     *
+     * @param <Node> Generic node which extends {@link application.node.design.DrawableNode}.
+     * @return Returns a new object with same values as this object.
+     */
+    public <Node extends DrawableNode> Node copy() {
+        Class nodeClass = this.getClass();
+
+        Node node = null;
+
+        try {
+            Constructor constructor = nodeClass.getDeclaredConstructor(nodeClass);
+            node = (Node) constructor.newInstance(this);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+        }
+
+        return node;
     }
 }

@@ -4,7 +4,7 @@ import application.net.proxy.WebProxyManager;
 import application.net.proxy.WebProxyRequestManager;
 import application.node.implementations.RequestTrackerNode;
 import application.utils.SDERunnable;
-import application.utils.ThreadManager;
+import application.utils.managers.ThreadManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;

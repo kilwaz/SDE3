@@ -7,7 +7,7 @@ import application.gui.canvas.CanvasController;
 import application.gui.window.*;
 import application.node.design.DrawableNode;
 import application.utils.AppParams;
-import application.utils.ThreadManager;
+import application.utils.managers.ThreadManager;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.application.Platform;
@@ -60,22 +60,13 @@ public class Controller implements Initializable {
     private AnchorPane lowerMainSplitPane;
 
     @FXML
-    private AnchorPane sourceTabAnchorPane;
-
-    @FXML
     private AnchorPane rightContextAnchorPane;
-
-    @FXML
-    private AnchorPane canvasAnchorPane;
 
     @FXML
     private TitledPane programTitlePane;
 
     @FXML
     private Accordion leftAccordion;
-
-    @FXML
-    private MenuItem menuContextNewProgram;
 
     @FXML
     private MenuItem menuBarMenuItemQuit;
@@ -143,14 +134,10 @@ public class Controller implements Initializable {
         assert programAccordion != null : "fx:id=\"programAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert leftAccordionAnchorPane != null : "fx:id=\"leftAccordionAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert lowerMainSplitPane != null : "fx:id=\"lowerMainSplitPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert sourceTabAnchorPane != null : "fx:id=\"lowerMainSplitPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert rightContextAnchorPane != null : "fx:id=\"lowerMainSplitPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert canvasAnchorPane != null : "fx:id=\"lowerMainSplitPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        assert rightContextAnchorPane != null : "fx:id=\"rightContextAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert programTitlePane != null : "fx:id=\"programTitlePane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert leftAccordion != null : "fx:id=\"leftAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert menuContextNewProgram != null : "fx:id=\"menuContextNewProgram\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         assert splitPanePageCentral != null : "fx:id=\"splitPanePageCentral\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
@@ -169,7 +156,6 @@ public class Controller implements Initializable {
 
         assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
         assert toolBar != null : "fx:id=\"toolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert runButtonToolBar != null : "fx:id=\"runButtonToolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         flowTabPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             canvasFlow.setWidth(newSceneWidth.intValue());

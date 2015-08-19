@@ -21,6 +21,9 @@ public class DatabaseConnectionWatcher extends HBox {
     }
 
     public static DatabaseConnectionWatcher getInstance() {
+        if (instance == null) {
+            new DatabaseConnectionWatcher();
+        }
         return instance;
     }
 

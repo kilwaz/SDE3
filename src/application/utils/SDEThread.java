@@ -1,5 +1,7 @@
 package application.utils;
 
+import application.utils.managers.ThreadManager;
+
 public class SDEThread {
     private Thread thread;
     private Runnable runnable;

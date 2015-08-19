@@ -4,10 +4,11 @@ import application.data.DBConnectionManager;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.gui.Controller;
-import application.gui.window.LogWindow;
 import application.log.LogManager;
 import application.net.proxy.WebProxyManager;
-import application.utils.*;
+import application.utils.AppParams;
+import application.utils.AppProperties;
+import application.utils.managers.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -31,6 +32,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * Main handling class of the application.
+ * <p>
+ * The job of this class is to prep the application and handle the splash screen.
+ * <p>
+ * We also handle the shutdown of the application here.
+ *
+ * @author Alex Brown
+ */
 public class Main extends Application {
     private static Main instance;
 
@@ -42,6 +52,14 @@ public class Main extends Application {
     private static final int SPLASH_WIDTH = 940;
     private static final int SPLASH_HEIGHT = 360;
 
+    /**
+     * We start all managers and prep everything we need to get the application running including loading all data from the database.
+     * <p>
+     * While this is running the splash screen will be shown and a loading bar at the bottom with an updated progress will be available.
+     *
+     * @param stage Passes in the main stage of the application.
+     * @throws Exception
+     */
     @Override
     public void start(Stage stage) throws Exception {
         // This lets all logging be captured and then displayed
@@ -52,12 +70,14 @@ public class Main extends Application {
         showSplash();
 
         loadProgress.setProgress(0.0);
+
         // Load all managers
         new ThreadManager();
         new SSHConnectionManager();
         new BrowserManager();
         new WebProxyManager();
         new JobManager();
+        new TabManager();
 
         loadProgress.setProgress(0.5);
         new AppProperties(); // Set the location of where to find the properties xml file
@@ -105,6 +125,10 @@ public class Main extends Application {
         showMainStage();
     }
 
+    /**
+     * Sets up the initial splash screen before we show it.
+     * Called before start()
+     */
     @Override
     public void init() {
         URL editorURL = getClass().getResource("/splash.png");
@@ -119,6 +143,11 @@ public class Main extends Application {
         splashLayout.setEffect(new DropShadow());
     }
 
+    /**
+     * Shows the main application window after all loading has been completed and the splash screen is closed
+     *
+     * @throws IOException
+     */
     private void showMainStage() throws IOException {
         mainStage = new Stage(StageStyle.DECORATED);
         mainStage.setIconified(true);
@@ -130,19 +159,7 @@ public class Main extends Application {
         mainStage.setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
         mainStage.setOnCloseRequest(windowEvent -> {
             // On Application Close we try and clean up all the open connections and running threads
-            SSHConnectionManager.getInstance().closeConnections();
-            ThreadManager.getInstance().closeThreads();
-            BrowserManager.getInstance().closeBrowsers();
-            WebProxyManager.getInstance().closeProxies();
-            DBConnectionManager.getInstance().closeConnections();
-            JobManager.getInstance().closeAllJobs();
-
-            // Cleans up any class or java files previously compiled.
-            String userHome = System.getProperty("user.home");
-            File dir = new File(userHome, "/SDE/programs");
-            if (dir.exists()) {
-                for (File file : dir.listFiles()) file.delete();
-            }
+            shutdownApplication();
         });
 
         URL url = getClass().getResource("/icon.png");
@@ -167,6 +184,9 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * Shows the splash Spiralinks screen when initially loading into the application.
+     */
     private void showSplash() {
         Scene splashScene = new Scene(splashLayout);
         splashStage.initStyle(StageStyle.UNDECORATED);
@@ -179,14 +199,49 @@ public class Main extends Application {
         splashStage.show();
     }
 
+    /**
+     * Used to try and gracefully shutdown all opened threads and managers used in the application.
+     * Also cleans up temp files used by the java compile process.
+     * Closes the main window.
+     */
+    public void shutdownApplication() {
+        // On Application Close we try and clean up all the open connections and running threads
+        SSHConnectionManager.getInstance().closeConnections();
+        ThreadManager.getInstance().closeThreads();
+        BrowserManager.getInstance().closeBrowsers();
+        WebProxyManager.getInstance().closeProxies();
+        DBConnectionManager.getInstance().closeConnections();
+        JobManager.getInstance().closeAllJobs();
+
+        // Cleans up any class or java files previously compiled.
+        String userHome = System.getProperty("user.home");
+        File dir = new File(userHome, "/SDE/programs");
+        if (dir.exists()) {
+            for (File file : dir.listFiles()) file.delete();
+        }
+
+        mainStage.close();
+    }
+
+    /**
+     * Main method and entry point into the application.
+     *
+     * @param args Standard args that can be passed into main method, current no args are used.
+     */
     public static void main(String[] args) {
         launch(args);
     }
 
+    /**
+     * @return Returns main stage/window for the application.
+     */
     public Stage getMainStage() {
         return mainStage;
     }
 
+    /**
+     * @return Returns self.
+     */
     public static Main getInstance() {
         return instance;
     }

@@ -16,11 +16,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * The purpose of this class is to handle the script for a Batch process run on a Windows machine.
+ * To use this node we need to pass this to a configured {@link application.node.implementations.WindowsNode} run method
+ * as the 'oneTimeVariable', this will then be run.
+ *
+ * @author Alex Brown
+ */
 public class BatchNode extends DrawableNode {
     private Batch batch = null;
-    private BatchTest batchTest;
 
-    // This will make a copy of the node passed to it
+    /**
+     * This method is used to copy a {@link application.node.implementations.BatchNode} and give back a new object.
+     *
+     * @param batchNode The {@link application.node.implementations.BatchNode} we want to create a copy of.
+     */
     public BatchNode(BatchNode batchNode) {
         this.setId(-1);
         this.setX(batchNode.getX());
@@ -33,24 +43,47 @@ public class BatchNode extends DrawableNode {
         this.setProgramId(batchNode.getProgramId());
         this.setNextNodeToRun(batchNode.getNextNodeToRun());
 
-
         this.batch = new Batch(this);
         this.setBatch(batchNode.getBatch().getScript());
     }
 
+    /**
+     * @param id
+     * @param programId
+     */
     public BatchNode(Integer id, Integer programId) {
         super(id, programId);
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param containedText
+     */
     public BatchNode(Double x, Double y, String containedText) {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
         this.batch = new Batch(this);
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param color
+     * @param containedText
+     * @param programId
+     * @param id
+     */
     public BatchNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
         super(x, y, width, height, color, containedText, programId, id);
     }
 
+    /**
+     * This method is intended to handle the creation of the GUI required to interact with this node by the user.
+     *
+     * @return A fully built interface for this node embedded in a {@link javafx.scene.control.Tab}.
+     */
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
@@ -69,6 +102,11 @@ public class BatchNode extends DrawableNode {
         return tab;
     }
 
+    /**
+     * This method will return any additional values we want to save specific to this node as a list of {@link application.data.SavableAttribute}.
+     *
+     * @return All data we want to save that is specific to this node.
+     */
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
@@ -78,9 +116,20 @@ public class BatchNode extends DrawableNode {
         return savableAttributes;
     }
 
+    /**
+     * This run method has no content and is not intended to be run.  {@link application.node.implementations.BatchNode} objects.
+     * Should be passed into the run method of a {@link application.node.implementations.WindowsNode} via the
+     * NodeRunParams object.
+     *
+     * @param whileWaiting  Flag to tell run method not to return until thread has finished executing.
+     * @param nodeRunParams Holds objects that can be passed between run methods of {@link application.node.design.DrawableNode} objects.
+     */
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
     }
 
+    /**
+     * @param batchString Sets value of internal {@link application.node.objects.Batch} object or creates one if it doesn't exist.
+     */
     public void setBatch(String batchString) {
         if (this.batch == null) {
             this.batch = new Batch(this);
@@ -88,6 +137,12 @@ public class BatchNode extends DrawableNode {
         this.batch.setScript(batchString);
     }
 
+    /**
+     * @param inputNode The {@link application.node.implementations.InputNode} that we want to apply all applicable
+     *                  values of to this {@link application.node.implementations.BatchNode}.
+     * @return Returns a newly created {@link application.node.objects.BatchTest} with the applied inputs.
+     * This is not saved beyond this method return and so needs to be passed to a  {@link application.node.implementations.WindowsNode}.
+     */
     public BatchTest applyInputs(InputNode inputNode) {
         BatchTest editedTest = new BatchTest(this);
         editedTest.setText(getBatch().getScript());
@@ -100,18 +155,23 @@ public class BatchNode extends DrawableNode {
         return editedTest;
     }
 
+    /**
+     * @return Returns {@link java.lang.String} representation of batch script.
+     */
     public String getAceTextAreaText() {
         return getBatch().getScript();
     }
 
+    /**
+     * @param scriptText Sets the text directly of the internal {@link application.node.objects.Batch} object.
+     */
     public void setAceTextAreaText(String scriptText) {
         getBatch().setScript(scriptText);
     }
 
-    public BatchTest getBatchTest() {
-        return batchTest;
-    }
-
+    /**
+     * @return Returns internal {@link application.node.objects.Batch} object or creates one if it doesn't exist.
+     */
     public Batch getBatch() {
         if (this.batch == null) {
             this.batch = new Batch(this);

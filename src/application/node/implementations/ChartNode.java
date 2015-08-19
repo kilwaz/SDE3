@@ -24,13 +24,23 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This purpose of this class is to draw graphs and charts of data that is passed into it.
+ *
+ * @author Alex Brown
+ */
+
 public class ChartNode extends DrawableNode {
     private JFreeChart jFreeChart = null;
     private SwingNode chartSwingNode = new SwingNode();
 
     private static Logger log = Logger.getLogger(ChartNode.class);
 
-    // This will make a copy of the node passed to it
+    /**
+     * This method is used to copy a {@link application.node.implementations.ChartNode} and give back a new object.
+     *
+     * @param chartNode The {@link application.node.implementations.ChartNode} we want to create a copy of.
+     */
     public ChartNode(ChartNode chartNode) {
         this.setId(-1);
         this.setX(chartNode.getX());
@@ -44,17 +54,47 @@ public class ChartNode extends DrawableNode {
         this.setNextNodeToRun(chartNode.getNextNodeToRun());
     }
 
+    /**
+     *
+     * @param id
+     * @param programId
+     */
+
     public ChartNode(Integer id, Integer programId) {
         super(id, programId);
     }
+
+    /**
+     *
+     * @param x
+     * @param y
+     * @param containedText
+     */
 
     public ChartNode(Double x, Double y, String containedText) {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
     }
 
+    /**
+     *
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param color
+     * @param containedText
+     * @param programId
+     * @param id
+     */
+
     public ChartNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
         super(x, y, width, height, color, containedText, programId, id);
     }
+
+    /**
+     *
+     * @return
+     */
 
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
@@ -76,6 +116,11 @@ public class ChartNode extends DrawableNode {
         return tab;
     }
 
+    /**
+     *
+     * @return
+     */
+
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
@@ -84,6 +129,11 @@ public class ChartNode extends DrawableNode {
         return savableAttributes;
     }
 
+    /**
+     *
+     * @param whileWaiting
+     * @param nodeRunParams
+     */
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         if (nodeRunParams.getOneTimeVariable() != null && nodeRunParams.getOneTimeVariable() instanceof Chart) {
             Chart chartData = (Chart) nodeRunParams.getOneTimeVariable();

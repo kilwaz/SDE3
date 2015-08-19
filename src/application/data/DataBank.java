@@ -35,7 +35,6 @@ public class DataBank {
     static private HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
     static private HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
     static private HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
-    static private DBConnectionManager dbInstance;
     static private NodeColours nodeColours = new NodeColours();
 
     static public User currentUser;
@@ -99,6 +98,10 @@ public class DataBank {
         }
 
         return null;
+    }
+
+    public static void setApplicationUser(String username) {
+        currentUser = loadUser(username);
     }
 
     public static void loadFromDatabase() {

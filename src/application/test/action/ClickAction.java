@@ -1,12 +1,11 @@
 package application.test.action;
 
 import application.data.DataBank;
-import application.test.LoopTracker;
-import application.test.LoopedWebElement;
+import application.test.action.helpers.LoopTracker;
+import application.test.action.helpers.LoopedWebElement;
 import application.test.TestParameter;
 import application.test.TestStep;
 import org.apache.log4j.Logger;
-import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 

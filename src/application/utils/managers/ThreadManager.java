@@ -1,6 +1,7 @@
-package application.utils;
+package application.utils.managers;
 
 import application.gui.Controller;
+import application.utils.SDEThread;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 

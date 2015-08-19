@@ -1,4 +1,4 @@
-package application.test;
+package application.test.action.helpers;
 
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
@@ -6,8 +6,6 @@ import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-
-import java.util.NoSuchElementException;
 
 public class LoopedWebElement {
     private Element element = null;

@@ -1,4 +1,4 @@
-package application.utils;
+package application.utils.managers;
 
 import application.data.NetworkNodeInfo;
 

@@ -1,7 +1,7 @@
 package application.gui.window;
 
 import application.utils.SDEThread;
-import application.utils.ThreadManager;
+import application.utils.managers.ThreadManager;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;

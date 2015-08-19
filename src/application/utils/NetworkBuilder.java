@@ -1,6 +1,7 @@
 package application.utils;
 
 import application.data.NetworkNodeInfo;
+import application.utils.managers.NetworkManager;
 import org.apache.log4j.Logger;
 
 import java.net.InetAddress;
