@@ -24,6 +24,10 @@ public class BrowserManager {
     }
 
     public static BrowserManager getInstance() {
-        return browserManager;
+        if (browserManager == null) {
+            return new BrowserManager();
+        } else {
+            return browserManager;
+        }
     }
 }

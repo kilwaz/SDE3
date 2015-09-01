@@ -1,10 +1,9 @@
 package application.test.action;
 
 import application.data.DataBank;
-import application.test.*;
-import application.test.action.helpers.IfTracker;
-import application.test.action.helpers.LoopTracker;
-import application.test.action.helpers.LoopedWebElement;
+import application.test.TestParameter;
+import application.test.TestStep;
+import application.test.action.helpers.*;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
@@ -23,8 +22,10 @@ public class IfAction extends ActionControl {
         TestParameter loopElement = getTestCommand().getParameterByPath("loop");
         TestParameter elementId = getTestCommand().getParameterByPath("id");
         TestParameter elementXPath = getTestCommand().getParameterByPath("xPath");
-        TestParameter attribute = getTestCommand().getParameterByPath("attribute");
+        TestParameter elementAttribute = getTestCommand().getParameterByPath("attribute");
         TestParameter elementClass = getTestCommand().getParameterByPath("class");
+        TestParameter elementContent = getTestCommand().getParameterByPath("content");
+        TestParameter variable = getTestCommand().getParameterByPath("var");
 
         TestParameter equals = getTestCommand().getParameterByPath("equals");
         TestParameter contains = getTestCommand().getParameterByPath("contains");
@@ -49,14 +50,21 @@ public class IfAction extends ActionControl {
 
         if (startElement != null) {
             String valueToCheck = "";
-            if (attribute != null && testElement != null) {
-                valueToCheck = testElement.attr(attribute.getParameterValue());
+            if (elementAttribute != null && testElement != null) {
+                valueToCheck = testElement.attr(elementAttribute.getParameterValue());
             } else if (elementClass != null && testElement != null) {
                 valueToCheck = testElement.className();
-                log.info("Class is " + valueToCheck);
+            } else if (elementContent != null && testElement != null) {
+                valueToCheck = testElement.html();
+            } else if (variable != null) {
+                Variable var = VariableTracker.getVariable(variable.getParameterValue());
+                if (var != null) {
+                    valueToCheck = var.getVariableValue();
+                }
             }
 
             if (equals != null && !"".equals(valueToCheck)) {
+                log.info("Comparing equals " + valueToCheck + " vs " + equals.getParameterValue());
                 if (valueToCheck.equals(equals.getParameterValue())) { // TRUE
 
                 } else {  // FALSE

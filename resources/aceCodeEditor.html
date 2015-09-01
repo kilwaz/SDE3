@@ -16,10 +16,15 @@
 <div id="editor">[[content]]</div>
 
 <script src="[[ace]]" type="text/javascript" charset="utf-8"></script>
+<script src="[[languageTools]]" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/tomorrow");
     editor.getSession().setMode("[[mode]]");
+
+    editor.setOption("enableBasicAutocompletion", true);
+    editor.setOption("enableSnippets", true);
+    editor.setOption("enableLiveAutocompletion", true);
 
     editor.on('change', function () {
         java.setTextAreaValue(editor.getValue());

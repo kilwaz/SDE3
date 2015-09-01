@@ -17,10 +17,17 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  This node displays a console that can be written to.  It also allows other nodes to run triggers on it which
+ *  will read the output and react when coded to do so.
+ */
 public class ConsoleNode extends DrawableNode {
     private TextArea consoleTextArea = new TextArea();
 
-    // This will make a copy of the node passed to it
+    /**
+     *
+     * @param consoleNode
+     */
     public ConsoleNode(ConsoleNode consoleNode) {
         this.setId(-1);
         this.setX(consoleNode.getX());
@@ -34,14 +41,29 @@ public class ConsoleNode extends DrawableNode {
         this.setNextNodeToRun(consoleNode.getNextNodeToRun());
     }
 
+    /**
+     *
+     * @param id
+     * @param programId
+     */
     public ConsoleNode(Integer id, Integer programId) {
         super(id, programId);
     }
 
+    /**
+     *
+     * @param x
+     * @param y
+     * @param containedText
+     */
     public ConsoleNode(Double x, Double y, String containedText) {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
     }
 
+    /**
+     *
+     * @return
+     */
     public List<String> getAvailableTriggers() {
         List<String> triggers = new ArrayList<>();
 
@@ -50,6 +72,10 @@ public class ConsoleNode extends DrawableNode {
         return triggers;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<String> getAvailableTriggerActions() {
         List<String> triggers = new ArrayList<>();
 
@@ -60,6 +86,20 @@ public class ConsoleNode extends DrawableNode {
 
     private String consoleToWrite = "";
 
+    /**
+     * Writes some text and then adds a new line character to the end of it.
+     *
+     * @param text The message we want to write to the console.
+     */
+    public void writeLineToConsole(String text) {
+        writeToConsole(text + "\n\r");
+    }
+
+    /**
+     * Writes some text directly to the console as passed in.
+     *
+     * @param text The message we want to write to the console.
+     */
     public void writeToConsole(String text) {
         consoleToWrite += text;
 
@@ -83,10 +123,17 @@ public class ConsoleNode extends DrawableNode {
         Platform.runLater(new ConsoleNodeWriteConsole());
     }
 
+    /**
+     *
+     */
     public void clearConsole() {
         consoleTextArea.clear();
     }
 
+    /**
+     *
+     * @return
+     */
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 

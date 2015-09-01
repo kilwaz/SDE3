@@ -32,6 +32,10 @@ public class AceTextArea extends VBox {
     private String textToBeSet;
     private static Logger log = Logger.getLogger(AceTextArea.class);
 
+    private static final String EDITOR_HTML = "/aceCodeEditor.html";
+    private static final String ACE_JS = "/ace-editor/src/ace.js";
+    private static final String LANGUAGE_TOOL_JS = "/ace-editor/src/ext-language_tools.js";
+
     public AceTextArea(String textMode) {
         this.textMode = textMode;
         init();
@@ -48,8 +52,9 @@ public class AceTextArea extends VBox {
         webEngine = browser.getEngine();
 
         String resourcesPath = SDEUtils.getResourcePath();
-        String bashEditorPath = resourcesPath + "/aceCodeEditor.html";
-        String editorPath = resourcesPath + "/ace-editor/src/ace.js";
+        String bashEditorPath = resourcesPath + EDITOR_HTML;
+        String editorPath = resourcesPath + ACE_JS;
+        String languageTools = resourcesPath + LANGUAGE_TOOL_JS;
 
         String content = "";
         try {
@@ -67,6 +72,7 @@ public class AceTextArea extends VBox {
         }
 
         content = content.replace("[[ace]]", "file:/" + editorPath);
+        content = content.replace("[[languageTools]]", "file:/" + languageTools);
         content = content.replace("[[mode]]", textMode);
 
         webEngine.loadContent(content);

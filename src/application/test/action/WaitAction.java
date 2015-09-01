@@ -41,6 +41,8 @@ public class WaitAction extends ActionControl {
             if (waitForTime != null) { // If it is specified, wait for this amount of time
                 Thread.sleep(Long.parseLong(waitForTime.getParameterValue()));
             }
+
+            refreshCurrentDocument();
         } catch (org.openqa.selenium.TimeoutException ex) {
             log.error("Element could not be found within the set time limit of 10 seconds", ex);
         } catch (InterruptedException ex) {

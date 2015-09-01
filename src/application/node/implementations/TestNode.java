@@ -9,10 +9,10 @@ import application.net.proxy.snoop.HttpProxyServer;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
-import application.test.action.helpers.IfTracker;
 import application.test.TestCommand;
 import application.test.TestResult;
 import application.test.action.ActionControl;
+import application.test.action.helpers.IfTracker;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
@@ -98,7 +98,7 @@ public class TestNode extends DrawableNode {
             new PreviousTestsWindow(this);
         });
 
-        aceTextArea = new AceTextArea(this, "ace/mode/text");
+        aceTextArea = new AceTextArea(this, "ace/mode/sde");
 
         HBox hBox = new HBox(5);
         hBox.getChildren().add(recordButton);

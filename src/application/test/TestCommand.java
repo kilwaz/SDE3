@@ -52,7 +52,7 @@ public class TestCommand {
                     return null;
                 }
             } else {
-                if (currentParameter.getChildParameter().getParameterName().equals(pathToken)) { // Go to the next matching child down the chain
+                if (currentParameter.getChildParameter() != null && currentParameter.getChildParameter().getParameterName().equals(pathToken)) { // Go to the next matching child down the chain
                     currentParameter = currentParameter.getChildParameter();
                 } else {  // The path is incorrect so we return as far as we have made it
                     return null;

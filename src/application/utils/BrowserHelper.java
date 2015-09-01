@@ -11,12 +11,15 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.awt.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class BrowserHelper {
     public static WebDriver getChrome() {
-        DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+        DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("test-type");
@@ -32,6 +35,32 @@ public class BrowserHelper {
         WebDriver driver = new ChromeDriver(capabilities);
         setupBrowser(driver);
         return driver;
+    }
+
+    public static WebDriver getRemoteChrome() {
+        try {
+            DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("test-type");
+            capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+
+            String proxyConnectionString = "172.16.10.208:8080";
+            Proxy proxy = new Proxy();
+            proxy.setHttpProxy(proxyConnectionString)
+                    .setFtpProxy(proxyConnectionString)
+                    .setSslProxy(proxyConnectionString);
+            capabilities.setCapability(CapabilityType.PROXY, proxy);
+
+            WebDriver driver = new RemoteWebDriver(new URL("http://172.16.10.208:4444/wd/hub"), capabilities);
+
+            BrowserManager.getInstance().addBrowser(driver);
+            return driver;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static WebDriver getFirefox() {
