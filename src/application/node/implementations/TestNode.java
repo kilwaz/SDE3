@@ -10,8 +10,10 @@ import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
 import application.test.TestCommand;
+import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.action.ActionControl;
+import application.test.action.helpers.FunctionTracker;
 import application.test.action.helpers.IfTracker;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
@@ -28,6 +30,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.SessionNotFoundException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -40,6 +43,7 @@ public class TestNode extends DrawableNode {
     private AceTextArea aceTextArea = null;
     private static Logger log = Logger.getLogger(TestNode.class);
     private Integer currentTestLine = 0;
+    private Boolean continueTest = true;
     private List<Test> previousTests = new ArrayList<>();
 
     // This will make a copy of the node passed to it
@@ -144,6 +148,27 @@ public class TestNode extends DrawableNode {
             List<String> commands = new ArrayList<>();
             Collections.addAll(commands, testToRun.getText().split("[\\r\\n]"));
 
+            // Finds the functions within the script
+            currentTestLine = 0;
+            FunctionTracker.cleanFunctions();
+            for (String command : commands) {
+                // We need to trim this to remove spaces and tabs
+                if (command.startsWith("//") || command.equals("")) { // Ignore the command if it is a comment
+                    currentTestLine++;
+                    continue;
+                }
+
+                TestCommand testCommand = TestCommand.parseCommand(command);
+                if (testCommand != null && "function".equals(testCommand.getMainCommand())) {
+                    TestParameter functionStart = testCommand.getParameterByPath("start");
+                    if (functionStart != null) {
+                        FunctionTracker.addFunction(functionStart.getParameterValue(), currentTestLine);
+                    }
+                }
+
+                currentTestLine++;
+            }
+
             WebDriver driver = BrowserHelper.getChrome();
 
             currentTestLine = 0;
@@ -154,7 +179,8 @@ public class TestNode extends DrawableNode {
 
             log.info("Number of commands in test " + commands.size());
 
-            while (currentTestLine < commands.size()) {
+            continueTest = true;
+            while (currentTestLine < commands.size() && continueTest) {
                 String command = commands.get(currentTestLine).trim(); // We need to trim this to remove spaces and tabs
 
                 if (command.startsWith("//") || command.equals("")) { // Ignore the command if it is a comment
@@ -170,6 +196,11 @@ public class TestNode extends DrawableNode {
                         IfTracker.setIsSkippingIf(false);
                     }
                     currentTestLine++;
+                } else if (FunctionTracker.isSkippingFunction()) {
+                    if (command.equals("function>end::" + FunctionTracker.getFunctionReference())) {
+                        FunctionTracker.setIsSkippingFunction(false);
+                    }
+                    currentTestLine++;
                 } else { // If no if is being skipped we continue as normal
                     log.info("Command " + command);
 
@@ -181,13 +212,15 @@ public class TestNode extends DrawableNode {
 
                     // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
                     // and initialising the object and performing the required action which is then handled by the object
-                    try {
-                        Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
-                        ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
-                        actionControl.initialise(httpProxyServer, driver, testCommand, testResult, this);
-                        actionControl.performAction();
-                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-                        log.error(ex);
+                    if (testCommand != null) {
+                        try {
+                            Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
+                            ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
+                            actionControl.initialise(httpProxyServer, driver, testCommand, testResult, this);
+                            actionControl.performAction();
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+                            log.error(ex);
+                        }
                     }
                 }
             }
@@ -195,6 +228,19 @@ public class TestNode extends DrawableNode {
             TestResult testResultReloaded = new TestResult();
             testResultReloaded.setId(testResult.getId());
             DataBank.loadTestSteps(testResultReloaded);
+
+            // Tidy up any resources if they are still in use
+            try {
+                if (driver != null) {
+                    driver.close();
+                    driver.quit();
+                }
+            } catch (SessionNotFoundException ex) {
+                // If this throws an exception that is fine, we don't need to do anything with it
+                // It just means that the driver has already closed
+            }
+
+            httpProxyServer.close();
 
             // Doing something with the screenshots
 //            Integer counter = 1;
@@ -246,5 +292,9 @@ public class TestNode extends DrawableNode {
             this.test = new Test(this);
         }
         this.test.setText(testString);
+    }
+
+    public void setContinueTest(Boolean continueTest) {
+        this.continueTest = continueTest;
     }
 }

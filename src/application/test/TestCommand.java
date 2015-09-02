@@ -64,19 +64,23 @@ public class TestCommand {
     }
 
     public static TestCommand parseCommand(String command) {
-        TestCommand newCommand = new TestCommand(command.substring(0, command.indexOf(">")));
-        newCommand.setRawCommand(command);
+        if (command.contains(">")) { // If the command does not have '>' then it is not a valid command, we skip this
+            TestCommand newCommand = new TestCommand(command.substring(0, command.indexOf(">")));
+            newCommand.setRawCommand(command);
 
-        List<String> parameters = new ArrayList<>();
-        Collections.addAll(parameters, command.split(">"));
+            List<String> parameters = new ArrayList<>();
+            Collections.addAll(parameters, command.split(">"));
 
-        for (String parameter : parameters) {
-            TestParameter newTestParameter = TestParameter.parseParameter(parameter);
-            if (newTestParameter != null) { // Null if parameter does not contain ::
-                newCommand.addParameter(newTestParameter);
+            for (String parameter : parameters) {
+                TestParameter newTestParameter = TestParameter.parseParameter(parameter);
+                if (newTestParameter != null) { // Null if parameter does not contain ::
+                    newCommand.addParameter(newTestParameter);
+                }
             }
-        }
 
-        return newCommand;
+            return newCommand;
+        } else {
+            return null;
+        }
     }
 }

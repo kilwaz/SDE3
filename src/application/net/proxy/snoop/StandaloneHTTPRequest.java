@@ -8,11 +8,33 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+/**
+ * This class wraps an HTTP request from start to finish for use via the in built HTTP Proxy
+ * <p>
+ * To set the values you can use the setters as a chain like the example below, finally calling execute when all values have been set.
+ * <p>
+ * A {@link application.net.proxy.WebProxyRequestManager} must be set to manage the request.
+ * <p>
+ * <pre>
+ * {@code
+ *  StandaloneHTTPRequest standaloneHTTPRequest = new StandaloneHTTPRequest()
+ *      .setUrl("http://www.example.com")
+ *      .setMethod("GET")
+ *      .setHttps(false)
+ *      .setRequestManager(webProxyRequestManager)
+ *      .execute();
+ * }
+ * </pre>
+ * <p>
+ * After the request has completed you can query the response.
+ */
 
 public class StandaloneHTTPRequest {
     private String method = "GET";
@@ -22,45 +44,95 @@ public class StandaloneHTTPRequest {
     private HashMap<String, String> requestParameters = new HashMap<>();
     private ByteBuffer response;
     private Boolean https = false;
+    private Boolean hasCompleted = false;
     private WebProxyRequestManager webProxyRequestManager;
 
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
 
+    /**
+     * Set the URL of the request.
+     *
+     * @param destinationURL The URL we want the request to go to.
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     public StandaloneHTTPRequest setUrl(String destinationURL) {
         this.destinationURL = destinationURL;
         return this;
     }
 
+    /**
+     * Set the method of the request e.g. GET/POST
+     *
+     * @param method Method of the request
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     public StandaloneHTTPRequest setMethod(String method) {
         this.method = method;
         return this;
     }
 
+    /**
+     * Sets the request headers of the request
+     *
+     * @param requestHeaders Headers of the request, in HashMap<String, String>
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     public StandaloneHTTPRequest setRequestHeaders(HashMap<String, String> requestHeaders) {
         this.requestHeaders = requestHeaders;
         return this;
     }
 
+    /**
+     * Sets the request parameters of the request
+     *
+     * @param requestParameters Parameters of the request, in HashMap<String, String>
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     public StandaloneHTTPRequest setRequestParameters(HashMap<String, String> requestParameters) {
         this.requestParameters = requestParameters;
         return this;
     }
 
+    /**
+     * Sets whether this request should be treated as https
+     *
+     * @param https Boolean flag for https
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     public StandaloneHTTPRequest setHttps(Boolean https) {
         this.https = https;
         return this;
     }
 
+    /**
+     * Executes the request.
+     *
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     public StandaloneHTTPRequest execute() {
-        executeHttp();
+        if (!hasCompleted) { // A request can only be run once
+            executeHttp();
+        }
+
         return this;
     }
 
+    /**
+     * Sets a {@link application.net.proxy.WebProxyRequestManager} to manage this request.
+     *
+     * @param webProxyRequestManager Manager for the request.
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     public StandaloneHTTPRequest setRequestManager(WebProxyRequestManager webProxyRequestManager) {
         this.webProxyRequestManager = webProxyRequestManager;
         return this;
     }
 
+    /**
+     * Handles the construction of the request and the deconstruction of the response
+     *
+     * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
+     */
     private StandaloneHTTPRequest executeHttp() {
         ProxyConnectionWrapper connection = null;
         try {
@@ -153,7 +225,7 @@ public class StandaloneHTTPRequest {
 
                 byte[] array = tmpOut.toByteArray();
                 response = ByteBuffer.wrap(array);
-            } catch (FileNotFoundException ex) { // 404
+            } catch (FileNotFoundException | MalformedURLException ex) { // 404
                 String notFoundResponse = "HTTP/1.0 404 Not Found";
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
             }
@@ -171,18 +243,44 @@ public class StandaloneHTTPRequest {
             }
         }
 
+        hasCompleted = true;
+
         return this;
     }
 
+    /**
+     * Get the response headers
+     *
+     * @return HashMap of response headers, available only after the request has run
+     */
     public HashMap<String, String> getResponseHeaders() {
         return responseHeaders;
     }
 
+    /**
+     * Get the raw response
+     *
+     * @return Response as a byte buffer
+     */
     public ByteBuffer getResponse() {
         return response;
     }
 
+    /**
+     * get the response as a string
+     *
+     * @return Response converted to readable string.
+     */
     public String getResponseStr() {
         return new String(response.array());
+    }
+
+    /**
+     * Returns if request has been completed with a response
+     *
+     * @return Boolean whether request has completed.
+     */
+    public Boolean getHasCompleted() {
+        return hasCompleted;
     }
 }

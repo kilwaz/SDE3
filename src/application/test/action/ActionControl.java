@@ -49,6 +49,9 @@ public class ActionControl {
         actionClasses.put("loop", LoopAction.class);
         actionClasses.put("if", IfAction.class);
         actionClasses.put("run", RunAction.class);
+        actionClasses.put("call", CallAction.class);
+        actionClasses.put("function", FunctionAction.class);
+        actionClasses.put("end", EndAction.class);
     }
 
     public ActionControl() {
@@ -108,7 +111,14 @@ public class ActionControl {
      * we are doing in Selenium.
      */
     public void refreshCurrentDocument() {
-        currentDocument = Jsoup.parse(getDriver().getPageSource());
+        String pageSource = getDriver().getPageSource();
+
+        // We check to see if the page source is null, if it is we return a default empty page as to not create null pointers
+        if (pageSource != null) {
+            currentDocument = Jsoup.parse(pageSource);
+        } else {
+            currentDocument = Jsoup.parse("<html></html>");
+        }
     }
 
     /**
