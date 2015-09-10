@@ -1,8 +1,8 @@
 package application.gui.window;
 
 import application.log.LogClass;
-import application.log.LogManager;
 import application.log.LogMessage;
+import application.utils.managers.LogManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

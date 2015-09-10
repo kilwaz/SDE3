@@ -30,6 +30,7 @@ public class IfAction extends ActionControl {
         TestParameter equals = getTestCommand().getParameterByPath("equals");
         TestParameter contains = getTestCommand().getParameterByPath("contains");
         TestParameter exists = getTestCommand().getParameterByPath("exists");
+        TestParameter elementExists = getTestCommand().getParameterByPath("elementExists");
 
         String xPath = null;
         if (elementXPath != null) {
@@ -90,7 +91,7 @@ public class IfAction extends ActionControl {
                 }
             }
 
-            if (exists != null) {
+            if (exists != null) { // Test to see if a specific parameter exists
                 if (!"".equals(valueToCheck)) {  // TRUE
                     if (exists.getParameterValue().equals("false")) {
                         IfTracker.setIsSkippingIf(true);
@@ -98,6 +99,20 @@ public class IfAction extends ActionControl {
                     }
                 } else {  // FALSE
                     if (exists.getParameterValue().equals("true")) {
+                        IfTracker.setIsSkippingIf(true);
+                        IfTracker.setIfReference(startElement.getParameterValue());
+                    }
+                }
+            }
+
+            if (elementExists != null) { // Test to see if the element exists
+                if (testElement != null) {  // TRUE
+                    if (elementExists.getParameterValue().equals("false")) {
+                        IfTracker.setIsSkippingIf(true);
+                        IfTracker.setIfReference(startElement.getParameterValue());
+                    }
+                } else {  // FALSE
+                    if (elementExists.getParameterValue().equals("true")) {
                         IfTracker.setIsSkippingIf(true);
                         IfTracker.setIfReference(startElement.getParameterValue());
                     }

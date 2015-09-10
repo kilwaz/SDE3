@@ -2,7 +2,6 @@ package application.node.objects;
 
 import application.data.DataBank;
 import application.node.implementations.BatchNode;
-import application.node.implementations.TestNode;
 
 public class BatchTest {
     private BatchNode parentBatchNode;

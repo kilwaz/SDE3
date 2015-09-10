@@ -4,7 +4,6 @@ import application.data.DataBank;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.design.DrawableNode;
-import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.log4j.Logger;
 
 import java.awt.*;

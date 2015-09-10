@@ -50,6 +50,9 @@ public class ThreadManager {
     }
 
     public static ThreadManager getInstance() {
+        if (threadManager == null) {
+            threadManager = new ThreadManager();
+        }
         return threadManager;
     }
 

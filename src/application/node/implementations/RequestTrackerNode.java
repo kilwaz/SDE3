@@ -2,9 +2,9 @@ package application.node.implementations;
 
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.gui.window.RequestInspectWindow;
 import application.net.proxy.WebProxyRequest;
 import application.node.design.DrawableNode;
-import application.gui.window.RequestInspectWindow;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -13,13 +13,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RequestTrackerNode extends DrawableNode {
     private ObservableList<WebProxyRequest> requestList = FXCollections.observableArrayList();
+    private static Logger log = Logger.getLogger(RequestTrackerNode.class);
 
     // This will make a copy of the node passed to it
     public RequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -72,13 +75,7 @@ public class RequestTrackerNode extends DrawableNode {
     }
 
     public List<WebProxyRequest> getRequestsByURL(String url) {
-        List<WebProxyRequest> webProxyRequests = new ArrayList<>();
-
-        for (WebProxyRequest webProxyRequest : requestList) {
-            if (webProxyRequest.getRequestURL().equals(url)) {
-                webProxyRequests.add(webProxyRequest);
-            }
-        }
+        List<WebProxyRequest> webProxyRequests = requestList.stream().filter(webProxyRequest -> webProxyRequest.getRequestURL().equals(url)).collect(Collectors.toList());
 
         return webProxyRequests;
     }

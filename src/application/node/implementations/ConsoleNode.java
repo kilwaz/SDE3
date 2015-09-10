@@ -18,14 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  This node displays a console that can be written to.  It also allows other nodes to run triggers on it which
- *  will read the output and react when coded to do so.
+ * This node displays a console that can be written to.  It also allows other nodes to run triggers on it which
+ * will read the output and react when coded to do so.
  */
 public class ConsoleNode extends DrawableNode {
     private TextArea consoleTextArea = new TextArea();
 
     /**
-     *
      * @param consoleNode
      */
     public ConsoleNode(ConsoleNode consoleNode) {
@@ -42,7 +41,6 @@ public class ConsoleNode extends DrawableNode {
     }
 
     /**
-     *
      * @param id
      * @param programId
      */
@@ -51,7 +49,6 @@ public class ConsoleNode extends DrawableNode {
     }
 
     /**
-     *
      * @param x
      * @param y
      * @param containedText
@@ -61,7 +58,6 @@ public class ConsoleNode extends DrawableNode {
     }
 
     /**
-     *
      * @return
      */
     public List<String> getAvailableTriggers() {
@@ -73,7 +69,6 @@ public class ConsoleNode extends DrawableNode {
     }
 
     /**
-     *
      * @return
      */
     public List<String> getAvailableTriggerActions() {
@@ -131,7 +126,6 @@ public class ConsoleNode extends DrawableNode {
     }
 
     /**
-     *
      * @return
      */
     public Tab createInterface() {

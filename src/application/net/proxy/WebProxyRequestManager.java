@@ -1,15 +1,19 @@
 package application.net.proxy;
 
 import application.node.implementations.RequestTrackerNode;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WebProxyRequestManager {
-    private HashMap<Integer, WebProxyRequest> activeRequests = new HashMap<>();
-    private HashMap<Integer, WebProxyRequest> completedRequests = new HashMap<>();
+    private ConcurrentHashMap<Integer, WebProxyRequest> activeRequests = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, WebProxyRequest> completedRequests = new ConcurrentHashMap<>();
     private List<RequestTrackerNode> linkedRequestTrackerNodes = new ArrayList<>();
+
+    private static Logger log = Logger.getLogger(WebProxyRequestManager.class);
 
     private Integer requestCount = 1;
 
@@ -58,5 +62,11 @@ public class WebProxyRequestManager {
             activeRequests.remove(httpRequestHash);
             webProxyRequest.instantCompleteServerToProxy();
         }
+    }
+
+    public Callable<Boolean> haveAllRequestsFinished() {
+        return () -> {
+            return activeRequests.size() == 0; // The condition that must be fulfilled
+        };
     }
 }

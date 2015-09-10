@@ -294,4 +294,8 @@ public class ExportNode extends DrawableNode {
     public void setFileOutputName(String fileOutputName) {
         this.fileOutputName = fileOutputName;
     }
+
+    public String getConstructedFileName() {
+        return constructedFileName;
+    }
 }

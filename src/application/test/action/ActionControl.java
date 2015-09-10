@@ -52,6 +52,8 @@ public class ActionControl {
         actionClasses.put("call", CallAction.class);
         actionClasses.put("function", FunctionAction.class);
         actionClasses.put("end", EndAction.class);
+        actionClasses.put("select", SelectAction.class);
+        actionClasses.put("javascript", JavascriptAction.class);
     }
 
     public ActionControl() {

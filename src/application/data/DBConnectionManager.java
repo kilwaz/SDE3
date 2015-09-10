@@ -158,7 +158,7 @@ public class DBConnectionManager {
     }
 
     public static DBConnectionManager getInstance() {
-        if(instance == null){
+        if (instance == null) {
             new DBConnectionManager();
         }
         return instance;

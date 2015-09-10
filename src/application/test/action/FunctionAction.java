@@ -24,7 +24,6 @@ public class FunctionAction extends ActionControl {
         if (functionEnd != null) {
             // If we get to the end of our function then we need to back to the original call
             Integer callingLineNumber = FunctionTracker.popFunctionStack() + 1;
-            log.info("Going back to line " + callingLineNumber);
             getParentTestNode().setCurrentTestLine(callingLineNumber);
         }
     }

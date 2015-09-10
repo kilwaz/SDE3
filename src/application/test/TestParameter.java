@@ -35,6 +35,9 @@ public class TestParameter {
 
     public static TestParameter parseParameter(String parameter) {
         if (parameter.contains("::")) {
+            parameter = parameter.replace("[[!", "");
+            parameter = parameter.replace("!]]", "");
+
             String parameterName = parameter.substring(0, parameter.indexOf("::"));
 
             TestParameter testParameter = new TestParameter(parameterName);

@@ -27,6 +27,7 @@ public class CompileCode {
             String logicReferenceId = logic.getId().toString();
             String logicString = "package programs;" +
                     "import application.utils.*;" +
+                    "import application.utils.managers.*;" +
                     "import application.data.*;" +
                     "import application.data.export.*;" +
                     "import application.data.chart.*;" +

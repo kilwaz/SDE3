@@ -400,7 +400,7 @@ public class SSHManager {
                         log.error(ex);
                     }
                 }
-            },"SSH Shell");
+            }, "SSH Shell");
 
             channel.setInputStream(pip);
             channel.setOutputStream(source);

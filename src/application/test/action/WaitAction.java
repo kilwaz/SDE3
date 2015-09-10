@@ -1,11 +1,14 @@
 package application.test.action;
 
 import application.test.TestParameter;
+import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.concurrent.TimeUnit;
 
 public class WaitAction extends ActionControl {
     private static Logger log = Logger.getLogger(WaitAction.class);
@@ -20,6 +23,7 @@ public class WaitAction extends ActionControl {
         TestParameter elementToBePresentXPath = getTestCommand().getParameterByPath("presence::xPath");
         TestParameter javaScriptToBeTrue = getTestCommand().getParameterByPath("frameLoaded::frame");
         TestParameter waitForTime = getTestCommand().getParameterByPath("specificTime");
+        TestParameter waitForRequests = getTestCommand().getParameterByPath("finishAllRequests");
 
         try {
             if (elementToBeClickable != null) { // If it is specified, wait until this element is clickable
@@ -40,6 +44,9 @@ public class WaitAction extends ActionControl {
             }
             if (waitForTime != null) { // If it is specified, wait for this amount of time
                 Thread.sleep(Long.parseLong(waitForTime.getParameterValue()));
+            }
+            if (waitForRequests != null) {
+                Awaitility.await().atMost(Integer.parseInt(waitForRequests.getParameterValue()), TimeUnit.SECONDS).until(getHttpProxyServer().getWebProxyRequestManager().haveAllRequestsFinished());
             }
 
             refreshCurrentDocument();

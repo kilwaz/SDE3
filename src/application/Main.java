@@ -4,7 +4,6 @@ import application.data.DBConnectionManager;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.gui.Controller;
-import application.log.LogManager;
 import application.net.proxy.WebProxyManager;
 import application.utils.AppParams;
 import application.utils.AppProperties;

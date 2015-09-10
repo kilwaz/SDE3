@@ -1,9 +1,9 @@
 package application.test.action;
 
 import application.data.DataBank;
-import application.test.action.helpers.LoopTracker;
 import application.test.TestParameter;
 import application.test.TestStep;
+import application.test.action.helpers.LoopTracker;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;

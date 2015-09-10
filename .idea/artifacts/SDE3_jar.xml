@@ -18,6 +18,9 @@
         </element>
       </element>
       <element id="file-copy" path="$PROJECT_DIR$/resources/SDE3 - No Console.bat" />
+      <element id="directory" name="logs">
+        <element id="dir-copy" path="$PROJECT_DIR$/logs" />
+      </element>
     </root>
   </artifact>
 </component>

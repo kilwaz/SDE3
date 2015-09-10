@@ -80,4 +80,8 @@ public final class HttpProxyServer extends SDERunnable {
         }
         ThreadManager.getInstance().closeThreads(); // Check to see if the thread has been removed
     }
+
+    public WebProxyRequestManager getWebProxyRequestManager() {
+        return webProxyRequestManager;
+    }
 }

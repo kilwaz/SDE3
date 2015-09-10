@@ -28,7 +28,9 @@ public class Email implements MessageCountListener {
         this.emailPassword = emailPassword;
         this.emailUrl = emailUrl;
         this.emailUsername = emailUsername;
+    }
 
+    public void openInbox() {
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imaps");
         try {
@@ -46,8 +48,7 @@ public class Email implements MessageCountListener {
             for (Address address : in) {
                 log.info("FROM:" + address.toString());
             }
-//            Multipart mp = (Multipart) msg.getContent();
-//            BodyPart bp = mp.getBodyPart(0);
+
             log.info("SENT DATE:" + msg.getSentDate());
             log.info("SUBJECT:" + msg.getSubject());
         } catch (Exception ex) {

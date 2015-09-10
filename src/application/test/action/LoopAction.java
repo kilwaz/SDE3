@@ -1,7 +1,8 @@
 package application.test.action;
 
 import application.data.DataBank;
-import application.test.*;
+import application.test.TestParameter;
+import application.test.TestStep;
 import application.test.action.helpers.Loop;
 import application.test.action.helpers.LoopTracker;
 import application.test.action.helpers.LoopedWebElement;
@@ -56,9 +57,15 @@ public class LoopAction extends ActionControl {
                             xPath = "//*[@id=\"" + listRootElementId.getParameterValue() + "\"]";
                         }
 
-                        Element listElement;
+                        Element listElement = null;
                         if (loopElement != null) {
-                            listElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getElement();
+                            Loop loop = LoopTracker.getLoop(loopElement.getParameterValue());
+                            if (loop != null) {
+                                LoopedWebElement loopedWebElement = loop.getCurrentLoopWebElement();
+                                if (loopedWebElement != null) {
+                                    listElement = loopedWebElement.getElement();
+                                }
+                            }
                             //log.info("Found elements via loop of " + listElement);
                         } else {
                             listElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());

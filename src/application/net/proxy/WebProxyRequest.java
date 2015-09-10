@@ -1,8 +1,12 @@
 package application.net.proxy;
 
 import io.netty.handler.codec.http.HttpObject;
+import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -11,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class WebProxyRequest {
-
     public static final Integer REQUEST_STATUS_NOT_STARTED = 0;
     public static final Integer REQUEST_STATUS_CLIENT_TO_PROXY = 1;
     public static final Integer REQUEST_STATUS_PROXY_TO_SERVER = 2;
@@ -36,6 +39,8 @@ public class WebProxyRequest {
     private ByteBuffer responseBuffer;
     private HashMap<String, String> responseHeaders = new HashMap<>();
     private HashMap<String, String> requestHeaders = new HashMap<>();
+
+    private static Logger log = Logger.getLogger(WebProxyRequest.class);
 
     public WebProxyRequest() {
 
@@ -115,7 +120,11 @@ public class WebProxyRequest {
     }
 
     public String getResponseContent() {
-        return new String(responseBuffer.array(), Charset.forName("UTF-8"));
+        if (responseBuffer != null) {
+            return new String(responseBuffer.array(), Charset.forName("UTF-8"));
+        } else {
+            return "No Response Data";
+        }
     }
 
     public Integer getRequestContentSize() {
@@ -133,6 +142,15 @@ public class WebProxyRequest {
     public void setResponseBuffer(ByteBuffer responseBuffer) {
         this.responseBuffer = responseBuffer;
         this.responseContentSize = responseBuffer.limit();
+    }
+
+    public DateTime getResponseDateTimeFromHeaders() {
+        if (responseHeaders.get("Date") != null) {
+            DateTimeFormatter dateStringFormat = DateTimeFormat.forPattern(" EEE, dd MMM yyyy HH:mm:ss zzz");
+            return dateStringFormat.parseDateTime(responseHeaders.get("Date"));
+        }
+
+        return null;
     }
 
     public void setRequestID(Integer requestID) {

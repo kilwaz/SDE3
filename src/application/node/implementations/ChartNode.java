@@ -55,7 +55,6 @@ public class ChartNode extends DrawableNode {
     }
 
     /**
-     *
      * @param id
      * @param programId
      */
@@ -65,7 +64,6 @@ public class ChartNode extends DrawableNode {
     }
 
     /**
-     *
      * @param x
      * @param y
      * @param containedText
@@ -76,7 +74,6 @@ public class ChartNode extends DrawableNode {
     }
 
     /**
-     *
      * @param x
      * @param y
      * @param width
@@ -92,7 +89,6 @@ public class ChartNode extends DrawableNode {
     }
 
     /**
-     *
      * @return
      */
 
@@ -117,7 +113,6 @@ public class ChartNode extends DrawableNode {
     }
 
     /**
-     *
      * @return
      */
 
@@ -130,7 +125,6 @@ public class ChartNode extends DrawableNode {
     }
 
     /**
-     *
      * @param whileWaiting
      * @param nodeRunParams
      */

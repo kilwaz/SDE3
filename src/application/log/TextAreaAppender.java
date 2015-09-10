@@ -1,15 +1,15 @@
 package application.log;
 
 import application.gui.window.LogWindow;
-import javafx.scene.control.TextArea;
+import application.utils.managers.LogManager;
+import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 
 public class TextAreaAppender extends WriterAppender {
-    private static volatile TextArea textArea = null;
+    private static Logger log = Logger.getLogger(TextAreaAppender.class);
 
     @Override
     public void append(final LoggingEvent loggingEvent) {
@@ -25,6 +25,13 @@ public class TextAreaAppender extends WriterAppender {
 
         // Update all of the log windows which are open watching this
         LogWindow.getLogWindows().forEach(application.gui.window.LogWindow::forceRefresh);
+
+        // Write the log to a file
+        try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(LogManager.getInstance().getLogOutputFilePath(), true)))) {
+            out.print(message + stackTrace);
+        } catch (IOException ex) {
+            log.error("Cannot write log to file", ex);
+        }
     }
 
     private String getStackTrace(Throwable t) {

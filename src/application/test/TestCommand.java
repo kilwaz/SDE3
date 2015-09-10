@@ -69,7 +69,25 @@ public class TestCommand {
             newCommand.setRawCommand(command);
 
             List<String> parameters = new ArrayList<>();
-            Collections.addAll(parameters, command.split(">"));
+
+            StringBuilder currentCommand = new StringBuilder();
+            Boolean escapedData = false;
+            for (Character currentLetter : command.toCharArray()) {
+                if (currentCommand.toString().endsWith("[[!")) {
+                    escapedData = true;
+                } else if (currentCommand.toString().endsWith("!]]")) {
+                    escapedData = false;
+                }
+
+                if (new Character('>').equals(currentLetter) && !escapedData) {
+                    parameters.add(currentCommand.toString());
+                    currentCommand = new StringBuilder();
+                    continue;
+                }
+                currentCommand.append(currentLetter);
+            }
+
+            parameters.add(currentCommand.toString());
 
             for (String parameter : parameters) {
                 TestParameter newTestParameter = TestParameter.parseParameter(parameter);
