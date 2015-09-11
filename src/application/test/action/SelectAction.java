@@ -6,6 +6,9 @@ import application.test.TestStep;
 import application.test.action.helpers.LoopTracker;
 import application.test.action.helpers.LoopedWebElement;
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -50,9 +53,28 @@ public class SelectAction extends ActionControl {
             processElement(loopedElement, testStep);
         }
 
+        refreshCurrentDocument();
+
+        Document document = getCurrentDocument();
+        Elements options = document.select("select > option");
+
+        Boolean selectOptionExists = false;
+        for (Element element : options) {
+            if (element.text().equalsIgnoreCase(selectText.getParameterValue())) {
+                selectOptionExists = true;
+                break;
+            }
+        }
+
         if (testElement != null) {
-            Select select = new Select(testElement);
-            select.selectByVisibleText(selectText.getParameterValue());
+            if (selectOptionExists) {
+                if (testElement.isDisplayed()) { // WebDriver seems to have issues selecting options when the select box is not visible
+                    Select select = new Select(testElement);
+                    select.selectByVisibleText(selectText.getParameterValue());
+                }
+            } else {
+                log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
+            }
         }
         DataBank.saveTestStep(testStep);
     }
@@ -61,7 +83,6 @@ public class SelectAction extends ActionControl {
         if (webElement != null) {
             takeScreenshotOfElement(testStep, webElement);
             testStep.setTestString(getTestCommand().getRawCommand());
-            webElement.click();
         }
     }
 }

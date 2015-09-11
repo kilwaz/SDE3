@@ -23,6 +23,8 @@ public class JavascriptAction extends ActionControl {
             ((JavascriptExecutor) getDriver()).executeScript(scriptToRun.getParameterValue());
         }
 
+        refreshCurrentDocument();
+
         DataBank.saveTestStep(testStep);
     }
 }
