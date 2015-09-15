@@ -10,7 +10,7 @@ public class AppParams {
     public static String CHROME_DIRECTORY = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe";
     public static String IE_DIRECTORY = "C:\\Program Files\\Internet Explorer\\iexplore.exe\"";
     public static String APP_TITLE = "SpiraLinks Development Engine";
-    public static String APP_VERSION = "V0.4.2.18";
+    public static String APP_VERSION = "V0.4.2.19";
 
     // Database for application - Defaults are displayed here and are overridden by the SDE.xml file
     public static String MYSQL_CONNECTION = "jdbc:mysql://172.16.10.213/sde";

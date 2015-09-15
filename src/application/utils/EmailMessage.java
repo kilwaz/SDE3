@@ -15,18 +15,31 @@ import java.util.List;
 import java.util.Properties;
 
 public class EmailMessage {
-    private String to = "";
     private String from = "";
     private String subject = "";
     private String content = "";
     private String host = "";
     private String protocol = "";
+    private String username = "";
+    private String password = "";
+    private String port = "";
+    private List<String> recipients = new ArrayList<>();
     private List<String> attachFileNames = new ArrayList<>();
 
     private static Logger log = Logger.getLogger(EmailMessage.class);
 
     public EmailMessage() {
 
+    }
+
+    public EmailMessage password(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public EmailMessage username(String username) {
+        this.username = username;
+        return this;
     }
 
     public EmailMessage attach(String attachFileName) {
@@ -45,7 +58,7 @@ public class EmailMessage {
     }
 
     public EmailMessage to(String to) {
-        this.to = to;
+        recipients.add(to);
         return this;
     }
 
@@ -64,6 +77,11 @@ public class EmailMessage {
         return this;
     }
 
+    public EmailMessage port(String port) {
+        this.port = port;
+        return this;
+    }
+
     public void send() {
         new SDEThread(new SendEmailMessage(), "Thread for sending email");
     }
@@ -71,9 +89,17 @@ public class EmailMessage {
     private class SendEmailMessage extends SDERunnable {
         public void threadRun() {
             Properties props = System.getProperties();
-            props.setProperty("mail.store.protocol", "imaps");
-            props.setProperty("mail.smtp.host", host);
-            Session session = Session.getInstance(props, null);
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", host);
+            props.put("mail.smtp.port", port); // 587
+
+            Session session = Session.getInstance(props,
+                    new javax.mail.Authenticator() {
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(username, password);
+                        }
+                    });
 
             try {
                 // Create a default MimeMessage object.
@@ -83,7 +109,9 @@ public class EmailMessage {
                 message.setFrom(new InternetAddress(from));
 
                 // Set To: header field of the header.
-                message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+                for (String recipient : recipients) {
+                    message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+                }
 
                 // Set Subject: header field
                 message.setSubject(subject);
@@ -109,7 +137,14 @@ public class EmailMessage {
                 // Send message
                 Transport.send(message);
 
-                log.info("Email sent out successfully to " + to);
+                // Create log to show emails were sent
+                StringBuilder sb = new StringBuilder();
+                for (String s : recipients) {
+                    sb.append(s);
+                    sb.append(" ");
+                }
+
+                log.info("Email sent out successfully to " + sb.toString());
             } catch (MessagingException mex) {
                 log.error("Error sending email", mex);
             }
