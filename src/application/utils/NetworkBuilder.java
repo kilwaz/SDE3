@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import java.net.InetAddress;
 
 public class NetworkBuilder {
-    public static String networkAddress = "0.0.0.";
+    private String networkAddress = "0.0.0.";
 
     private static Logger log = Logger.getLogger(NetworkBuilder.class);
 
@@ -20,15 +20,17 @@ public class NetworkBuilder {
             log.error("Exception occurred while trying to retrieve networkAddress stack:", ex);
         }
         for (Integer i = 1; i < 254; i++) {
-            new SDEThread(new BuildNetwork(i.toString()), "Network Builder for ip " + i.toString());
+            new SDEThread(new BuildNetwork(networkAddress, i.toString()), "Network Builder for ip " + i.toString());
         }
     }
 
-    class BuildNetwork extends SDERunnable {
+    static class BuildNetwork extends SDERunnable {
         private String address;
+        private String networkAddress;
 
-        BuildNetwork(String address) {
+        BuildNetwork(String networkAddress, String address) {
             this.address = address;
+            this.networkAddress = networkAddress;
         }
 
         public void threadRun() {

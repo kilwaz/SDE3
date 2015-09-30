@@ -14,13 +14,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LoopAction extends ActionControl {
-    private static Logger log = Logger.getLogger(LoopAction.class);
+/**
+ * This action starts and stops a loop section.
+ *
+ * A loop will take a list and interate over it allowing each element to be accessed via the loop variable to be used
+ * for other actions.
+ */
+public class LoopWebAction extends WebAction {
+    private static Logger log = Logger.getLogger(LoopWebAction.class);
 
-    // This class is used to input a value into an element
-    public LoopAction() {
+    public LoopWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestStep testStep = DataBank.createNewTestStep(getTestResult());
         getTestResult().addTestStep(testStep);

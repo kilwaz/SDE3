@@ -10,13 +10,20 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.concurrent.TimeUnit;
 
-public class WaitAction extends ActionControl {
-    private static Logger log = Logger.getLogger(WaitAction.class);
+/**
+ * This action waits for a specific case to be true before continuing.
+ *
+ * A default timeout of 10 seconds is used.
+ */
+public class WaitWebAction extends WebAction {
+    private static Logger log = Logger.getLogger(WaitWebAction.class);
 
-    // This class is used to close the web driver which in turn closes the window
-    public WaitAction() {
+    public WaitWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestParameter elementToBeClickable = getTestCommand().getParameterByPath("clickable::id");
         TestParameter elementToBePresentId = getTestCommand().getParameterByPath("presence::id");

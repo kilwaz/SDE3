@@ -13,13 +13,21 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
-public class SelectAction extends ActionControl {
+/**
+ * This action can manipulate a select box within the browser.
+ *
+ * You can select an option by name or value.
+ */
+public class SelectWebAction extends WebAction {
 
-    private static Logger log = Logger.getLogger(SelectAction.class);
+    private static Logger log = Logger.getLogger(SelectWebAction.class);
 
-    public SelectAction() {
+    public SelectWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestStep testStep = DataBank.createNewTestStep(getTestResult());
         getTestResult().addTestStep(testStep);

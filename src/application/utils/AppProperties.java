@@ -45,9 +45,9 @@ public class AppProperties {
 
             Element doc = document.getDocumentElement();
 
-            AppParams.MYSQL_CONNECTION = getTextValue(AppParams.MYSQL_CONNECTION, doc, "DBConnectionString");
-            AppParams.MYSQL_PASSWORD = getTextValue(AppParams.MYSQL_PASSWORD, doc, "DBPassword");
-            AppParams.MYSQL_USERNAME = getTextValue(AppParams.MYSQL_USERNAME, doc, "DBUsername");
+            AppParams.setMysqlConnection(getTextValue(AppParams.getMysqlConnection(), doc, "DBConnectionString"));
+            AppParams.setMysqlPassword(getTextValue(AppParams.getMysqlPassword(), doc, "DBPassword"));
+            AppParams.setMysqlUsername(getTextValue(AppParams.getMysqlUsername(), doc, "DBUsername"));
             return true;
 
         } catch (ParserConfigurationException | SAXException | IOException ex) {
@@ -84,15 +84,15 @@ public class AppProperties {
 
             // create data elements and place them under root
             e = document.createElement("DBUsername");
-            e.appendChild(document.createTextNode(AppParams.MYSQL_USERNAME));
+            e.appendChild(document.createTextNode(AppParams.getMysqlUsername()));
             rootEle.appendChild(e);
 
             e = document.createElement("DBPassword");
-            e.appendChild(document.createTextNode(AppParams.MYSQL_PASSWORD));
+            e.appendChild(document.createTextNode(AppParams.getMysqlPassword()));
             rootEle.appendChild(e);
 
             e = document.createElement("DBConnectionString");
-            e.appendChild(document.createTextNode(AppParams.MYSQL_CONNECTION));
+            e.appendChild(document.createTextNode(AppParams.getMysqlConnection()));
             rootEle.appendChild(e);
 
             document.appendChild(rootEle);

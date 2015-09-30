@@ -12,7 +12,7 @@ import application.node.objects.Test;
 import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
-import application.test.action.ActionControl;
+import application.test.action.WebAction;
 import application.test.action.helpers.FunctionTracker;
 import application.test.action.helpers.IfTracker;
 import application.utils.BrowserHelper;
@@ -214,10 +214,10 @@ public class TestNode extends DrawableNode {
                     // and initialising the object and performing the required action which is then handled by the object
                     if (testCommand != null) {
                         try {
-                            Class actionClass = ActionControl.getClassMapping(testCommand.getMainCommand());
-                            ActionControl actionControl = (ActionControl) actionClass.getDeclaredConstructor().newInstance();
-                            actionControl.initialise(httpProxyServer, driver, testCommand, testResult, this);
-                            actionControl.performAction();
+                            Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
+                            WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
+                            webAction.initialise(httpProxyServer, driver, testCommand, testResult, this);
+                            webAction.performAction();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                             log.error(ex);
                         }

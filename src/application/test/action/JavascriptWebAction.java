@@ -6,13 +6,19 @@ import application.test.TestStep;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 
-public class JavascriptAction extends ActionControl {
+/**
+ * This action runs javascript that is passed to it.
+ */
+public class JavascriptWebAction extends WebAction {
 
-    private static Logger log = Logger.getLogger(JavascriptAction.class);
+    private static Logger log = Logger.getLogger(JavascriptWebAction.class);
 
-    public JavascriptAction() {
+    public JavascriptWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestStep testStep = DataBank.createNewTestStep(getTestResult());
         getTestResult().addTestStep(testStep);

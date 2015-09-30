@@ -8,12 +8,20 @@ import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
 
-public class IfAction extends ActionControl {
-    private static Logger log = Logger.getLogger(IfAction.class);
+/**
+ *  This action is used to start and end an if statement
+ *
+ *  Various elements can be checked to see if they equal a value or if it exists or contains certain text
+ */
+public class IfWebAction extends WebAction {
+    private static Logger log = Logger.getLogger(IfWebAction.class);
 
-    public IfAction() {
+    public IfWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestStep testStep = DataBank.createNewTestStep(getTestResult());
         getTestResult().addTestStep(testStep);

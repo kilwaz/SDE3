@@ -20,7 +20,7 @@ import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
 
 public final class HttpProxyServer extends SDERunnable {
-    public static boolean SSL = false;
+    public final static boolean SSL = false;
     static final int PORT = 8080;
     private WebProxyRequestManager webProxyRequestManager = new WebProxyRequestManager();
 

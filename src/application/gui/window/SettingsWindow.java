@@ -38,8 +38,8 @@ public class SettingsWindow extends Stage {
 
             TextField dbConnectionStringTextField = new TextField();
             dbConnectionStringTextField.setPrefWidth(200.0);
-            dbConnectionStringTextField.setText(AppParams.MYSQL_CONNECTION);
-            dbConnectionStringTextField.setOnKeyReleased(event -> AppParams.MYSQL_CONNECTION = ((TextField) event.getSource()).getText());
+            dbConnectionStringTextField.setText(AppParams.getMysqlConnection());
+            dbConnectionStringTextField.setOnKeyReleased(event -> AppParams.setMysqlConnection(((TextField) event.getSource()).getText()));
 
             dbConnectionStringRow.getChildren().add(dbConnectionStringLabel);
             dbConnectionStringRow.getChildren().add(dbConnectionStringTextField);
@@ -53,8 +53,8 @@ public class SettingsWindow extends Stage {
 
             TextField dbUsernameTextField = new TextField();
             dbUsernameTextField.setPrefWidth(200.0);
-            dbUsernameTextField.setText(AppParams.MYSQL_USERNAME);
-            dbUsernameTextField.setOnKeyReleased(event -> AppParams.MYSQL_USERNAME = ((TextField) event.getSource()).getText());
+            dbUsernameTextField.setText(AppParams.getMysqlUsername());
+            dbUsernameTextField.setOnKeyReleased(event -> AppParams.setMysqlPassword(((TextField) event.getSource()).getText()));
 
             dbUsernameRow.getChildren().add(dbUsernameLabel);
             dbUsernameRow.getChildren().add(dbUsernameTextField);
@@ -68,8 +68,8 @@ public class SettingsWindow extends Stage {
 
             TextField dbPasswordTextField = new TextField();
             dbPasswordTextField.setPrefWidth(200.0);
-            dbPasswordTextField.setText(AppParams.MYSQL_PASSWORD);
-            dbPasswordTextField.setOnKeyReleased(event -> AppParams.MYSQL_PASSWORD = ((TextField) event.getSource()).getText());
+            dbPasswordTextField.setText(AppParams.getMysqlPassword());
+            dbPasswordTextField.setOnKeyReleased(event -> AppParams.setMysqlPassword(((TextField) event.getSource()).getText()));
 
             dbPasswordRow.getChildren().add(dbPasswordLabel);
             dbPasswordRow.getChildren().add(dbPasswordTextField);

@@ -12,6 +12,7 @@ import application.node.objects.Switch;
 import application.node.objects.Trigger;
 import application.test.TestResult;
 import application.test.TestStep;
+import application.utils.AppParams;
 import application.utils.CustomObject;
 import application.utils.Serializer;
 import org.apache.log4j.Logger;
@@ -30,17 +31,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DataBank {
-    static public Program currentlyEditProgram;
-    static private HashMap<Integer, Program> programs = new HashMap<>();
-    static private HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
-    static private HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
-    static private HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
-    static private NodeColours nodeColours = new NodeColours();
+    public static Program currentlyEditProgram;
+    private static HashMap<Integer, Program> programs = new HashMap<>();
+    private static HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
+    private static HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
+    private static HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
+    private static NodeColours nodeColours = new NodeColours();
 
-    static public User currentUser;
+    private static User currentUser;
     private static Logger log = Logger.getLogger(DataBank.class);
 
-    static public List<String> getProgramNames() {
+    public static List<String> getProgramNames() {
         return programs.values().stream().map(Program::getName).collect(Collectors.toList());
     }
 
@@ -56,7 +57,7 @@ public class DataBank {
         programs.put(program.getId(), program);
     }
 
-    static public ArrayList<Program> getPrograms() {
+    public static ArrayList<Program> getPrograms() {
         return new ArrayList<>(programs.values());
     }
 
@@ -100,12 +101,16 @@ public class DataBank {
         return null;
     }
 
+    public static User getApplicationUser() {
+        return currentUser;
+    }
+
     public static void setApplicationUser(String username) {
         currentUser = loadUser(username);
     }
 
     public static void loadFromDatabase() {
-        User user = loadUser("alex");
+        User user = loadUser(AppParams.CURRENT_USER);
         currentUser = user;
         loadPrograms(user);
     }

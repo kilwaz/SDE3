@@ -13,11 +13,11 @@ import org.jsoup.nodes.Element;
  * This class is used to save variables within the test scripts
  */
 
-public class SetAction extends ActionControl {
+public class SetWebAction extends WebAction {
 
-    private static Logger log = Logger.getLogger(SetAction.class);
+    private static Logger log = Logger.getLogger(SetWebAction.class);
 
-    public SetAction() {
+    public SetWebAction() {
     }
 
     /**

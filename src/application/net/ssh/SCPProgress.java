@@ -6,10 +6,7 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 public class SCPProgress {
     private SSHManager sshManager;
@@ -27,7 +24,7 @@ public class SCPProgress {
     }
 
     public void startCopy() {
-        FileInputStream fis;
+        FileInputStream fis = null;
         try {
             // exec 'scp -t rfile' remotely
             String fileDirectory = remoteFile.substring(0, remoteFile.lastIndexOf("/"));
@@ -90,7 +87,7 @@ public class SCPProgress {
                 copyNode.updateProgressBar((totalBytesSentDouble / totalBytesToSendDouble));
                 copyNode.updateProgressBarLabel("Copying " + localFile + " (" + LinuxNode.humanReadableByteCount(totalBytesSent, false) + " / " + LinuxNode.humanReadableByteCount(totalBytesToSend, false) + ")");
             }
-            fis.close();
+
             // send '\0'
             buf[0] = 0;
             out.write(buf, 0, 1);
@@ -106,6 +103,14 @@ public class SCPProgress {
             copyNode.updateProgressBarLabel("Completed " + localFile);
         } catch (Exception ex) {
             log.error(ex);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    log.error(e);
+                }
+            }
         }
     }
 }

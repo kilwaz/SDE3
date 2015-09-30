@@ -49,10 +49,11 @@ public class ThreadManager {
         return runningThreads;
     }
 
-    public static ThreadManager getInstance() {
+    public synchronized static ThreadManager getInstance() {
         if (threadManager == null) {
             threadManager = new ThreadManager();
         }
+
         return threadManager;
     }
 

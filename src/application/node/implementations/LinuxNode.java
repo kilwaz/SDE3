@@ -232,10 +232,21 @@ public class LinuxNode extends DrawableNode {
                 log.info("Issue creating directory " + sourceFile.getAbsolutePath());
             }
 
+            FileWriter fileWriter = null;
             try {
-                new FileWriter(sourceFile).append(script).close();
+                fileWriter = new FileWriter(sourceFile);
+
+                fileWriter.append(script);
             } catch (IOException ex) {
                 log.error(ex);
+            } finally {
+                if(fileWriter != null){
+                    try {
+                        fileWriter.close();
+                    } catch (IOException e) {
+                        log.error(e);
+                    }
+                }
             }
 
             writeToConsole("Opening new connection to " + address + "\n\r");

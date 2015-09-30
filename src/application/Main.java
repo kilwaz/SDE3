@@ -113,7 +113,14 @@ public class Main extends Application {
         String userHome = System.getProperty("user.home");
         File dir = new File(userHome, "/SDE/programs");
         if (dir.exists()) {
-            for (File file : dir.listFiles()) file.delete();
+            File[] listedFiles = dir.listFiles();
+            if (listedFiles != null) {
+                for (File file : listedFiles) {
+                    if (file != null && file.exists()) {
+                        boolean deleteResult = file.delete();
+                    }
+                }
+            }
         }
 
         // System specific
@@ -216,7 +223,12 @@ public class Main extends Application {
         String userHome = System.getProperty("user.home");
         File dir = new File(userHome, "/SDE/programs");
         if (dir.exists()) {
-            for (File file : dir.listFiles()) file.delete();
+            File[] listedFiles = dir.listFiles();
+            if (listedFiles != null) {
+                for (File file : listedFiles) {
+                    boolean deleteResult = file.delete();
+                }
+            }
         }
 
         mainStage.close();

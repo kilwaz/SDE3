@@ -190,7 +190,7 @@ public class SSHManager {
                 }
 
                 // read '0644 '
-                in.read(buf, 0, 5);
+                int response = in.read(buf, 0, 5);
 
                 long fileSize = 0L;
                 while (true) {
@@ -235,7 +235,7 @@ public class SSHManager {
                 fos = null;
 
                 if (checkAck(in) != 0) {
-                    System.exit(0);
+                    //System.exit(0);
                 }
 
                 // send '\0'
@@ -263,7 +263,7 @@ public class SSHManager {
     }
 
     public void scpTo(String remoteFile, String localFile) {
-        FileInputStream fis;
+        FileInputStream fis = null;
         try {
             // exec 'scp -t rfile' remotely
             String fileDirectory = remoteFile.substring(0, remoteFile.lastIndexOf("/"));
@@ -334,6 +334,14 @@ public class SSHManager {
             channel.disconnect();
         } catch (Exception ex) {
             log.error(ex);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    log.error(e);
+                }
+            }
         }
     }
 

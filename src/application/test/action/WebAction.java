@@ -19,7 +19,7 @@ import java.util.HashMap;
  * This class acts as a controller and template for all other Actions and holds the main information for extended actions.
  */
 
-public class ActionControl {
+public abstract class WebAction implements Action {
     private WebDriver driver = null;
     private TestCommand testCommand = null;
     private TestResult testResult = null;
@@ -27,7 +27,7 @@ public class ActionControl {
     private TestNode parentTestNode = null;
     private static Document currentDocument = null;
 
-    private static Logger log = Logger.getLogger(ActionControl.class);
+    private static Logger log = Logger.getLogger(WebAction.class);
 
     // This is used as a reference to match up action names used within the TestNode to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
@@ -36,44 +36,44 @@ public class ActionControl {
      *   We need to manually link which written commands link to which classes.
      */
     static {
-        actionClasses.put("input", InputAction.class);
-        actionClasses.put("click", ClickAction.class);
-        actionClasses.put("exit", ExitAction.class);
-        actionClasses.put("url", URLAction.class);
-        actionClasses.put("frame", FrameAction.class);
-        actionClasses.put("test", TestAction.class);
-        actionClasses.put("wait", WaitAction.class);
-        actionClasses.put("track", TrackAction.class);
-        actionClasses.put("log", LogAction.class);
-        actionClasses.put("set", SetAction.class);
-        actionClasses.put("loop", LoopAction.class);
-        actionClasses.put("if", IfAction.class);
-        actionClasses.put("run", RunAction.class);
-        actionClasses.put("call", CallAction.class);
-        actionClasses.put("function", FunctionAction.class);
-        actionClasses.put("end", EndAction.class);
-        actionClasses.put("select", SelectAction.class);
-        actionClasses.put("javascript", JavascriptAction.class);
+        actionClasses.put("input", InputWebAction.class);
+        actionClasses.put("click", ClickWebAction.class);
+        actionClasses.put("exit", ExitWebAction.class);
+        actionClasses.put("url", URLWebAction.class);
+        actionClasses.put("frame", FrameWebAction.class);
+        actionClasses.put("test", TestWebAction.class);
+        actionClasses.put("wait", WaitWebAction.class);
+        actionClasses.put("track", TrackWebAction.class);
+        actionClasses.put("log", LogWebAction.class);
+        actionClasses.put("set", SetWebAction.class);
+        actionClasses.put("loop", LoopWebAction.class);
+        actionClasses.put("if", IfWebAction.class);
+        actionClasses.put("run", RunWebAction.class);
+        actionClasses.put("call", CallWebAction.class);
+        actionClasses.put("function", FunctionWebAction.class);
+        actionClasses.put("end", EndWebAction.class);
+        actionClasses.put("select", SelectWebAction.class);
+        actionClasses.put("javascript", JavascriptWebAction.class);
     }
 
-    public ActionControl() {
+    public WebAction() {
     }
 
+    /**
+     * Sets up the action with all the current environment variables needed to run it.
+     *
+     * @param webProxy       The proxy that will handle the request.
+     * @param driver         The Selenium web driver that is handling the test.
+     * @param testCommand    The full test command to process.
+     * @param testResult     The final result of the test, this object is provided to be updated by the action.
+     * @param parentTestNode Reference to the Test node that is running this test.
+     */
     public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, TestNode parentTestNode) {
         this.parentTestNode = parentTestNode;
         this.httpProxyServer = webProxy;
         this.driver = driver;
         this.testCommand = testCommand;
         this.testResult = testResult;
-    }
-
-    /**
-     * This method is extended by other action classes and handles the main work of the action including interpreting
-     * the {@link application.test.TestParameter} values passed in, performing the action and also constructing the
-     * {@link application.test.TestResult} which contains the results of the test.
-     */
-    public void performAction() {
-
     }
 
     /**
@@ -167,15 +167,17 @@ public class ActionControl {
     }
 
     /**
-     * @return
+     * @return Gets the test node that is running this action.
      */
     public TestNode getParentTestNode() {
         return parentTestNode;
     }
 
     /**
-     * @param actionName
-     * @return
+     * Gets the class mapping of action name to Class which manages that action.
+     *
+     * @param actionName Name of the action in the script being called.
+     * @return Class object of the class which handles that action.
      */
     public static Class getClassMapping(String actionName) {
         return actionClasses.get(actionName);
@@ -200,6 +202,36 @@ public class ActionControl {
      */
     public void setTestResult(TestResult testResult) {
         this.testResult = testResult;
+    }
+
+    /**
+     * Directly find a parameter via it's name, ths cannot be a child parameter.
+     *
+     * @param parameterName the parameter name we want to find.
+     * @return The found parameter - need to check if it exists before use.
+     */
+    public TestParameter getParameterByName(String parameterName) {
+        return getTestCommand().getParameterByName(parameterName);
+    }
+
+    /**
+     * Check to see if a parameter exists.
+     *
+     * @param path The path to the parameter we want.
+     * @return Boolean showing if this parameter exists or not.
+     */
+    public Boolean parameterByPathExists(String path) {
+        return getTestCommand().getParameterByPath(path).exists();
+    }
+
+    /**
+     * This acts as a shortcut to allow a path to be returned
+     *
+     * @param path The path to the parameter we want.
+     * @return The found parameter - need to check if it exists before use.
+     */
+    public TestParameter getParameterByPath(String path) {
+        return getTestCommand().getParameterByPath(path);
     }
 
     /**

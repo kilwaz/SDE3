@@ -6,7 +6,7 @@ import java.util.HashMap;
  * The Variable Tracker is used to keep track of all the current variables within a current script running through a
  * {@link application.node.implementations.TestNode}.
  * <p>
- * The {@link application.test.action.SetAction} is used to set the variable.
+ * The {@link application.test.action.SetWebAction} is used to set the variable.
  */
 
 public class VariableTracker {

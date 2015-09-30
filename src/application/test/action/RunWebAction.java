@@ -8,11 +8,19 @@ import application.test.action.helpers.Variable;
 import application.test.action.helpers.VariableTracker;
 import application.utils.NodeRunParams;
 
-public class RunAction extends ActionControl {
-    // This class is used to run another node part way through a test script
-    public RunAction() {
+/**
+ * This action is used to run another Node, generally a logic node.
+ *
+ * You can pass variables into the NodeRunParams object
+ */
+public class RunWebAction extends WebAction {
+
+    public RunWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestStep testStep = DataBank.createNewTestStep(getTestResult());
         getTestResult().addTestStep(testStep);

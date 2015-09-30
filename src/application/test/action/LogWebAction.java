@@ -9,14 +9,19 @@ import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
 
-public class LogAction extends ActionControl {
+/**
+ * This action logs a message, it can also log an element variable.
+ */
+public class LogWebAction extends WebAction {
 
-    private static Logger log = Logger.getLogger(LogAction.class);
+    private static Logger log = Logger.getLogger(LogWebAction.class);
 
-    // This class is used to input a value into an element
-    public LogAction() {
+    public LogWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestStep testStep = DataBank.createNewTestStep(getTestResult());
         getTestResult().addTestStep(testStep);

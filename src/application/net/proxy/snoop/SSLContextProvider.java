@@ -7,6 +7,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
@@ -19,6 +20,7 @@ public class SSLContextProvider {
 
     public static SSLContext get() {
         if (sslContext == null) {
+            FileInputStream fis = null;
             try {
 
 
@@ -28,7 +30,9 @@ public class SSLContextProvider {
 
                 sslContext = SSLContext.getInstance("TLS");
                 KeyStore ks = KeyStore.getInstance("JKS");
-                ks.load(new FileInputStream("C:\\Users\\alex\\keystore.jks"), "secret".toCharArray());
+                fis = new FileInputStream("C:\\Users\\alex\\keystore.jks");
+                ks.load(fis, "secret".toCharArray());
+
 //                ks.setCertificateEntry("SDE", cert);
 
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -39,6 +43,14 @@ public class SSLContextProvider {
                 sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             } catch (Exception ex) {
                 log.error(ex);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        log.error(e);
+                    }
+                }
             }
         }
 
@@ -46,12 +58,11 @@ public class SSLContextProvider {
     }
 
     public static void print() {
+        FileInputStream is = null;
         try {
-
-
             // Load the JDK's cacerts keystore file
             String filename = System.getProperty("java.home") + "/lib/security/cacerts".replace('/', File.separatorChar);
-            FileInputStream is = new FileInputStream(filename);
+            is = new FileInputStream(filename);
             KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             String password = "changeit";
             keystore.load(is, password.toCharArray());
@@ -72,6 +83,14 @@ public class SSLContextProvider {
 
         } catch (Exception ex) {
             log.error(ex);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.error(e);
+                }
+            }
         }
     }
 }

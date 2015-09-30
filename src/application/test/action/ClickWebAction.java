@@ -11,31 +11,41 @@ import org.openqa.selenium.WebElement;
 
 import java.util.concurrent.TimeUnit;
 
-public class ClickAction extends ActionControl {
+/**
+ * This action is used to click on an element that is specified by the script.
+ * <p>
+ * The element can be specified by either id or an xPath.
+ * <p>
+ * The element can also be retrieved from the current loop as well.
+ */
+public class ClickWebAction extends WebAction {
 
-    private static Logger log = Logger.getLogger(ClickAction.class);
+    private static Logger log = Logger.getLogger(ClickWebAction.class);
 
     // This class is used to click on an element
-    public ClickAction() {
+    public ClickWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         try {
             TestStep testStep = DataBank.createNewTestStep(getTestResult());
             getTestResult().addTestStep(testStep);
 
-            TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
-            TestParameter idElement = getTestCommand().getParameterByPath("id");
-            TestParameter loopElement = getTestCommand().getParameterByName("loop");
+            TestParameter xPathElement = getParameterByPath("xPath");
+            TestParameter idElement = getParameterByPath("id");
+            TestParameter loopElement = getParameterByName("loop");
             By testBy = null;
 
             // We only wait for 10 seconds for page loads, sometimes the click hangs forever otherwise
             getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 
-            if (idElement != null || xPathElement != null) {
-                if (xPathElement != null) {
+            if (idElement.exists() || xPathElement.exists()) {
+                if (xPathElement.exists()) {
                     testBy = findElement(xPathElement);
-                } else if (idElement != null) {
+                } else if (idElement.exists()) {
                     testBy = findElement(idElement);
                 }
 
@@ -43,7 +53,7 @@ public class ClickAction extends ActionControl {
                     WebElement testElement = getDriver().findElement(testBy);
                     processElement(testElement, testStep);
                 }
-            } else if (loopElement != null) {
+            } else if (loopElement.exists()) {
                 WebElement loopedElement = null;
                 LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
                 if (loopedWebElement != null) {
@@ -62,6 +72,12 @@ public class ClickAction extends ActionControl {
         }
     }
 
+    /**
+     * Processes the element, in this case we need to click the element once we have found it.
+     *
+     * @param webElement The Selenium WebElement we are going to click.
+     * @param testStep   The TestStep being used to record this action.
+     */
     private void processElement(WebElement webElement, TestStep testStep) {
         if (webElement != null) {
             takeScreenshotOfElement(testStep, webElement);

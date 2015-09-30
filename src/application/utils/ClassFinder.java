@@ -33,9 +33,12 @@ public final class ClassFinder {
     public static List<Class<?>> find(final File file, final String scannedPackage) {
         final List<Class<?>> classes = new LinkedList<>();
         final String resource = scannedPackage + DOT + file.getName();
-        if (file.isDirectory()) {
-            for (File nestedFile : file.listFiles()) {
-                classes.addAll(find(nestedFile, scannedPackage));
+        if (file.isDirectory() && file.exists()) {
+            File[] listedFiles = file.listFiles();
+            if (listedFiles != null) {
+                for (File nestedFile : listedFiles) {
+                    classes.addAll(find(nestedFile, scannedPackage));
+                }
             }
         } else if (resource.endsWith(CLASS_SUFFIX)) {
             final int beginIndex = 0;

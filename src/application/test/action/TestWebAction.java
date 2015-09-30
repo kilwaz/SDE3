@@ -8,10 +8,16 @@ import application.test.TestStep;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-public class TestAction extends ActionControl {
-    public TestAction() {
+/**
+ *
+ */
+public class TestWebAction extends WebAction {
+    public TestWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestParameter xPathElement = getTestCommand().getParameterByPath("element::xPath");
         By testBy = null;

@@ -2,11 +2,17 @@ package application.test.action;
 
 import application.test.TestParameter;
 
-public class URLAction extends ActionControl {
+/**
+ * This action loads a URL that is given to it.
+ */
+public class URLWebAction extends WebAction {
     // This class is used to go to a specific URL
-    public URLAction() {
+    public URLWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestParameter url = getTestCommand().getParameterByName("url");
 

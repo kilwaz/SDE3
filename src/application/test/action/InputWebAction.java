@@ -8,13 +8,20 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-public class InputAction extends ActionControl {
-    private static Logger log = Logger.getLogger(InputAction.class);
+/**
+ * This action finds an input box on the screen and inputs some text to it.
+ *
+ * For a more user simulated approach you can have the characters typed in with a specified delay
+ */
+public class InputWebAction extends WebAction {
+    private static Logger log = Logger.getLogger(InputWebAction.class);
 
-    // This class is used to input a value into an element
-    public InputAction() {
+    public InputWebAction() {
     }
 
+    /**
+     * Run by {@link WebAction} to handle this action.
+     */
     public void performAction() {
         TestStep testStep = DataBank.createNewTestStep(getTestResult());
         getTestResult().addTestStep(testStep);

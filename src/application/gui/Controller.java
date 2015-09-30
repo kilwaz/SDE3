@@ -343,7 +343,7 @@ public class Controller implements Initializable {
                     } else { // This is when not right clicking on a node, you get the create node menu
                         canvasPopOver.hide();
 
-                        List<MenuItem> nodeMenuItems = DrawableNode.NODE_NAMES.stream().map(Controller.this::createNodeMenuItem).collect(Collectors.toList());
+                        List<MenuItem> nodeMenuItems = DrawableNode.getNodeNames().stream().map(Controller.this::createNodeMenuItem).collect(Collectors.toList());
 
                         canvasFlowContextMenu = new ContextMenu();
                         canvasFlowContextMenu.getItems().addAll(nodeMenuItems);
@@ -449,8 +449,8 @@ public class Controller implements Initializable {
                     // But we still want the flow to show this renamed program so don't update these values with null
                     if (newProgram != null) {
                         DataBank.currentlyEditProgram = newProgram;
-                        DataBank.currentUser.setCurrentProgram(newProgram);
-                        DataBank.saveUser(DataBank.currentUser);
+                        DataBank.getApplicationUser().setCurrentProgram(newProgram);
+                        DataBank.saveUser(DataBank.getApplicationUser());
 
                         newProgram.getFlowController().checkConnections();
                     }
@@ -458,9 +458,9 @@ public class Controller implements Initializable {
                     canvasController.drawProgram();
                 });
 
-        if (DataBank.currentUser != null && DataBank.currentUser.getCurrentProgram() != null) {
-            programList.getSelectionModel().select(DataBank.currentUser.getCurrentProgram());
-            programList.scrollTo(DataBank.currentUser.getCurrentProgram());
+        if (DataBank.getApplicationUser() != null && DataBank.getApplicationUser().getCurrentProgram() != null) {
+            programList.getSelectionModel().select(DataBank.getApplicationUser().getCurrentProgram());
+            programList.scrollTo(DataBank.getApplicationUser().getCurrentProgram());
         }
 
         leftAccordion.setExpandedPane(programTitlePane);

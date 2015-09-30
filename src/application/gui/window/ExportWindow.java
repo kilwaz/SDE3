@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExportWindow extends Stage {
-    public static Integer EXPORT_NODE = 1;
-    public static Integer EXPORT_PROGRAM = 2;
+    public final static Integer EXPORT_NODE = 1;
+    public final static Integer EXPORT_PROGRAM = 2;
 
     private Integer exportType;
     private List<DrawableNode> selectedNodes;

@@ -127,7 +127,7 @@ public class DBConnectionManager {
     }
 
     public Boolean createApplicationConnection() {
-        applicationConnection = new DBConnection(AppParams.MYSQL_CONNECTION, AppParams.MYSQL_USERNAME, AppParams.MYSQL_PASSWORD);
+        applicationConnection = new DBConnection(AppParams.getMysqlConnection(), AppParams.getMysqlUsername(), AppParams.getMysqlPassword());
         addOracleConnection(applicationConnection);
         if (!applicationConnection.connect()) {
             return false;
@@ -136,7 +136,7 @@ public class DBConnectionManager {
 
         // Migrate the database
         Flyway flyway = new Flyway();
-        flyway.setDataSource(AppParams.MYSQL_CONNECTION, AppParams.MYSQL_USERNAME, AppParams.MYSQL_PASSWORD);
+        flyway.setDataSource(AppParams.getMysqlConnection(), AppParams.getMysqlUsername(), AppParams.getMysqlPassword());
 
         String sqlMigrationPath = "filesystem:" + SDEUtils.getResourcePath() + "/SQL-Migration/";
 

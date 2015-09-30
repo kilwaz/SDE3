@@ -124,10 +124,10 @@ public class SDEUtils {
             //(use relative path for Unix systems)
             File f = new File(path);
             if (f.exists()) {
-                f.delete();
+                 boolean fileDelete = f.delete();
             }
             // Works for both Windows and Linux
-            f.createNewFile();
+            boolean result = f.createNewFile();
 
             PrintWriter fileOut = new PrintWriter(f);
             fileOut.println("JBOSS-OUTPUT-DIR=" + outputDirectory);

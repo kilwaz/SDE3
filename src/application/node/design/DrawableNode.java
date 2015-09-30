@@ -50,8 +50,12 @@ public class DrawableNode {
     private Boolean initialising = false;
     private List<Trigger> listeners = new ArrayList<>();
 
-    public static final List<String> NODE_NAMES = new ArrayList<>();
+    private static final List<String> NODE_NAMES = new ArrayList<>();
     private static Logger log = Logger.getLogger(DrawableNode.class);
+
+    public static List<String> getNodeNames() {
+        return NODE_NAMES;
+    }
 
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
@@ -69,11 +73,12 @@ public class DrawableNode {
         }
 
         // Used for finding node class names when running inside a jar
+        ZipInputStream zip = null;
         try {
             CodeSource src = Main.class.getProtectionDomain().getCodeSource();
             if (src != null) {
                 URL jar = src.getLocation();
-                ZipInputStream zip = new ZipInputStream(jar.openStream());
+                zip = new ZipInputStream(jar.openStream());
                 while (true) {
                     ZipEntry e = zip.getNextEntry();
                     if (e == null)
@@ -88,6 +93,14 @@ public class DrawableNode {
             }
         } catch (IOException ex) {
             log.error(ex);
+        } finally {
+            if (zip != null) {
+                try {
+                    zip.close();
+                } catch (IOException e) {
+                    log.error(e);
+                }
+            }
         }
     }
 
