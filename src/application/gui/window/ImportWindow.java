@@ -5,9 +5,11 @@ import application.gui.AceTextArea;
 import application.gui.Controller;
 import application.gui.Program;
 import application.node.design.DrawableNode;
+import application.node.implementations.DataTableNode;
 import application.node.implementations.InputNode;
 import application.node.implementations.SwitchNode;
 import application.node.implementations.TriggerNode;
+import application.node.objects.datatable.DataTableRow;
 import application.utils.SDEUtils;
 import application.utils.XMLTransform;
 import javafx.geometry.Insets;
@@ -246,6 +248,29 @@ public class ImportWindow extends Stage {
                             Boolean switchEnabled = Boolean.parseBoolean(getTextValue("", switchElement, "Enabled"));
 
                             DataBank.createNewSwitch(switchTarget, switchEnabled, switchNode);
+                        }
+                    }
+                } else if ("DataTableData".equals(nodeTopElements.getTagName())) {
+                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
+
+                    NodeList dataTableDataRowList = nodeTopElements.getChildNodes();
+                    DataTableNode dataTableNode = (DataTableNode) importedNode;
+                    for (Integer rowCount = 0; rowCount < dataTableDataRowList.getLength(); rowCount++) {
+                        if (dataTableDataRowList.item(rowCount).getNodeType() == Node.ELEMENT_NODE) {
+                            DataTableRow dataTableRow = DataBank.createNewDataTableRow(dataTableNode);
+                            Element dataTableRowElement = (Element) dataTableDataRowList.item(rowCount);
+
+                            NodeList dataTableDataValueList = dataTableRowElement.getChildNodes();
+                            for (Integer valueCount = 0; valueCount < dataTableDataValueList.getLength(); valueCount++) {
+                                if (dataTableDataValueList.item(valueCount).getNodeType() == Node.ELEMENT_NODE) {
+                                    Element dataTableValueElement = (Element) dataTableDataValueList.item(valueCount);
+
+                                    String dataKey = getTextValue("", dataTableValueElement, "DataKey");
+                                    String dataValue = getTextValue("", dataTableValueElement, "DataValue");
+
+                                    dataTableRow.addDataTableValue(DataBank.createNewDataTableValue(dataTableRow, dataKey, dataValue));
+                                }
+                            }
                         }
                     }
                 }

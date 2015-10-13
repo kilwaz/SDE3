@@ -40,10 +40,10 @@ public class SelectWebAction extends WebAction {
         By testBy = null;
 
         WebElement testElement = null;
-        if (idElement != null || xPathElement != null) {
-            if (xPathElement != null) {
+        if (idElement.exists() || xPathElement.exists()) {
+            if (xPathElement.exists()) {
                 testBy = findElement(xPathElement);
-            } else if (idElement != null) {
+            } else if (idElement.exists()) {
                 testBy = findElement(idElement);
             }
 
@@ -51,7 +51,7 @@ public class SelectWebAction extends WebAction {
                 testElement = getDriver().findElement(testBy);
                 processElement(testElement, testStep);
             }
-        } else if (loopElement != null) {
+        } else if (loopElement.exists()) {
             WebElement loopedElement = null;
             LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
             if (loopedWebElement != null) {

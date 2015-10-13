@@ -4,6 +4,7 @@ import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
+import application.gui.dialog.*;
 import application.gui.window.*;
 import application.node.design.DrawableNode;
 import application.utils.AppParams;
@@ -34,7 +35,6 @@ import javafx.util.StringConverter;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.StatusBar;
-import org.controlsfx.dialog.Dialogs;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -378,17 +378,17 @@ public class Controller implements Initializable {
                 menuItemDeleteProgram.setOnAction(event1 -> {
                     Program program = DataBank.currentlyEditProgram;
 
-                    org.controlsfx.control.action.Action action = Dialogs.create()
-                            .owner(null)
+                    application.gui.dialog.Dialog confirmDialog = new ConfirmDialog()
+                            .content("Are you sure you want to delete " + program.getName())
                             .title("Deleting program")
-                            .message("Are you sure you want to delete " + program.getName()).showConfirm();
-                    if ("DialogAction.YES".equals(action.toString())) {
-                        // First close all the node tabs that are open as we will be deleting these nodes
-                        program.getFlowController().getNodes().forEach(Controller.this::closeDeleteNodeTabs);
-                        // Finally delete the program
-                        DataBank.deleteProgram(program);
-                        programList.getItems().remove(program);
-                    }
+                            .onYesAction(() -> {
+                                // First close all the node tabs that are open as we will be deleting these nodes
+                                program.getFlowController().getNodes().forEach(Controller.this::closeDeleteNodeTabs);
+                                // Finally delete the program
+                                DataBank.deleteProgram(program);
+                                programList.getItems().remove(program);
+                            });
+                    confirmDialog.show();
                 });
 
                 MenuItem menuItemCompile = new MenuItem("Compile...");
@@ -651,40 +651,6 @@ public class Controller implements Initializable {
     // Use this one when not on GUI thread
     public void updateCanvasControllerLater() {
         Platform.runLater(canvasController::drawProgram);
-    }
-
-    public void showError(Dialogs dialogs) {
-        class OneShotTask implements Runnable {
-            Dialogs dialogs;
-
-            OneShotTask(Dialogs dialogs) {
-                this.dialogs = dialogs;
-            }
-
-            public void run() {
-                dialogs.showError();
-            }
-        }
-
-        Platform.runLater(new OneShotTask(dialogs));
-    }
-
-    public void showException(Dialogs dialogs, Exception ex) {
-        class OneShotTask implements Runnable {
-            Exception ex;
-            Dialogs dialogs;
-
-            OneShotTask(Dialogs dialogs, Exception ex) {
-                this.dialogs = dialogs;
-                this.ex = ex;
-            }
-
-            public void run() {
-                dialogs.showException(ex);
-            }
-        }
-
-        Platform.runLater(new OneShotTask(dialogs, ex));
     }
 
     public void setCursor(Cursor cursor) {

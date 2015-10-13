@@ -26,7 +26,6 @@ public class RunWebAction extends WebAction {
         getTestResult().addTestStep(testStep);
 
         TestParameter nodeToRun = getTestCommand().getParameterByName("node");
-
         NodeRunParams nodeRunParams = new NodeRunParams();
 
         for (String parameters : getTestCommand().getParameters().keySet()) {
@@ -34,7 +33,7 @@ public class RunWebAction extends WebAction {
 
             if (!"node".equals(parameters)) {
                 // If a variable is being passed in we handle this here
-                if (testParameter.getChildParameter() != null && "var".equals(testParameter.getChildParameter().getParameterName())) {
+                if (testParameter.getChildParameter().exists() && "var".equals(testParameter.getChildParameter().getParameterName())) {
                     TestParameter childVariable = testParameter.getChildParameter();
 
                     // Converts the variable name into the variable itself

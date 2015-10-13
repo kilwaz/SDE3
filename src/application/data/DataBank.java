@@ -3,13 +3,13 @@ package application.data;
 import application.gui.FlowController;
 import application.gui.Program;
 import application.node.design.DrawableNode;
-import application.node.implementations.CustomObjectNode;
-import application.node.implementations.InputNode;
-import application.node.implementations.SwitchNode;
-import application.node.implementations.TriggerNode;
+import application.node.implementations.*;
 import application.node.objects.Input;
+import application.node.objects.SDEFile;
 import application.node.objects.Switch;
 import application.node.objects.Trigger;
+import application.node.objects.datatable.DataTableRow;
+import application.node.objects.datatable.DataTableValue;
 import application.test.TestResult;
 import application.test.TestStep;
 import application.utils.AppParams;
@@ -18,8 +18,7 @@ import application.utils.Serializer;
 import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
@@ -159,7 +158,7 @@ public class DataBank {
                 DatabaseConnectionWatcher.getInstance().setConnected(false);
             }
 
-            log.error(ex);
+            log.error("Exception with Query: " + selectQuery.getQuery(), ex);
         }
 
         return selectResult;
@@ -189,7 +188,7 @@ public class DataBank {
                 DatabaseConnectionWatcher.getInstance().setConnected(false);
             }
 
-            log.error(ex);
+            log.error("Exception with Query: " + updateQuery.getQuery(), ex);
         }
 
         return updateResult;
@@ -280,6 +279,12 @@ public class DataBank {
     public static void deleteCustomObject(CustomObject customObject) {
         new UpdateQuery("delete from serialized where id = ?")
                 .addParameter(customObject.getId()) // 1
+                .execute();
+    }
+
+    public static void deleteSDEFile(SDEFile sdeFile) {
+        new UpdateQuery("delete from serialized where id = ?")
+                .addParameter(sdeFile.getId()) // 1
                 .execute();
     }
 
@@ -650,7 +655,6 @@ public class DataBank {
         }
     }
 
-
     public static void loadCustomObjects(CustomObjectNode customObjectNode) {
         SelectResult selectResult = (SelectResult) new SelectQuery("select id, serial_object, serial_reference from serialized where node_id = ?")
                 .addParameter(customObjectNode.getId()) // 1
@@ -663,6 +667,160 @@ public class DataBank {
             );
 
             customObjectNode.addCustomObject(customObject);
+        }
+    }
+
+    public static SDEFile createNewSDEFile(FileStoreNode parent) {
+        SDEFile sdeFile = new SDEFile(getNextId("serialized"), parent);
+
+        parent.addSDEFile(sdeFile);
+        DataBank.saveSDEFile(sdeFile);
+
+        return sdeFile;
+    }
+
+    public static SDEFile createNewSDEFile(File file, FileStoreNode parent) {
+        SDEFile sdeFile = new SDEFile(getNextId("serialized"), file, parent);
+
+        parent.addSDEFile(sdeFile);
+        DataBank.saveSDEFile(sdeFile);
+
+        return sdeFile;
+    }
+
+    public static void saveSDEFile(SDEFile sdeFile) {
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update serialized set node_id = ?, serial_object = ?, serial_reference = ? where id = ?")
+                .addParameter(sdeFile.getParentNode().getId()) // 1
+                .addParameter(Serializer.serializeToInputStream(sdeFile.getFile())) // 2
+                .addParameter("") // 3
+                .addParameter(sdeFile.getId()) // 4
+                .execute();
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
+            sdeFile.setId(getNextId("serialized"));
+            new UpdateQuery("insert into serialized values (default, ?, ?, ?)")
+                    .addParameter(sdeFile.getParentNode().getId()) // 1
+                    .addParameter(Serializer.serializeToInputStream(sdeFile.getFile())) // 2
+                    .addParameter("") // 3
+                    .execute();
+        }
+    }
+
+    public static void loadSDEFile(FileStoreNode fileStoreNode) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, serial_object, serial_reference from serialized where node_id = ?")
+                .addParameter(fileStoreNode.getId()) // 1
+                .execute();
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            String userHome = System.getProperty("user.home");
+
+            // Save source in .java file.
+            File root = new File(userHome, "/SDE"); // On Windows running on C:\, this is C:\java.
+            File targetFile = new File(root, "sdeFiles/" + resultRow.getInt("id") + ".tmp");
+            Boolean mkDirResult = targetFile.getParentFile().mkdirs();
+
+            OutputStream outStream = null;
+            try {
+                outStream = new FileOutputStream(targetFile);
+
+                byte[] buffer = new byte[8 * 1024];
+                int bytesRead;
+                InputStream blobInputStream = resultRow.getBlobInputStream("serial_object");
+                while ((bytesRead = blobInputStream.read(buffer)) != -1) {
+                    outStream.write(buffer, 0, bytesRead);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (outStream != null) {
+                        outStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            SDEFile sdeFile = new SDEFile(resultRow.getInt("id"),
+                    targetFile,
+                    fileStoreNode
+            );
+
+            fileStoreNode.addSDEFile(sdeFile);
+        }
+    }
+
+    public static DataTableRow createNewDataTableRow(DataTableNode parent) {
+        DataTableRow dataTableRow = new DataTableRow(getNextId("data_table_rows"), parent);
+
+        parent.addDataTableRow(dataTableRow);
+        DataBank.saveDataTableRow(dataTableRow);
+
+        return dataTableRow;
+    }
+
+    public static void saveDataTableRow(DataTableRow dataTableRow) {
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update data_table_rows set node_id = ? where id = ?")
+                .addParameter(dataTableRow.getParentNode().getId()) // 1
+                .addParameter(dataTableRow.getId()) // 2
+                .execute();
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
+            dataTableRow.setId(getNextId("data_table_rows"));
+            new UpdateQuery("insert into data_table_rows values (default, ?)")
+                    .addParameter(dataTableRow.getParentNode().getId()) // 1
+                    .execute();
+        }
+    }
+
+    public static void loadDataTableRows(DataTableNode dataTableNode) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, node_id from data_table_rows where node_id = ?")
+                .addParameter(dataTableNode.getId()) // 1
+                .execute();
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            DataTableRow dataTableRow = new DataTableRow(resultRow.getInt("id"),
+                    dataTableNode
+            );
+
+            dataTableNode.addDataTableRow(dataTableRow);
+        }
+    }
+
+    public static DataTableValue createNewDataTableValue(DataTableRow parentRow, String key, String value) {
+        DataTableValue dataTableValue = new DataTableValue(getNextId("data_table_values"), key, value, parentRow);
+
+        parentRow.addDataTableValue(dataTableValue);
+        DataBank.saveDataTableValue(dataTableValue);
+
+        return dataTableValue;
+    }
+
+    public static void saveDataTableValue(DataTableValue dataTableValue) {
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update data_table_values set data_table_id = ?, data_key = ?, data_value = ? where id = ?")
+                .addParameter(dataTableValue.getParentRow().getId()) // 1
+                .addParameter(dataTableValue.getDataKey()) // 2
+                .addParameter(dataTableValue.getDataValue()) // 3
+                .addParameter(dataTableValue.getId()) // 4
+                .execute();
+        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
+            dataTableValue.setId(getNextId("data_table_values"));
+            new UpdateQuery("insert into data_table_values values (default, ?, ?, ?)")
+                    .addParameter(dataTableValue.getParentRow().getId()) // 1
+                    .addParameter(dataTableValue.getDataKey()) // 2
+                    .addParameter(dataTableValue.getDataValue()) // 3
+                    .execute();
+        }
+    }
+
+    public static void loadDataTableValue(DataTableRow dataTableRow) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, data_table_id, data_key, data_value from data_table_values where data_table_id = ?")
+                .addParameter(dataTableRow.getId()) // 1
+                .execute();
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            DataTableValue dataTableValue = new DataTableValue(resultRow.getInt("id"),
+                    resultRow.getString("data_key"),
+                    resultRow.getString("data_value"),
+                    dataTableRow
+            );
+
+            dataTableRow.addDataTableValue(dataTableValue);
         }
     }
 

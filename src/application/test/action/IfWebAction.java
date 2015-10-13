@@ -41,38 +41,38 @@ public class IfWebAction extends WebAction {
         TestParameter elementExists = getTestCommand().getParameterByPath("elementExists");
 
         String xPath = null;
-        if (elementXPath != null) {
+        if (elementXPath.exists()) {
             xPath = elementXPath.getParameterValue();
-        } else if (elementId != null) {
+        } else if (elementId.exists()) {
             xPath = "//*[@id=\"" + elementId.getParameterValue() + "\"]";
         }
 
         Element testElement = null;
-        if (elementId != null || elementXPath != null) { // Get the element via id
+        if (elementId.exists() || elementXPath.exists()) { // Get the element via id
             testElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
-        } else if (loopElement != null) { // Get element via loop
+        } else if (loopElement.exists()) { // Get element via loop
             LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
             if (loopedWebElement != null) {
                 testElement = loopedWebElement.getElement();
             }
         }
 
-        if (startElement != null) {
+        if (startElement.exists()) {
             String valueToCheck = "";
-            if (elementAttribute != null && testElement != null) {
+            if (elementAttribute.exists() && testElement != null) {
                 valueToCheck = testElement.attr(elementAttribute.getParameterValue());
-            } else if (elementClass != null && testElement != null) {
+            } else if (elementClass.exists() && testElement != null) {
                 valueToCheck = testElement.className();
-            } else if (elementContent != null && testElement != null) {
+            } else if (elementContent.exists() && testElement != null) {
                 valueToCheck = testElement.html();
-            } else if (variable != null) {
+            } else if (variable.exists()) {
                 Variable var = VariableTracker.getVariable(variable.getParameterValue());
                 if (var != null) {
                     valueToCheck = var.getVariableValue();
                 }
             }
 
-            if (equals != null && !"".equals(valueToCheck)) {
+            if (equals.exists() && !"".equals(valueToCheck)) {
                 log.info("Comparing equals " + valueToCheck + " vs " + equals.getParameterValue());
                 if (valueToCheck.equals(equals.getParameterValue())) { // TRUE
 
@@ -83,7 +83,7 @@ public class IfWebAction extends WebAction {
                 }
             }
 
-            if (contains != null) {
+            if (contains.exists()) {
                 if ("".equals(valueToCheck)) { // FALSE
                     // If no element was found (so valueToCheck is "") then it does not contain our text, return false
                     IfTracker.setIsSkippingIf(true);
@@ -99,7 +99,7 @@ public class IfWebAction extends WebAction {
                 }
             }
 
-            if (exists != null) { // Test to see if a specific parameter exists
+            if (exists.exists()) { // Test to see if a specific parameter exists
                 if (!"".equals(valueToCheck)) {  // TRUE
                     if (exists.getParameterValue().equals("false")) {
                         IfTracker.setIsSkippingIf(true);
@@ -113,7 +113,7 @@ public class IfWebAction extends WebAction {
                 }
             }
 
-            if (elementExists != null) { // Test to see if the element exists
+            if (elementExists.exists()) { // Test to see if the element exists
                 if (testElement != null) {  // TRUE
                     if (elementExists.getParameterValue().equals("false")) {
                         IfTracker.setIsSkippingIf(true);

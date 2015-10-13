@@ -36,7 +36,7 @@ public class LoopWebAction extends WebAction {
         TestParameter startElement = getTestCommand().getParameterByName("start");
         TestParameter endElement = getTestCommand().getParameterByName("end");
 
-        if (startElement != null) {
+        if (startElement.exists()) {
             String loopRef = startElement.getParameterValue();
 
             if (LoopTracker.getLoop(loopRef) == null) {
@@ -44,11 +44,11 @@ public class LoopWebAction extends WebAction {
 
                 TestParameter loopRepeatCount = getTestCommand().getParameterByName("repeat");
                 TestParameter loopList = getTestCommand().getParameterByName("list");
-                if (loopRepeatCount != null) {
+                if (loopRepeatCount.exists()) {
                     newLoop.setLoopUntil(Integer.parseInt(loopRepeatCount.getParameterValue()));
                     newLoop.setCurrentLoopCount(1);
                     newLoop.setLoopType("LoopCount");
-                } else if (loopList != null) {
+                } else if (loopList.exists()) {
                     TestParameter listTag = getTestCommand().getParameterByPath("list::tag");
                     TestParameter listRootElementId = getTestCommand().getParameterByPath("id");
                     TestParameter listRootElementXPath = getTestCommand().getParameterByPath("xPath");
@@ -56,17 +56,17 @@ public class LoopWebAction extends WebAction {
                     TestParameter directChildren = getTestCommand().getParameterByName("direct");
 
                     List<Element> elements = new ArrayList<>();
-                    if (listRootElementId != null || listRootElementXPath != null || loopElement != null) {
+                    if (listRootElementId.exists() || listRootElementXPath.exists() || loopElement.exists()) {
                         String xPath = null;
 
-                        if (listRootElementXPath != null) {
+                        if (listRootElementXPath.exists()) {
                             xPath = listRootElementXPath.getParameterValue();
-                        } else if (listRootElementId != null) {
+                        } else if (listRootElementId.exists()) {
                             xPath = "//*[@id=\"" + listRootElementId.getParameterValue() + "\"]";
                         }
 
                         Element listElement = null;
-                        if (loopElement != null) {
+                        if (loopElement.exists()) {
                             Loop loop = LoopTracker.getLoop(loopElement.getParameterValue());
                             if (loop != null) {
                                 LoopedWebElement loopedWebElement = loop.getCurrentLoopWebElement();
@@ -80,7 +80,7 @@ public class LoopWebAction extends WebAction {
                         }
 
                         if (listElement != null) {
-                            if (directChildren != null) {
+                            if (directChildren.exists()) {
                                 // We only want direct children from this
                                 for (Element childElement : listElement.children()) {
                                     if (childElement.tagName().equals(listTag.getParameterValue())) {
@@ -116,7 +116,7 @@ public class LoopWebAction extends WebAction {
             }
         }
 
-        if (endElement != null) {
+        if (endElement.exists()) {
             String loopRef = endElement.getParameterValue();
 
             if (LoopTracker.getLoop(loopRef) != null) {

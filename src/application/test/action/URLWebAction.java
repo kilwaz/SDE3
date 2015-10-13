@@ -16,7 +16,7 @@ public class URLWebAction extends WebAction {
     public void performAction() {
         TestParameter url = getTestCommand().getParameterByName("url");
 
-        if (url != null) { // Go to the url specified
+        if (url.exists()) { // Go to the url specified
             getDriver().get(url.getParameterValue());
         }
     }

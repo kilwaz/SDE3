@@ -31,14 +31,14 @@ public class LogWebAction extends WebAction {
         TestParameter message = getTestCommand().getParameterByName("message");
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
 
-        if (message != null) {
+        if (message.exists()) {
             log.info(message.getParameterValue());
             testStep.setTestString(getTestCommand().getRawCommand());
-        } else if (idElement != null || xPathElement != null) {
+        } else if (idElement.exists() || xPathElement.exists()) {
             String xPath = null;
-            if (xPathElement != null) {
+            if (xPathElement.exists()) {
                 xPath = xPathElement.getParameterValue();
-            } else if (idElement != null) {
+            } else if (idElement.exists()) {
                 xPath = "//*[@id=\"" + idElement.getParameterValue() + "\"]";
             }
 
@@ -47,7 +47,7 @@ public class LogWebAction extends WebAction {
                 processElement(testElement, testStep);
 
             }
-        } else if (loopElement != null) {
+        } else if (loopElement.exists()) {
             Element loopedElement = null;
             LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
             if (loopedWebElement != null) {

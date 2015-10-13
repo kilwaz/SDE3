@@ -231,6 +231,17 @@ public class Main extends Application {
             }
         }
 
+        // Deletes any tmp files created from SDEFiles.
+        dir = new File(userHome, "/SDE/sdeFiles");
+        if (dir.exists()) {
+            File[] listedFiles = dir.listFiles();
+            if (listedFiles != null) {
+                for (File file : listedFiles) {
+                    boolean deleteResult = file.delete();
+                }
+            }
+        }
+
         mainStage.close();
     }
 

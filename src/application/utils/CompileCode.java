@@ -1,10 +1,11 @@
 package application.utils;
 
-import application.gui.Controller;
 import application.gui.FlowController;
+import application.gui.dialog.ErrorDialog;
+import application.gui.dialog.ExceptionDialog;
 import application.node.objects.Logic;
+import javafx.scene.control.Alert;
 import org.apache.log4j.Logger;
-import org.controlsfx.dialog.Dialogs;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -108,30 +109,36 @@ public class CompileCode {
                     lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
                 }
                 log.info("Error compiling " + logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString);
-                Controller.getInstance().showError(Dialogs.create()
-                        .owner(null)
+
+                new ErrorDialog()
+                        .content(errString)
                         .title("Compile error on " + logic.getParentLogicNode().getContainedText())
-                        .masthead("Error at line " + lineNumber)
-                        .message(errString));
+                        .header("Error at line " + lineNumber)
+                        .show();
                 className = null;
             }
             if (outString.length() > 1) {
                 log.info("Error compiling " + outString);
-                Dialogs.create()
-                        .owner(null)
-                        .title("ERR")
-                        .masthead(null)
-                        .message(outString)
-                        .showError();
+
+                new ErrorDialog()
+                        .content(outString)
+                        .header("Compile error on " + logic.getParentLogicNode().getContainedText())
+                        .show();
+
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("ERR");
+                errorAlert.setContentText(outString);
+                errorAlert.show();
             }
             out.close();
             err.close();
         } catch (Exception ex) {
-            Controller.getInstance().showException(Dialogs.create()
-                    .owner(null)
+            new ExceptionDialog()
                     .title("Compile Error")
-                    .masthead(null)
-                    .message("Exception encountered while trying to compile " + flowControllerReferenceId), ex);
+                    .content("Exception encountered while trying to compile " + flowControllerReferenceId)
+                    .exception(ex)
+                    .show();
+            log.error("Error compiling code", ex);
             className = null;
         }
 

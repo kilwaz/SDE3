@@ -39,9 +39,9 @@ public class InputWebAction extends WebAction {
             testElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
         }
 
-        if (valueToEnter != null && testElement != null) {
+        if (valueToEnter.exists() && testElement != null) {
             // This delays the input of the text to simulate as if the user were typing it themselves
-            if (characterDelay != null) {
+            if (characterDelay.exists()) {
                 Long delay = Long.parseLong(characterDelay.getParameterValue());
                 char[] textSplit = valueToEnter.getParameterValue().toCharArray();
 

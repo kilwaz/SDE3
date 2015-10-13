@@ -25,7 +25,7 @@ public class JavascriptWebAction extends WebAction {
 
         TestParameter scriptToRun = getTestCommand().getParameterByPath("script");
 
-        if (scriptToRun != null) { // If it is specified, wait for this javascript to be true
+        if (scriptToRun.exists()) { // If it is specified, wait for this javascript to be true
             ((JavascriptExecutor) getDriver()).executeScript(scriptToRun.getParameterValue());
         }
 

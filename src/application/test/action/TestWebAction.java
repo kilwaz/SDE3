@@ -23,14 +23,14 @@ public class TestWebAction extends WebAction {
         By testBy = null;
 
 
-        if (xPathElement != null) {
+        if (xPathElement.exists()) {
             testBy = findElement(xPathElement);
         }
 
         if (testBy != null) {
             WebElement testElement = getDriver().findElement(testBy);
 
-            if (getTestCommand().getParameterByPath("equals") != null) {
+            if (getTestCommand().getParameterByPath("equals").exists()) {
                 TestStep testStep = DataBank.createNewTestStep(getTestResult());
                 testStep.setTestType(TestStep.TEST_TYPE_EQUAL);
                 getTestResult().addTestStep(testStep);

@@ -87,7 +87,7 @@ public class TestCommand {
         List<String> path = new ArrayList<>();
         Collections.addAll(path, parameterPath.split("::"));
 
-        TestParameter currentParameter = new TestParameter();
+        TestParameter currentParameter = null;
 
         for (String pathToken : path) {
             if (currentParameter == null) {
@@ -102,6 +102,10 @@ public class TestCommand {
                     return new TestParameter(); // This returns an empty test parameter object
                 }
             }
+        }
+
+        if (currentParameter == null) {
+            currentParameter = new TestParameter();
         }
 
         return currentParameter;

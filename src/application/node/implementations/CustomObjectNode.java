@@ -33,12 +33,12 @@ public class CustomObjectNode extends DrawableNode {
 
     public CustomObjectNode(Integer id, Integer programId) {
         super(id, programId);
-        DataBank.loadCustomObjects(this);
+        loadObjects();
     }
 
     public CustomObjectNode(Double x, Double y, String containedText) {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        DataBank.loadCustomObjects(this);
+        loadObjects();
     }
 
     public List<SavableAttribute> getDataToSave() {
