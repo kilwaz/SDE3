@@ -9,10 +9,12 @@ import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import org.apache.log4j.Logger;
 
+import javax.tools.SimpleJavaFileObject;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 

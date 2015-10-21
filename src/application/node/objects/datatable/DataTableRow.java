@@ -16,6 +16,13 @@ public class DataTableRow {
         DataBank.loadDataTableValue(this);
     }
 
+    public void removeDataTableValue(String key){
+        if (dataTableValues.containsKey(key)) {
+            DataBank.deleteDataTableValue(dataTableValues.get(key));
+            dataTableValues.remove(key);
+        }
+    }
+
     public void updateDataTableValue(String key, String value) {
         if (dataTableValues.containsKey(key)) {
             dataTableValues.get(key).setDataValue(value);
@@ -29,9 +36,9 @@ public class DataTableRow {
         dataTableValues.put(dataTableValue.getDataKey(), dataTableValue);
     }
 
-    public String getData(String column) {
-        if (dataTableValues.containsKey(column)) {
-            return dataTableValues.get(column).getDataValue();
+    public String getData(String key) {
+        if (dataTableValues.containsKey(key)) {
+            return dataTableValues.get(key).getDataValue();
         } else {
             return "";
         }

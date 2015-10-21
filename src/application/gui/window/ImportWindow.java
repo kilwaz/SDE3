@@ -1,20 +1,14 @@
 package application.gui.window;
 
-import application.data.DataBank;
+import application.data.imports.ImportNodes;
 import application.gui.AceTextArea;
-import application.gui.Controller;
-import application.gui.Program;
-import application.node.design.DrawableNode;
-import application.node.implementations.DataTableNode;
-import application.node.implementations.InputNode;
-import application.node.implementations.SwitchNode;
-import application.node.implementations.TriggerNode;
-import application.node.objects.datatable.DataTableRow;
-import application.utils.SDEUtils;
+import application.utils.SDEThread;
 import application.utils.XMLTransform;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -23,9 +17,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -33,8 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 
 public class ImportWindow extends Stage {
@@ -47,6 +36,9 @@ public class ImportWindow extends Stage {
 
     private static Logger log = Logger.getLogger(ImportWindow.class);
 
+    private HBox headerButtons;
+    private ProgressIndicator progressIndicator;
+
     private void init() {
         try {
             importTextArea = new AceTextArea("ace/mode/xml");
@@ -58,7 +50,7 @@ public class ImportWindow extends Stage {
 
             importTextArea.setPrefHeight(900);
 
-            HBox headerButtons = new HBox(5);
+            headerButtons = new HBox(5);
 
             Button loadImportButton = new Button();
             loadImportButton.setText("Import File...");
@@ -92,45 +84,7 @@ public class ImportWindow extends Stage {
             importButton.setText("Run Import");
             importButton.setOnAction(event -> {
                 Document document = XMLTransform.writeStringToXML(importTextArea.getText());
-
-                Element element = document.getDocumentElement();
-
-                if (element.getTagName().contains("Node")) {
-                    importNode(DataBank.currentlyEditProgram, element);
-                } else if (element.getTagName().equals("Program")) {
-                    String programName = getTextValue("", element, "ProgramName");
-                    Program newProgram = DataBank.createNewProgram(programName);
-                    Controller.getInstance().addNewProgram(newProgram);
-
-                    NodeList programChildNodes = element.getChildNodes();
-                    for (int i = 0; i < programChildNodes.getLength(); i++) {
-                        if (programChildNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                            Element programTopElements = (Element) programChildNodes.item(i);
-
-                            if (programTopElements.getTagName().equals("Nodes")) {
-                                NodeList childNodeList = programTopElements.getChildNodes();
-
-                                for (int n = 0; n < childNodeList.getLength(); n++) {
-                                    if (childNodeList.item(n).getNodeType() == Node.ELEMENT_NODE) {
-                                        Element nodeElement = (Element) childNodeList.item(n);
-
-                                        if (nodeElement.getTagName().contains("Node")) {
-                                            importNode(newProgram, nodeElement);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Closes the import window and update the display to show the new node, also check all connections
-                Controller.getInstance().updateCanvasControllerLater();
-                Program program = DataBank.currentlyEditProgram;
-                if (program != null) {
-                    program.getFlowController().checkConnections();
-                }
-                this.close();
+                new SDEThread(new ImportNodes(document, this), "Importing Node");
             });
 
             headerButtons.getChildren().add(loadImportButton);
@@ -168,125 +122,63 @@ public class ImportWindow extends Stage {
         }
     }
 
-    private void importNode(Program program, Element element) {
-        DrawableNode importedNode = program.getFlowController().createNewNode(-1, program.getId(), element.getTagName(), false);
+    public void startImportProgress() {
+        class GUIUpdate implements Runnable {
+            GUIUpdate() {
+            }
 
-        NodeList childNodeList = element.getChildNodes();
-        for (int i = 0; i < childNodeList.getLength(); i++) {
-            if (childNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                Element nodeTopElements = (Element) childNodeList.item(i);
-
-                if ("Variable".equals(nodeTopElements.getTagName())) {
-                    String variableName = getTextValue("", nodeTopElements, "VariableName");
-                    String className = getTextValue("", nodeTopElements, "ClassName");
-                    String variableValue = getTextValue("", nodeTopElements, "VariableValue");
-
-                    if (!"Id".equals(variableName)) { // Here we don't want to keep the same Id as it may cause conflicts
-                        Method method;
-                        try {
-                            if ("java.lang.Double".equals(className)) {
-                                Double doubleValue = Double.parseDouble(variableValue);
-
-                                method = importedNode.getClass().getMethod("set" + variableName, Class.forName(className));
-                                method.invoke(importedNode, doubleValue);
-                            } else if ("java.lang.String".equals(className)) {
-                                String stringValue = variableValue;
-
-                                method = importedNode.getClass().getMethod("set" + variableName, Class.forName(className));
-                                method.invoke(importedNode, stringValue);
-                            } else if ("java.lang.Integer".equals(className)) {
-                                Integer integerValue = Integer.parseInt(variableValue);
-
-                                method = importedNode.getClass().getMethod("set" + variableName, Class.forName(className));
-                                method.invoke(importedNode, integerValue);
-                            }
-                        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
-                            log.error(ex);
-                        }
-                    }
-                } else if ("Inputs".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
-
-                    NodeList inputNodesList = nodeTopElements.getChildNodes();
-                    InputNode inputNode = (InputNode) importedNode;
-                    for (Integer inputsCount = 0; inputsCount < inputNodesList.getLength(); inputsCount++) {
-                        if (inputNodesList.item(inputsCount).getNodeType() == Node.ELEMENT_NODE) {
-                            Element inputElement = (Element) inputNodesList.item(inputsCount);
-
-                            String inputVariableName = getTextValue("", inputElement, "VariableName");
-                            String inputVariableValue = getTextValue("", inputElement, "VariableValue");
-
-                            DataBank.createNewInput(inputVariableName, inputVariableValue, inputNode);
-                        }
-                    }
-                } else if ("Triggers".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
-
-                    NodeList triggersNodeList = nodeTopElements.getChildNodes();
-                    TriggerNode triggerNode = (TriggerNode) importedNode;
-                    for (Integer triggerCounts = 0; triggerCounts < triggersNodeList.getLength(); triggerCounts++) {
-                        if (triggersNodeList.item(triggerCounts).getNodeType() == Node.ELEMENT_NODE) {
-                            Element triggerElement = (Element) triggersNodeList.item(triggerCounts);
-
-                            String triggerWatch = getTextValue("", triggerElement, "Watch");
-                            String triggerWhen = getTextValue("", triggerElement, "When");
-                            String triggerThen = getTextValue("", triggerElement, "Then");
-
-                            DataBank.createNewTrigger(triggerWatch, triggerWhen, triggerThen, triggerNode);
-                        }
-                    }
-                } else if ("Switches".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
-
-                    NodeList switchesNodeList = nodeTopElements.getChildNodes();
-                    SwitchNode switchNode = (SwitchNode) importedNode;
-                    for (Integer switchCount = 0; switchCount < switchesNodeList.getLength(); switchCount++) {
-                        if (switchesNodeList.item(switchCount).getNodeType() == Node.ELEMENT_NODE) {
-                            Element switchElement = (Element) switchesNodeList.item(switchCount);
-
-                            String switchTarget = getTextValue("", switchElement, "Target");
-                            Boolean switchEnabled = Boolean.parseBoolean(getTextValue("", switchElement, "Enabled"));
-
-                            DataBank.createNewSwitch(switchTarget, switchEnabled, switchNode);
-                        }
-                    }
-                } else if ("DataTableData".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
-
-                    NodeList dataTableDataRowList = nodeTopElements.getChildNodes();
-                    DataTableNode dataTableNode = (DataTableNode) importedNode;
-                    for (Integer rowCount = 0; rowCount < dataTableDataRowList.getLength(); rowCount++) {
-                        if (dataTableDataRowList.item(rowCount).getNodeType() == Node.ELEMENT_NODE) {
-                            DataTableRow dataTableRow = DataBank.createNewDataTableRow(dataTableNode);
-                            Element dataTableRowElement = (Element) dataTableDataRowList.item(rowCount);
-
-                            NodeList dataTableDataValueList = dataTableRowElement.getChildNodes();
-                            for (Integer valueCount = 0; valueCount < dataTableDataValueList.getLength(); valueCount++) {
-                                if (dataTableDataValueList.item(valueCount).getNodeType() == Node.ELEMENT_NODE) {
-                                    Element dataTableValueElement = (Element) dataTableDataValueList.item(valueCount);
-
-                                    String dataKey = getTextValue("", dataTableValueElement, "DataKey");
-                                    String dataValue = getTextValue("", dataTableValueElement, "DataValue");
-
-                                    dataTableRow.addDataTableValue(DataBank.createNewDataTableValue(dataTableRow, dataKey, dataValue));
-                                }
-                            }
-                        }
-                    }
-                }
+            public void run() {
+                progressIndicator = new ProgressIndicator();
+                headerButtons.getChildren().add(progressIndicator);
             }
         }
 
-        DataBank.saveNode(importedNode);
+        Platform.runLater(new GUIUpdate());
     }
 
-    private static String getTextValue(String def, Element element, String tag) {
-        String value = def;
-        NodeList nl;
-        nl = element.getElementsByTagName(tag);
-        if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
-            value = nl.item(0).getFirstChild().getNodeValue();
+    public void updateImportProgress(Double progressValue) {
+        class GUIUpdate implements Runnable {
+            Double progressValue;
+
+            GUIUpdate(Double progressValue) {
+                this.progressValue = progressValue;
+            }
+
+            public void run() {
+                progressIndicator.setProgress(progressValue);
+            }
         }
-        return SDEUtils.unescapeXMLCData(value);
+
+        Platform.runLater(new GUIUpdate(progressValue));
+    }
+
+    public void endImportProgress() {
+        class GUIUpdate implements Runnable {
+            GUIUpdate() {
+            }
+
+            public void run() {
+                headerButtons.getChildren().remove(progressIndicator);
+                progressIndicator = null;
+            }
+        }
+
+        Platform.runLater(new GUIUpdate());
+    }
+
+    public void closeWindow() {
+        class GUIUpdate implements Runnable {
+            private Stage stage;
+
+            GUIUpdate(Stage stage) {
+                this.stage = stage;
+            }
+
+            public void run() {
+                stage.close();
+            }
+        }
+
+        Platform.runLater(new GUIUpdate(this));
     }
 }

@@ -1,6 +1,7 @@
 package application.utils;
 
 import application.utils.managers.ThreadManager;
+import org.apache.log4j.Logger;
 
 public class SDEThread {
     private Thread thread;
@@ -8,6 +9,8 @@ public class SDEThread {
     private Integer id = -1;
     private static Integer threadCounter = 0;
     private String description = "";
+
+    private static Logger log = Logger.getLogger(SDEThread.class);
 
     public SDEThread(Runnable runnable, String description) {
         threadCounter++;
@@ -42,5 +45,15 @@ public class SDEThread {
 
     public Runnable getRunnable() {
         return runnable;
+    }
+
+    public void join() {
+        if (thread != null) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                log.error(ex);
+            }
+        }
     }
 }

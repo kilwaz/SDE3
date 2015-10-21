@@ -1,10 +1,11 @@
 package application.gui;
 
+import application.Main;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
 import application.gui.canvas.CanvasController;
-import application.gui.dialog.*;
+import application.gui.dialog.ConfirmDialog;
 import application.gui.window.*;
 import application.node.design.DrawableNode;
 import application.utils.AppParams;
@@ -275,7 +276,7 @@ public class Controller implements Initializable {
                                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                                 canvasController.drawProgram();
                             } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
-                                log.error(ex);
+                                log.error("Error copying node",ex);
                             }
                             canvasPopOver.hide();
                         });
@@ -524,7 +525,7 @@ public class Controller implements Initializable {
                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                 canvasController.drawProgram();
             } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | NoSuchMethodException | IllegalAccessException ex) {
-                log.error(ex);
+                log.error("Error creating menu for node",ex);
             }
         });
         menuItem.setId(className + "-");
@@ -670,10 +671,10 @@ public class Controller implements Initializable {
     }
 
     public void updateThreadCount(Integer threadCount) {
-        class OneShotTask implements Runnable {
+        class GUIUpdate implements Runnable {
             Integer threadCount;
 
-            OneShotTask(Integer threadCount) {
+            GUIUpdate(Integer threadCount) {
                 this.threadCount = threadCount;
             }
 
@@ -682,11 +683,39 @@ public class Controller implements Initializable {
             }
         }
 
-        Platform.runLater(new OneShotTask(threadCount));
+        Platform.runLater(new GUIUpdate(threadCount));
     }
 
     public void addNewProgram(Program program) {
-        programList.getItems().add(program);
+        class GUIUpdate implements Runnable {
+            Program program;
+
+            GUIUpdate(Program program) {
+                this.program = program;
+            }
+
+            public void run() {
+                programList.getItems().add(program);
+            }
+        }
+
+        Platform.runLater(new GUIUpdate(program));
+    }
+
+    public void setWindowTitle(String title) {
+        class GUIUpdate implements Runnable {
+            String title;
+
+            GUIUpdate(String title) {
+                this.title = title;
+            }
+
+            public void run() {
+                Main.getInstance().getMainStage().setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+            }
+        }
+
+        Platform.runLater(new GUIUpdate(title));
     }
 
     public void closeDeleteNodeTabs(DrawableNode removedNode) {

@@ -9,12 +9,15 @@ import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LogicNode extends DrawableNode {
     private Logic logic = null;
+
+    private static Logger log = Logger.getLogger(LogicNode.class);
 
     public LogicNode(LogicNode logicNode) {
         this.logic = new Logic(this);

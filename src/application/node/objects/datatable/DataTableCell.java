@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 
 public class DataTableCell extends TableCell<DataTableRow, String> {
     private String columnName;
@@ -74,8 +75,21 @@ public class DataTableCell extends TableCell<DataTableRow, String> {
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
         textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
-            public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-                if (!arg2) {
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (!newValue) {
+                    commitEdit(textField.getText());
+                }
+            }
+        });
+        textField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                commitEdit(textField.getText());
+            }
+        });
+        textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (!newValue) {
                     commitEdit(textField.getText());
                 }
             }

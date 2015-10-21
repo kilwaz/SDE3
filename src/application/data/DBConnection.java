@@ -35,8 +35,8 @@ public class DBConnection {
     public PreparedStatement getPreparedStatement(String sql) {
         try {
             return connection.prepareStatement(sql);
-        } catch (Exception e) {
-            log.error(e);
+        } catch (Exception ex) {
+            log.error("Error in getting query", ex);
         }
         return null;
     }
@@ -47,8 +47,8 @@ public class DBConnection {
         }
         try {
             return !connection.isClosed();
-        } catch (SQLException e) {
-            log.error(e);
+        } catch (SQLException ex) {
+            log.error("Error closing connection", ex);
         }
         return false;
     }
@@ -58,8 +58,8 @@ public class DBConnection {
             if (connection != null) {
                 connection.close();
             }
-        } catch (SQLException e) {
-            log.error(e);
+        } catch (SQLException ex) {
+            log.error("Error closing connection",ex);
         }
     }
 }

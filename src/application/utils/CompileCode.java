@@ -42,6 +42,7 @@ public class CompileCode {
                     "import application.node.implementations.*;" +
                     "import application.node.design.*;" +
                     "import application.node.objects.*;" +
+                    "import application.node.objects.datatable.*;" +
                     "import application.net.proxy.*;" +
                     "import org.apache.log4j.Logger;" +
                     "public class " + className + " extends SDERunnable {" +
@@ -98,7 +99,14 @@ public class CompileCode {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ByteArrayOutputStream err = new ByteArrayOutputStream();
 
-            compiler.run(null, out, err, sourceFile.getPath());
+            if (compiler != null) {
+                compiler.run(null, out, err, sourceFile.getPath());
+            } else {
+                new ErrorDialog()
+                        .content("Make sure you are running from a full JDK and not just a JRE")
+                        .title("Compiler not found")
+                        .show();
+            }
 
             String outString = new String(out.toByteArray(), Charset.defaultCharset());
             String errString = new String(err.toByteArray(), Charset.defaultCharset());

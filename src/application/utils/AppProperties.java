@@ -27,8 +27,8 @@ public class AppProperties {
         try {
             path = path.replace("SDE.jar", "");
             propertiesPath = URLDecoder.decode(path + "/../../", "UTF-8") + "SDE.xml";
-        } catch (UnsupportedEncodingException e) {
-            log.error(e);
+        } catch (UnsupportedEncodingException ex) {
+            log.error("Error reading properties", ex);
         }
     }
 
@@ -51,7 +51,7 @@ public class AppProperties {
             return true;
 
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            log.error(ex);
+            log.error("Error parsing XML", ex);
         }
 
         return false;

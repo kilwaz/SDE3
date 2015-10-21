@@ -259,7 +259,7 @@ public class TestNode extends DrawableNode {
         Test editedTest = new Test(this);
         editedTest.setText(getTest().getText());
         for (Input input : inputNode.getInputs()) {
-            if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
+            if (input.getVariableName() != null && !input.getVariableName().isEmpty() && input.getVariableValue() != null && !input.getVariableValue().isEmpty()) {
                 editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
             }
         }

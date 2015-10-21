@@ -10,6 +10,8 @@ import application.node.objects.Bash;
 import application.node.objects.Logic;
 import application.node.objects.Switch;
 import application.node.objects.Trigger;
+import application.utils.SDERunnable;
+import application.utils.SDEThread;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 
@@ -120,6 +122,26 @@ public class FlowController {
         return result;
     }
 
+    private class CompileTaskRunnable extends SDERunnable {
+        private LogicNode node;
+
+        CompileTaskRunnable(LogicNode node) {
+            this.node = node;
+        }
+
+        public void threadRun() {
+            Boolean result = node.getLogic().compile();
+
+            if (result) {
+                node.setColor(Color.LIMEGREEN);
+            } else {
+                node.setColor(Color.ORANGE);
+            }
+
+            Controller.getInstance().updateCanvasControllerLater();
+        }
+    }
+
     public Boolean compile() {
         for (DrawableNode node : nodes) {
             node.setColor(Color.DARKRED);
@@ -127,20 +149,19 @@ public class FlowController {
 
         Controller.getInstance().updateCanvasControllerLater();
 
+        List<SDEThread> compileThreads = new ArrayList<>();
         for (DrawableNode node : nodes) {
             if (node instanceof LogicNode) {
-                Boolean result = ((LogicNode) node).getLogic().compile();
-                if (result) {
-                    node.setColor(Color.LIMEGREEN);
-                } else {
-                    node.setColor(Color.ORANGE);
-                }
-                Controller.getInstance().updateCanvasControllerLater();
+                compileThreads.add(new SDEThread(new CompileTaskRunnable((LogicNode) node), "Compile Task for for program - " + node.getContainedText()));
             }
         }
 
+        // Joins us to all compile threads and waits for them to end before continuing
+        compileThreads.forEach(application.utils.SDEThread::join);
+
         return true; // This should return what the actual compile method returns..
     }
+
 
     public void loadInstances() {
         activeTriggers.clear();
@@ -464,11 +485,11 @@ public class FlowController {
     public static FlowController getFlowControllerFromNode(DrawableNode nodeToFind) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
-                if (node instanceof LogicNode) {
+                //if (node instanceof LogicNode) {
                     if (nodeToFind.equals(node)) {
                         return program.getFlowController();
                     }
-                }
+                //}
             }
         }
 

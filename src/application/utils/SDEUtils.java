@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -124,7 +125,7 @@ public class SDEUtils {
             //(use relative path for Unix systems)
             File f = new File(path);
             if (f.exists()) {
-                 boolean fileDelete = f.delete();
+                boolean fileDelete = f.delete();
             }
             // Works for both Windows and Linux
             boolean result = f.createNewFile();
@@ -254,5 +255,9 @@ public class SDEUtils {
         }
 
         return returnedElement;
+    }
+
+    public static void zipDirectory(String directoryPath, String zipFileLocation) {
+        ZipUtil.pack(new File(directoryPath), new File(zipFileLocation));
     }
 }

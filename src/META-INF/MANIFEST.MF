@@ -37,6 +37,6 @@ Class-Path: jna.jar mail.jar tools.jar ojdbc6.jar jflex-1.6.0.jar jsch
  er-spi-0.9.0.M2.jar aether-util-0.9.0.M2.jar aether-impl-0.9.0.M2.jar
   maven-plugin-annotations-3.2.jar activation-1.1.jar c3p0-0.9.1.1.jar
   quartz-core-2.2.1.jar quartz-jobs-2.2.1.jar flyway-core-3.2.1.jar aw
- aitility-1.6.3.jar
+ aitility-1.6.3.jar zt-zip-1.8.jar
 Main-Class: application.Main
 

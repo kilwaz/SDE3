@@ -3,6 +3,7 @@ package application.node.design;
 import application.Main;
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.gui.FlowController;
 import application.gui.canvas.DrawablePoint;
 import application.node.objects.Trigger;
 import application.utils.AppParams;
@@ -92,13 +93,13 @@ public class DrawableNode {
                 }
             }
         } catch (IOException ex) {
-            log.error(ex);
+            log.error("Error parsing node classes", ex);
         } finally {
             if (zip != null) {
                 try {
                     zip.close();
-                } catch (IOException e) {
-                    log.error(e);
+                } catch (IOException ex) {
+                    log.error("Error closing zip", ex);
                 }
             }
         }
@@ -184,8 +185,16 @@ public class DrawableNode {
 
     public Element getXMLRepresentation(Document document) {
         Element elementNode = null;
-        // create the root element
+        // Create the root element
         Element nodeElement = document.createElement(this.getClass().getSimpleName());
+
+        // Record if this node is the start node of the program
+        DrawableNode drawableNode = FlowController.getFlowControllerFromNode(this).getStartNode();
+        if (drawableNode != null && drawableNode.equals(this)) {
+            Element startNodeElement = document.createElement("IsStartNode");
+            startNodeElement.appendChild(document.createTextNode("Yes"));
+            nodeElement.appendChild(startNodeElement);
+        }
 
         // Loops through savable attributes
         for (SavableAttribute savableAttribute : getDataToSave()) {

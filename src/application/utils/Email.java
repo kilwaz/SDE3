@@ -52,7 +52,7 @@ public class Email implements MessageCountListener {
             log.info("SENT DATE:" + msg.getSentDate());
             log.info("SUBJECT:" + msg.getSubject());
         } catch (Exception ex) {
-            log.error(ex);
+            log.error("Error opening inbox",ex);
         }
     }
 
@@ -80,7 +80,7 @@ public class Email implements MessageCountListener {
                 nodeReference.newEmailTrigger();
             }
         } catch (Exception ex) {
-            log.error(ex);
+            log.error("Error reading email",ex);
         }
     }
 
@@ -104,7 +104,7 @@ public class Email implements MessageCountListener {
                 // This is to update the inbox to trigger the change listener, we don't actually use the result of this
                 log.info("Checking email count.. " + inbox.getMessageCount());
             } catch (MessagingException ex) {
-                log.error(ex);
+                log.error("Error checking email",ex);
             }
 
             currentEmailCheckTimer = null;

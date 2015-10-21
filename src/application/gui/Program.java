@@ -1,6 +1,7 @@
 package application.gui;
 
 import application.data.DataBank;
+import application.gui.dialog.ErrorDialog;
 import application.node.design.DrawableNode;
 import application.node.objects.Logic;
 import application.utils.NodeRunParams;
@@ -79,17 +80,26 @@ public class Program {
         getFlowController().setSourceToBlack();
         getFlowController().loadInstances();
 
-        class OneShotTask implements Runnable {
-            OneShotTask() {
+        class RunProgram implements Runnable {
+            RunProgram() {
             }
 
             public void run() {
-                Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), null, false, true, new NodeRunParams());
+                if (getFlowController().getStartNode() != null) {
+                    getFlowController().compile();
+                    Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), null, false, true, new NodeRunParams());
+                } else {
+                    log.info("No start node found");
+                    new ErrorDialog()
+                            .content("Nothing to run, select a start node.")
+                            .header("No start node found")
+                            .show();
+                }
             }
         }
 
         // Starts the program in a new thread separate from the GUI thread.
-        new SDEThread(new OneShotTask(), "Running program - " + this.getName());
+        new SDEThread(new RunProgram(), "Running program - " + this.getName());
     }
 
     public static void runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean main, NodeRunParams nodeRunParams) {
@@ -108,7 +118,18 @@ public class Program {
                     triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
                     drawableNode.run(whileWaiting, nodeRunParams);
                 } else {
-                    log.info("Wasn't able to run the program '" + name + "' '" + referenceID + "'");
+                    log.info("Wasn't able to run the program '" + name + "'");
+                    if ("Start".equals(name) && "1".equals(referenceID)) {
+                        new ErrorDialog()
+                                .content("A start node needs to be selected")
+                                .title("No start node")
+                                .show();
+                    } else {
+                        new ErrorDialog()
+                                .content("Cannot find node '" + name + "'.")
+                                .title("Failed to run node")
+                                .show();
+                    }
                 }
 
                 DrawableNode drawableNode = null;

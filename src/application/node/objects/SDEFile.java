@@ -59,6 +59,18 @@ public class SDEFile {
         return file;
     }
 
+    public void setFile(String location) {
+        this.file = new File(location);
+        if (!file.exists()) {
+            try {
+                Boolean createResult = file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        DataBank.saveSDEFile(this);
+    }
+
     public void setFile(File file) {
         this.file = file;
         if (!file.exists()) {

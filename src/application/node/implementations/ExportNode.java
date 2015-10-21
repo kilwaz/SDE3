@@ -10,6 +10,7 @@ import application.data.export.ExportValue;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -41,6 +42,7 @@ public class ExportNode extends DrawableNode {
     private String fileOutputDirectory = "";
     private String fileOutputName = "";
     private String constructedFileName = "";
+    private String constructedDirectory = "";
 
     private TextField directoryField;
     private Label constructedFileNameLabel;
@@ -135,11 +137,13 @@ public class ExportNode extends DrawableNode {
             String fileDate = dateFormat.format(date);
             FileOutputStream fos = null;
             try {
-                constructedFileName = fileOutputDirectory + "/" + fileOutputName + ".xlsx";
-                constructedFileName = constructedFileName.replace("[DATE]", fileDate);
+                buildConstructedFileName();
+//                constructedFileName = fileOutputDirectory + "/" + fileOutputName + ".xlsx";
+//                constructedFileName = constructedFileName.replace("[DATE]", fileDate);
 
                 exportOutputFile = new File(constructedFileName);
                 if (!exportOutputFile.exists()) {
+                    Boolean createDirectoryResult = exportOutputFile.getParentFile().mkdirs();
                     Boolean createFileResult = exportOutputFile.createNewFile();
                 }
 
@@ -147,14 +151,14 @@ public class ExportNode extends DrawableNode {
                 fos = new FileOutputStream(exportOutputFile);
                 workbook.write(fos);
             } catch (IOException ex) {
-                log.error(ex);
+                log.error("Error exporting node", ex);
             } finally {
                 try {
                     if (fos != null) {
                         fos.close();
                     }
                 } catch (IOException ex) {
-                    log.error(ex);
+                    log.error("Error closing file", ex);
                 }
             }
         }
@@ -266,7 +270,25 @@ public class ExportNode extends DrawableNode {
         constructedFileName = fileOutputDirectory + "/" + fileOutputName + ".xlsx";
         constructedFileName = constructedFileName.replace("[DATE]", fileDate);
 
-        constructedFileNameLabel.setText(constructedFileName);
+        constructedDirectory = fileOutputDirectory.replace("[DATE]", fileDate) + "/";
+
+        updateConstructedFileNameLabel(constructedFileName);
+    }
+
+    public void updateConstructedFileNameLabel(String text) {
+        class GUIUpdate implements Runnable {
+            String text;
+
+            GUIUpdate(String text) {
+                this.text = text;
+            }
+
+            public void run() {
+                constructedFileNameLabel.setText(text);
+            }
+        }
+
+        Platform.runLater(new GUIUpdate(text));
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -296,6 +318,12 @@ public class ExportNode extends DrawableNode {
     }
 
     public String getConstructedFileName() {
+        buildConstructedFileName();
         return constructedFileName;
+    }
+
+    public String getConstructedDirectory() {
+        buildConstructedFileName();
+        return constructedDirectory;
     }
 }

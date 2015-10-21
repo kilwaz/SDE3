@@ -1,8 +1,12 @@
 package application.data.export;
 
+import org.apache.log4j.Logger;
+
 public class ExportCell {
     private Integer rowPosition;
     private Integer columnPosition;
+
+    private static Logger log = Logger.getLogger(ExportCell.class);
 
     public ExportCell(Integer rowPosition, Integer columnPosition) {
         this.rowPosition = rowPosition;
@@ -23,5 +27,9 @@ public class ExportCell {
 
     public void setColumnPosition(Integer columnPosition) {
         this.columnPosition = columnPosition;
+    }
+
+    int compareTo(Object cell){
+        return 0;
     }
 }

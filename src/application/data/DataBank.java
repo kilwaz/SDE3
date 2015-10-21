@@ -288,6 +288,18 @@ public class DataBank {
                 .execute();
     }
 
+    public static void deleteDataTableRow(DataTableRow dataTableRow) {
+        new UpdateQuery("delete from data_table_rows where id = ?")
+                .addParameter(dataTableRow.getId()) // 1
+                .execute();
+    }
+
+    public static void deleteDataTableValue(DataTableValue dataTableValue) {
+        new UpdateQuery("delete from data_table_values where id = ?")
+                .addParameter(dataTableValue.getId()) // 1
+                .execute();
+    }
+
     public static void saveNode(DrawableNode node) {
         UpdateResult updateResult = (UpdateResult) new UpdateQuery("update node set program_id = ?, node_type = ? where id = ?")
                 .addParameter(node.getProgramId()) // 1
@@ -391,7 +403,7 @@ public class DataBank {
                                 method.invoke(drawableNode, integerValue);
                             }
                         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
-                            log.error(ex);
+                            log.error("Error loading program",ex);
                         }
                     }
 
@@ -598,7 +610,7 @@ public class DataBank {
                         ImageIO.read(resultRow.getBlobInputStream("screenshot")),
                         testResult));
             } catch (IOException ex) {
-                log.error(ex);
+                log.error("Error loading test step",ex);
             }
         }
     }

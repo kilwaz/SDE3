@@ -20,6 +20,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Random;
 
 public class AceTextArea extends VBox {
     private DrawableNode node;
@@ -61,7 +62,7 @@ public class AceTextArea extends VBox {
             byte[] encoded = Files.readAllBytes(Paths.get(bashEditorPath));
             content = new String(encoded, "UTF8");
         } catch (IOException ex) {
-            log.error(ex);
+            log.error("Error reading files", ex);
         }
 
         // If no logic node is linked then we remove the content placeholder
@@ -109,12 +110,16 @@ public class AceTextArea extends VBox {
                     try {
                         pasteText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
                     } catch (UnsupportedFlavorException | IOException ex) {
-                        log.error(ex);
+                        log.error("Error pasting text", ex);
                     }
                     jsObject.call("pasteText", pasteText);
                 }
             }
         });
+
+//        browser.setOnScroll(event -> {
+//            log.info("This is us scrolling on something...");
+//        });
     }
 
     // We need to have a delay here as it is possible when setting the text straight after creating the text area

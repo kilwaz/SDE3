@@ -124,7 +124,7 @@ public class ExportWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            log.error(ex);
+            log.error("Error creating export", ex);
         }
     }
 }

@@ -83,7 +83,7 @@ public class EmailMessage {
     }
 
     public void send() {
-        new SDEThread(new SendEmailMessage(), "Thread for sending email");
+        new SDEThread(new SendEmailMessage(), "Sending emails");
     }
 
     private class SendEmailMessage extends SDERunnable {
@@ -145,8 +145,8 @@ public class EmailMessage {
                 }
 
                 log.info("Email sent out successfully to " + sb.toString());
-            } catch (MessagingException mex) {
-                log.error("Error sending email", mex);
+            } catch (MessagingException ex) {
+                log.error("Error sending email", ex);
             }
         }
     }
