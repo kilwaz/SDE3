@@ -52,9 +52,13 @@ public class CompileCode {
                     "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getId() + ")\");" +
                     "   " + logic.getLogic() + "" +
                     "   public void threadRun() {" +
-                    "      FlowController.sourceStarted(this.logicReferenceId);" +
-                    "      function();" +
-                    "      FlowController.sourceFinished(this.logicReferenceId);" +
+                    "      try {" +
+                    "           FlowController.sourceStarted(this.logicReferenceId);" +
+                    "           function();" +
+                    "           FlowController.sourceFinished(this.logicReferenceId);" +
+                    "      } catch (Exception ex) {" +
+                    "           log.error(\"Error within " + className + "\",ex);" +
+                    "      }" +
                     "   }" +
                     "   public void init(NodeRunParams nodeRunParams) {" +
                     "      this.nodeRunParams = new NodeRunParams(nodeRunParams);" +
