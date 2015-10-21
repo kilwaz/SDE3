@@ -82,8 +82,9 @@ public class EmailMessage {
         return this;
     }
 
-    public void send() {
+    public EmailMessage send() {
         new SDEThread(new SendEmailMessage(), "Sending emails");
+        return this;
     }
 
     private class SendEmailMessage extends SDERunnable {
@@ -125,6 +126,9 @@ public class EmailMessage {
                     for (String fileName : attachFileNames) {
                         DataSource source = new FileDataSource(fileName);
                         messageBodyPart.setDataHandler(new DataHandler(source));
+                        if (fileName.contains("/") && !fileName.endsWith("/")) {
+                            fileName = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
+                        }
                         messageBodyPart.setFileName(fileName);
                         multipart.addBodyPart(messageBodyPart);
                     }

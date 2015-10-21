@@ -13,9 +13,10 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomObjectNode extends DrawableNode {
-    private HashMap<String, CustomObject> customObjectHashMap = new HashMap<>();
+    private ConcurrentHashMap<String, CustomObject> customObjectHashMap = new ConcurrentHashMap<>();
 
     // This will make a copy of the node passed to it
     public CustomObjectNode(CustomObjectNode customObjectNode) {
@@ -78,6 +79,7 @@ public class CustomObjectNode extends DrawableNode {
     }
 
     public CustomObject getCustomObject(String reference) {
+
         return customObjectHashMap.get(reference);
     }
 
