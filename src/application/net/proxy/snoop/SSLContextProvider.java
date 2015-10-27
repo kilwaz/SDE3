@@ -1,5 +1,6 @@
 package application.net.proxy.snoop;
 
+import application.error.Error;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -42,13 +43,13 @@ public class SSLContextProvider {
                 kmf.init(ks, "secret".toCharArray());
                 sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             } catch (Exception ex) {
-                log.error(ex);
+                Error.SSL_CONTEXT.record().create(ex);
             } finally {
                 if (fis != null) {
                     try {
                         fis.close();
-                    } catch (IOException e) {
-                        log.error(e);
+                    } catch (IOException ex) {
+                        Error.CLOSE_FILE_STREAM.record().create(ex);
                     }
                 }
             }
@@ -82,13 +83,13 @@ public class SSLContextProvider {
             }
 
         } catch (Exception ex) {
-            log.error(ex);
+            Error.SSL_CONTEXT.record().create(ex);
         } finally {
             if (is != null) {
                 try {
                     is.close();
-                } catch (IOException e) {
-                    log.error(e);
+                } catch (IOException ex) {
+                    Error.CLOSE_FILE_STREAM.record().create(ex);
                 }
             }
         }

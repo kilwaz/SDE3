@@ -1,5 +1,6 @@
 package application.gui;
 
+import application.error.Error;
 import application.node.design.DrawableNode;
 import application.utils.SDEUtils;
 import javafx.application.Platform;
@@ -20,7 +21,6 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Random;
 
 public class AceTextArea extends VBox {
     private DrawableNode node;
@@ -62,7 +62,7 @@ public class AceTextArea extends VBox {
             byte[] encoded = Files.readAllBytes(Paths.get(bashEditorPath));
             content = new String(encoded, "UTF8");
         } catch (IOException ex) {
-            log.error("Error reading files", ex);
+            Error.ACE_TEXT_PASTE.record().create(ex);
         }
 
         // If no logic node is linked then we remove the content placeholder
@@ -110,7 +110,7 @@ public class AceTextArea extends VBox {
                     try {
                         pasteText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
                     } catch (UnsupportedFlavorException | IOException ex) {
-                        log.error("Error pasting text", ex);
+                        Error.ACE_TEXT_PASTE.record().create(ex);
                     }
                     jsObject.call("pasteText", pasteText);
                 }

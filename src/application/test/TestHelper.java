@@ -1,6 +1,8 @@
 package application.test;
 
 import application.data.DataBank;
+import application.error.*;
+import application.error.Error;
 import application.node.implementations.TestResultNode;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -85,7 +87,7 @@ public class TestHelper {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {
-            log.error(ex);
+            Error.TEST_WAIT_INTERRUPT.record().create(ex);
         }
     }
 

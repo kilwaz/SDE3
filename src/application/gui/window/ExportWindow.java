@@ -1,6 +1,7 @@
 package application.gui.window;
 
 import application.data.DataBank;
+import application.error.Error;
 import application.gui.AceTextArea;
 import application.gui.Program;
 import application.node.design.DrawableNode;
@@ -124,7 +125,7 @@ public class ExportWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            log.error("Error creating export", ex);
+            Error.CREATE_EXPORT_WINDOW.record().create(ex);
         }
     }
 }

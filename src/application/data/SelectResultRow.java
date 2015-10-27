@@ -1,6 +1,7 @@
 package application.data;
 
 
+import application.error.Error;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
@@ -46,7 +47,7 @@ public class SelectResultRow {
         try {
             return ((Blob) rowValues.get(colName + "-Blob")).getBinaryStream();
         } catch (SQLException ex) {
-            log.error(ex);
+            Error.SQL_BLOB.record().create(ex);
         }
         return null;
     }

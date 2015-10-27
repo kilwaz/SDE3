@@ -1,5 +1,6 @@
 package application.data;
 
+import application.error.Error;
 import org.apache.log4j.Logger;
 
 import java.sql.Connection;
@@ -11,6 +12,7 @@ public class DBConnection {
     private String username = "";
     private String password = "";
     private String connectionString = "";
+    private Boolean isApplicationConnection = false;
 
     private Connection connection = null;
 
@@ -22,12 +24,19 @@ public class DBConnection {
         this.connectionString = connectionString;
     }
 
+    public DBConnection(String connectionString, String username, String password, Boolean isApplicationConnection) {
+        this.password = password;
+        this.username = username;
+        this.connectionString = connectionString;
+        this.isApplicationConnection = isApplicationConnection;
+    }
+
     public Boolean connect() {
         try {
             connection = DriverManager.getConnection(connectionString, username, password);
             return true;
         } catch (SQLException ex) {
-            log.error("Trouble connecting to the database with details - Connection String:" + connectionString + " Username:" + username + " Password:" + password, ex);
+            Error.OPEN_DATABASE_CONNECTION.record().additionalInformation("Connection String:" + connectionString + " Username:" + username + " Password:" + password).create(ex);
             return false;
         }
     }
@@ -36,7 +45,7 @@ public class DBConnection {
         try {
             return connection.prepareStatement(sql);
         } catch (Exception ex) {
-            log.error("Error in getting query", ex);
+            Error.PREPARE_QUERY.record().create(ex);
         }
         return null;
     }
@@ -48,7 +57,7 @@ public class DBConnection {
         try {
             return !connection.isClosed();
         } catch (SQLException ex) {
-            log.error("Error closing connection", ex);
+            Error.CLOSE_DATABASE_CONNECTION.record().create(ex);
         }
         return false;
     }
@@ -59,7 +68,11 @@ public class DBConnection {
                 connection.close();
             }
         } catch (SQLException ex) {
-            log.error("Error closing connection",ex);
+            Error.CLOSE_DATABASE_CONNECTION.record().create(ex);
         }
+    }
+
+    public Boolean isApplicationConnection() {
+        return isApplicationConnection;
     }
 }

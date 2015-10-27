@@ -1,5 +1,6 @@
 package application.net.ssh;
 
+import application.error.Error;
 import application.node.implementations.CopyNode;
 import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.Channel;
@@ -102,13 +103,13 @@ public class SCPProgress {
             copyNode.updateProgressBar(1.0);
             copyNode.updateProgressBarLabel("Completed " + localFile);
         } catch (Exception ex) {
-            log.error(ex);
+            Error.SCP_COPY.record().create(ex);
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
-                } catch (IOException e) {
-                    log.error(e);
+                } catch (IOException ex) {
+                    Error.CLOSE_FILE_STREAM.record().create(ex);
                 }
             }
         }

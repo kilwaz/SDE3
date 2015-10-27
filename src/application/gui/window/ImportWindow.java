@@ -1,6 +1,8 @@
 package application.gui.window;
 
 import application.data.imports.ImportNodes;
+import application.error.*;
+import application.error.Error;
 import application.gui.AceTextArea;
 import application.utils.SDEThread;
 import application.utils.XMLTransform;
@@ -75,7 +77,7 @@ public class ImportWindow extends Stage {
 
                         importTextArea.setText(XMLTransform.writeXMLToString(dom));
                     } catch (ParserConfigurationException | SAXException | IOException ex) {
-                        log.error(ex);
+                        Error.IMPORT_PARSE.record().create(ex);
                     }
                 }
             });
@@ -118,7 +120,7 @@ public class ImportWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            log.error(ex);
+            Error.CREATE_IMPORT_WINDOW.record().create(ex);
         }
     }
 

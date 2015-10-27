@@ -1,5 +1,6 @@
 package application.utils;
 
+import application.error.Error;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
@@ -78,7 +79,7 @@ public class RemoteDebug implements Runnable {
                 bReq.enable();
             }
         } catch (AbsentInformationException ex) {
-            log.error(ex);
+            Error.REMOTE_DEBUG_SET_BREAKPOINT.record().create(ex);
         }
     }
 
@@ -141,9 +142,9 @@ public class RemoteDebug implements Runnable {
                                 }
                             }
                         } catch (AbsentInformationException ex) {
-                            log.error("AbsentInformationException: did you compile your target application with -g option?", ex);
+                            Error.REMOTE_DEBUG_COMPILE.record().create(ex);
                         } catch (Exception ex) {
-                            log.error(ex);
+                            Error.REMOTE_DEBUG_EVENT.record().create(ex);
                         } finally {
                             evtSet.resume();
                         }
@@ -151,7 +152,7 @@ public class RemoteDebug implements Runnable {
                 }
             }
         } catch (InterruptedException | IllegalConnectorArgumentsException | IOException ex) {
-            log.error(ex);
+            Error.REMOTE_DEBUG.record().create(ex);
         }
     }
 }

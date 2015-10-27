@@ -1,6 +1,8 @@
 package application.data.imports;
 
 import application.data.DataBank;
+import application.error.*;
+import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
 import application.gui.window.ImportWindow;
@@ -126,7 +128,7 @@ public class ImportNodes extends SDERunnable {
                                 method.invoke(importedNode, integerValue);
                             }
                         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
-                            log.error(ex);
+                            Error.IMPORT_NODE.record().create(ex);
                         }
                     }
                 } else if ("IsStartNode".equals(nodeTopElements.getTagName())) {

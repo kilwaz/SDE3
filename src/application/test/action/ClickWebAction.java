@@ -1,6 +1,7 @@
 package application.test.action;
 
 import application.data.DataBank;
+import application.error.Error;
 import application.test.TestParameter;
 import application.test.TestStep;
 import application.test.action.helpers.LoopTracker;
@@ -68,7 +69,7 @@ public class ClickWebAction extends WebAction {
 
             DataBank.saveTestStep(testStep);
         } catch (Exception ex) {
-            log.error("ClickAction is failing, selenium is not responding when finding the element", ex);
+            Error.SELENIUM_CLICK_ACTION_NOT_FOUND.record().create(ex);
         }
     }
 

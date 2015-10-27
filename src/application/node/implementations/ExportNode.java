@@ -7,6 +7,7 @@ import application.data.export.Export;
 import application.data.export.ExportCell;
 import application.data.export.ExportFormula;
 import application.data.export.ExportValue;
+import application.error.Error;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
@@ -138,8 +139,6 @@ public class ExportNode extends DrawableNode {
             FileOutputStream fos = null;
             try {
                 buildConstructedFileName();
-//                constructedFileName = fileOutputDirectory + "/" + fileOutputName + ".xlsx";
-//                constructedFileName = constructedFileName.replace("[DATE]", fileDate);
 
                 exportOutputFile = new File(constructedFileName);
                 if (!exportOutputFile.exists()) {
@@ -151,14 +150,14 @@ public class ExportNode extends DrawableNode {
                 fos = new FileOutputStream(exportOutputFile);
                 workbook.write(fos);
             } catch (IOException ex) {
-                log.error("Error exporting node", ex);
+                Error.RUN_EXPORT_NODE.record().create(ex);
             } finally {
                 try {
                     if (fos != null) {
                         fos.close();
                     }
                 } catch (IOException ex) {
-                    log.error("Error closing file", ex);
+                    Error.CLOSE_FILE.record().create(ex);
                 }
             }
         }

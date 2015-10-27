@@ -1,5 +1,7 @@
 package application.utils;
 
+import application.error.*;
+import application.error.Error;
 import application.utils.managers.ThreadManager;
 import org.apache.log4j.Logger;
 
@@ -52,7 +54,7 @@ public class SDEThread {
             try {
                 thread.join();
             } catch (InterruptedException ex) {
-                log.error(ex);
+                Error.SDE_JOIN_THREAD.record().create(ex);
             }
         }
     }

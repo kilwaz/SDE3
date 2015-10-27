@@ -1,5 +1,6 @@
 package application.test;
 
+import application.error.Error;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.scene.control.Label;
@@ -47,7 +48,7 @@ public class TestStep {
                 ImageIO.write(screenshot, "png", os);
                 inputStream = new ByteArrayInputStream(os.toByteArray());
             } catch (IOException ex) {
-                log.error(ex);
+                Error.RETRIEVE_SCREENSHOT.record().create(ex);
             }
         }
 

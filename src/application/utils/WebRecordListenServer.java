@@ -1,5 +1,7 @@
 package application.utils;
 
+import application.error.*;
+import application.error.Error;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -23,7 +25,7 @@ public class WebRecordListenServer {
             server.start();
             log.info("Started record listen server!");
         } catch (IOException ex) {
-            log.error(ex);
+            Error.WEB_RECORD_SERVER.record().create(ex);
         }
     }
 

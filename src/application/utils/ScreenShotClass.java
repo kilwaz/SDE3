@@ -1,5 +1,7 @@
 package application.utils;
 
+import application.error.*;
+import application.error.Error;
 import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -56,7 +58,7 @@ public class ScreenShotClass {
             image = new Robot().createScreenCapture(screenRectangle);
             ImageIO.write(image, "png", new File(userHome, "/SDE/" + name + ".png"));
         } catch (AWTException | IOException ex) {
-            log.error(ex);
+            Error.TAKE_SCREENSHOT.record().create(ex);
         }
     }
 

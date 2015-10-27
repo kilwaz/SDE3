@@ -1,6 +1,7 @@
 package application.utils;
 
 import application.Main;
+import application.error.Error;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,7 +29,7 @@ public class AppProperties {
             path = path.replace("SDE.jar", "");
             propertiesPath = URLDecoder.decode(path + "/../../", "UTF-8") + "SDE.xml";
         } catch (UnsupportedEncodingException ex) {
-            log.error("Error reading properties", ex);
+            Error.APP_PROPERTIES_READ.record().create(ex);
         }
     }
 
@@ -51,7 +52,7 @@ public class AppProperties {
             return true;
 
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            log.error("Error parsing XML", ex);
+            Error.APP_PROPERTIES_XML_PARSE.record().create(ex);
         }
 
         return false;
@@ -99,7 +100,7 @@ public class AppProperties {
 
             XMLTransform.writeXMLToFile(document, propertiesPath);
         } catch (ParserConfigurationException ex) {
-            log.error("UsersXML: Error trying to instantiate DocumentBuilder ", ex);
+            Error.APP_PROPERTIES_SAVE_XML.record().create(ex);
         }
     }
 }

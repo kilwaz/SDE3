@@ -1,6 +1,7 @@
 package application.node.objects;
 
 import application.data.DataBank;
+import application.error.Error;
 import application.node.implementations.FileStoreNode;
 import org.apache.log4j.Logger;
 
@@ -41,7 +42,7 @@ public class SDEFile {
                 return new FileInputStream(file);
             }
         } catch (FileNotFoundException ex) {
-            log.error("Count not find file", ex);
+            Error.SDE_FILE_NOT_FOUND.record().create(ex);
         }
 
         return null;

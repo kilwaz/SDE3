@@ -1,6 +1,7 @@
 package application.gui.canvas;
 
 import application.data.DataBank;
+import application.error.Error;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.design.DrawableNode;
@@ -82,7 +83,7 @@ public class AStarNetwork {
             return aStarSolve(start, goal);
         } else {
             // Return empty list if no start or goal
-            log.error("Problems finding start or goal for path");
+            Error.A_STAR_START_GOAL_MISSING.record().create();
             return new ArrayList<>();
         }
     }

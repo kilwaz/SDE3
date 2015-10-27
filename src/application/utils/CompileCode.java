@@ -1,5 +1,6 @@
 package application.utils;
 
+import application.error.Error;
 import application.gui.FlowController;
 import application.gui.dialog.ErrorDialog;
 import application.gui.dialog.ExceptionDialog;
@@ -38,6 +39,7 @@ public class CompileCode {
                     "import application.gui.*;" +
                     "import application.test.*;" +
                     "import application.net.ssh.*;" +
+                    "import application.error.Error;" +
                     "import application.net.proxy.*;" +
                     "import application.node.implementations.*;" +
                     "import application.node.design.*;" +
@@ -57,7 +59,7 @@ public class CompileCode {
                     "           function();" +
                     "           FlowController.sourceFinished(this.logicReferenceId);" +
                     "      } catch (Exception ex) {" +
-                    "           log.error(\"Error within " + className + "\",ex);" +
+                    "           Error.COMPILED_LOGIC_NODE.record().additionalInformation(\"Node - " + logic.getParentLogicNode().getContainedText() + " (" + className + ")\").create(ex);" +
                     "      }" +
                     "   }" +
                     "   public void init(NodeRunParams nodeRunParams) {" +
@@ -120,8 +122,7 @@ public class CompileCode {
                 if (lineNumber.contains(":")) {
                     lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
                 }
-                log.info("Error compiling " + logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString);
-
+                Error.CODE_COMPILE.record().additionalInformation(logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString).create();
                 new ErrorDialog()
                         .content(errString)
                         .title("Compile error on " + logic.getParentLogicNode().getContainedText())
@@ -130,7 +131,7 @@ public class CompileCode {
                 className = null;
             }
             if (outString.length() > 1) {
-                log.info("Error compiling " + outString);
+                Error.CODE_COMPILE.record().additionalInformation(outString).create();
 
                 new ErrorDialog()
                         .content(outString)
@@ -150,7 +151,7 @@ public class CompileCode {
                     .content("Exception encountered while trying to compile " + flowControllerReferenceId)
                     .exception(ex)
                     .show();
-            log.error("Error compiling code", ex);
+            Error.CODE_COMPILE.record().create(ex);
             className = null;
         }
 

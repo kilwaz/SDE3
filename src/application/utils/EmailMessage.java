@@ -1,5 +1,6 @@
 package application.utils;
 
+import application.error.Error;
 import org.apache.log4j.Logger;
 
 import javax.activation.DataHandler;
@@ -150,7 +151,7 @@ public class EmailMessage {
 
                 log.info("Email sent out successfully to " + sb.toString());
             } catch (MessagingException ex) {
-                log.error("Error sending email", ex);
+                Error.EMAIL_SEND.record().create(ex);
             }
         }
     }

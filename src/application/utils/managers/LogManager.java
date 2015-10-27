@@ -2,6 +2,7 @@ package application.utils.managers;
 
 
 import application.Main;
+import application.error.Error;
 import application.log.LogClass;
 import application.log.LogMessage;
 import javafx.application.Platform;
@@ -47,8 +48,8 @@ public class LogManager {
             String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             try {
                 logOutputFilePath = URLDecoder.decode(path + "../../../logs/", "UTF-8") + "SDE3 - Started " + str + ".log";
-            } catch (UnsupportedEncodingException e) {
-                log.error(e);
+            } catch (UnsupportedEncodingException ex) {
+                Error.LOG_OUTPUT.record().create(ex);
             }
         }
 
@@ -74,6 +75,4 @@ public class LogManager {
             }
         });
     }
-
-
 }

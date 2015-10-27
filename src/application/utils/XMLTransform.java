@@ -1,5 +1,6 @@
 package application.utils;
 
+import application.error.Error;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -35,13 +36,13 @@ public class XMLTransform {
             fos = new FileOutputStream(file);
             tr.transform(new DOMSource(document), new StreamResult(fos));
         } catch (TransformerException | IOException ex) {
-            log.error(ex);
+            Error.XML_WRITE_TO_FILE.record().create(ex);
         } finally {
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException ex) {
-                    log.error(ex);
+                    Error.CLOSE_FILE_STREAM.record().create(ex);
                 }
             }
         }
@@ -61,7 +62,7 @@ public class XMLTransform {
 
             return stringWriter.toString();
         } catch (TransformerException ex) {
-            log.error(ex);
+            Error.XML_WRITE_XML_TO_STRING.record().create(ex);
         }
 
         return null;
@@ -79,7 +80,7 @@ public class XMLTransform {
             // XML file
             document = db.parse(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            log.error(ex);
+            Error.XML_WRITE_TO_STRING.record().create(ex);
         }
         return document;
     }

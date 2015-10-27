@@ -1,6 +1,7 @@
 package application.utils;
 
 import application.Main;
+import application.error.Error;
 import application.gui.FlowController;
 import application.net.ssh.SSHCommand;
 import application.net.ssh.SSHManager;
@@ -27,7 +28,7 @@ public class SDEUtils {
         try {
             knownHosts = new File(System.getProperty("user.home"), ".ssh/known_hosts").getCanonicalPath();
         } catch (IOException ex) {
-            log.error(ex);
+            Error.KNOWN_HOSTS.record().create(ex);
         }
     }
 
@@ -100,7 +101,7 @@ public class SDEUtils {
                 returnString.append((char) in);
             }
         } catch (IOException ex) {
-            log.error(ex);
+            Error.RUN_CMD_COMMAND.record().create(ex);
         }
 
         return returnString.toString();
@@ -135,7 +136,7 @@ public class SDEUtils {
             fileOut.println("client-name=" + project);
             fileOut.close();
         } catch (IOException ex) {
-            log.error(ex);
+            Error.FOCAL_BUILD_APPLICATION.record().create(ex);
         }
 
         runCMDCommand("cd " + projectLocation + "\\app-builder & mvn -Dclient-name=" + project + " clean package");
@@ -154,7 +155,7 @@ public class SDEUtils {
                 resourcesPath = URLDecoder.decode(resourcesPath, "UTF-8");
             }
         } catch (UnsupportedEncodingException ex) {
-            log.error(ex);
+            Error.RESOURCE_PATH.record().create(ex);
         }
 
         return resourcesPath;
@@ -172,7 +173,7 @@ public class SDEUtils {
                 resourcesPath = URLDecoder.decode(resourcesPath, "UTF-8");
             }
         } catch (UnsupportedEncodingException ex) {
-            log.error(ex);
+            Error.NODE_IMPLEMENTATION.record().create(ex);
         }
 
         return resourcesPath;

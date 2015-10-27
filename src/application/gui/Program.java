@@ -1,6 +1,7 @@
 package application.gui;
 
 import application.data.DataBank;
+import application.error.Error;
 import application.gui.dialog.ErrorDialog;
 import application.node.design.DrawableNode;
 import application.node.objects.Logic;
@@ -155,7 +156,7 @@ public class Program {
                 sdeThread.getThread().join();
                 ThreadManager.getInstance().closeThreads(); // Check to see if this thread has finished yet
             } catch (InterruptedException ex) {
-                log.error(ex);
+                Error.PROGRAM_JOIN_THREAD.record().create(ex);
             }
         }
     }
@@ -215,7 +216,7 @@ public class Program {
 
             return document;
         } catch (ParserConfigurationException ex) {
-            log.error("ProgramXML: Error trying to instantiate DocumentBuilder", ex);
+            Error.NODE_XML_REPRESENTATION.record().create(ex);
         }
 
         return null;

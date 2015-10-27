@@ -2,6 +2,7 @@ package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
 import application.net.ssh.SCPProgress;
@@ -238,13 +239,13 @@ public class LinuxNode extends DrawableNode {
 
                 fileWriter.append(script);
             } catch (IOException ex) {
-                log.error(ex);
+                Error.RUN_LINUX_NODE.record().create(ex);
             } finally {
-                if(fileWriter != null){
+                if (fileWriter != null) {
                     try {
                         fileWriter.close();
-                    } catch (IOException e) {
-                        log.error(e);
+                    } catch (IOException ex) {
+                        Error.CLOSE_FILE_WRITER.record().create(ex);
                     }
                 }
             }

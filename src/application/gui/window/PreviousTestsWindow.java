@@ -1,5 +1,7 @@
 package application.gui.window;
 
+import application.error.*;
+import application.error.Error;
 import application.node.implementations.TestNode;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -47,7 +49,7 @@ public class PreviousTestsWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            log.error(ex);
+            Error.CREATE_PREVIOUS_TESTS_WINDOW.record().create(ex);
         }
     }
 }

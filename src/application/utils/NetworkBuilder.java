@@ -1,6 +1,7 @@
 package application.utils;
 
 import application.data.NetworkNodeInfo;
+import application.error.Error;
 import application.utils.managers.NetworkManager;
 import org.apache.log4j.Logger;
 
@@ -17,7 +18,7 @@ public class NetworkBuilder {
                 networkAddress = InetAddress.getLocalHost().getHostAddress().substring(0, InetAddress.getLocalHost().getHostAddress().lastIndexOf(".") + 1);
             }
         } catch (Exception ex) {
-            log.error("Exception occurred while trying to retrieve networkAddress stack:", ex);
+            Error.NETWORK_ADDRESS.record().create(ex);
         }
         for (Integer i = 1; i < 254; i++) {
             new SDEThread(new BuildNetwork(networkAddress, i.toString()), "Network Builder for ip " + i.toString());
@@ -41,7 +42,7 @@ public class NetworkBuilder {
                     NetworkManager.getInstance().addNetworkNodeInfo(new NetworkNodeInfo(host, InetAddress.getByName(host).getHostName(), true));
                 }
             } catch (Exception ex) {
-                log.error("Exception occurred while trying to reach host " + host + " stack: ", ex);
+                Error.NETWORK_REACH_HOST.record().additionalInformation("Host " + host).create(ex);
             }
         }
     }

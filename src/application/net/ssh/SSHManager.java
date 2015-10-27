@@ -1,5 +1,6 @@
 package application.net.ssh;
 
+import application.error.Error;
 import application.node.design.DrawableNode;
 import application.node.implementations.ConsoleNode;
 import application.node.implementations.LinuxNode;
@@ -37,7 +38,7 @@ public class SSHManager {
         try {
             jschSSHChannel.setKnownHosts(knownHostsFileName);
         } catch (JSchException ex) {
-            log.error(ex);
+            Error.OPEN_SSH_CONNECTION.record().create(ex);
         }
 
         strUserName = userName;
@@ -68,7 +69,7 @@ public class SSHManager {
             // sesConnection.setConfig("StrictHostKeyChecking", "no");
             sesConnection.connect(intTimeOut);
         } catch (JSchException ex) {
-            log.error(ex);
+            Error.OPEN_SSH_CONNECTION.record().create(ex);
         }
 
         return errorMessage;
@@ -90,11 +91,8 @@ public class SSHManager {
             }
 
             channel.disconnect();
-        } catch (IOException ex) {
-            log.error(ex);
-            return null;
-        } catch (JSchException ex) {
-            log.error(ex);
+        } catch (IOException | JSchException ex) {
+            Error.RUN_SSH_COMMAND.record().create(ex);
             return null;
         }
 
@@ -108,21 +106,21 @@ public class SSHManager {
                 sink.close();
             }
         } catch (IOException ex) {
-            log.error(ex);
+            Error.CLOSE_SSH_CONNECTION.record().create(ex);
         }
         try {
             if (pip != null) {
                 pip.close();
             }
         } catch (IOException ex) {
-            log.error(ex);
+            Error.CLOSE_SSH_CONNECTION.record().create(ex);
         }
         try {
             if (pop != null) {
                 pop.close();
             }
         } catch (IOException ex) {
-            log.error(ex);
+            Error.CLOSE_SSH_CONNECTION.record().create(ex);
         }
 
         if (print != null) {
@@ -244,11 +242,11 @@ public class SSHManager {
                 out.flush();
             }
         } catch (Exception ex) {
-            log.error(ex);
+            Error.SCP_COPY.record().create(ex);
             try {
                 if (fos != null) fos.close();
             } catch (Exception ex2) {
-                log.error(ex2);
+                Error.CLOSE_FILE_STREAM.record().create(ex2);
             }
         }
     }
@@ -257,7 +255,7 @@ public class SSHManager {
         try {
             return sesConnection.openChannel("exec");
         } catch (JSchException ex) {
-            log.error(ex);
+            Error.OPEN_SSH_CONNECTION.record().create(ex);
         }
         return null;
     }
@@ -333,13 +331,13 @@ public class SSHManager {
 
             channel.disconnect();
         } catch (Exception ex) {
-            log.error(ex);
+            Error.SCP_COPY.record().create(ex);
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
-                } catch (IOException e) {
-                    log.error(e);
+                } catch (IOException ex2) {
+                    Error.CLOSE_FILE_STREAM.record().create(ex2);
                 }
             }
         }
@@ -405,7 +403,7 @@ public class SSHManager {
                             i = sink.read(data, 0, bufferSize);
                         }
                     } catch (IOException ex) {
-                        log.error(ex);
+                        Error.OPEN_SSH_CONNECTION.record().create(ex);
                     }
                 }
             }, "SSH Shell");
@@ -414,7 +412,7 @@ public class SSHManager {
             channel.setOutputStream(source);
             channel.connect(3 * 1000);
         } catch (JSchException | IOException ex) {
-            log.error(ex);
+            Error.OPEN_SSH_CONNECTION.record().create(ex);
         }
     }
 

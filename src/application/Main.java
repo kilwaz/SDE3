@@ -3,6 +3,7 @@ package application;
 import application.data.DBConnectionManager;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
+import application.error.Error;
 import application.gui.Controller;
 import application.net.proxy.WebProxyManager;
 import application.utils.AppParams;
@@ -26,6 +27,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +52,8 @@ public class Main extends Application {
     private Stage splashStage;
     private static final int SPLASH_WIDTH = 940;
     private static final int SPLASH_HEIGHT = 360;
+
+    private static Logger log = Logger.getLogger(Main.class);
 
     /**
      * We start all managers and prep everything we need to get the application running including loading all data from the database.
@@ -77,6 +81,7 @@ public class Main extends Application {
         new WebProxyManager();
         new JobManager();
         new TabManager();
+        new ErrorManager();
 
         loadProgress.setProgress(0.5);
         new AppProperties(); // Set the location of where to find the properties xml file

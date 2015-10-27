@@ -4,10 +4,11 @@ import application.data.DataBank;
 import application.node.implementations.DataTableNode;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class DataTableRow {
     private Integer id = -1;
-    private HashMap<String, DataTableValue> dataTableValues = new HashMap<>();
+    private LinkedHashMap<String, DataTableValue> dataTableValues = new LinkedHashMap<>();
     private DataTableNode parentNode;
 
     public DataTableRow(Integer id, DataTableNode parentNode) {
@@ -60,7 +61,7 @@ public class DataTableRow {
         return parentNode;
     }
 
-    public HashMap<String, DataTableValue> getDataTableValues() {
+    public LinkedHashMap<String, DataTableValue> getDataTableValues() {
         return dataTableValues;
     }
 }

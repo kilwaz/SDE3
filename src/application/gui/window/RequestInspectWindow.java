@@ -1,5 +1,7 @@
 package application.gui.window;
 
+import application.error.*;
+import application.error.Error;
 import application.net.proxy.WebProxyRequest;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -103,7 +105,7 @@ public class RequestInspectWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            log.error(ex);
+            Error.CREATE_REQUEST_INSPECT_WINDOW.record().create(ex);
         }
     }
 }

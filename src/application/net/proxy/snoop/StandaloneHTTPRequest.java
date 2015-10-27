@@ -1,5 +1,6 @@
 package application.net.proxy.snoop;
 
+import application.error.Error;
 import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
 import org.apache.log4j.Logger;
@@ -235,8 +236,7 @@ public class StandaloneHTTPRequest {
             webProxyRequest.setResponseHeaders(responseHeaders);
             webProxyRequestManager.completeRequest(webProxyRequest.hashCode());
         } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error(ex);
+            Error.HTTP_PROXY_REQUEST.record().create(ex);
         } finally {
             if (connection != null) {
                 connection.disconnect();

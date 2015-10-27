@@ -1,5 +1,7 @@
 package application.net.proxy.snoop;
 
+import application.error.*;
+import application.error.Error;
 import application.net.proxy.WebProxyRequestManager;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -104,7 +106,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                 }
             }
         } catch (IOException ex) {
-            log.error(ex);
+            Error.HTTP_PROXY_RESPONSE.record().create(ex);
         }
 
         String uri = request.uri();

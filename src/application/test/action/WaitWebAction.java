@@ -1,5 +1,7 @@
 package application.test.action;
 
+import application.error.*;
+import application.error.Error;
 import application.test.TestParameter;
 import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
@@ -58,9 +60,9 @@ public class WaitWebAction extends WebAction {
 
             refreshCurrentDocument();
         } catch (org.openqa.selenium.TimeoutException ex) {
-            log.error("Element could not be found within the set time limit of 10 seconds", ex);
+            Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("10 second limit").create(ex);
         } catch (InterruptedException ex) {
-            log.error(ex);
+            Error.WAIT_ACTION_INTERRUPT.record().create(ex);
         }
     }
 }

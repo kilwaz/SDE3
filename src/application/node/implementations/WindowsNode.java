@@ -2,6 +2,8 @@ package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.error.*;
+import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
 import application.node.design.DrawableNode;
@@ -157,7 +159,7 @@ public class WindowsNode extends DrawableNode {
             try {
                 new FileWriter(batchFile).append(script).close();
             } catch (IOException ex) {
-                log.error(ex);
+                Error.WRITE_FILE.record().create(ex);
             }
 
             log.info("Running " + batchFile.getPath());

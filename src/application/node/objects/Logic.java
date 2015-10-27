@@ -1,6 +1,7 @@
 package application.node.objects;
 
 import application.data.DataBank;
+import application.error.Error;
 import application.gui.Program;
 import application.node.implementations.LogicNode;
 import application.utils.CompileCode;
@@ -9,12 +10,10 @@ import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import org.apache.log4j.Logger;
 
-import javax.tools.SimpleJavaFileObject;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -106,7 +105,7 @@ public class Logic {
                 Class<?> cls = Class.forName("programs." + compiledClassName, true, classLoader);
                 instance = cls.newInstance();
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | MalformedURLException ex) {
-                log.error(ex);
+                Error.RUN_LOGIC_NODE_NEW_INSTANCE.record().additionalInformation("Class" + compiledClassName).create(ex);
             }
 
             if (instance != null) {
@@ -115,7 +114,7 @@ public class Logic {
                     method = instance.getClass().getMethod("init", NodeRunParams.class);
                     method.invoke(instance, nodeRunParams);
                 } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-                    log.error(ex);
+                    Error.RUN_LOGIC_NODE_INIT.record().additionalInformation("Class" + compiledClassName).create(ex);
                 }
 
                 new SDEThread((SDERunnable) instance, "Running logic for - " + this.getParentLogicNode().getContainedText());

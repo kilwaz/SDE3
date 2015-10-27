@@ -1,5 +1,6 @@
 package application.data;
 
+import application.error.Error;
 import application.gui.FlowController;
 import application.gui.Program;
 import application.node.design.DrawableNode;
@@ -149,16 +150,16 @@ public class DataBank {
                     preparedStatement.close();
                 }
             } else {
-                if (DatabaseConnectionWatcher.getInstance().getConnected()) {
+                if (dbConnection.isApplicationConnection() && dbConnection.isApplicationConnection()) {
                     DatabaseConnectionWatcher.getInstance().setConnected(false);
                 }
             }
         } catch (SQLException ex) {
-            if (!dbConnection.isConnected()) { // If we are not connected anymore, report this to the user status bar
+            if (!dbConnection.isConnected() && dbConnection.isApplicationConnection()) { // If we are not connected anymore, report this to the user status bar
                 DatabaseConnectionWatcher.getInstance().setConnected(false);
             }
 
-            log.error("Exception with Query: " + selectQuery.getQuery(), ex);
+            Error.SELECT_QUERY.record().additionalInformation(selectQuery.getQuery()).create(ex);
         }
 
         return selectResult;
@@ -179,16 +180,16 @@ public class DataBank {
                     preparedStatement.close();
                 }
             } else {
-                if (DatabaseConnectionWatcher.getInstance().getConnected()) {
+                if (DatabaseConnectionWatcher.getInstance().getConnected() && dbConnection.isApplicationConnection()) {
                     DatabaseConnectionWatcher.getInstance().setConnected(false);
                 }
             }
         } catch (SQLException ex) {
-            if (!dbConnection.isConnected()) { // If we are not connected anymore, report this to the user status bar
+            if (!dbConnection.isConnected() && dbConnection.isApplicationConnection()) { // If we are not connected anymore, report this to the user status bar
                 DatabaseConnectionWatcher.getInstance().setConnected(false);
             }
 
-            log.error("Exception with Query: " + updateQuery.getQuery(), ex);
+            Error.UPDATE_QUERY.record().additionalInformation(updateQuery.getQuery()).create(ex);
         }
 
         return updateResult;
@@ -403,7 +404,7 @@ public class DataBank {
                                 method.invoke(drawableNode, integerValue);
                             }
                         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
-                            log.error("Error loading program",ex);
+                            Error.LOADING_PROGRAM.record().create(ex);
                         }
                     }
 
@@ -610,7 +611,7 @@ public class DataBank {
                         ImageIO.read(resultRow.getBlobInputStream("screenshot")),
                         testResult));
             } catch (IOException ex) {
-                log.error("Error loading test step",ex);
+                Error.LOADING_TEST_STEP.record().create(ex);
             }
         }
     }

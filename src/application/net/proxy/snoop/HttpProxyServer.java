@@ -1,5 +1,6 @@
 package application.net.proxy.snoop;
 
+import application.error.Error;
 import application.net.proxy.WebProxyManager;
 import application.net.proxy.WebProxyRequestManager;
 import application.node.implementations.RequestTrackerNode;
@@ -64,7 +65,7 @@ public final class HttpProxyServer extends SDERunnable {
 
             ch.closeFuture().sync();
         } catch (InterruptedException | CertificateException | SSLException ex) {
-            log.error(ex);
+            Error.START_HTTP_PROXY.record().create(ex);
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

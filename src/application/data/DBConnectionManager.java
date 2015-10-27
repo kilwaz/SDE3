@@ -28,7 +28,7 @@ public class DBConnectionManager {
     }
 
     public Boolean createApplicationConnection() {
-        applicationConnection = new DBConnection(AppParams.getMysqlConnection(), AppParams.getMysqlUsername(), AppParams.getMysqlPassword());
+        applicationConnection = new DBConnection(AppParams.getMysqlConnection(), AppParams.getMysqlUsername(), AppParams.getMysqlPassword(), true);
         addOracleConnection(applicationConnection);
         if (!applicationConnection.connect()) {
             return false;

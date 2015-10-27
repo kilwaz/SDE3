@@ -1,5 +1,6 @@
 package application.utils;
 
+import application.error.Error;
 import application.node.implementations.EmailNode;
 import org.apache.log4j.Logger;
 
@@ -52,7 +53,7 @@ public class Email implements MessageCountListener {
             log.info("SENT DATE:" + msg.getSentDate());
             log.info("SUBJECT:" + msg.getSubject());
         } catch (Exception ex) {
-            log.error("Error opening inbox",ex);
+            Error.EMAIL_OPEN_INBOX.record().create(ex);
         }
     }
 
@@ -80,7 +81,7 @@ public class Email implements MessageCountListener {
                 nodeReference.newEmailTrigger();
             }
         } catch (Exception ex) {
-            log.error("Error reading email",ex);
+            Error.EMAIL_READ.record().create(ex);
         }
     }
 
@@ -104,7 +105,7 @@ public class Email implements MessageCountListener {
                 // This is to update the inbox to trigger the change listener, we don't actually use the result of this
                 log.info("Checking email count.. " + inbox.getMessageCount());
             } catch (MessagingException ex) {
-                log.error("Error checking email",ex);
+                Error.EMAIL_CHECK.record().create(ex);
             }
 
             currentEmailCheckTimer = null;

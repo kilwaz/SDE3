@@ -1,5 +1,7 @@
 package application.gui.window;
 
+import application.error.*;
+import application.error.Error;
 import application.utils.AppParams;
 import application.utils.AppProperties;
 import javafx.scene.Scene;
@@ -100,7 +102,7 @@ public class SettingsWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            log.error(ex);
+            Error.CREATE_SETTINGS_WINDOW.record().create(ex);
         }
     }
 }

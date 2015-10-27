@@ -1,6 +1,8 @@
 package application.utils.managers;
 
 
+import application.error.*;
+import application.error.Error;
 import org.apache.log4j.Logger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -19,7 +21,7 @@ public class JobManager {
             scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
         } catch (SchedulerException ex) {
-            log.error(ex);
+            Error.JOB_MANAGER.record().create(ex);
         }
 
         instance = this;
@@ -29,7 +31,7 @@ public class JobManager {
         try {
             scheduler.shutdown();
         } catch (SchedulerException ex) {
-            log.error(ex);
+            Error.CLOSE_JOBS.record().create(ex);
         }
     }
 
@@ -37,7 +39,7 @@ public class JobManager {
         try {
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException ex) {
-            log.error(ex);
+            Error.SCHEDULE_JOB.record().create(ex);
         }
     }
 

@@ -1,5 +1,7 @@
 package application.log;
 
+import application.error.*;
+import application.error.Error;
 import application.gui.window.LogWindow;
 import application.utils.managers.LogManager;
 import org.apache.log4j.Logger;
@@ -30,7 +32,7 @@ public class TextAreaAppender extends WriterAppender {
         try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(LogManager.getInstance().getLogOutputFilePath(), true)))) {
             out.print(message + stackTrace);
         } catch (IOException ex) {
-            log.error("Cannot write log to file", ex);
+            Error.LOG_APPENDER.record().create(ex);
         }
     }
 

@@ -1,5 +1,6 @@
 package application.gui.window;
 
+import application.error.Error;
 import application.log.LogClass;
 import application.log.LogMessage;
 import application.utils.managers.LogManager;
@@ -72,7 +73,7 @@ public class LogWindow extends Stage {
                 logWindows.remove(this);
             });
         } catch (Exception ex) {
-            log.error(ex);
+            Error.CREATE_LOG_WINDOW.record().create(ex);
         }
     }
 
@@ -122,7 +123,7 @@ public class LogWindow extends Stage {
                 }
             });
         } catch (final IllegalStateException ex) {
-            log.error(ex);
+            Error.LOG_MESSAGE.record().create(ex);
         }
     }
 

@@ -7,12 +7,15 @@ import application.node.design.DrawableNode;
 import application.node.objects.datatable.*;
 import application.utils.NodeRunParams;
 import application.utils.SDEUtils;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
+import org.controlsfx.control.spreadsheet.GridBase;
+import org.controlsfx.control.spreadsheet.SpreadsheetView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,6 +29,9 @@ public class DataTableNode extends DrawableNode {
     private static Logger log = Logger.getLogger(DataTableNode.class);
 
     private TableView<DataTableRow> dataTableView = new TableView<>();
+    private SpreadsheetView spreadsheetView = new SpreadsheetView();
+
+    ObservableList<DataTableRow> dataTableRows = FXCollections.observableArrayList();
 
     // This will make a copy of the node passed to it
     public DataTableNode(DataTableNode dataTableNode) {
@@ -61,6 +67,7 @@ public class DataTableNode extends DrawableNode {
     }
 
     public void loadObjects() {
+
         DataBank.loadDataTableRows(this);
     }
 
@@ -69,8 +76,10 @@ public class DataTableNode extends DrawableNode {
     }
 
     public void addDataTableRow(DataTableRow dataTableRow) {
-        dataTableView.getItems().add(dataTableRow);
-        recalculateColumnNames();
+        dataTableRows.add(dataTableRow);
+
+        //dataTableView.getItems().add(dataTableRow);
+        //recalculateColumnNames();
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
@@ -107,12 +116,23 @@ public class DataTableNode extends DrawableNode {
         AnchorPane.setRightAnchor(dataTableView, 0.0);
         AnchorPane.setTopAnchor(dataTableView, 0.0);
 
-        dataViewAnchorPane.getChildren().addAll(dataTableView);
         AnchorPane.setBottomAnchor(dataViewAnchorPane, 0.0);
         AnchorPane.setLeftAnchor(dataViewAnchorPane, 0.0);
         AnchorPane.setRightAnchor(dataViewAnchorPane, 0.0);
         AnchorPane.setTopAnchor(dataViewAnchorPane, 0.0);
         dataViewTab.setContent(dataViewAnchorPane);
+
+        AnchorPane.setBottomAnchor(spreadsheetView, 0.0);
+        AnchorPane.setLeftAnchor(spreadsheetView, 0.0);
+        AnchorPane.setRightAnchor(spreadsheetView, 0.0);
+        AnchorPane.setTopAnchor(spreadsheetView, 0.0);
+
+        //dataViewAnchorPane.getChildren().add(dataTableView);
+        dataViewAnchorPane.getChildren().add(spreadsheetView);
+
+        DataTableGrid dataTableGrid = new DataTableWithHeader(dataTableRows);
+
+        spreadsheetView.setGrid(dataTableGrid.getGrid());
 
         dataTableView.getColumns().clear();
         dataTableColumns.forEach(this::addColumnToTable);

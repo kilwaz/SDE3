@@ -1,5 +1,7 @@
 package application.utils;
 
+import application.error.*;
+import application.error.Error;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -19,7 +21,7 @@ public class Serializer {
             baos.close();
             oos.close();
         } catch (IOException ex) {
-            log.error(ex);
+            Error.SERIALIZE_OBJECT.record().create(ex);
         }
 
         return inputStream;
@@ -48,7 +50,7 @@ public class Serializer {
 
             bin.close();
         } catch (IOException | ClassNotFoundException ex) {
-            log.error(ex);
+            Error.DESERIALIZE_OBJECT.record().create(ex);
         }
 
         return output;

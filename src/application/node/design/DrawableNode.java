@@ -3,6 +3,7 @@ package application.node.design;
 import application.Main;
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.error.Error;
 import application.gui.FlowController;
 import application.gui.canvas.DrawablePoint;
 import application.node.objects.Trigger;
@@ -93,13 +94,13 @@ public class DrawableNode {
                 }
             }
         } catch (IOException ex) {
-            log.error("Error parsing node classes", ex);
+            Error.PARSING_NODE_CLASS.record().create(ex);
         } finally {
             if (zip != null) {
                 try {
                     zip.close();
                 } catch (IOException ex) {
-                    log.error("Error closing zip", ex);
+                    Error.CLOSE_ZIP.record().create(ex);
                 }
             }
         }
@@ -177,7 +178,7 @@ public class DrawableNode {
 
             return document;
         } catch (ParserConfigurationException ex) {
-            log.error("NodeXML: Error trying to instantiate DocumentBuilder", ex);
+            Error.NODE_XML_REPRESENTATION.record().create(ex);
         }
 
         return null;

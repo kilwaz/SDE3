@@ -3,6 +3,7 @@ package application.node.objects;
 import application.data.DataBank;
 import application.node.implementations.BashNode;
 import org.apache.log4j.Logger;
+import application.error.Error;
 
 /**
  * This class handles the script used within {@link application.node.implementations.BashNode}.
@@ -27,7 +28,8 @@ public class Bash {
      */
     public Bash(BashNode parentBashNode) {
         if (parentBashNode == null) {
-            log.error("NPE: Parent BashNode being passed to create new Bash was null");
+            Error.BASH_NODE_PARENT_NULL.record().create();
+
             throw new NullPointerException();
         } else {
             this.parentBashNode = parentBashNode;
@@ -44,7 +46,7 @@ public class Bash {
      */
     public Bash(BashNode parentBashNode, String script, Integer id) {
         if (parentBashNode == null) {
-            log.error("NPE: Parent BashNode being passed to create new Bash was null");
+            Error.BASH_NODE_PARENT_NULL.record().create();
             throw new NullPointerException();
         } else {
             this.parentBashNode = parentBashNode;

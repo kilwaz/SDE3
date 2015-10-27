@@ -1,5 +1,7 @@
 package application.gui.window;
 
+import application.error.*;
+import application.error.Error;
 import application.utils.SDEThread;
 import application.utils.managers.ThreadManager;
 import javafx.scene.Scene;
@@ -65,7 +67,7 @@ public class ThreadWindow extends Stage {
 
             this.show();
         } catch (Exception ex) {
-            log.error(ex);
+            Error.CREATE_THREAD_WINDOW.record().create(ex);
         }
     }
 }

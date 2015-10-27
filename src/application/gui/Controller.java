@@ -4,6 +4,7 @@ import application.Main;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
+import application.error.Error;
 import application.gui.canvas.CanvasController;
 import application.gui.dialog.ConfirmDialog;
 import application.gui.window.*;
@@ -88,6 +89,9 @@ public class Controller implements Initializable {
     private MenuItem menuBarMenuItemImport;
 
     @FXML
+    private MenuItem menuBarMenuItemError;
+
+    @FXML
     private SplitPane splitPanePageCentral;
 
     @FXML
@@ -129,34 +133,34 @@ public class Controller implements Initializable {
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         Controller.controller = this;
 
-        assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert programList != null : "fx:id=\"programList\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert programAccordion != null : "fx:id=\"programAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert leftAccordionAnchorPane != null : "fx:id=\"leftAccordionAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert lowerMainSplitPane != null : "fx:id=\"lowerMainSplitPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert rightContextAnchorPane != null : "fx:id=\"rightContextAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert programTitlePane != null : "fx:id=\"programTitlePane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert leftAccordion != null : "fx:id=\"leftAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert splitPanePageCentral != null : "fx:id=\"splitPanePageCentral\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert canvasFlow != null : "fx:id=\"canvasFlow\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert nodeTabPane != null : "fx:id=\"nodeTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert menuBarMenuItemLog != null : "fx:id=\"menuBarMenuItemLog\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert menuBarMenuItemExportProgram != null : "fx:id=\"menuBarMenuItemExportProgram\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert menuBarMenuItemExportNode != null : "fx:id=\"menuBarMenuItemExportNode\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert menuBarMenuItemImport != null : "fx:id=\"menuBarMenuItemImport\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert menuBarMenuItemThread != null : "fx:id=\"menuBarMenuItemThread\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-
-        assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-        assert toolBar != null : "fx:id=\"toolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert programList != null : "fx:id=\"programList\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert programAccordion != null : "fx:id=\"programAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert leftAccordionAnchorPane != null : "fx:id=\"leftAccordionAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert lowerMainSplitPane != null : "fx:id=\"lowerMainSplitPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert rightContextAnchorPane != null : "fx:id=\"rightContextAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert programTitlePane != null : "fx:id=\"programTitlePane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert leftAccordion != null : "fx:id=\"leftAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert splitPanePageCentral != null : "fx:id=\"splitPanePageCentral\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert canvasFlow != null : "fx:id=\"canvasFlow\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert nodeTabPane != null : "fx:id=\"nodeTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert menuBarMenuItemLog != null : "fx:id=\"menuBarMenuItemLog\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert menuBarMenuItemExportProgram != null : "fx:id=\"menuBarMenuItemExportProgram\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert menuBarMenuItemExportNode != null : "fx:id=\"menuBarMenuItemExportNode\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert menuBarMenuItemImport != null : "fx:id=\"menuBarMenuItemImport\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert menuBarMenuItemThread != null : "fx:id=\"menuBarMenuItemThread\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//
+//        assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+//        assert toolBar != null : "fx:id=\"toolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
 
         flowTabPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             canvasFlow.setWidth(newSceneWidth.intValue());
@@ -276,7 +280,7 @@ public class Controller implements Initializable {
                                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                                 canvasController.drawProgram();
                             } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
-                                log.error("Error copying node",ex);
+                                Error.COPY_NODE.record().create(ex);
                             }
                             canvasPopOver.hide();
                         });
@@ -502,6 +506,7 @@ public class Controller implements Initializable {
         menuBarMenuItemExportProgram.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_PROGRAM));
         menuBarMenuItemExportNode.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE));
         menuBarMenuItemImport.setOnAction(event -> new ImportWindow());
+        menuBarMenuItemError.setOnAction(event -> new ErrorWindow());
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());
@@ -525,7 +530,7 @@ public class Controller implements Initializable {
                 DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
                 canvasController.drawProgram();
             } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | NoSuchMethodException | IllegalAccessException ex) {
-                log.error("Error creating menu for node",ex);
+                Error.CREATE_NODE_MENU_ITEM.record().create(ex);
             }
         });
         menuItem.setId(className + "-");

@@ -2,6 +2,8 @@ package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.error.*;
+import application.error.Error;
 import application.gui.AceTextArea;
 import application.gui.Controller;
 import application.gui.window.PreviousTestsWindow;
@@ -219,7 +221,7 @@ public class TestNode extends DrawableNode {
                             webAction.initialise(httpProxyServer, driver, testCommand, testResult, this);
                             webAction.performAction();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-                            log.error(ex);
+                            Error.TEST_NODE_ACTION.record().create(ex);
                         }
                     }
                 }

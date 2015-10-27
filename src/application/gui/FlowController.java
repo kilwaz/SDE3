@@ -1,6 +1,8 @@
 package application.gui;
 
 import application.data.DataBank;
+import application.error.*;
+import application.error.Error;
 import application.node.design.DrawableNode;
 import application.node.implementations.BashNode;
 import application.node.implementations.LogicNode;
@@ -53,7 +55,7 @@ public class FlowController {
             Constructor<?> ctor = clazz.getConstructor(Integer.class, Integer.class);
             newNode = (DrawableNode) ctor.newInstance(id, programId);
         } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
-            log.error(ex);
+            Error.CREATE_NEW_NODE.record().create(ex);
         }
 
         if (newNode != null) {
@@ -486,9 +488,9 @@ public class FlowController {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 //if (node instanceof LogicNode) {
-                    if (nodeToFind.equals(node)) {
-                        return program.getFlowController();
-                    }
+                if (nodeToFind.equals(node)) {
+                    return program.getFlowController();
+                }
                 //}
             }
         }
