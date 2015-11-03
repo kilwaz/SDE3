@@ -1,24 +1,24 @@
 package application.node.objects;
 
+import application.data.model.DatabaseObject;
 import application.node.implementations.TriggerNode;
 
-public class Trigger {
-    private Integer id = -1;
+public class Trigger extends DatabaseObject {
     private String watch = "";
     private String when = "";
     private String then = "";
     private TriggerNode parent;
 
     public Trigger(Trigger copyTrigger, TriggerNode parent) {
+        super(-1);
         this.watch = copyTrigger.getWatch();
         this.when = copyTrigger.getWhen();
         this.then = copyTrigger.getThen();
         this.parent = parent;
-        this.id = -1;
     }
 
     public Trigger(Integer id, String watch, String when, String then, TriggerNode parent) {
-        this.id = id;
+        super(id);
         this.watch = watch;
         this.when = when;
         this.then = then;
@@ -49,16 +49,12 @@ public class Trigger {
         this.then = then;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public TriggerNode getParent() {
         return parent;
+    }
+
+    public Integer getParentId() {
+        return parent.getId();
     }
 
     public void setParent(TriggerNode parent) {

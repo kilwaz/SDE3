@@ -261,4 +261,8 @@ public class SDEUtils {
     public static void zipDirectory(String directoryPath, String zipFileLocation) {
         ZipUtil.pack(new File(directoryPath), new File(zipFileLocation));
     }
+
+    public static void disconnectTest(){
+        log.info("OMG");
+    }
 }

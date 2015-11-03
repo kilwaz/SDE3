@@ -49,7 +49,16 @@ public class WaitWebAction extends WebAction {
             }
             if (javaScriptToBeTrue.exists()) { // If it is specified, wait for this javascript to be true
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
-                wait.until((WebDriver driver) -> ((JavascriptExecutor) driver).executeScript("return $('#" + javaScriptToBeTrue.getParameterValue() + "').contents()[0].readyState").equals("complete"));
+                wait.withTimeout(10, TimeUnit.SECONDS).until((WebDriver driver) -> ((JavascriptExecutor) driver).executeScript("var frame = document.getElementById(\"" + javaScriptToBeTrue.getParameterValue() + "\");" +
+                        "if(frame != null) {" +
+                        "if(frame.contentDocument != null){" +
+                        "       return frame.contentDocument.readyState;" +
+                        "   } else {" +
+                        "       return false" +
+                        "   }" +
+                        "} else {" +
+                        "   return false" +
+                        "};").equals("complete"));
             }
             if (waitForTime.exists()) { // If it is specified, wait for this amount of time
                 Thread.sleep(Long.parseLong(waitForTime.getParameterValue()));

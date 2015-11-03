@@ -1,23 +1,22 @@
 package application.node.objects.datatable;
 
 import application.data.DataBank;
+import application.data.model.DatabaseObject;
 import application.node.implementations.DataTableNode;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-public class DataTableRow {
-    private Integer id = -1;
+public class DataTableRow extends DatabaseObject {
     private LinkedHashMap<String, DataTableValue> dataTableValues = new LinkedHashMap<>();
     private DataTableNode parentNode;
 
     public DataTableRow(Integer id, DataTableNode parentNode) {
+        super(id);
         this.parentNode = parentNode;
-        this.id = id;
         DataBank.loadDataTableValue(this);
     }
 
-    public void removeDataTableValue(String key){
+    public void removeDataTableValue(String key) {
         if (dataTableValues.containsKey(key)) {
             DataBank.deleteDataTableValue(dataTableValues.get(key));
             dataTableValues.remove(key);
@@ -27,7 +26,7 @@ public class DataTableRow {
     public void updateDataTableValue(String key, String value) {
         if (dataTableValues.containsKey(key)) {
             dataTableValues.get(key).setDataValue(value);
-            DataBank.saveDataTableValue(dataTableValues.get(key));
+            dataTableValues.get(key).save();
         } else {
             dataTableValues.put(key, DataBank.createNewDataTableValue(this, key, value));
         }
@@ -49,16 +48,12 @@ public class DataTableRow {
         return dataTableValues.size();
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public DataTableNode getParentNode() {
         return parentNode;
+    }
+
+    public Integer getParentId() {
+        return parentNode.getId();
     }
 
     public LinkedHashMap<String, DataTableValue> getDataTableValues() {

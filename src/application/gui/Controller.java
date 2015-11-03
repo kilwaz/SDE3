@@ -328,7 +328,7 @@ public class Controller implements Initializable {
                         colorPicker.setOnAction(t -> {
                             NodeColour nodeColour = new NodeColour(colorPicker.getValue(), drawableNode.getNodeType());
                             DataBank.getNodeColours().addNodeColour(nodeColour);
-                            DataBank.saveNodeColour(nodeColour);
+                            nodeColour.save();
 
                             canvasController.drawProgram();
                         });
@@ -455,7 +455,7 @@ public class Controller implements Initializable {
                     if (newProgram != null) {
                         DataBank.currentlyEditProgram = newProgram;
                         DataBank.getApplicationUser().setCurrentProgram(newProgram);
-                        DataBank.saveUser(DataBank.getApplicationUser());
+                        DataBank.getApplicationUser().save();
 
                         newProgram.getFlowController().checkConnections();
                     }

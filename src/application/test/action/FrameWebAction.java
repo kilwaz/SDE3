@@ -1,13 +1,19 @@
 package application.test.action;
 
+import application.error.Error;
 import application.test.TestParameter;
 import org.apache.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchFrameException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * This action switches the current frame that is being referenced as part of the script.
- *
+ * <p>
  * The frame can be specified by using the id of the element.
- *
+ * <p>
  * select::default can be used to switch to the top frame of the browser.
  */
 public class FrameWebAction extends WebAction {
@@ -24,7 +30,23 @@ public class FrameWebAction extends WebAction {
         TestParameter frameToSelect = getParameterByPath("select");
 
         if (frameToSelectById.exists()) {
-            getDriver().switchTo().frame(frameToSelectById.getParameterValue());
+            try {
+                WebDriverWait wait = new WebDriverWait(getDriver(), 10);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.id(frameToSelectById.getParameterValue())));
+            } catch (org.openqa.selenium.TimeoutException ex) {
+                Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id" + frameToSelectById.getParameterValue() + " element could not be located in time").create(ex);
+            }
+
+            WebElement frameElement = getDriver().findElement(By.id(frameToSelectById.getParameterValue()));
+            if (frameElement != null) {
+                try {
+                    getDriver().switchTo().frame(frameElement);
+                } catch (NoSuchFrameException ex) {
+                    Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element is not a frame").create();
+                }
+            } else {
+                Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element was null").create();
+            }
         }
 
         if (frameToSelect.exists()) {

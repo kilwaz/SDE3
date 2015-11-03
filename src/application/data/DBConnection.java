@@ -34,6 +34,7 @@ public class DBConnection {
     public Boolean connect() {
         try {
             connection = DriverManager.getConnection(connectionString, username, password);
+            isApplicationConnection = true;
             return true;
         } catch (SQLException ex) {
             Error.OPEN_DATABASE_CONNECTION.record().additionalInformation("Connection String:" + connectionString + " Username:" + username + " Password:" + password).create(ex);

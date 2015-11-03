@@ -54,33 +54,25 @@ public class ErrorWindow extends Stage {
             errorTableView.getColumns().addAll(errorOccurredAtColumn, errorCodeColumn, errorReferenceColumn, errorDescriptionColumn, errorAdditionalInformationColumn, errorClassNameColumn, errorLineNumberColumn, errorExceptionColumn);
             errorTableView.setItems(ErrorManager.getInstance().getErrors());
 
-            AnchorPane.setLeftAnchor(errorTableView, 0.0);
-            AnchorPane.setRightAnchor(errorTableView, 0.0);
-            AnchorPane.setTopAnchor(errorTableView, 0.0);
-            AnchorPane.setBottomAnchor(errorTableView, 0.0);
-
-            VBox rows = new VBox(5);
-            rows.setPadding(new Insets(7, 11, 7, 11));
-            rows.getChildren().add(errorTableView);
-
             AnchorPane errorAnchor = new AnchorPane();
+
+            errorAnchor.setPadding(new Insets(7, 11, 7, 11));
+            errorAnchor.getChildren().add(errorTableView);
 
             AnchorPane.setLeftAnchor(errorAnchor, 0.0);
             AnchorPane.setRightAnchor(errorAnchor, 0.0);
             AnchorPane.setTopAnchor(errorAnchor, 0.0);
             AnchorPane.setBottomAnchor(errorAnchor, 0.0);
 
-            AnchorPane.setLeftAnchor(rows, 0.0);
-            AnchorPane.setRightAnchor(rows, 0.0);
-            AnchorPane.setTopAnchor(rows, 0.0);
-            AnchorPane.setBottomAnchor(rows, 0.0);
-
-            errorAnchor.getChildren().add(rows);
+            AnchorPane.setLeftAnchor(errorTableView, 0.0);
+            AnchorPane.setRightAnchor(errorTableView, 0.0);
+            AnchorPane.setTopAnchor(errorTableView, 0.0);
+            AnchorPane.setBottomAnchor(errorTableView, 0.0);
 
             Scene newScene = new Scene(errorAnchor, 900, 800);
             this.setScene(newScene);
 
-            this.setTitle("Error Report");
+            this.setTitle("Error Report (" + ErrorManager.getInstance().getErrors().size() + " errors)");
 
             URL url = getClass().getResource("/icon.png");
             this.getIcons().add(new Image(url.toExternalForm()));

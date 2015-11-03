@@ -261,7 +261,7 @@ public class ExportNode extends DrawableNode {
         return tab;
     }
 
-    private void buildConstructedFileName() {
+    public void buildConstructedFileName() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         Date date = new Date();
         String fileDate = dateFormat.format(date);
@@ -283,7 +283,9 @@ public class ExportNode extends DrawableNode {
             }
 
             public void run() {
-                constructedFileNameLabel.setText(text);
+                if (constructedFileNameLabel != null) {
+                    constructedFileNameLabel.setText(text);
+                }
             }
         }
 
@@ -317,12 +319,12 @@ public class ExportNode extends DrawableNode {
     }
 
     public String getConstructedFileName() {
-        buildConstructedFileName();
+        //buildConstructedFileName();
         return constructedFileName;
     }
 
     public String getConstructedDirectory() {
-        buildConstructedFileName();
+        //buildConstructedFileName();
         return constructedDirectory;
     }
 }

@@ -1,25 +1,25 @@
 package application.node.objects;
 
+import application.data.model.DatabaseObject;
 import application.node.implementations.InputNode;
 
-public class Input {
-    private Integer id = -1;
+public class Input extends DatabaseObject {
     private String variableName;
     private String variableValue;
     private InputNode parent;
 
     public Input(Integer id, String variableName, String variableValue, InputNode parent) {
-        this.id = id;
+        super(id);
         this.variableName = variableName;
         this.variableValue = variableValue;
         this.parent = parent;
     }
 
     public Input(Input copyInput, InputNode parent) {
+        super(-1);
         this.variableName = copyInput.getVariableName();
         this.variableValue = copyInput.getVariableValue();
         this.parent = parent;
-        this.id = -1;
     }
 
     public String getVariableName() {
@@ -38,12 +38,15 @@ public class Input {
         this.variableValue = variableValue;
     }
 
-    public Integer getId() {
-        return id;
+    public String getVariableValueLimited() {
+        if (variableValue.length() > 100) {
+            return variableValue.substring(0, 99);
+        }
+        return variableValue;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public Integer getParentId() {
+        return parent.getId();
     }
 
     public InputNode getParent() {

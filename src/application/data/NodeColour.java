@@ -1,15 +1,16 @@
 package application.data;
 
+import application.data.model.DatabaseObject;
 import javafx.scene.paint.Color;
 
-public class NodeColour {
-    private Integer id;
+public class NodeColour extends DatabaseObject {
     private Integer red;
     private Integer green;
     private Integer blue;
     private String nodeType;
 
     public NodeColour(Color color, String nodeType) {
+        super();
         this.red = new Double(color.getRed() * 255).intValue();
         this.green = new Double(color.getGreen() * 255).intValue();
         this.blue = new Double(color.getBlue() * 255).intValue();
@@ -17,6 +18,7 @@ public class NodeColour {
     }
 
     public NodeColour(Integer red, Integer green, Integer blue, String nodeType) {
+        super();
         this.red = red;
         this.green = green;
         this.blue = blue;
@@ -57,13 +59,5 @@ public class NodeColour {
 
     public Color getColour() {
         return Color.rgb(red, green, blue);
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 }

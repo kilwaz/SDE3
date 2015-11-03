@@ -70,7 +70,7 @@ public class InputNode extends DrawableNode {
         for (Input input : inputs) {
             if (input.getId().equals(inputId)) {
                 input.setVariableName(variableName);
-                DataBank.saveInput(input);
+                input.save();
                 break;
             }
         }
@@ -80,7 +80,7 @@ public class InputNode extends DrawableNode {
         for (Input input : inputs) {
             if (input.getId().equals(inputId)) {
                 input.setVariableValue(variableValue);
-                DataBank.saveInput(input);
+                input.save();
                 break;
             }
         }

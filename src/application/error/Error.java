@@ -87,7 +87,11 @@ public enum Error {
     WAIT_ACTION_INTERRUPT(82, "Error interrupted wait action"),
     WRITE_FILE(83, "Error writing to file"),
     WEB_RECORD_SERVER(84, "Error creating web record server"),
-    COMPILED_LOGIC_NODE(85, "Error within compiled logic node");
+    COMPILED_LOGIC_NODE(85, "Error within compiled logic node"),
+    SELENIUM_FRAME_NOT_FOUND(86, "Trying to switch to frame that does not exist"),
+    DATA_LINK_METHOD_NOT_FOUND(87, "While creating the database model we could not find a required method"),
+    DATABASE_OBJECT_METHOD_NOT_FOUND(88, "Could not find method for DatabaseObject when trying to update database"),
+    DATABASE_SAVE_CLASS_INIT(89, "Unable to save object");
 
     private Integer code;
     private String description;

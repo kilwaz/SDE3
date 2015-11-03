@@ -1,29 +1,29 @@
 package application.data;
 
+import application.data.model.DatabaseObject;
 import application.gui.Program;
 
-public class User {
-    private Integer id;
+public class User extends DatabaseObject {
     private Integer lastProgram;
     private Program currentProgram;
     private String username;
 
     public User(Integer id, String username, Integer lastProgram) {
-        this.id = id;
+        super(id);
         this.username = username;
         this.lastProgram = lastProgram;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Program getCurrentProgram() {
         return currentProgram;
+    }
+
+    public Integer getCurrentProgramId() {
+        if (currentProgram != null) {
+            return currentProgram.getId();
+        } else {
+            return -1;
+        }
     }
 
     public void setCurrentProgram(Program currentProgram) {

@@ -180,16 +180,20 @@ public class DataBank {
                     preparedStatement.close();
                 }
             } else {
-                if (DatabaseConnectionWatcher.getInstance().getConnected() && dbConnection.isApplicationConnection()) {
+                if (dbConnection.isApplicationConnection()) {
                     DatabaseConnectionWatcher.getInstance().setConnected(false);
+                    // Reconnect to the DB
+                    log.info("Trying to reconnect after seeing  the exception");
+                    dbConnection.connect();
                 }
             }
         } catch (SQLException ex) {
+            Error.UPDATE_QUERY.record().additionalInformation(updateQuery.getQuery()).create(ex);
             if (!dbConnection.isConnected() && dbConnection.isApplicationConnection()) { // If we are not connected anymore, report this to the user status bar
                 DatabaseConnectionWatcher.getInstance().setConnected(false);
+                log.info("Trying to reconnect via the exception");
+                dbConnection.connect();
             }
-
-            Error.UPDATE_QUERY.record().additionalInformation(updateQuery.getQuery()).create(ex);
         }
 
         return updateResult;
@@ -214,18 +218,6 @@ public class DataBank {
                 valueCount++;
             }
         }
-    }
-
-    public static void saveUser(User user) {
-        Integer currentProgramId = -1;
-        if (user.getCurrentProgram() != null) {
-            currentProgramId = user.getCurrentProgram().getId();
-        }
-
-        new UpdateQuery("update user set last_program = ? where id = ?")
-                .addParameter(currentProgramId) // 1
-                .addParameter(user.getId()) // 2
-                .execute();
     }
 
     public static void saveProgram(Program program) {
@@ -457,7 +449,7 @@ public class DataBank {
         Input input = new Input(getNextId("input"), variableName, variableValue, parent);
 
         parent.addInput(input);
-        DataBank.saveInput(input);
+        input.save();
 
         return input;
     }
@@ -491,63 +483,11 @@ public class DataBank {
         }
     }
 
-    public static void saveInput(Input input) {
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update input set variable_name = ?, variable_value = ? where id = ?")
-                .addParameter(input.getVariableName()) // 1
-                .addParameter(input.getVariableValue()) // 2
-                .addParameter(input.getId()) // 3
-                .execute();
-        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
-            input.setId(getNextId("input"));
-            new UpdateQuery("insert into input values (default, ?, ?, ?)")
-                    .addParameter(input.getParent().getId()) // 1
-                    .addParameter(input.getVariableName()) // 2
-                    .addParameter(input.getVariableValue()) // 3
-                    .execute();
-        }
-    }
-
-    public static void saveTrigger(Trigger trigger) {
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update trigger_condition set trigger_watch = ?, trigger_when = ?, trigger_then = ? where id = ?")
-                .addParameter(trigger.getWatch()) // 1
-                .addParameter(trigger.getWhen()) // 2
-                .addParameter(trigger.getThen()) // 3
-                .addParameter(trigger.getId()) // 4
-                .execute();
-        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
-            trigger.setId(getNextId("trigger_condition"));
-            new UpdateQuery("insert into trigger_condition values (default, ?, ?, ?, ?)")
-                    .addParameter(trigger.getParent().getId()) // 1
-                    .addParameter(trigger.getWatch()) // 2
-                    .addParameter(trigger.getWhen()) // 3
-                    .addParameter(trigger.getThen()) // 4
-                    .execute();
-        }
-    }
-
-    public static void saveNodeColour(NodeColour nodeColour) {
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update node_colour set colour_r = ?, colour_g = ?, colour_b = ? where node_type = ?")
-                .addParameter(nodeColour.getRed()) // 1
-                .addParameter(nodeColour.getGreen()) // 2
-                .addParameter(nodeColour.getBlue()) // 3
-                .addParameter(nodeColour.getNodeType()) // 4
-                .execute();
-        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
-            nodeColour.setId(getNextId("node_colour"));
-            new UpdateQuery("insert into node_colour values (default, ?, ?, ?, ?)")
-                    .addParameter(nodeColour.getNodeType()) // 1
-                    .addParameter(nodeColour.getRed()) // 2
-                    .addParameter(nodeColour.getGreen()) // 3
-                    .addParameter(nodeColour.getBlue()) // 4
-                    .execute();
-        }
-    }
-
     public static Trigger createNewTrigger(String watch, String when, String then, TriggerNode parent) {
         Trigger trigger = new Trigger(getNextId("trigger_condition"), watch, when, then, parent);
 
         parent.addTrigger(trigger);
-        DataBank.saveTrigger(trigger);
+        trigger.save();
 
         return trigger;
     }
@@ -629,7 +569,7 @@ public class DataBank {
         }
     }
 
-    private static Integer getNextId(String tableName) {
+    public static Integer getNextId(String tableName) {
         Integer autoIncrement = -1;
 
         SelectResult selectResult = (SelectResult) new SelectQuery("SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = ? AND table_schema = DATABASE();")
@@ -764,62 +704,34 @@ public class DataBank {
     public static DataTableRow createNewDataTableRow(DataTableNode parent) {
         DataTableRow dataTableRow = new DataTableRow(getNextId("data_table_rows"), parent);
 
+        dataTableRow.save();
         parent.addDataTableRow(dataTableRow);
-        DataBank.saveDataTableRow(dataTableRow);
 
         return dataTableRow;
-    }
-
-    public static void saveDataTableRow(DataTableRow dataTableRow) {
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update data_table_rows set node_id = ? where id = ?")
-                .addParameter(dataTableRow.getParentNode().getId()) // 1
-                .addParameter(dataTableRow.getId()) // 2
-                .execute();
-        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
-            dataTableRow.setId(getNextId("data_table_rows"));
-            new UpdateQuery("insert into data_table_rows values (default, ?)")
-                    .addParameter(dataTableRow.getParentNode().getId()) // 1
-                    .execute();
-        }
     }
 
     public static void loadDataTableRows(DataTableNode dataTableNode) {
         SelectResult selectResult = (SelectResult) new SelectQuery("select id, node_id from data_table_rows where node_id = ?")
                 .addParameter(dataTableNode.getId()) // 1
                 .execute();
+        List<DataTableRow> dataTableRows = new ArrayList<>();
         for (SelectResultRow resultRow : selectResult.getResults()) {
             DataTableRow dataTableRow = new DataTableRow(resultRow.getInt("id"),
                     dataTableNode
             );
 
-            dataTableNode.addDataTableRow(dataTableRow);
+            dataTableRows.add(dataTableRow);
         }
+        dataTableNode.addAllDataTableRow(dataTableRows);
     }
 
     public static DataTableValue createNewDataTableValue(DataTableRow parentRow, String key, String value) {
         DataTableValue dataTableValue = new DataTableValue(getNextId("data_table_values"), key, value, parentRow);
 
         parentRow.addDataTableValue(dataTableValue);
-        DataBank.saveDataTableValue(dataTableValue);
+        dataTableValue.save();
 
         return dataTableValue;
-    }
-
-    public static void saveDataTableValue(DataTableValue dataTableValue) {
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("update data_table_values set data_table_id = ?, data_key = ?, data_value = ? where id = ?")
-                .addParameter(dataTableValue.getParentRow().getId()) // 1
-                .addParameter(dataTableValue.getDataKey()) // 2
-                .addParameter(dataTableValue.getDataValue()) // 3
-                .addParameter(dataTableValue.getId()) // 4
-                .execute();
-        if (updateResult.getResultNumber() == 0) { // If record does not exist insert a new one..
-            dataTableValue.setId(getNextId("data_table_values"));
-            new UpdateQuery("insert into data_table_values values (default, ?, ?, ?)")
-                    .addParameter(dataTableValue.getParentRow().getId()) // 1
-                    .addParameter(dataTableValue.getDataKey()) // 2
-                    .addParameter(dataTableValue.getDataValue()) // 3
-                    .execute();
-        }
     }
 
     public static void loadDataTableValue(DataTableRow dataTableRow) {

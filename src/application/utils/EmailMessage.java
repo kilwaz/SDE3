@@ -11,6 +11,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -127,11 +128,14 @@ public class EmailMessage {
                     for (String fileName : attachFileNames) {
                         DataSource source = new FileDataSource(fileName);
                         messageBodyPart.setDataHandler(new DataHandler(source));
+                        String resultsFile = "Attachment";
                         if (fileName.contains("/") && !fileName.endsWith("/")) {
-                            fileName = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
+                            resultsFile = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
                         }
-                        messageBodyPart.setFileName(fileName);
-                        multipart.addBodyPart(messageBodyPart);
+                        if (new File(fileName).exists()) {
+                            messageBodyPart.setFileName(resultsFile);
+                            multipart.addBodyPart(messageBodyPart);
+                        }
                     }
 
                     message.setContent(multipart);

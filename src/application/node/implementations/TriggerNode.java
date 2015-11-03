@@ -126,7 +126,7 @@ public class TriggerNode extends DrawableNode {
                     if (thenChoice != null) thenChoice.setItems(FXCollections.observableList(new ArrayList<>()));
                 }
 
-                DataBank.saveTrigger(trigger);
+                trigger.save();
                 DataBank.currentlyEditProgram.getFlowController().checkConnections();
                 Controller.getInstance().updateCanvasControllerNow();
             }
@@ -150,7 +150,7 @@ public class TriggerNode extends DrawableNode {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (newValue != null && !newValue.isEmpty()) {
                     trigger.setWhen(newValue);
-                    DataBank.saveTrigger(trigger);
+                    trigger.save();
                 }
 
                 log.info("Selected when item: " + newValue);
@@ -175,7 +175,7 @@ public class TriggerNode extends DrawableNode {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (newValue != null && !newValue.isEmpty()) {
                     trigger.setThen(newValue);
-                    DataBank.saveTrigger(trigger);
+                    trigger.save();
                 }
 
                 log.info("Selected then item: " + newValue);

@@ -31,7 +31,6 @@ public class BashNode extends DrawableNode {
         this.setProgramId(bashNode.getProgramId());
         this.setNextNodeToRun(bashNode.getNextNodeToRun());
 
-
         this.bash = new Bash(this);
         this.setBash(bashNode.getBash().getScript());
     }

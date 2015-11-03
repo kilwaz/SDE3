@@ -1,26 +1,17 @@
 package application.node.objects.datatable;
 
-import application.data.DataBank;
+import application.data.model.DatabaseObject;
 
-public class DataTableValue {
-    private Integer id = -1;
+public class DataTableValue extends DatabaseObject {
     private DataTableRow parentRow = null;
     private String dataKey = "";
     private String dataValue = "";
 
     public DataTableValue(Integer id, String dataKey, String dataValue, DataTableRow parentRow) {
+        super(id);
         this.parentRow = parentRow;
         this.dataKey = dataKey;
         this.dataValue = dataValue;
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getDataKey() {
@@ -28,17 +19,25 @@ public class DataTableValue {
     }
 
     public String getDataValue() {
-        return dataValue;
+        if (dataValue == null) {
+            return "";
+        } else {
+            return dataValue;
+        }
     }
 
     public void setDataKey(String dataKey) {
         this.dataKey = dataKey;
-        DataBank.saveDataTableValue(this);
+        this.save();
     }
 
     public void setDataValue(String dataValue) {
         this.dataValue = dataValue;
-        DataBank.saveDataTableValue(this);
+        this.save();
+    }
+
+    public Integer getParentId() {
+        return parentRow.getId();
     }
 
     public DataTableRow getParentRow() {
