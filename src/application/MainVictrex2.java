@@ -25,7 +25,7 @@ public class MainVictrex2 {
             while ((line = br.readLine()) != null) {
                 String[] split = line.split("\t");
                 try {
-                    people.add(new Person(split[1], split[0], split[2], Double.parseDouble(split[5]), split[6], Double.parseDouble(split[10]), split[11]));
+                    people.add(new Person(split[2], split[0], split[7], Double.parseDouble(split[3]), "", Double.parseDouble(split[6]), "", Double.parseDouble(split[5]), Double.parseDouble(split[8])));
                 } catch (NumberFormatException e) {
                     System.out.println("NFE: Couldn't do " + line);
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -64,7 +64,11 @@ public class MainVictrex2 {
 
 
                             if (!valueSet) {
-                                System.out.println(person.getEmplid() + "," + person.getCountry() + "," + person.getRating() + "," + person.getBaseSalary() + "," + person.getMarket() + "," + ((person.getBaseSalary() / person.getMarket()) * 100) + "," + ratingMulti + ",OK");
+                                if (person.getProdRI().equals(ratingMulti)) {
+                                    System.out.println(person.getEmplid() + "," + person.getCountry() + "," + person.getRating() + "," + person.getBaseSalary() + "," + person.getMarket() + "," + ((person.getBaseSalary() / person.getMarket()) * 100) + "," + ratingMulti + ",OK (" + person.getProdRI() + ")");
+                                } else {
+                                    System.out.println(person.getEmplid() + "," + person.getCountry() + "," + person.getRating() + "," + person.getBaseSalary() + "," + person.getMarket() + "," + ((person.getBaseSalary() / person.getMarket()) * 100) + "," + ratingMulti + ",OK - Different! (" + person.getProdRI() + ")");
+                                }
                             }
                             valueSet = true;
                         } else {
@@ -273,8 +277,10 @@ public class MainVictrex2 {
         private String baseCurr;
         private Double market;
         private String marketCurr;
+        private Double prodRI;
+        private Double fte;
 
-        public Person(String country, String emplid, String rating, Double baseSalary, String baseCurr, Double market, String marketCurr) {
+        public Person(String country, String emplid, String rating, Double baseSalary, String baseCurr, Double market, String marketCurr, Double prodRI, Double fte) {
             this.country = country;
             this.emplid = emplid;
             this.rating = rating;
@@ -282,6 +288,8 @@ public class MainVictrex2 {
             this.baseCurr = baseCurr;
             this.market = market;
             this.marketCurr = marketCurr;
+            this.prodRI = prodRI;
+            this.fte = fte;
         }
 
         public String getCountry() {
@@ -297,7 +305,7 @@ public class MainVictrex2 {
         }
 
         public Double getBaseSalary() {
-            return baseSalary;
+            return baseSalary / fte;
         }
 
         public String getBaseCurr() {
@@ -310,6 +318,14 @@ public class MainVictrex2 {
 
         public String getMarketCurr() {
             return marketCurr;
+        }
+
+        public Double getProdRI() {
+            return prodRI;
+        }
+
+        public Double getFte() {
+            return fte;
         }
     }
 }

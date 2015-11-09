@@ -1,8 +1,8 @@
 package application.gui.window;
 
-import application.error.*;
 import application.error.Error;
-import application.net.proxy.WebProxyRequest;
+import application.net.proxy.RecordedHeader;
+import application.net.proxy.RecordedRequest;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -17,12 +17,12 @@ import java.net.URL;
 import java.util.HashMap;
 
 public class RequestInspectWindow extends Stage {
-    private WebProxyRequest webProxyRequest;
+    private RecordedRequest recordedRequest;
 
     private static Logger log = Logger.getLogger(RequestInspectWindow.class);
 
-    public RequestInspectWindow(WebProxyRequest webProxyRequest) {
-        this.webProxyRequest = webProxyRequest;
+    public RequestInspectWindow(RecordedRequest recordedRequest) {
+        this.recordedRequest = recordedRequest;
         init();
     }
 
@@ -38,13 +38,13 @@ public class RequestInspectWindow extends Stage {
             AnchorPane.setRightAnchor(requestTextArea, 0.0);
             AnchorPane.setTopAnchor(requestTextArea, 0.0);
 
-            HashMap<String, String> requestHeaders = webProxyRequest.getRequestHeaders();
+            HashMap<String, RecordedHeader> requestHeaders = recordedRequest.getRequestHeaders();
             for (String headerName : requestHeaders.keySet()) {
-                requestTextArea.appendText(headerName + ": " + requestHeaders.get(headerName) + "\n\r");
+                requestTextArea.appendText(headerName + ": " + requestHeaders.get(headerName).getValue() + "\n\r");
             }
 
             requestTextArea.appendText("\n\r");
-            requestTextArea.appendText(webProxyRequest.getRequestContent().replaceAll("(?m)^[ \t]*\r?\n", ""));
+            requestTextArea.appendText(recordedRequest.getRequest().replaceAll("(?m)^[ \t]*\r?\n", ""));
             requestTextArea.positionCaret(0);
 
             // Response Text Area
@@ -55,13 +55,13 @@ public class RequestInspectWindow extends Stage {
             AnchorPane.setRightAnchor(responseTextArea, 0.0);
             AnchorPane.setTopAnchor(responseTextArea, 0.0);
 
-            HashMap<String, String> responseHeaders = webProxyRequest.getResponseHeaders();
+            HashMap<String, RecordedHeader> responseHeaders = recordedRequest.getResponseHeaders();
             for (String headerName : responseHeaders.keySet()) {
-                responseTextArea.appendText(headerName + ": " + responseHeaders.get(headerName) + "\n\r");
+                responseTextArea.appendText(headerName + ": " + responseHeaders.get(headerName).getValue() + "\n\r");
             }
 
             responseTextArea.appendText("\n\r");
-            responseTextArea.appendText(webProxyRequest.getResponseContent().replaceAll("(?m)^[ \t]*\r?\n", ""));
+            responseTextArea.appendText(recordedRequest.getResponse().replaceAll("(?m)^[ \t]*\r?\n", ""));
             responseTextArea.positionCaret(0);
 
             TabPane tabPane = new TabPane();
@@ -98,7 +98,7 @@ public class RequestInspectWindow extends Stage {
             root.getChildren().add(tabPane);
 
             this.setScene(new Scene(root, 900, 800));
-            this.setTitle(webProxyRequest.getRequestURL());
+            this.setTitle(recordedRequest.getURL());
 
             URL url = getClass().getResource("/icon.png");
             this.getIcons().add(new Image(url.toExternalForm()));

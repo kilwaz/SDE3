@@ -1,5 +1,6 @@
 package application.net.proxy;
 
+import application.data.DataBank;
 import application.node.implementations.RequestTrackerNode;
 import org.apache.log4j.Logger;
 
@@ -17,7 +18,10 @@ public class WebProxyRequestManager {
 
     private Integer requestCount = 1;
 
+    private RecordedProxy recordedProxy;
+
     public WebProxyRequestManager() {
+        this.recordedProxy = DataBank.createNewRecordedProxy();
     }
 
     public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -36,7 +40,7 @@ public class WebProxyRequestManager {
 
         // Add the result to linked request tracker nodes
         for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
-            requestTrackerNode.addResult(webProxyRequest);
+            //requestTrackerNode.addResult(recordedRequest);
         }
     }
 
@@ -58,9 +62,36 @@ public class WebProxyRequestManager {
         WebProxyRequest webProxyRequest = getRequest(httpRequestHash);
 
         if (webProxyRequest != null) {
-            completedRequests.put(httpRequestHash, webProxyRequest);
+            //completedRequests.put(httpRequestHash, webProxyRequest);
             activeRequests.remove(httpRequestHash);
             webProxyRequest.instantCompleteServerToProxy();
+
+            // Save the request to the database
+            RecordedRequest recordedRequest = DataBank.createNewRecordedRequest(recordedProxy);
+            recordedRequest.setURL(webProxyRequest.getRequestURL());
+            recordedRequest.setDuration(webProxyRequest.getRequestDuration().intValue());
+            recordedRequest.setRequestSize(webProxyRequest.getRequestContentSize());
+            recordedRequest.setResponseSize(webProxyRequest.getResponseContentSize());
+            recordedRequest.setRequest(webProxyRequest.getRequestContent());
+            recordedRequest.setResponse(webProxyRequest.getResponseContent());
+
+            // Save the request headers
+            for (String name : webProxyRequest.getRequestHeaders().keySet()) {
+                recordedRequest.addNewRequestHeader(name, webProxyRequest.getRequestHeaders().get(name));
+            }
+
+            // Save the response headers
+            for (String name : webProxyRequest.getResponseHeaders().keySet()) {
+                recordedRequest.addNewResponseHeader(name, webProxyRequest.getResponseHeaders().get(name));
+            }
+
+            recordedRequest.save();
+
+            RecordedRequest recordedRequest1 = DataBank.loadRecordedRequest(recordedRequest.getId(), recordedRequest.getParentHttpProxy());
+
+            for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
+                requestTrackerNode.addResult(recordedRequest1);
+            }
         }
     }
 

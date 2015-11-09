@@ -3,6 +3,9 @@ package application.data;
 import application.error.Error;
 import application.gui.FlowController;
 import application.gui.Program;
+import application.net.proxy.RecordedHeader;
+import application.net.proxy.RecordedProxy;
+import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
 import application.node.implementations.*;
 import application.node.objects.Input;
@@ -701,6 +704,18 @@ public class DataBank {
         }
     }
 
+    public static RecordedRequest createNewRecordedRequest(RecordedProxy parent) {
+        RecordedRequest recordedRequest = new RecordedRequest(getNextId("recorded_requests"), parent);
+        recordedRequest.save();
+        return recordedRequest;
+    }
+
+    public static RecordedProxy createNewRecordedProxy() {
+        RecordedProxy recordedProxy = new RecordedProxy(getNextId("http_proxys"));
+        recordedProxy.save();
+        return recordedProxy;
+    }
+
     public static DataTableRow createNewDataTableRow(DataTableNode parent) {
         DataTableRow dataTableRow = new DataTableRow(getNextId("data_table_rows"), parent);
 
@@ -708,6 +723,63 @@ public class DataBank {
         parent.addDataTableRow(dataTableRow);
 
         return dataTableRow;
+    }
+
+    public static RecordedHeader createNewRecordedHeader(RecordedRequest recordedRequest) {
+        RecordedHeader recordedHeader = new RecordedHeader(getNextId("http_headers"), recordedRequest);
+        recordedHeader.save();
+        return recordedHeader;
+    }
+
+    public static void loadLazyRequest(RecordedRequest recordedRequest) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select request_content from recorded_requests where id = ?")
+                .addParameter(recordedRequest.getId())
+                .execute();
+
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            recordedRequest.setRequest(resultRow.getString("request_content"));
+        }
+    }
+
+    public static void loadLazyResponse(RecordedRequest recordedRequest) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select response_content from recorded_requests where id = ?")
+                .addParameter(recordedRequest.getId())
+                .execute();
+
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            recordedRequest.setResponse(resultRow.getString("response_content"));
+        }
+    }
+
+    public static RecordedRequest loadRecordedRequest(Integer id, RecordedProxy recordedProxy) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, http_proxy_id, url, duration, request_size, response_size from recorded_requests where id = ?")
+                .addParameter(id) // 1
+                .execute();
+        RecordedRequest recordedRequest = null;
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            recordedRequest = new RecordedRequest(resultRow.getInt("id"), recordedProxy);
+            recordedRequest.setURL(resultRow.getString("url"));
+            recordedRequest.setDuration(resultRow.getInt("duration"));
+            recordedRequest.setRequestSize(resultRow.getInt("request_size"));
+            recordedRequest.setResponseSize(resultRow.getInt("response_size"));
+        }
+        return recordedRequest;
+    }
+
+    public static void loadRecordedHeaders(RecordedRequest recordedRequest) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select id, header_name, header_value, header_type from http_headers where request_id = ?")
+                .addParameter(recordedRequest.getId()) // 1
+                .execute();
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            RecordedHeader recordedHeader = new RecordedHeader(resultRow.getInt("id"),
+                    recordedRequest
+            );
+            recordedHeader.setName(resultRow.getString("header_name"));
+            recordedHeader.setValue(resultRow.getString("header_value"));
+            recordedHeader.setType(resultRow.getString("header_type"));
+
+            recordedRequest.addRecordedHeader(recordedHeader);
+        }
     }
 
     public static void loadDataTableRows(DataTableNode dataTableNode) {

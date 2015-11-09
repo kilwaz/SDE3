@@ -2,12 +2,6 @@
   <artifact name="SDE3:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/SDE3_jar</output-path>
     <root id="root">
-      <element id="directory" name="lib">
-        <element id="archive" name="SDE3.jar">
-          <element id="module-output" name="SDE3" />
-        </element>
-        <element id="library" level="project" name="lib" />
-      </element>
       <element id="directory" name="resources">
         <element id="file-copy" path="$PROJECT_DIR$/resources/aceCodeEditor.html" />
         <element id="directory" name="ace-editor">
@@ -20,6 +14,13 @@
       <element id="file-copy" path="$PROJECT_DIR$/resources/SDE3 - No Console.bat" />
       <element id="directory" name="logs">
         <element id="dir-copy" path="$PROJECT_DIR$/logs" />
+      </element>
+      <element id="directory" name="lib">
+        <element id="archive" name="SDE3.jar">
+          <element id="module-output" name="SDE3" />
+          <element id="archive" name="archive.jar" />
+        </element>
+        <element id="library" level="project" name="lib" />
       </element>
     </root>
   </artifact>

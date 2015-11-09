@@ -3,7 +3,7 @@ package application.node.implementations;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.window.RequestInspectWindow;
-import application.net.proxy.WebProxyRequest;
+import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RequestTrackerNode extends DrawableNode {
-    private ObservableList<WebProxyRequest> requestList = FXCollections.observableArrayList();
+    private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
     private static Logger log = Logger.getLogger(RequestTrackerNode.class);
 
     // This will make a copy of the node passed to it
@@ -50,20 +50,20 @@ public class RequestTrackerNode extends DrawableNode {
         super(x, y, 50.0, 40.0, Color.BLACK, containedText, programId, id);
     }
 
-    public void addResult(WebProxyRequest webProxyRequest) {
+    public void addResult(RecordedRequest recordedRequest) {
         class OneShotTask implements Runnable {
-            private WebProxyRequest webProxyRequest;
+            private RecordedRequest recordedRequest;
 
-            OneShotTask(WebProxyRequest webProxyRequest) {
-                this.webProxyRequest = webProxyRequest;
+            OneShotTask(RecordedRequest recordedRequest) {
+                this.recordedRequest = recordedRequest;
             }
 
             public void run() {
-                requestList.add(webProxyRequest);
+                requestList.add(recordedRequest);
             }
         }
 
-        Platform.runLater(new OneShotTask(webProxyRequest));
+        Platform.runLater(new OneShotTask(recordedRequest));
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -74,10 +74,10 @@ public class RequestTrackerNode extends DrawableNode {
         return savableAttributes;
     }
 
-    public List<WebProxyRequest> getRequestsByURL(String url) {
-        List<WebProxyRequest> webProxyRequests = requestList.stream().filter(webProxyRequest -> webProxyRequest.getRequestURL().equals(url)).collect(Collectors.toList());
+    public List<RecordedRequest> getRequestsByURL(String url) {
+        List<RecordedRequest> recordedRequests = requestList.stream().filter(recordedRequest -> recordedRequest.getURL().equals(url)).collect(Collectors.toList());
 
-        return webProxyRequests;
+        return recordedRequests;
     }
 
     public Tab createInterface() {
@@ -88,24 +88,24 @@ public class RequestTrackerNode extends DrawableNode {
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
-        TableView<WebProxyRequest> requestTableView = new TableView<>();
+        TableView<RecordedRequest> requestTableView = new TableView<>();
         requestTableView.setId("requestTable-" + getId());
 
         TableColumn requestID = new TableColumn("ID");
         requestID.setMinWidth(30);
         requestID.setMaxWidth(50);
-        requestID.setCellValueFactory(new PropertyValueFactory<WebProxyRequest, String>("RequestID"));
+        requestID.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("Id"));
 
         TableColumn url = new TableColumn("URL");
         url.setMinWidth(30);
-        url.setCellValueFactory(new PropertyValueFactory<WebProxyRequest, String>("RequestURL"));
+        url.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("URL"));
 
         TableColumn duration = new TableColumn("Duration");
         duration.setMinWidth(30);
-        duration.setCellValueFactory(new PropertyValueFactory<WebProxyRequest, Long>("RequestDuration"));
-        duration.setCellFactory(column -> new TableCell<WebProxyRequest, Long>() {
+        duration.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("Duration"));
+        duration.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
-            protected void updateItem(Long item, boolean empty) {
+            protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
                 if (!empty && item != null && item > 0) {
                     String formattedItemStr = formatter.format(item);
@@ -118,8 +118,8 @@ public class RequestTrackerNode extends DrawableNode {
 
         TableColumn requestSize = new TableColumn("Request Size");
         requestSize.setMinWidth(30);
-        requestSize.setCellValueFactory(new PropertyValueFactory<WebProxyRequest, Integer>("RequestContentSize"));
-        requestSize.setCellFactory(column -> new TableCell<WebProxyRequest, Integer>() {
+        requestSize.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("RequestSize"));
+        requestSize.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
@@ -134,8 +134,8 @@ public class RequestTrackerNode extends DrawableNode {
 
         TableColumn responseSize = new TableColumn("Response Size");
         responseSize.setMinWidth(30);
-        responseSize.setCellValueFactory(new PropertyValueFactory<WebProxyRequest, Integer>("ResponseContentSize"));
-        responseSize.setCellFactory(column -> new TableCell<WebProxyRequest, Integer>() {
+        responseSize.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("ResponseSize"));
+        responseSize.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
@@ -167,7 +167,7 @@ public class RequestTrackerNode extends DrawableNode {
 
         // Right click context menu
         requestTableView.setRowFactory(tableView -> {
-            TableRow<WebProxyRequest> row = new TableRow<>();
+            TableRow<RecordedRequest> row = new TableRow<>();
             ContextMenu contextMenu = new ContextMenu();
             MenuItem inspectMenuItem = new MenuItem("Inspect");
             MenuItem removeMenuItem = new MenuItem("Remove");
@@ -199,7 +199,7 @@ public class RequestTrackerNode extends DrawableNode {
         requestList.clear();
     }
 
-    public ObservableList<WebProxyRequest> getResultList() {
+    public ObservableList<RecordedRequest> getResultList() {
         return requestList;
     }
 }

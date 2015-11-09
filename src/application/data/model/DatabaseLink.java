@@ -3,6 +3,9 @@ package application.data.model;
 import application.data.NodeColour;
 import application.data.User;
 import application.data.model.links.*;
+import application.net.proxy.RecordedHeader;
+import application.net.proxy.RecordedProxy;
+import application.net.proxy.RecordedRequest;
 import application.node.objects.Input;
 import application.node.objects.Trigger;
 import application.node.objects.datatable.DataTableRow;
@@ -27,6 +30,9 @@ public class DatabaseLink {
         linkClasses.put(User.class, UserDatabaseLink.class);
         linkClasses.put(DataTableValue.class, DataTableValueDatabaseLink.class);
         linkClasses.put(DataTableRow.class, DataTableRowDatabaseLink.class);
+        linkClasses.put(RecordedRequest.class, RecordedRequestDatabaseLink.class);
+        linkClasses.put(RecordedProxy.class, RecordedProxyDatabaseLink.class);
+        linkClasses.put(RecordedHeader.class, RecordedHeaderDatabaseLink.class);
     }
 
     public DatabaseLink(String tableName) {
@@ -42,7 +48,11 @@ public class DatabaseLink {
     }
 
     public void link(String databaseColumn, Method objectMethod) {
-        modelColumns.add(new ModelColumn(databaseColumn, objectMethod));
+        modelColumns.add(new ModelColumn(databaseColumn, objectMethod, ModelColumn.STANDARD_COLUMN));
+    }
+
+    public void linkBlob(String databaseColumn, Method objectMethod) {
+        modelColumns.add(new ModelColumn(databaseColumn, objectMethod, ModelColumn.BLOB_COLUMN));
     }
 
     public static Class getLinkClass(Class clazz) {

@@ -4,13 +4,18 @@ import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
-import application.node.objects.datatable.*;
+import application.node.objects.datatable.DataTableColumn;
+import application.node.objects.datatable.DataTableRow;
+import application.node.objects.datatable.DataTableValue;
+import application.node.objects.datatable.DataTableWithHeader;
 import application.utils.NodeRunParams;
 import application.utils.SDEUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
@@ -18,6 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class DataTableNode extends DrawableNode {
@@ -28,7 +34,10 @@ public class DataTableNode extends DrawableNode {
     private SpreadsheetView spreadsheetView = new SpreadsheetView();
     private DataTableWithHeader dataTableGrid;
 
-    ObservableList<DataTableRow> dataTableRows = FXCollections.observableArrayList();
+    private Tab dataViewTab;
+    private Tab renameColumnsTab;
+
+    private ObservableList<DataTableRow> dataTableRows = FXCollections.observableArrayList();
 
     // This will make a copy of the node passed to it
     public DataTableNode(DataTableNode dataTableNode) {
@@ -86,6 +95,7 @@ public class DataTableNode extends DrawableNode {
     private void buildDataGrid() {
         dataTableGrid = new DataTableWithHeader(dataTableRows);
         spreadsheetView.setGrid(dataTableGrid.getGrid());
+        createRenameColumnTab();
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
@@ -100,65 +110,19 @@ public class DataTableNode extends DrawableNode {
 
         TabPane dataTableTabPane = new TabPane();
 
-        // View Data
-        Tab dataViewTab = new Tab("View Data");
+        // Create View Data
+        dataViewTab = new Tab("View Data");
         dataViewTab.setClosable(false);
-        AnchorPane dataViewAnchorPane = new AnchorPane();
+        createViewDataTab();
 
-        if (dataTableColumns.size() == 0) {
-            dataTableColumns.add(new DataTableColumn("New Column"));
-        }
+        // Create Rename columns
+        renameColumnsTab = new Tab("Rename Columns");
+        renameColumnsTab.setClosable(false);
+        createRenameColumnTab();
 
-        AnchorPane.setBottomAnchor(dataViewAnchorPane, 0.0);
-        AnchorPane.setLeftAnchor(dataViewAnchorPane, 0.0);
-        AnchorPane.setRightAnchor(dataViewAnchorPane, 0.0);
-        AnchorPane.setTopAnchor(dataViewAnchorPane, 0.0);
-        dataViewTab.setContent(dataViewAnchorPane);
+        // Add created tabs to main frame
 
-        AnchorPane.setBottomAnchor(spreadsheetView, 0.0);
-        AnchorPane.setLeftAnchor(spreadsheetView, 0.0);
-        AnchorPane.setRightAnchor(spreadsheetView, 0.0);
-        AnchorPane.setTopAnchor(spreadsheetView, 0.0);
-
-        dataViewAnchorPane.getChildren().add(spreadsheetView);
-
-        dataTableGrid = new DataTableWithHeader(dataTableRows);
-        spreadsheetView.setGrid(dataTableGrid.getGrid());
-
-        MenuItem addNewRow = new MenuItem("Add New Row");
-        addNewRow.setOnAction(event -> {
-            DataBank.createNewDataTableRow(this);
-
-            spreadsheetView.getSelectionModel().getFocusedCell();
-        });
-
-        MenuItem deleteRow = new MenuItem("Delete Row(s)");
-        deleteRow.setOnAction(event -> {
-            List<Integer> rowsToDelete = new ArrayList<>();
-            List<DataTableRow> dataTableRowsToDelete = new ArrayList<>();
-
-            for (TablePosition tablePosition : spreadsheetView.getSelectionModel().getSelectedCells()) {
-                if (!rowsToDelete.contains(tablePosition.getRow())) {
-                    rowsToDelete.add(tablePosition.getRow());
-                }
-            }
-
-            for (Integer rowNumber : rowsToDelete) {
-                dataTableRowsToDelete.add(dataTableRows.get(rowNumber));
-            }
-
-            for (DataTableRow dataTableRow : dataTableRowsToDelete) {
-                dataTableRows.remove(dataTableRow);
-                DataBank.deleteDataTableRow(dataTableRow);
-            }
-
-            buildDataGrid();
-        });
-
-        spreadsheetView.getContextMenu().getItems().add(addNewRow);
-        spreadsheetView.getContextMenu().getItems().add(deleteRow);
-
-        dataTableTabPane.getTabs().add(dataViewTab);
+        dataTableTabPane.getTabs().addAll(dataViewTab, renameColumnsTab);
 
         AnchorPane.setBottomAnchor(dataTableTabPane, 0.0);
         AnchorPane.setLeftAnchor(dataTableTabPane, 0.0);
@@ -166,8 +130,144 @@ public class DataTableNode extends DrawableNode {
         AnchorPane.setTopAnchor(dataTableTabPane, 50.0);
 
         anchorPane.getChildren().addAll(dataTableTabPane);
-
         return tab;
+    }
+
+    public void createViewDataTab() {
+        if (dataViewTab != null) {
+            AnchorPane dataViewAnchorPane = new AnchorPane();
+
+            if (dataTableColumns.size() == 0) {
+                dataTableColumns.add(new DataTableColumn("New Column"));
+            }
+
+            AnchorPane.setBottomAnchor(dataViewAnchorPane, 0.0);
+            AnchorPane.setLeftAnchor(dataViewAnchorPane, 0.0);
+            AnchorPane.setRightAnchor(dataViewAnchorPane, 0.0);
+            AnchorPane.setTopAnchor(dataViewAnchorPane, 0.0);
+
+            AnchorPane.setBottomAnchor(spreadsheetView, 0.0);
+            AnchorPane.setLeftAnchor(spreadsheetView, 0.0);
+            AnchorPane.setRightAnchor(spreadsheetView, 0.0);
+            AnchorPane.setTopAnchor(spreadsheetView, 0.0);
+
+            dataViewAnchorPane.getChildren().add(spreadsheetView);
+
+            dataTableGrid = new DataTableWithHeader(dataTableRows);
+            spreadsheetView.setGrid(dataTableGrid.getGrid());
+
+            MenuItem addNewRow = new MenuItem("Add New Row");
+            addNewRow.setOnAction(event -> DataBank.createNewDataTableRow(this));
+
+            MenuItem addNewColumn = new MenuItem("Add New Column");
+            addNewColumn.setOnAction(event -> {
+                if (dataTableRows.size() == 0) {
+                    dataTableRows.add(DataBank.createNewDataTableRow(this));
+                }
+
+                for (DataTableRow dataTableRow : dataTableRows) {
+                    dataTableRow.addDataTableValue(DataBank.createNewDataTableValue(dataTableRow, "New Column", ""));
+                }
+
+                buildDataGrid();
+            });
+
+            MenuItem deleteColumn = new MenuItem("Delete Column(s)");
+            deleteColumn.setOnAction(event -> {
+                for (TablePosition tablePosition : spreadsheetView.getSelectionModel().getSelectedCells()) {
+                    for (DataTableRow dataTableRow : dataTableRows) {
+                        dataTableRow.removeDataTableValue(tablePosition.getTableColumn().getText());
+                    }
+                }
+                buildDataGrid();
+            });
+
+            MenuItem deleteRow = new MenuItem("Delete Row(s)");
+            deleteRow.setOnAction(event -> {
+                List<Integer> rowsToDelete = new ArrayList<>();
+                List<DataTableRow> dataTableRowsToDelete = new ArrayList<>();
+
+                for (TablePosition tablePosition : spreadsheetView.getSelectionModel().getSelectedCells()) {
+                    if (!rowsToDelete.contains(tablePosition.getRow())) {
+                        rowsToDelete.add(tablePosition.getRow());
+                    }
+                }
+
+                for (Integer rowNumber : rowsToDelete) {
+                    dataTableRowsToDelete.add(dataTableRows.get(rowNumber));
+                }
+
+                for (DataTableRow dataTableRow : dataTableRowsToDelete) {
+                    dataTableRows.remove(dataTableRow);
+                    DataBank.deleteDataTableRow(dataTableRow);
+                }
+
+                buildDataGrid();
+            });
+
+            spreadsheetView.getContextMenu().getItems().add(addNewRow);
+            spreadsheetView.getContextMenu().getItems().add(addNewColumn);
+            spreadsheetView.getContextMenu().getItems().add(deleteRow);
+            spreadsheetView.getContextMenu().getItems().add(deleteColumn);
+
+            dataViewTab.setContent(dataViewAnchorPane);
+        }
+    }
+
+    public void createRenameColumnTab() {
+        if (renameColumnsTab != null) {
+            AnchorPane renameColumnsAnchorPane = new AnchorPane();
+
+            AnchorPane.setBottomAnchor(renameColumnsAnchorPane, 0.0);
+            AnchorPane.setLeftAnchor(renameColumnsAnchorPane, 0.0);
+            AnchorPane.setRightAnchor(renameColumnsAnchorPane, 0.0);
+            AnchorPane.setTopAnchor(renameColumnsAnchorPane, 0.0);
+
+            List<String> columnNames = findColumnNames(dataTableRows);
+
+            VBox vbox = new VBox(5);
+            AnchorPane.setBottomAnchor(vbox, 10.0);
+            AnchorPane.setLeftAnchor(vbox, 10.0);
+            AnchorPane.setRightAnchor(vbox, 10.0);
+            AnchorPane.setTopAnchor(vbox, 10.0);
+
+            for (String columnName : columnNames) {
+                vbox.getChildren().add(createRenameColumnRow(columnName));
+            }
+
+            renameColumnsAnchorPane.getChildren().add(vbox);
+
+            renameColumnsTab.setContent(renameColumnsAnchorPane);
+        }
+    }
+
+    private HBox createRenameColumnRow(String columnName) {
+        HBox hBox = new HBox(5);
+
+        TextField textField = new TextField();
+        textField.setOnAction(event -> {
+            TextField eventTextField = (TextField) event.getSource();
+            if (!eventTextField.getText().isEmpty()) {
+                for (DataTableRow dataTableRow : dataTableRows) {
+                    String oldValue = dataTableRow.getData(eventTextField.getId());
+
+                    if (oldValue != null) {
+                        dataTableRow.addDataTableValue(DataBank.createNewDataTableValue(dataTableRow, eventTextField.getText(), oldValue));
+                        dataTableRow.removeDataTableValue(eventTextField.getId());
+
+                    }
+                }
+                eventTextField.setId(eventTextField.getText());
+            }
+
+            buildDataGrid();
+        });
+        textField.setText(columnName);
+        textField.setId(columnName);
+
+        hBox.getChildren().add(textField);
+
+        return hBox;
     }
 
     public Element getXMLRepresentation(Document document) {
@@ -202,69 +302,19 @@ public class DataTableNode extends DrawableNode {
         return nodeElement;
     }
 
-//    private void addColumnToTable(DataTableColumn dataTableColumn) {
-//        TableColumn newTableColumn = new TableColumn(dataTableColumn.getTitle());
-//        newTableColumn.setMinWidth(30);
-//        newTableColumn.setCellValueFactory(new DataTablePropertyValueFactory<DataTableRow, String>(dataTableColumn));
-//        newTableColumn.setCellFactory(column -> new DataTableCell(dataTableColumn.getTitle(), this));
-//        newTableColumn.setEditable(true);
-//
-//        DataTableNode thisNode = this;
-//
-//        // Create content menu for renaming the columns
-//        ContextMenu contextMenu = new ContextMenu();
-//        MenuItem renameColumn = new MenuItem("Rename Column");
-//        renameColumn.setOnAction(event -> {
-//            String oldName = newTableColumn.getText();
-//            newTableColumn.setText(null);
-//            newTableColumn.setPrefWidth(newTableColumn.getWidth());
-//            TextField colHeaderTextField = new TextField(oldName);
-//
-//            colHeaderTextField.setOnKeyPressed(event2 -> {
-//                if (event2.getCode() == KeyCode.ENTER) {
-//                    renameColumn(newTableColumn, colHeaderTextField.getText(), oldName, dataTableColumn);
-//                }
-//            });
-//
-//            newTableColumn.setGraphic(colHeaderTextField);
-//        });
-//        contextMenu.getItems().add(renameColumn);
-//
-//        newTableColumn.setContextMenu(contextMenu);
-//
-//        dataTableView.getColumns().add(newTableColumn);
-//    }
-
-    private void renameColumn(TableColumn newTableColumn, String newName, String oldName, DataTableColumn dataTableColumn) {
-        // Go through each row and replace swap the key against the old value for the new column name
-        for (DataTableRow dataTableRow : getDataTableRows()) {
-            String oldValue = dataTableRow.getData(oldName);
-            if (oldValue != null) {
-                dataTableRow.updateDataTableValue(newName, oldValue);
-                dataTableRow.removeDataTableValue(oldName);
+    public static List<String> findColumnNames(List<DataTableRow> dataTableRowList) {
+        List<String> columnNames = new ArrayList<>();
+        for (DataTableRow dataTableRow : dataTableRowList) {
+            LinkedHashMap<String, DataTableValue> rowValues = dataTableRow.getDataTableValues();
+            for (DataTableValue dataTableValue : rowValues.values()) {
+                if (!columnNames.contains(dataTableValue.getDataKey())) {
+                    columnNames.add(dataTableValue.getDataKey());
+                }
             }
         }
 
-        dataTableColumn.setTitle(newName);
-
-        newTableColumn.setGraphic(null);
-        newTableColumn.setText(newName);
-        newTableColumn.setCellValueFactory(new DataTablePropertyValueFactory<DataTableRow, String>(dataTableColumn));
-        newTableColumn.setCellFactory(column -> new DataTableCell(newName, this));
+        return columnNames;
     }
-
-//    public void recalculateColumnNames() {
-//        dataTableColumns.clear();
-//
-//        // Find all the columns in the data that are being used at the moment
-//        List<String> allColumns = new ArrayList<>();
-//        for (DataTableRow dataTableRow : dataTableView.getItems()) {
-//            dataTableRow.getDataTableValues().keySet().stream().filter(key -> !allColumns.contains(key)).forEach(allColumns::add);
-//        }
-//
-//        // Add a new column for each name identified
-//        dataTableColumns.addAll(allColumns.stream().map(DataTableColumn::new).collect(Collectors.toList()));
-//    }
 
     public ObservableList<DataTableRow> getDataTableRows() {
         return dataTableRows;

@@ -1,6 +1,7 @@
 package application.node.objects.datatable;
 
 import application.data.DataBank;
+import application.node.implementations.DataTableNode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
@@ -9,7 +10,6 @@ import org.controlsfx.control.spreadsheet.GridChange;
 import org.controlsfx.control.spreadsheet.SpreadsheetCell;
 import org.controlsfx.control.spreadsheet.SpreadsheetCellType;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -24,12 +24,9 @@ public class DataTableWithHeader extends DataTableGrid {
     }
 
     public void handleOnChange(GridChange change) {
-        //log.info("EVENT: " + change.getRow() + "," + change.getColumn() + " OLD " + change.getOldValue() + " -> " + change.getNewValue());
-
         DataTableValue dataTableValue = dataTableValuePositionHashMap.get(change.getRow() + "," + change.getColumn());
         if (dataTableValue != null) {
             dataTableValue.setDataValue((String) change.getNewValue());
-            //log.info("Saved!");
         }
     }
 
@@ -39,7 +36,7 @@ public class DataTableWithHeader extends DataTableGrid {
         Integer rowCount = 0;
         Integer colCount = 0;
 
-        List<String> columnNames = findColumnNames();
+        List<String> columnNames = DataTableNode.findColumnNames(getDataTableRows());
 
         for (DataTableRow dataTableRow : getDataTableRows()) {
             ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
@@ -82,22 +79,8 @@ public class DataTableWithHeader extends DataTableGrid {
         grid.addEventHandler(GridChange.GRID_CHANGE_EVENT, this::handleOnChange);
     }
 
-    public void deleteRow(Integer rowNumber){
+    public void deleteRow(Integer rowNumber) {
         getDataTableRows().remove(rowNumber);
-    }
-
-    private List<String> findColumnNames() {
-        List<String> columnNames = new ArrayList<>();
-        for (DataTableRow dataTableRow : getDataTableRows()) {
-            LinkedHashMap<String, DataTableValue> rowValues = dataTableRow.getDataTableValues();
-            for (DataTableValue dataTableValue : rowValues.values()) {
-                if (!columnNames.contains(dataTableValue.getDataKey())) {
-                    columnNames.add(dataTableValue.getDataKey());
-                }
-            }
-        }
-
-        return columnNames;
     }
 
     public GridBase getGrid() {
