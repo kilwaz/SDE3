@@ -18,6 +18,10 @@ public class DBConnection {
 
     private static Logger log = Logger.getLogger(DBConnection.class);
 
+    public DBConnection(String connectionString) {
+        this.connectionString = connectionString;
+    }
+
     public DBConnection(String connectionString, String username, String password) {
         this.password = password;
         this.username = username;

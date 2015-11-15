@@ -21,12 +21,12 @@ public class CompileCode {
     private static Logger log = Logger.getLogger(CompileCode.class);
 
     public static String compileCode(Logic logic) {
-        String className = "SDEClass" + logic.getId() + "C" + counter;
+        String className = "SDEClass" + logic.getUuidStringWithoutHyphen() + "C" + counter;
         counter++;
         String flowControllerReferenceId = "[Unloaded FlowController]";
         try {
             flowControllerReferenceId = FlowController.getFlowControllerFromLogic(logic).getReferenceID();
-            String logicReferenceId = logic.getId().toString();
+            String logicReferenceId = logic.getUuidStringWithoutHyphen().toString();
             String logicString = "package programs;" +
                     "import application.utils.*;" +
                     "import application.utils.managers.*;" +
@@ -51,7 +51,7 @@ public class CompileCode {
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
                     "   private String logicReferenceId = \"" + logicReferenceId + "\";" +
                     "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
-                    "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getId() + ")\");" +
+                    "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getUuidStringWithoutHyphen() + ")\");" +
                     "   " + logic.getLogic() + "" +
                     "   public void threadRun() {" +
                     "      try {" +

@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TriggerNode extends DrawableNode {
@@ -34,7 +35,6 @@ public class TriggerNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public TriggerNode(TriggerNode triggerNode) {
-        this.setId(-1);
         this.setX(triggerNode.getX());
         this.setY(triggerNode.getY());
         this.setWidth(triggerNode.getWidth());
@@ -42,21 +42,15 @@ public class TriggerNode extends DrawableNode {
         this.setColor(triggerNode.getColor());
         this.setScale(triggerNode.getScale());
         this.setContainedText(triggerNode.getContainedText());
-        this.setProgramId(triggerNode.getProgramId());
+        //this.setProgramUuid(triggerNode.getProgramUuid());
         this.setNextNodeToRun(triggerNode.getNextNodeToRun());
 
         // This copies all of the switches and creates new object for each one using the copy constructor
         triggers.addAll(triggerNode.getTriggers().stream().map(loopTrigger -> new Trigger(loopTrigger, this)).collect(Collectors.toList()));
     }
 
-    public TriggerNode(Integer id, Integer programId) {
-        super(id, programId);
-        DataBank.loadTriggers(this);
-    }
-
-    public TriggerNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        DataBank.loadTriggers(this);
+    public TriggerNode(){
+        super();
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -80,7 +74,7 @@ public class TriggerNode extends DrawableNode {
         if (triggers.size() < 1) {
             // Automatically assigned to this triggerNode via 'this' reference
             DataBank.createNewTrigger("", "", "", this);
-            DataBank.saveNode(this);
+            save();
         }
 
         for (Trigger trigger : triggers) {
@@ -101,19 +95,19 @@ public class TriggerNode extends DrawableNode {
 
         watchLabel.setPrefWidth(40);
         watchLabel.setText("Watch");
-        watchLabel.setId("triggerField-watchLabel" + "-" + this.getId());
+        watchLabel.setId("triggerField-watchLabel" + "-" + this.getUuidString());
 
         watchField.setText(trigger.getWatch());
         watchField.setPrefWidth(80);
-        watchField.setId("triggerField-watchField" + "-" + this.getId());
+        watchField.setId("triggerField-watchField" + "-" + this.getUuidString());
         watchField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
                 trigger.setWatch(textField.getText());
 
                 Controller controller = Controller.getInstance();
-                ChoiceBox whenChoice = (ChoiceBox) controller.getElementById("triggerField-whenChoice" + "-" + this.getId());
-                ChoiceBox thenChoice = (ChoiceBox) controller.getElementById("triggerField-thenChoice" + "-" + this.getId());
+                ChoiceBox whenChoice = (ChoiceBox) controller.getElementById("triggerField-whenChoice" + "-" + this.getUuidString());
+                ChoiceBox thenChoice = (ChoiceBox) controller.getElementById("triggerField-thenChoice" + "-" + this.getUuidString());
 
                 DrawableNode watchedNode = FlowController.getNodeFromContainedText(textField.getText());
                 if (watchedNode != null) {
@@ -137,10 +131,10 @@ public class TriggerNode extends DrawableNode {
 
         whenLabel.setPrefWidth(35);
         whenLabel.setText("when");
-        whenLabel.setId("triggerField-whenLabel" + "-" + this.getId());
+        whenLabel.setId("triggerField-whenLabel" + "-" + this.getUuidString());
 
         whenChoice.setPrefWidth(120);
-        whenChoice.setId("triggerField-whenChoice" + "-" + this.getId());
+        whenChoice.setId("triggerField-whenChoice" + "-" + this.getUuidString());
         if (currentWatchedNode != null) {
             whenChoice.setItems(FXCollections.observableList(currentWatchedNode.getAvailableTriggers()));
             whenChoice.getSelectionModel().select(trigger.getWhen());
@@ -162,10 +156,10 @@ public class TriggerNode extends DrawableNode {
 
         thenLabel.setPrefWidth(30);
         thenLabel.setText("then");
-        thenLabel.setId("triggerField-thenLabel" + "-" + this.getId());
+        thenLabel.setId("triggerField-thenLabel" + "-" + this.getUuidString());
 
         thenChoice.setPrefWidth(120);
-        thenChoice.setId("triggerField-thenChoice" + "-" + this.getId());
+        thenChoice.setId("triggerField-thenChoice" + "-" + this.getUuidString());
         if (currentWatchedNode != null) {
             thenChoice.setItems(FXCollections.observableList(currentWatchedNode.getAvailableTriggerActions()));
             thenChoice.getSelectionModel().select(trigger.getThen());

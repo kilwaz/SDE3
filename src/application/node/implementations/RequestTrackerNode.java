@@ -12,7 +12,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
@@ -26,7 +25,6 @@ public class RequestTrackerNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public RequestTrackerNode(RequestTrackerNode requestTrackerNode) {
-        this.setId(-1);
         this.setX(requestTrackerNode.getX());
         this.setY(requestTrackerNode.getY());
         this.setWidth(requestTrackerNode.getWidth());
@@ -34,20 +32,12 @@ public class RequestTrackerNode extends DrawableNode {
         this.setColor(requestTrackerNode.getColor());
         this.setScale(requestTrackerNode.getScale());
         this.setContainedText(requestTrackerNode.getContainedText());
-        this.setProgramId(requestTrackerNode.getProgramId());
+//        this.setProgramUuid(requestTrackerNode.getProgramUuid());
         this.setNextNodeToRun(requestTrackerNode.getNextNodeToRun());
     }
 
-    public RequestTrackerNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public RequestTrackerNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    public RequestTrackerNode(Double x, Double y, String containedText, Integer id, Integer programId) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, programId, id);
+    public RequestTrackerNode() {
+        super();
     }
 
     public void addResult(RecordedRequest recordedRequest) {
@@ -89,7 +79,7 @@ public class RequestTrackerNode extends DrawableNode {
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
         TableView<RecordedRequest> requestTableView = new TableView<>();
-        requestTableView.setId("requestTable-" + getId());
+        requestTableView.setId("requestTable-" + getUuidStringWithoutHyphen());
 
         TableColumn requestID = new TableColumn("ID");
         requestID.setMinWidth(30);

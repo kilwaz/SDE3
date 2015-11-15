@@ -15,7 +15,7 @@ import org.openqa.selenium.support.ui.Select;
 
 /**
  * This action can manipulate a select box within the browser.
- *
+ * <p>
  * You can select an option by name or value.
  */
 public class SelectWebAction extends WebAction {
@@ -84,7 +84,9 @@ public class SelectWebAction extends WebAction {
                 log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
             }
         }
-        DataBank.saveTestStep(testStep);
+        if (testStep != null) {
+            testStep.save();
+        }
     }
 
     private void processElement(WebElement webElement, TestStep testStep) {

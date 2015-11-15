@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class InputNode extends DrawableNode {
@@ -36,7 +37,6 @@ public class InputNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public InputNode(InputNode inputNode) {
-        this.setId(-1);
         this.setX(inputNode.getX());
         this.setY(inputNode.getY());
         this.setWidth(inputNode.getWidth());
@@ -44,31 +44,20 @@ public class InputNode extends DrawableNode {
         this.setColor(inputNode.getColor());
         this.setScale(inputNode.getScale());
         this.setContainedText(inputNode.getContainedText());
-        this.setProgramId(inputNode.getProgramId());
+//        this.setProgramUuid(inputNode.getProgramUuid());
         this.setNextNodeToRun(inputNode.getNextNodeToRun());
 
         // This copies all of the inputs and creates new object for each one using the copy constructor
         inputs.addAll(inputNode.getInputs().stream().map(loopInput -> new Input(loopInput, this)).collect(Collectors.toList()));
     }
 
-    public InputNode(Integer id, Integer programId) {
-        super(id, programId);
-        DataBank.loadInputs(this);
-    }
-
-    public InputNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        DataBank.loadInputs(this);
-    }
-
-    public InputNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
-        DataBank.loadInputs(this);
+    public InputNode(){
+        super();
     }
 
     public void updateInputVariableName(Integer inputId, String variableName) {
         for (Input input : inputs) {
-            if (input.getId().equals(inputId)) {
+            if (input.getUuidString().equals(inputId)) {
                 input.setVariableName(variableName);
                 input.save();
                 break;
@@ -78,7 +67,7 @@ public class InputNode extends DrawableNode {
 
     public void updateInputVariableValue(Integer inputId, String variableValue) {
         for (Input input : inputs) {
-            if (input.getId().equals(inputId)) {
+            if (input.getUuidString().equals(inputId)) {
                 input.setVariableValue(variableValue);
                 input.save();
                 break;
@@ -101,7 +90,7 @@ public class InputNode extends DrawableNode {
         if (inputs.size() < 1) {
             // Automatically assigned to this triggerNode via 'this' reference
             DataBank.createNewInput("", "", this);
-            DataBank.saveNode(this);
+            save();
         }
 
         for (Input input : inputs) {
@@ -117,22 +106,22 @@ public class InputNode extends DrawableNode {
 
     public HBox createInputNodeRow(Input input) {
         HBox inputRow = new HBox(5);
-        inputRow.setId("inputRow-" + input.getId() + "-" + getId());
+        inputRow.setId("inputRow-" + input.getUuidString() + "-" + getUuidString());
         inputRow.setAlignment(Pos.CENTER);
 
         // Remove input button
         Button deleteInput = AwesomeDude.createIconButton(AwesomeIcon.MINUS);
         deleteInput.setPrefWidth(35);
         deleteInput.setTooltip(new Tooltip("Delete this input"));
-        deleteInput.setId("deleteInputButton-" + input.getId() + "-" + getId());
+        deleteInput.setId("deleteInputButton-" + input.getUuidString() + "-" + getUuidString());
         deleteInput.setOnAction(event -> {
             Button deleteButton = (Button) event.getSource();
             Program program = DataBank.currentlyEditProgram;
             String[] fieldId = deleteButton.getId().split("-");
-            InputNode inputNode = (InputNode) program.getFlowController().getNodeById(Integer.parseInt(fieldId[2]));
+            InputNode inputNode = (InputNode) program.getFlowController().getNodeById(fieldId[2]);
 
             // Remove the input
-            inputNode.removeInput(inputNode.getInputById(Integer.parseInt(fieldId[1])));
+            inputNode.removeInput(inputNode.getInputById(fieldId[1]));
         });
         inputRow.getChildren().add(deleteInput);
 
@@ -141,10 +130,10 @@ public class InputNode extends DrawableNode {
 
         inputNameLabel.setPrefWidth(50);
         inputNameLabel.setText("Name");
-        inputNameLabel.setId("inputNameLabel-" + input.getId() + "-" + getId());
+        inputNameLabel.setId("inputNameLabel-" + input.getUuidString() + "-" + getUuidString());
 
         inputNameField.setText(input.getVariableName());
-        inputNameField.setId("inputNameField-" + input.getId() + "-" + getId());
+        inputNameField.setId("inputNameField-" + input.getUuidString() + "-" + getUuidString());
         inputNameField.setPrefWidth(200);
         inputNameField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
@@ -154,7 +143,7 @@ public class InputNode extends DrawableNode {
 
                 updateInputVariableName(Integer.parseInt(fieldId[1]), textField.getText());
 
-                DataBank.saveNode(this);
+                this.save();
                 Controller.getInstance().updateCanvasControllerNow();
                 SDETextField.setToSaved(textField);
             }
@@ -165,11 +154,11 @@ public class InputNode extends DrawableNode {
 
         inputValueLabel.setPrefWidth(30);
         inputValueLabel.setText("value");
-        inputValueLabel.setId("inputValueLabel-" + input.getId() + "-" + getId());
+        inputValueLabel.setId("inputValueLabel-" + input.getUuidString() + "-" + getUuidString());
 
         inputValueField.setText(input.getVariableValue());
         inputValueField.setPrefWidth(200);
-        inputValueField.setId("inputValueField-" + input.getId() + "-" + getId());
+        inputValueField.setId("inputValueField-" + input.getUuidString() + "-" + getUuidString());
         inputValueField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
@@ -177,7 +166,7 @@ public class InputNode extends DrawableNode {
 
                 updateInputVariableValue(Integer.parseInt(fieldId[1]), textField.getText());
 
-                DataBank.saveNode(this);
+                this.save();
                 Controller.getInstance().updateCanvasControllerNow();
             }
         });
@@ -192,12 +181,12 @@ public class InputNode extends DrawableNode {
 
     public void removeInput(Input input) {
         inputs.remove(input);
-        DataBank.deleteInput(input);
+        input.delete();
 
         // Removes the row off of the UI
         Node rowToRemove = null;
         for (Node node : inputRows.getChildren()) {
-            if (node.getId().equals("inputRow-" + input.getId() + "-" + getId())) {
+            if (node.getId().equals("inputRow-" + input.getUuidString() + "-" + getUuidString())) {
                 rowToRemove = node;
             }
         }
@@ -209,7 +198,7 @@ public class InputNode extends DrawableNode {
 
     public HBox createAddInputNodeRow() {
         HBox addInputRow = new HBox(5);
-        addInputRow.setId("addInputRow-" + getId());
+        addInputRow.setId("addInputRow-" + getUuidString());
 
         Button addButton = AwesomeDude.createIconButton(AwesomeIcon.PLUS);
         addButton.setPrefWidth(35);
@@ -287,9 +276,9 @@ public class InputNode extends DrawableNode {
         return null;
     }
 
-    public Input getInputById(Integer id) {
+    public Input getInputById(String uuid) {
         for (Input input : inputs) {
-            if (input.getId().equals(id)) {
+            if (input.getUuidString().equals(uuid)) {
                 return input;
             }
         }

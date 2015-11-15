@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class DataTableNode extends DrawableNode {
     private List<DataTableColumn> dataTableColumns = new ArrayList<>();
@@ -41,7 +42,6 @@ public class DataTableNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public DataTableNode(DataTableNode dataTableNode) {
-        this.setId(-1);
         this.setX(dataTableNode.getX());
         this.setY(dataTableNode.getY());
         this.setWidth(dataTableNode.getWidth());
@@ -49,18 +49,12 @@ public class DataTableNode extends DrawableNode {
         this.setColor(dataTableNode.getColor());
         this.setScale(dataTableNode.getScale());
         this.setContainedText(dataTableNode.getContainedText());
-        this.setProgramId(dataTableNode.getProgramId());
+        //this.setProgramUuid(dataTableNode.getProgramUuid());
         this.setNextNodeToRun(dataTableNode.getNextNodeToRun());
     }
 
-    public DataTableNode(Integer id, Integer programId) {
-        super(id, programId);
-        loadObjects();
-    }
-
-    public DataTableNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        loadObjects();
+    public DataTableNode(){
+        super();
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -199,7 +193,7 @@ public class DataTableNode extends DrawableNode {
 
                 for (DataTableRow dataTableRow : dataTableRowsToDelete) {
                     dataTableRows.remove(dataTableRow);
-                    DataBank.deleteDataTableRow(dataTableRow);
+                    dataTableRow.delete();
                 }
 
                 buildDataGrid();

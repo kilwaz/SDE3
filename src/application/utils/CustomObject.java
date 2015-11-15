@@ -1,27 +1,25 @@
 package application.utils;
 
-import application.data.DataBank;
+import application.data.model.DatabaseObject;
 import application.node.implementations.CustomObjectNode;
 
-public class CustomObject {
-    private Integer id = -1;
+import java.io.InputStream;
+import java.util.UUID;
+
+public class CustomObject extends DatabaseObject {
     private CustomObjectNode parentNode = null;
     private Object payload = "";
     private String payLoadReference = "";
 
-    public CustomObject(Integer id, Object payload, String payLoadReference, CustomObjectNode parentNode) {
+    public CustomObject(UUID uuid) {
+        super(uuid);
+    }
+
+    public CustomObject(UUID uuid, Object payload, String payLoadReference, CustomObjectNode parentNode) {
+        super(uuid);
         this.parentNode = parentNode;
         this.payload = payload;
-        this.id = id;
         this.payLoadReference = payLoadReference;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public Object getPayload() {
@@ -34,12 +32,27 @@ public class CustomObject {
 
     public void setPayload(Object payload) {
         this.payload = payload;
-        DataBank.saveCustomObject(this);
+        save();
+    }
+
+    public InputStream getPayLoadInputStream() {
+        return Serializer.serializeToInputStream(getPayload());
+    }
+
+    public void setPayLoadFromInputStream(InputStream inputStream) {
+        payload = Serializer.deserialize(inputStream);
+    }
+
+    public String getParentUuid() {
+        if (parentNode != null) {
+            return parentNode.getUuidString();
+        }
+        return null;
     }
 
     public void setPayLoadReference(String payLoadReference) {
         this.payLoadReference = payLoadReference;
-        DataBank.saveCustomObject(this);
+        save();
     }
 
     public CustomObjectNode getParentNode() {

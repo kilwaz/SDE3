@@ -128,6 +128,6 @@ public class IfWebAction extends WebAction {
             }
         }
 
-        DataBank.saveTestStep(testStep);
+        testStep.save();
     }
 }

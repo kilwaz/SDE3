@@ -2,17 +2,17 @@ package application.data.model.links;
 
 import application.data.User;
 import application.data.model.DatabaseLink;
-import application.error.Error;
+import application.gui.Program;
+
+import java.util.UUID;
 
 public class UserDatabaseLink extends DatabaseLink {
     public UserDatabaseLink() {
-        super("user");
-        try {
-            // Make sure the order is the same as column order in database
-            link("username", User.class.getMethod("getUsername")); // 1
-            link("last_program", User.class.getMethod("getCurrentProgramId")); // 2
-        } catch (NoSuchMethodException ex) {
-            Error.DATA_LINK_METHOD_NOT_FOUND.record().create(ex);
-        }
+        super("user", User.class);
+
+        // Make sure the order is the same as column order in database
+        link("uuid", method("getUuidString"), method("setUuid", UUID.class)); // 1
+        link("username", method("getUsername"), method("setUsername", String.class)); // 2
+        link("last_program", method("getCurrentProgramUuid"), method("setCurrentProgram", Program.class)); // 3
     }
 }

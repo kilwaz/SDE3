@@ -16,13 +16,14 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.UUID;
 
 public class Logic {
     private Boolean compiled = false;
     private String logic;
     private Object compiledInstance;
     private LogicNode parentLogicNode;
-    private Integer id = -1;
+    private UUID uuid;
     private String compiledClassName = "UNKNOWN";
 
     private static Logger log = Logger.getLogger(Logic.class);
@@ -34,10 +35,10 @@ public class Logic {
                 "}";
     }
 
-    public Logic(LogicNode parentLogicNode, String logic, Integer id) {
+    public Logic(LogicNode parentLogicNode, String logic, UUID uuid) {
         this.parentLogicNode = parentLogicNode;
         this.logic = logic;
-        this.id = id;
+        this.uuid = uuid;
     }
 
     public LogicNode getParentLogicNode() {
@@ -48,12 +49,16 @@ public class Logic {
         return this.logic;
     }
 
+    public String getUuidStringWithoutHyphen() {
+        return uuid.toString().replace("-", "");
+    }
+
     public void setLogic(String logic) {
         if (!this.logic.equals(logic)) {
             this.compiled = false;
             this.logic = logic;
             if (!parentLogicNode.isInitialising()) {
-                DataBank.saveNode(parentLogicNode);
+                parentLogicNode.save();
             }
 
             Program program = DataBank.currentlyEditProgram;
@@ -63,12 +68,12 @@ public class Logic {
         }
     }
 
-    public Integer getId() {
-        return id;
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public Boolean isCompiled() {

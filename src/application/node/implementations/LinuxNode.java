@@ -19,7 +19,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.log4j.Logger;
@@ -45,7 +44,6 @@ public class LinuxNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public LinuxNode(LinuxNode linuxNode) {
-        this.setId(-1);
         this.setX(linuxNode.getX());
         this.setY(linuxNode.getY());
         this.setWidth(linuxNode.getWidth());
@@ -53,7 +51,7 @@ public class LinuxNode extends DrawableNode {
         this.setColor(linuxNode.getColor());
         this.setScale(linuxNode.getScale());
         this.setContainedText(linuxNode.getContainedText());
-        this.setProgramId(linuxNode.getProgramId());
+//        this.setProgramUuid(linuxNode.getProgramUuid());
         this.setNextNodeToRun(linuxNode.getNextNodeToRun());
 
         this.setAddress(linuxNode.getAddress());
@@ -61,17 +59,8 @@ public class LinuxNode extends DrawableNode {
         this.setPassword(linuxNode.getPassword());
     }
 
-
-    public LinuxNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public LinuxNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    public LinuxNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public LinuxNode() {
+        super();
     }
 
     public Tab createInterface() {
@@ -100,7 +89,7 @@ public class LinuxNode extends DrawableNode {
         AnchorPane.setTopAnchor(rows, 50.0);
 
         TextField inputField = new TextField();
-        inputField.setId("inputField-" + this.getId());
+        inputField.setId("inputField-" + this.getUuidStringWithoutHyphen());
         inputField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
@@ -112,7 +101,7 @@ public class LinuxNode extends DrawableNode {
                     writeToConsole("Not connected, cannot run command!\n\r");
                 }
 
-                DataBank.saveNode(this);
+                save();
             }
         });
 
@@ -143,10 +132,10 @@ public class LinuxNode extends DrawableNode {
         TextField rowField = new TextField();
 
         rowLabel.setText(labelName);
-        rowLabel.setId("linuxLabel-" + rowName + "-" + this.getId());
+        rowLabel.setId("linuxLabel-" + rowName + "-" + this.getUuidStringWithoutHyphen());
 
         rowField.setText(rowValue);
-        rowField.setId("linuxField-" + rowName + "-" + this.getId());
+        rowField.setId("linuxField-" + rowName + "-" + this.getUuidStringWithoutHyphen());
         rowField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
@@ -164,7 +153,7 @@ public class LinuxNode extends DrawableNode {
                         break;
                 }
 
-                DataBank.saveNode(this);
+                save();
             }
         });
 
@@ -336,9 +325,21 @@ public class LinuxNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("Address", address.getClass().getName(), address));
-        savableAttributes.add(new SavableAttribute("Username", username.getClass().getName(), username));
-        savableAttributes.add(new SavableAttribute("Password", password.getClass().getName(), password));
+        // Address
+        SavableAttribute addressAttribute = SavableAttribute.create(SavableAttribute.class);
+        addressAttribute.init("Address", address.getClass().getName(), address, this);
+        savableAttributes.add(addressAttribute);
+
+        // Username
+        SavableAttribute usernameAttribute = SavableAttribute.create(SavableAttribute.class);
+        usernameAttribute.init("Username", username.getClass().getName(), username, this);
+        savableAttributes.add(usernameAttribute);
+
+        // Password
+        SavableAttribute passwordAttribute = SavableAttribute.create(SavableAttribute.class);
+        passwordAttribute.init("Password", password.getClass().getName(), password, this);
+        savableAttributes.add(passwordAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;

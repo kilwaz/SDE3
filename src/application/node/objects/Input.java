@@ -3,23 +3,24 @@ package application.node.objects;
 import application.data.model.DatabaseObject;
 import application.node.implementations.InputNode;
 
+import java.util.UUID;
+
 public class Input extends DatabaseObject {
     private String variableName;
     private String variableValue;
-    private InputNode parent;
+    private InputNode parentNode;
 
-    public Input(Integer id, String variableName, String variableValue, InputNode parent) {
-        super(id);
+    public Input(UUID uuid, String variableName, String variableValue, InputNode parent) {
+        super(uuid);
         this.variableName = variableName;
         this.variableValue = variableValue;
-        this.parent = parent;
+        this.parentNode = parent;
     }
 
     public Input(Input copyInput, InputNode parent) {
-        super(-1);
         this.variableName = copyInput.getVariableName();
         this.variableValue = copyInput.getVariableValue();
-        this.parent = parent;
+        this.parentNode = parent;
     }
 
     public String getVariableName() {
@@ -45,15 +46,14 @@ public class Input extends DatabaseObject {
         return variableValue;
     }
 
-    public Integer getParentId() {
-        return parent.getId();
-    }
-
-    public InputNode getParent() {
-        return parent;
+    public String getParentUuid() {
+        if(parentNode != null){
+            return parentNode.getUuidString();
+        }
+        return null;
     }
 
     public void setParent(InputNode parent) {
-        this.parent = parent;
+        this.parentNode = parent;
     }
 }

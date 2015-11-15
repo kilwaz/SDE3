@@ -4,12 +4,17 @@ import application.Main;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
+import application.data.User;
+import application.data.model.dao.DrawableNodeDAO;
+import application.data.model.dao.ProgramDAO;
 import application.error.Error;
 import application.gui.canvas.CanvasController;
 import application.gui.dialog.ConfirmDialog;
 import application.gui.window.*;
 import application.node.design.DrawableNode;
+import application.node.implementations.BatchNode;
 import application.utils.AppParams;
+import application.utils.managers.SessionManager;
 import application.utils.managers.ThreadManager;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
@@ -133,34 +138,8 @@ public class Controller implements Initializable {
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         Controller.controller = this;
 
-//        assert stackPane != null : "fx:id=\"stackPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert programList != null : "fx:id=\"programList\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert programAccordion != null : "fx:id=\"programAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert leftAccordionAnchorPane != null : "fx:id=\"leftAccordionAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert lowerMainSplitPane != null : "fx:id=\"lowerMainSplitPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert rightContextAnchorPane != null : "fx:id=\"rightContextAnchorPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert programTitlePane != null : "fx:id=\"programTitlePane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert leftAccordion != null : "fx:id=\"leftAccordion\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert splitPanePageCentral != null : "fx:id=\"splitPanePageCentral\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert canvasFlow != null : "fx:id=\"canvasFlow\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert nodeTabPane != null : "fx:id=\"nodeTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert menuBarMenuItemLog != null : "fx:id=\"menuBarMenuItemLog\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert menuBarMenuItemQuit != null : "fx:id=\"menuBarMenuItemQuit\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert menuBarMenuItemExportProgram != null : "fx:id=\"menuBarMenuItemExportProgram\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert menuBarMenuItemExportNode != null : "fx:id=\"menuBarMenuItemExportNode\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert menuBarMenuItemImport != null : "fx:id=\"menuBarMenuItemImport\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert menuBarMenuItemThread != null : "fx:id=\"menuBarMenuItemThread\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert flowTabPane != null : "fx:id=\"flowTabPane\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//
-//        assert statusBar != null : "fx:id=\"statusBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
-//        assert toolBar != null : "fx:id=\"toolBar\" was not injected: check your FXML file 'ApplicationScene.fxml'.";
+        ProgramDAO programDAO = new ProgramDAO();
+        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
 
         flowTabPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             canvasFlow.setWidth(newSceneWidth.intValue());
@@ -226,7 +205,7 @@ public class Controller implements Initializable {
                         // We loop to see if the tab already exists for this node
                         for (Tab loopTab : nodeTabPane.getTabs()) {
                             if (loopTab.getId() != null) {
-                                if (loopTab.getId().equals(drawableNode.getId().toString())) {
+                                if (loopTab.getId().equals(drawableNode.getUuidStringWithoutHyphen().toString())) {
                                     nodeTab = loopTab;
                                     break;
                                 }
@@ -252,7 +231,7 @@ public class Controller implements Initializable {
         canvasFlow.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
             @Override
             public void handle(ContextMenuEvent event) {
-                Program program = DataBank.currentlyEditProgram;
+                Program program = currentUser.getCurrentProgram();
                 if (program != null) {
                     if (canvasFlowContextMenu != null) {
                         canvasFlowContextMenu.hide();
@@ -269,7 +248,7 @@ public class Controller implements Initializable {
 
                         Button copyButton = new Button("Copy");
                         copyButton.setOnAction(actionEvent -> {
-                            DrawableNode copyNode = program.getFlowController().getNodeById(Integer.parseInt(((Button) actionEvent.getSource()).getId().replace("CopyNode-", "")));
+                            DrawableNode copyNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) actionEvent.getSource()).getId().replace("CopyNode-", ""));
 
                             try {
                                 Class<?> clazz = Class.forName("application.node.implementations." + copyNode.getClass().getSimpleName());
@@ -277,38 +256,38 @@ public class Controller implements Initializable {
                                 DrawableNode newNode = (DrawableNode) ctor.newInstance(copyNode);
 
                                 program.getFlowController().addNode(newNode);
-                                DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
+                                newNode.save(); // We need to save the node after creating it to assign the ID correctly
                                 canvasController.drawProgram();
                             } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
                                 Error.COPY_NODE.record().create(ex);
                             }
                             canvasPopOver.hide();
                         });
-                        copyButton.setId("CopyNode-" + drawableNode.getId());
+                        copyButton.setId("CopyNode-" + drawableNode.getUuidStringWithoutHyphen());
 
                         Button startNodeButton = new Button("Start Node");
                         startNodeButton.setOnAction(event1 -> {
-                            DrawableNode startNode = program.getFlowController().getNodeById(Integer.parseInt(((Button) event1.getSource()).getId().replace("StartNode-", "")));
+                            DrawableNode startNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) event1.getSource()).getId().replace("StartNode-", ""));
                             program.getFlowController().setStartNode(startNode);
                             canvasController.drawProgram();
-                            DataBank.saveProgram(program);
+                            program.save();
                             canvasPopOver.hide();
                         });
-                        startNodeButton.setId("StartNode-" + drawableNode.getId());
+                        startNodeButton.setId("StartNode-" + drawableNode.getUuidStringWithoutHyphen());
 
                         Button removeNodeButton = new Button("Remove Node");
                         removeNodeButton.setOnAction(actionEvent -> {
-                            DrawableNode removedNode = program.getFlowController().getNodeById(Integer.parseInt(((Button) actionEvent.getSource()).getId().replace("RemoveNode-", "")));
+                            DrawableNode removedNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) actionEvent.getSource()).getId().replace("RemoveNode-", ""));
 
                             program.getFlowController().removeNode(removedNode);
-                            DataBank.deleteNode(removedNode);
+                            removedNode.delete();
 
                             canvasController.drawProgram();
 
                             closeDeleteNodeTabs(removedNode);
                             canvasPopOver.hide();
                         });
-                        removeNodeButton.setId("RemoveNode-" + drawableNode.getId());
+                        removeNodeButton.setId("RemoveNode-" + drawableNode.getUuidStringWithoutHyphen());
 
 
                         VBox node = new VBox(5);
@@ -358,7 +337,9 @@ public class Controller implements Initializable {
             }
         });
 
-        programList.getItems().addAll(DataBank.getPrograms());
+        List<Program> programs = programDAO.getProgramsByUser(currentUser);
+
+        programList.getItems().addAll(programs);
         programList.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
             private String clickedName = "";
 
@@ -374,7 +355,10 @@ public class Controller implements Initializable {
 
                 MenuItem menuItemNewProgram = new MenuItem("New Program");
                 menuItemNewProgram.setOnAction(event1 -> {
-                    Program program = DataBank.createNewProgram("New program");
+                    Program program = Program.create(Program.class);
+                    program.setName("New program");
+                    program.setParentUser(currentUser);
+                    program.save();
 
                     programList.getItems().add(program);
                 });
@@ -390,7 +374,7 @@ public class Controller implements Initializable {
                                 // First close all the node tabs that are open as we will be deleting these nodes
                                 program.getFlowController().getNodes().forEach(Controller.this::closeDeleteNodeTabs);
                                 // Finally delete the program
-                                DataBank.deleteProgram(program);
+                                program.delete();
                                 programList.getItems().remove(program);
                             });
                     confirmDialog.show();
@@ -429,14 +413,14 @@ public class Controller implements Initializable {
         Callback<ListView<Program>, ListCell<Program>> onCommit = TextFieldListCell.forListView(new StringConverter<Program>() {
             @Override
             public String toString(Program program) {
-                return program.toString();
+                return "" + program.getName();
             }
 
             @Override
             public Program fromString(String input) {
                 Program program = DataBank.currentlyEditProgram;
                 program.setName(input);
-                DataBank.saveProgram(program);
+                program.save();
                 return program;
             }
         });
@@ -454,18 +438,23 @@ public class Controller implements Initializable {
                     // But we still want the flow to show this renamed program so don't update these values with null
                     if (newProgram != null) {
                         DataBank.currentlyEditProgram = newProgram;
-                        DataBank.getApplicationUser().setCurrentProgram(newProgram);
-                        DataBank.getApplicationUser().save();
 
+                        currentUser.setCurrentProgram(newProgram);
+                        currentUser.save();
+
+                        DrawableNodeDAO drawableNodeDAO = new DrawableNodeDAO();
+                        List<DrawableNode> drawableNodes = drawableNodeDAO.getNodes(newProgram);
+
+                        newProgram.getFlowController().addNodes(drawableNodes);
                         newProgram.getFlowController().checkConnections();
                     }
                     canvasController.updateAStarNetwork();
                     canvasController.drawProgram();
                 });
 
-        if (DataBank.getApplicationUser() != null && DataBank.getApplicationUser().getCurrentProgram() != null) {
-            programList.getSelectionModel().select(DataBank.getApplicationUser().getCurrentProgram());
-            programList.scrollTo(DataBank.getApplicationUser().getCurrentProgram());
+        if (currentUser != null && currentUser.getCurrentProgram() != null) {
+            programList.getSelectionModel().select(currentUser.getCurrentProgram());
+            programList.scrollTo(currentUser.getCurrentProgram());
         }
 
         leftAccordion.setExpandedPane(programTitlePane);
@@ -522,14 +511,16 @@ public class Controller implements Initializable {
             Program program = DataBank.currentlyEditProgram;
 
             try {
-                Class<?> clazz = Class.forName("application.node.implementations." + className);
-                Constructor<?> ctor = clazz.getConstructor(Double.class, Double.class, String.class);
-                DrawableNode newNode = (DrawableNode) ctor.newInstance(lastCanvasContextMenuX - canvasController.getOffsetWidth(), lastCanvasContextMenuY - canvasController.getOffsetHeight(), "New " + className);
+                Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("application.node.implementations." + className);
+                DrawableNode newNode = BatchNode.create(clazz);
+                newNode.setContainedText("New " + className);
+                newNode.setX(lastCanvasContextMenuX - canvasController.getOffsetWidth());
+                newNode.setY(lastCanvasContextMenuY - canvasController.getOffsetHeight());
 
                 program.getFlowController().addNode(newNode);
-                DataBank.saveNode(newNode); // We need to save the node after creating it to assign the ID correctly
+                newNode.save();
                 canvasController.drawProgram();
-            } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | NoSuchMethodException | IllegalAccessException ex) {
+            } catch (ClassNotFoundException ex) {
                 Error.CREATE_NODE_MENU_ITEM.record().create(ex);
             }
         });
@@ -545,24 +536,24 @@ public class Controller implements Initializable {
 
     public TextField createNodeNameField(DrawableNode drawableNode) {
         TextField nameField = new TextField();
-        nameField.setId("fieldName-" + drawableNode.getId());
+        nameField.setId("fieldName-" + drawableNode.getUuidStringWithoutHyphen());
         nameField.setText(drawableNode.getContainedText());
 
         nameField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
                 Program program = DataBank.currentlyEditProgram;
-                DrawableNode nodeToUpdate = program.getFlowController().getNodeById(Integer.parseInt(textField.getId().replace("fieldName-", "")));
+                DrawableNode nodeToUpdate = program.getFlowController().getNodeByUuidWithoutHyphen(textField.getId().replace("fieldName-", ""));
                 nodeToUpdate.setContainedText(textField.getText());
                 program.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
                 nodeTabPane.getTabs().stream().filter(loopTab -> loopTab.getId() != null).forEach(loopTab -> {
-                    if (loopTab.getId().equals(nodeToUpdate.getId().toString())) {
+                    if (loopTab.getId().equals(nodeToUpdate.getUuidStringWithoutHyphen().toString())) {
                         loopTab.setText(textField.getText());
                     }
                 });
 
-                DataBank.saveNode(nodeToUpdate);
+                nodeToUpdate.save();
                 canvasController.drawProgram();
             }
         });
@@ -572,17 +563,17 @@ public class Controller implements Initializable {
 
     public TextField createNextNodeField(DrawableNode drawableNode) {
         TextField nameField = new TextField();
-        nameField.setId("fieldNextNode-" + drawableNode.getId());
+        nameField.setId("fieldNextNode-" + drawableNode.getUuidStringWithoutHyphen());
         nameField.setText(drawableNode.getNextNodeToRun());
 
         nameField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             Program program = DataBank.currentlyEditProgram;
-            DrawableNode nodeToUpdate = program.getFlowController().getNodeById(Integer.parseInt(textField.getId().replace("fieldNextNode-", "")));
+            DrawableNode nodeToUpdate = program.getFlowController().getNodeByUuidWithoutHyphen(textField.getId().replace("fieldNextNode-", ""));
             nodeToUpdate.setNextNodeToRun(textField.getText());
             program.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
-            DataBank.saveNode(nodeToUpdate);
+            nodeToUpdate.save();
             canvasController.drawProgram();
         });
 
@@ -603,7 +594,7 @@ public class Controller implements Initializable {
 
     public Label createNodeInfoLabel(DrawableNode node) {
         Label nameFieldLabel = new Label();
-        nameFieldLabel.setText(node.getNodeType() + " (#" + node.getId() + ")");
+        nameFieldLabel.setText(node.getNodeType() + " (#" + node.getUuidString() + ")");
         nameFieldLabel.setTextFill(Color.GRAY);
         return nameFieldLabel;
     }
@@ -611,7 +602,7 @@ public class Controller implements Initializable {
     public Tab createDefaultNodeTab(DrawableNode node) {
         Tab tab = new Tab();
         tab.setText(node.getContainedText());
-        tab.setId(node.getId().toString());
+        tab.setId(node.getUuidStringWithoutHyphen().toString());
 
         AnchorPane tabAnchorPane = new AnchorPane();
 
@@ -727,7 +718,7 @@ public class Controller implements Initializable {
         Tab tabToRemove = null;
         for (Tab loopTab : nodeTabPane.getTabs()) {
             if (loopTab.getId() != null) {
-                if (loopTab.getId().equals(removedNode.getId().toString())) {
+                if (loopTab.getId().equals(removedNode.getUuidStringWithoutHyphen().toString())) {
                     tabToRemove = loopTab;
                 }
             }

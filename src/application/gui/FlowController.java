@@ -1,7 +1,6 @@
 package application.gui;
 
 import application.data.DataBank;
-import application.error.*;
 import application.error.Error;
 import application.node.design.DrawableNode;
 import application.node.implementations.BashNode;
@@ -17,8 +16,6 @@ import application.utils.SDEThread;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,36 +38,49 @@ public class FlowController {
 
     public FlowController(Program parentProgram) {
         this.parentProgram = parentProgram;
-        startNode = new LogicNode(30.0, 30.0, "Start");
-        startNode.setId(-1);
-        referenceID = parentProgram.getId().toString();
+
+        startNode = LogicNode.create(LogicNode.class);
+        startNode.setX(30.0);
+        startNode.setY(30.0);
+        startNode.setContainedText("Start");
+
+        referenceID = parentProgram.getUuidString();
     }
 
-    public DrawableNode createNewNode(Integer id, Integer programId, String nodeType, Boolean isStartNode) {
-        DrawableNode newNode = null;
+    public DrawableNode createNewNode(UUID uuid, UUID programUuid, String nodeType, Boolean isStartNode) {
+        DrawableNode drawableNode = null;
 
         // Here we are searching for the class by name and calling the constructor manually to get our DrawableNode object
         try {
-            Class<?> clazz = Class.forName("application.node.implementations." + nodeType);
-            Constructor<?> ctor = clazz.getConstructor(Integer.class, Integer.class);
-            newNode = (DrawableNode) ctor.newInstance(id, programId);
-        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
+            Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("application.node.implementations." + nodeType);
+
+            drawableNode = DrawableNode.create(clazz);
+            drawableNode.setProgram(parentProgram);
+            drawableNode.save();
+        } catch (ClassNotFoundException ex) {
             Error.CREATE_NEW_NODE.record().create(ex);
         }
 
-        if (newNode != null) {
-            nodes.add(newNode);
-            if (isStartNode && newNode instanceof LogicNode) {
-                startNode = newNode;
+        if (drawableNode != null) {
+            nodes.add(drawableNode);
+            if (isStartNode && drawableNode instanceof LogicNode) {
+                startNode = drawableNode;
             }
         }
 
-        return newNode;
+        return drawableNode;
     }
 
     public void addNode(DrawableNode drawableNode) {
-        drawableNode.setProgramId(parentProgram.getId());
+        drawableNode.setProgram(parentProgram);
         nodes.add(drawableNode);
+    }
+
+    public void addNodes(List<DrawableNode> drawableNodes) {
+        for (DrawableNode drawableNode : drawableNodes) {
+            drawableNode.setProgram(parentProgram);
+        }
+        nodes.addAll(drawableNodes);
     }
 
     public void removeNode(DrawableNode drawableNode) {
@@ -214,9 +224,19 @@ public class FlowController {
         return selectedNodeList;
     }
 
-    public DrawableNode getNodeById(Integer id) {
+    public DrawableNode getNodeByUuidWithoutHyphen(String uuid) {
         for (DrawableNode node : nodes) {
-            if (node.getId().equals(id)) {
+            if (node.getUuidStringWithoutHyphen().equals(uuid)) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    public DrawableNode getNodeById(String uuid) {
+        for (DrawableNode node : nodes) {
+            if (node.getUuidString().equals(uuid)) {
                 return node;
             }
         }
@@ -301,7 +321,7 @@ public class FlowController {
             }
 
             // Find connection that are set using the Next node input box
-            if (!startNode.getNextNodeToRun().isEmpty()) {
+            if (startNode != null && !startNode.getNextNodeToRun().isEmpty()) {
                 for (DrawableNode endNode : getNodes()) {
                     if (startNode.getNextNodeToRun().equals(endNode.getContainedText())) {
                         if (!connectionExists(startNode, endNode)) {
@@ -529,7 +549,7 @@ public class FlowController {
     public static LogicNode getSourceFromReference(String reference) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
-                if (node.getId().toString().equals(reference)) {
+                if (node.getUuidString().equals(reference)) {
                     return (LogicNode) node;
                 }
             }

@@ -2,7 +2,6 @@ package application.testing;
 
 import application.Main;
 import application.data.DBConnectionManager;
-import application.data.DataBank;
 import application.gui.Program;
 import application.node.design.DrawableNode;
 import com.jayway.awaitility.Awaitility;
@@ -51,7 +50,9 @@ public class TestingUtils {
      * @return Returns the created {@link application.gui.Program}.
      */
     public static Program createTestProgram() {
-        return DataBank.createNewProgram("TestProgram");
+        Program testProgram = Program.create(Program.class);
+        testProgram.setName("TestProgram");
+        return testProgram;
     }
 
     /**
@@ -63,7 +64,7 @@ public class TestingUtils {
      * @return Returns the created {@link application.node.design.DrawableNode}.
      */
     public static DrawableNode createTestNode(Program testProgram, Class testClass) {
-        return testProgram.getFlowController().createNewNode(-1, testProgram.getId(), testClass.getSimpleName(), false);
+        return testProgram.getFlowController().createNewNode(null, testProgram.getUuid(), testClass.getSimpleName(), false);
     }
 
     /**
@@ -71,7 +72,6 @@ public class TestingUtils {
      */
     public static void initDatabase() {
         DBConnectionManager.getInstance().createApplicationConnection();
-        DataBank.setApplicationUser("alex");
     }
 
     /**

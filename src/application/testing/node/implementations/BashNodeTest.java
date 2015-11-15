@@ -1,6 +1,5 @@
 package application.testing.node.implementations;
 
-import application.data.DataBank;
 import application.gui.Program;
 import application.node.implementations.BashNode;
 import application.testing.JavaFXThreadingRule;
@@ -56,7 +55,7 @@ public class BashNodeTest {
      */
     @Before
     public void setUp() throws Exception {
-        testBashNode = (BashNode) testProgram.getFlowController().createNewNode(-1, testProgram.getId(), "BashNode", false);
+        testBashNode = (BashNode) testProgram.getFlowController().createNewNode(null, testProgram.getUuid(), "BashNode", false);
         testBashNode.setX(bashX);
         testBashNode.setY(bashY);
         testBashNode.setWidth(bashWidth);
@@ -75,7 +74,7 @@ public class BashNodeTest {
      */
     @After
     public void tearDown() throws Exception {
-        DataBank.deleteNode(testBashNode);
+        testBashNode.delete();
     }
 
     /**
@@ -83,7 +82,7 @@ public class BashNodeTest {
      */
     @AfterClass
     public static void afterClass() {
-        DataBank.deleteProgram(testProgram);
+        testProgram.delete();
         TestingUtils.closeDatabase();
     }
 
@@ -148,7 +147,7 @@ public class BashNodeTest {
     public void checkAllValuesForNodeAreSame(BashNode node1, BashNode node2) {
         assertEquals(node1.getX(), node2.getX());
         assertEquals(node1.getY(), node2.getY());
-        assertEquals(node1.getProgramId(), node2.getProgramId());
+        assertEquals(node1.getProgramUuid(), node2.getProgramUuid());
         assertEquals(node1.getWidth(), node2.getWidth());
         assertEquals(node1.getHeight(), node2.getHeight());
         assertEquals(node1.getScale(), node2.getScale());

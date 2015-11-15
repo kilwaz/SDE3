@@ -3,8 +3,10 @@ package application.node.design;
 import application.Main;
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.data.model.DatabaseObject;
 import application.error.Error;
 import application.gui.FlowController;
+import application.gui.Program;
 import application.gui.canvas.DrawablePoint;
 import application.node.objects.Trigger;
 import application.utils.AppParams;
@@ -31,6 +33,7 @@ import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -38,8 +41,7 @@ import java.util.zip.ZipInputStream;
  * @author Alex Brown
  */
 
-public class DrawableNode {
-    private Integer id = -1;
+public class DrawableNode extends DatabaseObject {
     private Double x = 0.0;
     private Double y = 0.0;
     private Double width = 40.0;
@@ -47,7 +49,7 @@ public class DrawableNode {
     private Color color = Color.BLACK;
     private Double scale = 1.0;
     private String containedText = "Unnamed";
-    private Integer programId = -1;
+    private Program program;
     private String nextNodeToRun = "";
     private Boolean initialising = false;
     private List<Trigger> listeners = new ArrayList<>();
@@ -112,30 +114,49 @@ public class DrawableNode {
     public DrawableNode(DrawableNode drawableNode) {
     }
 
-    public DrawableNode(Integer id, Integer programId) {
-        this.programId = programId;
-        this.id = id;
+    public DrawableNode(UUID uuid, UUID programUuid) {
+        super(uuid);
+        //this.programUuid = programUuid;
     }
 
-    public DrawableNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
+    public DrawableNode(Double x, Double y, Double width, Double height, Color color, String containedText, UUID programUuid, UUID uuid) {
+        super();
         this.x = x;
         this.y = y;
         this.height = height;
         this.width = width;
         this.color = color;
         this.containedText = containedText;
-        this.programId = programId;
-        this.id = id;
+        //this.programUuid = programUuid;
+    }
+
+    public void save() {
+        super.save();
+        getDataToSave().forEach(application.data.SavableAttribute::save);
     }
 
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("X", x.getClass().getName(), x));
-        savableAttributes.add(new SavableAttribute("Id", id.getClass().getName(), id));
-        savableAttributes.add(new SavableAttribute("Y", y.getClass().getName(), y));
-        savableAttributes.add(new SavableAttribute("ContainedText", containedText.getClass().getName(), containedText));
-        savableAttributes.add(new SavableAttribute("NextNodeToRun", nextNodeToRun.getClass().getName(), nextNodeToRun));
+        // X
+        SavableAttribute xAttribute = SavableAttribute.create(SavableAttribute.class);
+        xAttribute.init("X", x.getClass().getName(), x, this);
+        savableAttributes.add(xAttribute);
+
+        // Y
+        SavableAttribute yAttribute = SavableAttribute.create(SavableAttribute.class);
+        yAttribute.init("Y", y.getClass().getName(), y, this);
+        savableAttributes.add(yAttribute);
+
+        // ContainedText
+        SavableAttribute containedTextAttribute = SavableAttribute.create(SavableAttribute.class);
+        containedTextAttribute.init("ContainedText", containedText.getClass().getName(), containedText, this);
+        savableAttributes.add(containedTextAttribute);
+
+        // NextNodeToRun
+        SavableAttribute nextNodeToRunAttribute = SavableAttribute.create(SavableAttribute.class);
+        nextNodeToRunAttribute.init("NextNodeToRun", nextNodeToRun.getClass().getName(), nextNodeToRun, this);
+        savableAttributes.add(nextNodeToRunAttribute);
 
         return savableAttributes;
     }
@@ -312,20 +333,12 @@ public class DrawableNode {
         return new Tab();
     }
 
-    public Integer getProgramId() {
-        return this.programId;
+    public String getProgramUuid() {
+        return this.program.getUuidString();
     }
 
-    public void setProgramId(Integer programId) {
-        this.programId = programId;
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public void setProgram(Program program) {
+        this.program = program;
     }
 
     public Color getFillColour() {
@@ -341,7 +354,11 @@ public class DrawableNode {
     }
 
     public void setNextNodeToRun(String nextNodeToRun) {
-        this.nextNodeToRun = nextNodeToRun;
+        if (nextNodeToRun == null) {
+            this.nextNodeToRun = "";
+        } else {
+            this.nextNodeToRun = nextNodeToRun;
+        }
     }
 
     public String getAceTextAreaText() {

@@ -1,15 +1,21 @@
 package application.data.model;
 
 import application.data.NodeColour;
+import application.data.SavableAttribute;
 import application.data.User;
 import application.data.model.links.*;
+import application.gui.Program;
 import application.net.proxy.RecordedHeader;
 import application.net.proxy.RecordedProxy;
 import application.net.proxy.RecordedRequest;
+import application.node.design.DrawableNode;
+import application.node.implementations.*;
 import application.node.objects.Input;
+import application.node.objects.Switch;
 import application.node.objects.Trigger;
 import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
+import application.test.TestStep;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -19,6 +25,7 @@ import java.util.List;
 public class DatabaseLink {
     private String tableName = "";
     private List<ModelColumn> modelColumns = new ArrayList<>();
+    private Class linkClass;
 
     private static HashMap<Class, Class> linkClasses = new HashMap<>();
 
@@ -33,10 +40,39 @@ public class DatabaseLink {
         linkClasses.put(RecordedRequest.class, RecordedRequestDatabaseLink.class);
         linkClasses.put(RecordedProxy.class, RecordedProxyDatabaseLink.class);
         linkClasses.put(RecordedHeader.class, RecordedHeaderDatabaseLink.class);
+        linkClasses.put(Program.class, ProgramDatabaseLink.class);
+        linkClasses.put(Switch.class, SwitchDatabaseLink.class);
+        linkClasses.put(TestStep.class, TestStepDatabaseLink.class);
+        linkClasses.put(DrawableNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(SavableAttribute.class, SavableAttributeDatabaseLink.class);
+
+        // Drawable Node Classes - Better way to do this?
+        linkClasses.put(BashNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(BatchNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(ChartNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(ConsoleNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(CopyNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(CustomObjectNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(DataBaseNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(DataTableNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(EmailNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(ExportNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(FileStoreNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(InputNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(LinuxNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(LogicNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(RequestTrackerNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(SwitchNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(TestNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(TestResultNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(TimerNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(TriggerNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(WindowsNode.class, DrawableNodeDatabaseLink.class);
     }
 
-    public DatabaseLink(String tableName) {
+    public DatabaseLink(String tableName, Class linkClass) {
         this.tableName = tableName;
+        this.linkClass = linkClass;
     }
 
     public String getTableName() {
@@ -47,15 +83,29 @@ public class DatabaseLink {
         return modelColumns;
     }
 
-    public void link(String databaseColumn, Method objectMethod) {
-        modelColumns.add(new ModelColumn(databaseColumn, objectMethod, ModelColumn.STANDARD_COLUMN));
+    public void link(String databaseColumn, Method objectSaveMethod, Method objectLoadMethod) {
+        modelColumns.add(new ModelColumn(databaseColumn, objectSaveMethod, objectLoadMethod, ModelColumn.STANDARD_COLUMN));
     }
 
-    public void linkBlob(String databaseColumn, Method objectMethod) {
-        modelColumns.add(new ModelColumn(databaseColumn, objectMethod, ModelColumn.BLOB_COLUMN));
+    public void linkBlob(String databaseColumn, Method objectSaveMethod, Method objectLoadMethod) {
+        modelColumns.add(new ModelColumn(databaseColumn, objectSaveMethod, objectLoadMethod, ModelColumn.BLOB_COLUMN));
+    }
+
+    public Class getLinkClass() {
+        return linkClass;
     }
 
     public static Class getLinkClass(Class clazz) {
         return linkClasses.get(clazz);
+    }
+
+    public Method method(String methodName, Class<?>... parameterTypes) {
+        try {
+            return getLinkClass().getMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException ex) {
+            application.error.Error.DATA_LINK_METHOD_NOT_FOUND.record().create(ex);
+        }
+
+        return null;
     }
 }

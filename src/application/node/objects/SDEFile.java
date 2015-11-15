@@ -1,25 +1,26 @@
 package application.node.objects;
 
-import application.data.DataBank;
+import application.data.model.DatabaseObject;
 import application.error.Error;
 import application.node.implementations.FileStoreNode;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.util.UUID;
 
-public class SDEFile {
-    private Integer id = -1;
+public class SDEFile extends DatabaseObject {
     private FileStoreNode parentNode = null;
     private File file = null;
 
     private static Logger log = Logger.getLogger(SDEFile.class);
 
-    public SDEFile(Integer id, FileStoreNode parentNode) {
+    public SDEFile(UUID uuid, FileStoreNode parentNode) {
+        super(uuid);
         this.parentNode = parentNode;
         String userHome = System.getProperty("user.home");
 
         File root = new File(userHome, "/SDE"); // On Windows running on C:\, this is C:\java.
-        this.file = new File(root, "sdeFiles/" + id + ".tmp");
+        this.file = new File(root, "sdeFiles/" + uuid + ".tmp");
         if (!file.exists()) {
             try {
                 Boolean createResult = file.createNewFile();
@@ -27,13 +28,19 @@ public class SDEFile {
                 e.printStackTrace();
             }
         }
-        this.id = id;
     }
 
-    public SDEFile(Integer id, File file, FileStoreNode parentNode) {
+    public SDEFile(UUID uuid, File file, FileStoreNode parentNode) {
+        super(uuid);
         this.parentNode = parentNode;
         this.file = file;
-        this.id = id;
+    }
+
+    public String getParentUuid() {
+        if (parentNode != null) {
+            return parentNode.getUuidString();
+        }
+        return null;
     }
 
     public InputStream getInputStream() {
@@ -46,14 +53,6 @@ public class SDEFile {
         }
 
         return null;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public File getFile() {
@@ -69,7 +68,7 @@ public class SDEFile {
                 e.printStackTrace();
             }
         }
-        DataBank.saveSDEFile(this);
+        save();
     }
 
     public void setFile(File file) {
@@ -81,7 +80,7 @@ public class SDEFile {
                 e.printStackTrace();
             }
         }
-        DataBank.saveSDEFile(this);
+        save();
     }
 
     public FileStoreNode getParentNode() {

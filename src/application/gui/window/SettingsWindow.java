@@ -1,6 +1,5 @@
 package application.gui.window;
 
-import application.error.*;
 import application.error.Error;
 import application.utils.AppParams;
 import application.utils.AppProperties;
@@ -40,8 +39,8 @@ public class SettingsWindow extends Stage {
 
             TextField dbConnectionStringTextField = new TextField();
             dbConnectionStringTextField.setPrefWidth(200.0);
-            dbConnectionStringTextField.setText(AppParams.getMysqlConnection());
-            dbConnectionStringTextField.setOnKeyReleased(event -> AppParams.setMysqlConnection(((TextField) event.getSource()).getText()));
+            dbConnectionStringTextField.setText(AppParams.getDatabaseConnection());
+            dbConnectionStringTextField.setOnKeyReleased(event -> AppParams.setDatabaseConnection(((TextField) event.getSource()).getText()));
 
             dbConnectionStringRow.getChildren().add(dbConnectionStringLabel);
             dbConnectionStringRow.getChildren().add(dbConnectionStringTextField);
@@ -55,8 +54,8 @@ public class SettingsWindow extends Stage {
 
             TextField dbUsernameTextField = new TextField();
             dbUsernameTextField.setPrefWidth(200.0);
-            dbUsernameTextField.setText(AppParams.getMysqlUsername());
-            dbUsernameTextField.setOnKeyReleased(event -> AppParams.setMysqlPassword(((TextField) event.getSource()).getText()));
+            dbUsernameTextField.setText(AppParams.getDatabaseUsername());
+            dbUsernameTextField.setOnKeyReleased(event -> AppParams.setDatabasePassword(((TextField) event.getSource()).getText()));
 
             dbUsernameRow.getChildren().add(dbUsernameLabel);
             dbUsernameRow.getChildren().add(dbUsernameTextField);
@@ -70,8 +69,8 @@ public class SettingsWindow extends Stage {
 
             TextField dbPasswordTextField = new TextField();
             dbPasswordTextField.setPrefWidth(200.0);
-            dbPasswordTextField.setText(AppParams.getMysqlPassword());
-            dbPasswordTextField.setOnKeyReleased(event -> AppParams.setMysqlPassword(((TextField) event.getSource()).getText()));
+            dbPasswordTextField.setText(AppParams.getDatabasePassword());
+            dbPasswordTextField.setOnKeyReleased(event -> AppParams.setDatabasePassword(((TextField) event.getSource()).getText()));
 
             dbPasswordRow.getChildren().add(dbPasswordLabel);
             dbPasswordRow.getChildren().add(dbPasswordTextField);

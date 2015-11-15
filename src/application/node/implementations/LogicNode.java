@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class LogicNode extends DrawableNode {
     private Logic logic = null;
@@ -22,7 +23,6 @@ public class LogicNode extends DrawableNode {
     public LogicNode(LogicNode logicNode) {
         this.logic = new Logic(this);
 
-        this.setId(-1);
         this.setX(logicNode.getX());
         this.setY(logicNode.getY());
         this.setWidth(logicNode.getWidth());
@@ -30,39 +30,24 @@ public class LogicNode extends DrawableNode {
         this.setColor(logicNode.getColor());
         this.setScale(logicNode.getScale());
         super.setContainedText(logicNode.getContainedText());
-        this.setProgramId(logicNode.getProgramId());
+//        this.setProgramUuid(logicNode.getProgramUuid());
         this.setNextNodeToRun(logicNode.getNextNodeToRun());
 
         this.setLogic(logicNode.getLogic().getLogic());
     }
 
-    public LogicNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public LogicNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        this.logic = new Logic(this);
-    }
-
-    public LogicNode(Double x, Double y, String containedText, String logic, Integer id, Integer programId) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, programId, id);
-        this.logic = new Logic(this, logic, id);
-    }
-
-    public void setContainedText(String containedText) {
-        super.setContainedText(containedText);
-    }
-
-    public void setId(Integer id) {
-        super.setId(id);
-        this.logic.setId(id);
+    public LogicNode() {
+        super();
     }
 
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("Logic", getLogic().getLogic().getClass().getName(), getLogic().getLogic()));
+        // Logic
+        SavableAttribute logicAttribute = SavableAttribute.create(SavableAttribute.class);
+        logicAttribute.init("Logic", getLogic().getLogic().getClass().getName(), getLogic().getLogic(), this);
+        savableAttributes.add(logicAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;

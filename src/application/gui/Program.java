@@ -1,6 +1,8 @@
 package application.gui;
 
 import application.data.DataBank;
+import application.data.User;
+import application.data.model.DatabaseObject;
 import application.error.Error;
 import application.gui.dialog.ErrorDialog;
 import application.node.design.DrawableNode;
@@ -17,23 +19,26 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.UUID;
 
-public class Program {
+public class Program extends DatabaseObject {
     private String name;
-    private FlowController flowController;
-    private Integer id = -1;
+    private FlowController flowController = new FlowController(this);
+    private User parentUser;
 
     private static Logger log = Logger.getLogger(Program.class);
 
-    public Program(String name) {
-        this.name = name;
-        flowController = new FlowController(this);
+    public Program() {
+        super();
     }
 
-    public Program(String name, Integer id) {
+    public Program(String name) {
         this.name = name;
-        this.id = id;
-        flowController = new FlowController(this);
+    }
+
+    public Program(String name, UUID id) {
+        super(id);
+        this.name = name;
     }
 
     public String getName() {
@@ -42,15 +47,50 @@ public class Program {
 
     public void setName(String name) {
         this.name = name;
-        DataBank.saveProgram(this);
     }
 
-    public Integer getId() {
-        return this.id;
+    public String getStartNodeUuid() {
+        if (flowController != null && flowController.getStartNode() != null) {
+            return flowController.getStartNode().getUuidString();
+        }
+        return "";
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public Double getViewOffsetHeight() {
+        if (flowController != null) {
+            return flowController.getViewOffsetHeight();
+        }
+        return 0.0;
+    }
+
+    public Double getViewOffsetWidth() {
+        if (flowController != null) {
+            return flowController.getViewOffsetWidth();
+        }
+        return 0.0;
+    }
+
+    public void setViewOffsetHeight(Double offset) {
+        if (flowController != null) {
+            flowController.setViewOffsetHeight(offset);
+        }
+    }
+
+    public void setViewOffsetWidth(Double offset) {
+        if (flowController != null) {
+            flowController.setViewOffsetWidth(offset);
+        }
+    }
+
+    public UUID getParentUserUuid() {
+        if (parentUser != null) {
+            return parentUser.getUuid();
+        }
+        return null;
+    }
+
+    public void setParentUser(User parentUser) {
+        this.parentUser = parentUser;
     }
 
     public FlowController getFlowController() {
@@ -220,9 +260,5 @@ public class Program {
         }
 
         return null;
-    }
-
-    public String toString() {
-        return "" + this.name;
     }
 }

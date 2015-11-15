@@ -45,6 +45,6 @@ public class SetWebAction extends WebAction {
             }
         }
 
-        DataBank.saveTestStep(testStep);
+        testStep.save();
     }
 }

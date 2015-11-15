@@ -1,7 +1,6 @@
 package application.data.imports;
 
 import application.data.DataBank;
-import application.error.*;
 import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
@@ -47,7 +46,9 @@ public class ImportNodes extends SDERunnable {
             }
         } else if (element.getTagName().equals("Program")) {
             String programName = ImportNodes.getTextValue("", element, "ProgramName");
-            Program newProgram = DataBank.createNewProgram(programName);
+
+            Program newProgram = Program.create(Program.class);
+            newProgram.setName(programName);
             Controller.getInstance().addNewProgram(newProgram);
 
             NodeList programChildNodes = element.getChildNodes();
@@ -96,7 +97,7 @@ public class ImportNodes extends SDERunnable {
     }
 
     private void importNode(Program program, Element element) {
-        DrawableNode importedNode = program.getFlowController().createNewNode(-1, program.getId(), element.getTagName(), false);
+        DrawableNode importedNode = program.getFlowController().createNewNode(null, program.getUuid(), element.getTagName(), false);
 
         NodeList childNodeList = element.getChildNodes();
         for (int i = 0; i < childNodeList.getLength(); i++) {
@@ -134,7 +135,7 @@ public class ImportNodes extends SDERunnable {
                 } else if ("IsStartNode".equals(nodeTopElements.getTagName())) {
                     program.getFlowController().setStartNode(importedNode);
                 } else if ("Inputs".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
+                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
 
                     NodeList inputNodesList = nodeTopElements.getChildNodes();
                     InputNode inputNode = (InputNode) importedNode;
@@ -149,7 +150,7 @@ public class ImportNodes extends SDERunnable {
                         }
                     }
                 } else if ("Triggers".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
+                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
 
                     NodeList triggersNodeList = nodeTopElements.getChildNodes();
                     TriggerNode triggerNode = (TriggerNode) importedNode;
@@ -165,7 +166,7 @@ public class ImportNodes extends SDERunnable {
                         }
                     }
                 } else if ("Switches".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
+                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
 
                     NodeList switchesNodeList = nodeTopElements.getChildNodes();
                     SwitchNode switchNode = (SwitchNode) importedNode;
@@ -180,7 +181,7 @@ public class ImportNodes extends SDERunnable {
                         }
                     }
                 } else if ("DataTableData".equals(nodeTopElements.getTagName())) {
-                    DataBank.saveNode(importedNode); // We need to save the node to set the ID first before we can add anything else
+                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
 
                     NodeList dataTableDataRowList = nodeTopElements.getChildNodes();
                     DataTableNode dataTableNode = (DataTableNode) importedNode;
@@ -206,7 +207,7 @@ public class ImportNodes extends SDERunnable {
             }
         }
 
-        DataBank.saveNode(importedNode);
+        importedNode.save();
     }
 
     private static String getTextValue(String def, Element element, String tag) {

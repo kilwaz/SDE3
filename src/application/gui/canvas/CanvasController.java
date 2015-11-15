@@ -134,7 +134,7 @@ public class CanvasController {
 
     public Boolean canvasMouseUp(MouseEvent event) {
         if (isDraggingNode) {
-            draggedNodes.forEach(DataBank::saveNode);
+            draggedNodes.forEach(DrawableNode::save);
             draggedNodes = new ArrayList<>();
             isDraggingNode = false;
             updateAStarNetwork();
@@ -143,7 +143,7 @@ public class CanvasController {
         } else if (isDraggingCanvas) {
             isDraggingCanvas = false;
             Controller.getInstance().setCursor(Cursor.DEFAULT);
-            DataBank.saveProgram(DataBank.currentlyEditProgram);
+            DataBank.currentlyEditProgram.save();
             return true;
         } else if (isGroupSelect) {
             isGroupSelect = false;

@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class CopyNode extends DrawableNode {
     private String copyFrom = "";
@@ -26,7 +27,6 @@ public class CopyNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public CopyNode(CopyNode copyNode) {
-        this.setId(-1);
         this.setX(copyNode.getX());
         this.setY(copyNode.getY());
         this.setWidth(copyNode.getWidth());
@@ -34,23 +34,15 @@ public class CopyNode extends DrawableNode {
         this.setColor(copyNode.getColor());
         this.setScale(copyNode.getScale());
         this.setContainedText(copyNode.getContainedText());
-        this.setProgramId(copyNode.getProgramId());
+       // this.setProgramUuid(copyNode.getProgramUuid());
         this.setNextNodeToRun(copyNode.getNextNodeToRun());
 
         this.setCopyFrom(copyNode.getCopyFrom());
         this.setCopyTo(copyNode.getCopyTo());
     }
 
-    public CopyNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public CopyNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    public CopyNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public CopyNode(){
+        super();
     }
 
     public List<String> getAvailableTriggers() {
@@ -89,18 +81,18 @@ public class CopyNode extends DrawableNode {
         TextField copyFromField = new TextField();
 
         copyFromLabel.setText("Copy From:");
-        copyFromLabel.setId("copyLabel-from-" + this.getId());
+        copyFromLabel.setId("copyLabel-from-" + this.getUuidString());
         copyFromLabel.setPrefWidth(80.0);
 
         copyFromField.setText(copyFrom);
-        copyFromField.setId("copyField-from-" + this.getId());
+        copyFromField.setId("copyField-from-" + this.getUuidString());
         copyFromField.setPrefWidth(600.0);
         copyFromField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
                 copyFrom = textField.getText();
 
-                DataBank.saveNode(this);
+                save();
             }
         });
 
@@ -113,26 +105,26 @@ public class CopyNode extends DrawableNode {
         TextField copyToField = new TextField();
 
         copyToLabel.setText("Copy To:");
-        copyToLabel.setId("copyLabel-to-" + this.getId());
+        copyToLabel.setId("copyLabel-to-" + this.getUuidString());
         copyToLabel.setPrefWidth(80.0);
 
         copyToField.setText(copyTo);
-        copyToField.setId("copyField-to-" + this.getId());
+        copyToField.setId("copyField-to-" + this.getUuidString());
         copyToField.setPrefWidth(600.0);
         copyToField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
                 copyTo = textField.getText();
 
-                DataBank.saveNode(this);
+                save();
             }
         });
 
         progressBarLabel.setText("");
-        progressBarLabel.setId("currentCopyFile-" + this.getId());
+        progressBarLabel.setId("currentCopyFile-" + this.getUuidString());
         progressBarLabel.setPrefWidth(600.0);
 
-        progressBar.setId("progressBar-" + this.getId());
+        progressBar.setId("progressBar-" + this.getUuidString());
         progressBar.setPrefWidth(600.0);
 
         copyToRow.getChildren().add(copyToLabel);
@@ -198,8 +190,16 @@ public class CopyNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("CopyTo", copyTo.getClass().getName(), copyTo));
-        savableAttributes.add(new SavableAttribute("CopyFrom", copyFrom.getClass().getName(), copyFrom));
+        // CopyTo
+        SavableAttribute copyToAttribute = SavableAttribute.create(SavableAttribute.class);
+        copyToAttribute.init("CopyTo", copyTo.getClass().getName(), copyTo, this);
+        savableAttributes.add(copyToAttribute);
+
+        // CopyFrom
+        SavableAttribute copyFromAttribute = SavableAttribute.create(SavableAttribute.class);
+        copyFromAttribute.init("copyFromAttribute", copyFrom.getClass().getName(), copyFrom, this);
+        savableAttributes.add(copyFromAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;

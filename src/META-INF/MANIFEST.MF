@@ -49,6 +49,6 @@ Class-Path: apache-poi autocomplete.jar controlsfx-8.40.10-20151006.12
  er-1.2.1.jar sac-1.3.jar serializer-2.7.2.jar testng-6.9.6.jar websoc
  ket-api-9.2.13.v20150730.jar websocket-client-9.2.13.v20150730.jar we
  bsocket-common-9.2.13.v20150730.jar xalan-2.7.2.jar xercesImpl-2.11.0
- .jar xml-apis-1.4.01.jar
+ .jar xml-apis-1.4.01.jar sqlite-jdbc-3.8.11.2.jar
 Main-Class: application.Main
 

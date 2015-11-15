@@ -140,6 +140,6 @@ public class LoopWebAction extends WebAction {
             }
         }
 
-        DataBank.saveTestStep(testStep);
+        testStep.save();
     }
 }

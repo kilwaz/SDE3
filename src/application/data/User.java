@@ -3,27 +3,29 @@ package application.data;
 import application.data.model.DatabaseObject;
 import application.gui.Program;
 
+import java.util.UUID;
+
 public class User extends DatabaseObject {
-    private Integer lastProgram;
     private Program currentProgram;
     private String username;
 
-    public User(Integer id, String username, Integer lastProgram) {
-        super(id);
-        this.username = username;
-        this.lastProgram = lastProgram;
+    public User() {
+        super();
+    }
+
+    public User(UUID uuid) {
+        super(uuid);
     }
 
     public Program getCurrentProgram() {
         return currentProgram;
     }
 
-    public Integer getCurrentProgramId() {
+    public UUID getCurrentProgramUuid() {
         if (currentProgram != null) {
-            return currentProgram.getId();
-        } else {
-            return -1;
+            return currentProgram.getUuid();
         }
+        return null;
     }
 
     public void setCurrentProgram(Program currentProgram) {
@@ -36,13 +38,5 @@ public class User extends DatabaseObject {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public Integer getLastProgram() {
-        return lastProgram;
-    }
-
-    public void setLastProgram(Integer lastProgram) {
-        this.lastProgram = lastProgram;
     }
 }

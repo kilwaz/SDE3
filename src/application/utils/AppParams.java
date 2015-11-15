@@ -10,38 +10,38 @@ public class AppParams {
     public final static String CHROME_DIRECTORY = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe";
     public final static String IE_DIRECTORY = "C:\\Program Files\\Internet Explorer\\iexplore.exe\"";
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "V0.4.3.6";
+    public final static String APP_VERSION = "V0.4.4.0";
 
     // Database for application - Defaults are displayed here and are overridden by the SDE.xml file
-    private static String MYSQL_CONNECTION = "jdbc:mysql://172.16.10.234/sde";
-    private static String MYSQL_USERNAME = "spiralinks";
-    private static String MYSQL_PASSWORD = "spiralinks";
+    private static String DATABASE_CONNECTION = "jdbc:mysql://172.16.10.234/sde";
+    private static String DATABASE_USERNAME = "spiralinks";
+    private static String DATABASE_PASSWORD = "spiralinks";
 
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";
 
-    public static String getMysqlConnection() {
-        return MYSQL_CONNECTION;
+    public static String getDatabaseConnection() {
+        return DATABASE_CONNECTION;
     }
 
-    public static String getMysqlUsername() {
-        return MYSQL_USERNAME;
+    public static String getDatabaseUsername() {
+        return DATABASE_USERNAME;
     }
 
-    public static String getMysqlPassword() {
-        return MYSQL_PASSWORD;
+    public static String getDatabasePassword() {
+        return DATABASE_PASSWORD;
     }
 
-    public static void setMysqlPassword(String mysqlPassword) {
-        MYSQL_PASSWORD = mysqlPassword;
+    public static void setDatabasePassword(String databasePassword) {
+        DATABASE_PASSWORD = databasePassword;
     }
 
-    public static void setMysqlUsername(String mysqlUsername) {
-        MYSQL_USERNAME = mysqlUsername;
+    public static void setDatabaseUsername(String databaseUsername) {
+        DATABASE_USERNAME = databaseUsername;
     }
 
-    public static void setMysqlConnection(String mysqlConnection) {
-        MYSQL_CONNECTION = mysqlConnection;
+    public static void setDatabaseConnection(String databaseConnection) {
+        DATABASE_CONNECTION = databaseConnection;
     }
 
     public static Font getFont(Integer size) {

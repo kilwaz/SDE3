@@ -32,7 +32,7 @@ public class Batch {
         if (!this.script.equals(script)) {
             this.script = script;
             if (!parentBatchNode.isInitialising()) {
-                DataBank.saveNode(parentBatchNode);
+                parentBatchNode.save();
             }
         }
     }

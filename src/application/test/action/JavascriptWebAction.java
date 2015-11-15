@@ -31,6 +31,6 @@ public class JavascriptWebAction extends WebAction {
 
         refreshCurrentDocument();
 
-        DataBank.saveTestStep(testStep);
+        testStep.save();
     }
 }

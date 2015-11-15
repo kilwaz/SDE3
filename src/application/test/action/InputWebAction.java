@@ -61,6 +61,7 @@ public class InputWebAction extends WebAction {
             takeScreenshotOfElement(testStep, testElement);
             testStep.setTestString(getTestCommand().getRawCommand());
         }
-        DataBank.saveTestStep(testStep);
+
+        testStep.save();
     }
 }

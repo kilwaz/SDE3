@@ -21,6 +21,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class EmailNode extends DrawableNode {
     private String emailUrl = "";
@@ -31,7 +32,6 @@ public class EmailNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public EmailNode(EmailNode emailNode) {
-        this.setId(-1);
         this.setX(emailNode.getX());
         this.setY(emailNode.getY());
         this.setWidth(emailNode.getWidth());
@@ -39,7 +39,7 @@ public class EmailNode extends DrawableNode {
         this.setColor(emailNode.getColor());
         this.setScale(emailNode.getScale());
         this.setContainedText(emailNode.getContainedText());
-        this.setProgramId(emailNode.getProgramId());
+//        this.setProgramUuid(emailNode.getProgramUuid());
         this.setNextNodeToRun(emailNode.getNextNodeToRun());
 
         this.setEmailUrl(emailNode.getEmailUrl());
@@ -47,16 +47,8 @@ public class EmailNode extends DrawableNode {
         this.setEmailUsername(emailNode.getEmailUsername());
     }
 
-    public EmailNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public EmailNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    public EmailNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public EmailNode(){
+        super();
     }
 
     public Tab createInterface() {
@@ -125,10 +117,10 @@ public class EmailNode extends DrawableNode {
         TextField rowField = new TextField();
 
         rowLabel.setText(labelName);
-        rowLabel.setId("emailLabel-" + rowName + "-" + this.getId());
+        rowLabel.setId("emailLabel-" + rowName + "-" + this.getUuidString());
 
         rowField.setText(rowValue);
-        rowField.setId("emailField-" + rowName + "-" + this.getId());
+        rowField.setId("emailField-" + rowName + "-" + this.getUuidString());
         rowField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
@@ -146,7 +138,7 @@ public class EmailNode extends DrawableNode {
                         break;
                 }
 
-                DataBank.saveNode(this);
+                save();
             }
         });
 
@@ -159,9 +151,21 @@ public class EmailNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("EmailUrl", emailUrl.getClass().getName(), emailUrl));
-        savableAttributes.add(new SavableAttribute("EmailUsername", emailUsername.getClass().getName(), emailUsername));
-        savableAttributes.add(new SavableAttribute("EmailPassword", emailPassword.getClass().getName(), emailPassword));
+        // EmailUrl
+        SavableAttribute emailURLAttribute = SavableAttribute.create(SavableAttribute.class);
+        emailURLAttribute.init("EmailUrl", emailUrl.getClass().getName(), emailUrl, this);
+        savableAttributes.add(emailURLAttribute);
+
+        // EmailPassword
+        SavableAttribute emailPasswordAttribute = SavableAttribute.create(SavableAttribute.class);
+        emailPasswordAttribute.init("EmailUsername", emailUsername.getClass().getName(), emailUsername, this);
+        savableAttributes.add(emailPasswordAttribute);
+
+        // EmailUsername
+        SavableAttribute emailUsernameAttribute = SavableAttribute.create(SavableAttribute.class);
+        emailUsernameAttribute.init("EmailPassword", emailPassword.getClass().getName(), emailPassword, this);
+        savableAttributes.add(emailUsernameAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;

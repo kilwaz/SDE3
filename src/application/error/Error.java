@@ -91,7 +91,13 @@ public enum Error {
     SELENIUM_FRAME_NOT_FOUND(86, "Trying to switch to frame that does not exist"),
     DATA_LINK_METHOD_NOT_FOUND(87, "While creating the database model we could not find a required method"),
     DATABASE_OBJECT_METHOD_NOT_FOUND(88, "Could not find method for DatabaseObject when trying to update database"),
-    DATABASE_SAVE_CLASS_INIT(89, "Unable to save object");
+    DATABASE_SAVE_CLASS_INIT(89, "Unable to save object"),
+    DATABASE_DELETE_CLASS_INIT(90, "Unable to delete object"),
+    UUID_CREATE_FAILED(91, "UUID could not be converted from string"),
+    DUPLICATE_RESULTS(92, "Duplicate record returned"),
+    DATABASE_LOAD_CLASS_INIT(93, "Unable to load object"),
+    CREATE_NEW_INSTANCE_ERROR(94, "Unable to create a new instance via the blank constructor"),
+    DATABASE_OBJECT_METHOD_MISMATCH_PARAMETERS(95, "The wrong number of arguments have being used");
 
     private Integer code;
     private String description;

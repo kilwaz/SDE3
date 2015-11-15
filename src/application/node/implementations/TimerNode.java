@@ -1,6 +1,5 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
@@ -22,6 +21,7 @@ import org.quartz.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class TimerNode extends DrawableNode {
@@ -70,7 +70,6 @@ public class TimerNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public TimerNode(TimerNode timerNode) {
-        this.setId(-1);
         this.setX(timerNode.getX());
         this.setY(timerNode.getY());
         this.setWidth(timerNode.getWidth());
@@ -78,7 +77,7 @@ public class TimerNode extends DrawableNode {
         this.setColor(timerNode.getColor());
         this.setScale(timerNode.getScale());
         this.setContainedText(timerNode.getContainedText());
-        this.setProgramId(timerNode.getProgramId());
+//        this.setProgramUuid(timerNode.getProgramUuid());
         this.setNextNodeToRun(timerNode.getNextNodeToRun());
 
         this.setMilliSecsWait(timerNode.getMilliSecsWait());
@@ -100,16 +99,8 @@ public class TimerNode extends DrawableNode {
         this.setStartChoice(timerNode.getStartChoice());
     }
 
-    public TimerNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public TimerNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    public TimerNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public TimerNode(){
+        super();
     }
 
     public Tab createInterface() {
@@ -147,7 +138,7 @@ public class TimerNode extends DrawableNode {
                 startChoice = newValue;
                 setVisibility(); // Needs to be called after new value is set
 
-                DataBank.saveNode(instance);
+                instance.save();
             }
         });
 
@@ -162,7 +153,7 @@ public class TimerNode extends DrawableNode {
             startDateMonth = date.getMonthValue();
             startDateDay = date.getDayOfMonth();
 
-            DataBank.saveNode(instance);
+            instance.save();
         });
 
         startTimeField = new TextField();
@@ -173,7 +164,7 @@ public class TimerNode extends DrawableNode {
             TextField textField = (TextField) event.getSource();
 
             startTime = textField.getText();
-            DataBank.saveNode(this);
+            save();
         });
 
         startTimeHelpLabel = new Label();
@@ -202,7 +193,7 @@ public class TimerNode extends DrawableNode {
                 frequency = newValue;
                 setVisibility(); // Needs to be called after new value is set
 
-                DataBank.saveNode(instance);
+                instance.save();
             }
         });
 
@@ -214,7 +205,7 @@ public class TimerNode extends DrawableNode {
             TextField textField = (TextField) event.getSource();
 
             frequencyDurationCount = textField.getText();
-            DataBank.saveNode(this);
+            save();
         });
 
         frequencyDurationChoice = new ChoiceBox();
@@ -232,7 +223,7 @@ public class TimerNode extends DrawableNode {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 frequencyDuration = newValue;
-                DataBank.saveNode(instance);
+                instance.save();
             }
         });
 
@@ -251,7 +242,7 @@ public class TimerNode extends DrawableNode {
                 repetition = newValue;
 
                 setVisibility(); // Needs to be called after new value is set
-                DataBank.saveNode(instance);
+                instance.save();
             }
         });
 
@@ -266,7 +257,7 @@ public class TimerNode extends DrawableNode {
             endDateMonth = date.getMonthValue();
             endDateDay = date.getDayOfMonth();
 
-            DataBank.saveNode(instance);
+            instance.save();
         });
 
         endTimeField = new TextField();
@@ -277,7 +268,7 @@ public class TimerNode extends DrawableNode {
             TextField textField = (TextField) event.getSource();
 
             endTime = textField.getText();
-            DataBank.saveNode(this);
+            instance.save();
         });
 
         endTimeHelpLabel = new Label();
@@ -292,7 +283,7 @@ public class TimerNode extends DrawableNode {
             TextField textField = (TextField) event.getSource();
 
             repetitionCount = textField.getText();
-            DataBank.saveNode(this);
+            instance.save();
         });
 
         timesHelpLabel = new Label();
@@ -308,7 +299,7 @@ public class TimerNode extends DrawableNode {
         delayFieldLabel.setMinWidth(100);
 
         TextField timeToWaitField = new TextField();
-        timeToWaitField.setId("fieldTimeToWait-" + getId());
+        timeToWaitField.setId("fieldTimeToWait-" + getUuidStringWithoutHyphen());
         timeToWaitField.setText(milliSecsWait.toString());
         timeToWaitField.setPrefWidth(70);
 
@@ -316,7 +307,7 @@ public class TimerNode extends DrawableNode {
             TextField textField = (TextField) event.getSource();
 
             milliSecsWait = Integer.parseInt(textField.getText());
-            DataBank.saveNode(this);
+            instance.save();
         });
 
         Label msLabel = new Label();
@@ -418,24 +409,74 @@ public class TimerNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("MilliSecsWait", milliSecsWait.getClass().getName(), milliSecsWait));
-        savableAttributes.add(new SavableAttribute("FrequencyDurationCount", frequencyDurationCount.getClass().getName(), frequencyDurationCount));
-        savableAttributes.add(new SavableAttribute("FrequencyDuration", frequencyDuration.getClass().getName(), frequencyDuration));
-        savableAttributes.add(new SavableAttribute("Frequency", frequency.getClass().getName(), frequency));
-        savableAttributes.add(new SavableAttribute("Repetition", repetition.getClass().getName(), repetition));
+        // MilliSecsWait
+        SavableAttribute milliSecsWaitAttribute = SavableAttribute.create(SavableAttribute.class);
+        milliSecsWaitAttribute.init("MilliSecsWait", milliSecsWait.getClass().getName(), milliSecsWait, this);
+        savableAttributes.add(milliSecsWaitAttribute);
 
-        savableAttributes.add(new SavableAttribute("StartDateYear", startDateYear.getClass().getName(), startDateYear));
-        savableAttributes.add(new SavableAttribute("StartDateMonth", startDateMonth.getClass().getName(), startDateMonth));
-        savableAttributes.add(new SavableAttribute("StartDateDay", startDateDay.getClass().getName(), startDateDay));
-        savableAttributes.add(new SavableAttribute("StartTime", startTime.getClass().getName(), startTime));
+        // FrequencyDurationCount
+        SavableAttribute frequencyDurationCountAttribute = SavableAttribute.create(SavableAttribute.class);
+        frequencyDurationCountAttribute.init("FrequencyDurationCount", frequencyDurationCount.getClass().getName(), frequencyDurationCount, this);
+        savableAttributes.add(frequencyDurationCountAttribute);
 
-        savableAttributes.add(new SavableAttribute("EndDateYear", endDateYear.getClass().getName(), endDateYear));
-        savableAttributes.add(new SavableAttribute("EndDateMonth", endDateMonth.getClass().getName(), endDateMonth));
-        savableAttributes.add(new SavableAttribute("EndDateDay", endDateDay.getClass().getName(), endDateDay));
-        savableAttributes.add(new SavableAttribute("EndTime", endTime.getClass().getName(), endTime));
+        // FrequencyDuration
+        SavableAttribute frequencyDurationAttribute = SavableAttribute.create(SavableAttribute.class);
+        frequencyDurationAttribute.init("FrequencyDuration", frequencyDuration.getClass().getName(), frequencyDuration, this);
+        savableAttributes.add(frequencyDurationAttribute);
 
-        savableAttributes.add(new SavableAttribute("RepetitionCount", repetitionCount.getClass().getName(), repetitionCount));
-        savableAttributes.add(new SavableAttribute("StartChoice", startChoice.getClass().getName(), startChoice));
+        // Frequency
+        SavableAttribute frequencyAttribute = SavableAttribute.create(SavableAttribute.class);
+        frequencyAttribute.init("Frequency", frequency.getClass().getName(), frequency, this);
+        savableAttributes.add(frequencyAttribute);
+
+        // Repetition
+        SavableAttribute repetitionAttribute = SavableAttribute.create(SavableAttribute.class);
+        repetitionAttribute.init("Repetition", repetition.getClass().getName(), repetition, this);
+        savableAttributes.add(repetitionAttribute);
+
+        // StartDateYear
+        SavableAttribute StartDateYearAttribute = SavableAttribute.create(SavableAttribute.class);
+        StartDateYearAttribute.init("StartDateYear", startDateYear.getClass().getName(), startDateYear, this);
+        savableAttributes.add(StartDateYearAttribute);
+        // StartDateMonth
+        SavableAttribute startDateMonthAttribute = SavableAttribute.create(SavableAttribute.class);
+        startDateMonthAttribute.init("StartDateMonth", startDateMonth.getClass().getName(), startDateMonth, this);
+        savableAttributes.add(startDateMonthAttribute);
+        // StartDateDay
+        SavableAttribute startDateDayAttribute = SavableAttribute.create(SavableAttribute.class);
+        startDateDayAttribute.init("StartDateDay", startDateDay.getClass().getName(), startDateDay, this);
+        savableAttributes.add(startDateDayAttribute);
+        // StartTime
+        SavableAttribute startTimeAttribute = SavableAttribute.create(SavableAttribute.class);
+        startTimeAttribute.init("StartTime", startTime.getClass().getName(), startTime, this);
+        savableAttributes.add(startTimeAttribute);
+
+        // EndDateYear
+        SavableAttribute endDateYearAttribute = SavableAttribute.create(SavableAttribute.class);
+        endDateYearAttribute.init("EndDateYear", endDateYear.getClass().getName(), endDateYear, this);
+        savableAttributes.add(endDateYearAttribute);
+        // EndDateMonth
+        SavableAttribute endDateMonthAttribute = SavableAttribute.create(SavableAttribute.class);
+        endDateMonthAttribute.init("EndDateMonth", endDateMonth.getClass().getName(), endDateMonth, this);
+        savableAttributes.add(endDateMonthAttribute);
+        // EndDateDay
+        SavableAttribute endDateDayAttribute = SavableAttribute.create(SavableAttribute.class);
+        endDateDayAttribute.init("EndDateDay", endDateDay.getClass().getName(), endDateDay, this);
+        savableAttributes.add(endDateDayAttribute);
+        // EndTime
+        SavableAttribute endTimeAttribute = SavableAttribute.create(SavableAttribute.class);
+        endTimeAttribute.init("EndTime", endTime.getClass().getName(), endTime, this);
+        savableAttributes.add(endTimeAttribute);
+
+        // RepetitionCount
+        SavableAttribute repetitionCountAttribute = SavableAttribute.create(SavableAttribute.class);
+        repetitionCountAttribute.init("RepetitionCount", repetitionCount.getClass().getName(), repetitionCount, this);
+        savableAttributes.add(repetitionCountAttribute);
+
+        // StartChoice
+        SavableAttribute startChoiceAttribute = SavableAttribute.create(SavableAttribute.class);
+        startChoiceAttribute.init("StartChoice", startChoice.getClass().getName(), startChoice, this);
+        savableAttributes.add(startChoiceAttribute);
 
         savableAttributes.addAll(super.getDataToSave());
 

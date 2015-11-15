@@ -14,13 +14,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class FileStoreNode extends DrawableNode {
-    private HashMap<Integer, SDEFile> sdeFileHashMap = new HashMap<>();
+    private HashMap<String, SDEFile> sdeFileHashMap = new HashMap<>();
 
     // This will make a copy of the node passed to it
     public FileStoreNode(FileStoreNode fileStoreNode) {
-        this.setId(-1);
         this.setX(fileStoreNode.getX());
         this.setY(fileStoreNode.getY());
         this.setWidth(fileStoreNode.getWidth());
@@ -28,25 +28,19 @@ public class FileStoreNode extends DrawableNode {
         this.setColor(fileStoreNode.getColor());
         this.setScale(fileStoreNode.getScale());
         this.setContainedText(fileStoreNode.getContainedText());
-        this.setProgramId(fileStoreNode.getProgramId());
+//        this.setProgramUuid(fileStoreNode.getProgramUuid());
         this.setNextNodeToRun(fileStoreNode.getNextNodeToRun());
     }
 
-    public FileStoreNode(Integer id, Integer programId) {
-        super(id, programId);
-        DataBank.loadSDEFile(this);
-    }
-
-    public FileStoreNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        DataBank.loadSDEFile(this);
+    public FileStoreNode(){
+        super();
     }
 
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.addAll(super.getDataToSave());
-        sdeFileHashMap.values().forEach(DataBank::saveSDEFile);
+        sdeFileHashMap.values().forEach(SDEFile::save);
 
         return savableAttributes;
     }
@@ -54,19 +48,19 @@ public class FileStoreNode extends DrawableNode {
     public void addSDEFile(File file, String payloadReference) {
         if (sdeFileHashMap.get(payloadReference) != null) {
             sdeFileHashMap.get(payloadReference).setFile(file);
-            DataBank.saveSDEFile(sdeFileHashMap.get(payloadReference));
+            sdeFileHashMap.get(payloadReference).save();
         } else {
             DataBank.createNewSDEFile(file, this);
         }
     }
 
     public void addSDEFile(SDEFile sdeFile) {
-        sdeFileHashMap.put(sdeFile.getId(), sdeFile);
+        sdeFileHashMap.put(sdeFile.getUuidString(), sdeFile);
     }
 
     public void deleteSDEFile(String payloadReference) {
         if (payloadReference != null && sdeFileHashMap.get(payloadReference) != null) {
-            DataBank.deleteSDEFile(sdeFileHashMap.remove(payloadReference));
+            sdeFileHashMap.get(payloadReference).save();
         }
     }
 
@@ -75,7 +69,7 @@ public class FileStoreNode extends DrawableNode {
     }
 
     public void saveObjects() {
-        sdeFileHashMap.values().forEach(DataBank::saveSDEFile);
+        sdeFileHashMap.values().forEach(SDEFile::save);
     }
 
     public SDEFile getSDEFile(Integer reference) {

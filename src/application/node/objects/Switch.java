@@ -1,9 +1,11 @@
 package application.node.objects;
 
+import application.data.model.DatabaseObject;
 import application.node.implementations.SwitchNode;
 
-public class Switch {
-    private Integer id;
+import java.util.UUID;
+
+public class Switch extends DatabaseObject {
     private Boolean enabled = false;
     private String target;
     private SwitchNode parent;
@@ -12,12 +14,11 @@ public class Switch {
         this.enabled = copySwitch.isEnabled();
         this.target = copySwitch.getTarget();
         this.parent = parent;
-        this.id = -1;
     }
 
-    public Switch(Integer id, SwitchNode parent, String target, Boolean enabled) {
+    public Switch(UUID uuid, SwitchNode parent, String target, Boolean enabled) {
+        super(uuid);
         this.target = target;
-        this.id = id;
         this.parent = parent;
         this.enabled = enabled;
     }
@@ -42,11 +43,10 @@ public class Switch {
         return parent;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public String getParentUuid() {
+        if (parent != null) {
+            return parent.getUuidString();
+        }
+        return null;
     }
 }

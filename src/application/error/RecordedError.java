@@ -7,6 +7,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by alex on 26/10/2015.
  */
@@ -18,7 +21,7 @@ public class RecordedError {
     private DateTime occurredAt;
     private int lineNumber = -1;
     private String className = "Unknown";
-    private String additionalInformation;
+    private List<String> additionalInformation = new ArrayList<>();
     private String name;
 
     protected RecordedError(int code, String description, String name) {
@@ -66,7 +69,7 @@ public class RecordedError {
     }
 
     public RecordedError additionalInformation(String additionalInformation) {
-        this.additionalInformation = additionalInformation;
+        this.additionalInformation.add(additionalInformation);
         return this;
     }
 
@@ -99,12 +102,16 @@ public class RecordedError {
         return name;
     }
 
-    public String getAdditionalInformation() {
+    public List<String> getAdditionalInformation() {
         return additionalInformation;
     }
 
     @Override
     public String toString() {
-        return "#" + code + ":" + name+ ": " + description + (additionalInformation == null ? "" : "\r\n\tAdditional Information:\r\n\t\t" + additionalInformation);
+        StringBuilder additionalInfoBuilder = new StringBuilder();
+        for (String s : additionalInformation) {
+            additionalInfoBuilder.append(s).append("\n\t\t");
+        }
+        return "#" + code + ":" + name + ": " + description + (additionalInformation == null ? "" : "\r\n\tAdditional Information:\r\n\t\t" + additionalInfoBuilder.toString());
     }
 }

@@ -2,19 +2,24 @@ package application.net.proxy;
 
 import application.data.model.DatabaseObject;
 
+import java.util.UUID;
+
 public class RecordedHeader extends DatabaseObject {
     private RecordedRequest parentRequest;
     private String type = "";
     private String name = "";
     private String value = "";
 
-    public RecordedHeader(Integer id, RecordedRequest parentRequest) {
-        super(id);
+    public RecordedHeader(UUID uuid, RecordedRequest parentRequest) {
+        super(uuid);
         this.parentRequest = parentRequest;
     }
 
-    public Integer getParentRequestId() {
-        return parentRequest.getId();
+    public String getParentRequestUuid() {
+        if (parentRequest != null) {
+            return parentRequest.getUuidString();
+        }
+        return null;
     }
 
     public RecordedRequest getParentRequest() {

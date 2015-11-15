@@ -1,7 +1,6 @@
 package application.node.implementations;
 
 import application.Main;
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.data.export.Export;
 import application.data.export.ExportCell;
@@ -38,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class ExportNode extends DrawableNode {
     private String fileOutputDirectory = "";
@@ -52,7 +52,6 @@ public class ExportNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public ExportNode(ExportNode exportNode) {
-        this.setId(-1);
         this.setX(exportNode.getX());
         this.setY(exportNode.getY());
         this.setWidth(exportNode.getWidth());
@@ -60,20 +59,16 @@ public class ExportNode extends DrawableNode {
         this.setColor(exportNode.getColor());
         this.setScale(exportNode.getScale());
         this.setContainedText(exportNode.getContainedText());
-        this.setProgramId(exportNode.getProgramId());
+//        this.setProgramUuid(exportNode.getProgramUuid());
         this.setNextNodeToRun(exportNode.getNextNodeToRun());
 
         this.setFileOutputDirectory(exportNode.getFileOutputDirectory());
         this.setFileOutputName(exportNode.getFileOutputName());
     }
 
-    public ExportNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public ExportNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
+     public ExportNode(){
+         super();
+     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         if (nodeRunParams.getOneTimeVariable() instanceof Export) {
@@ -181,7 +176,7 @@ public class ExportNode extends DrawableNode {
             TextField sourceTextField = (TextField) event.getSource();
             fileOutputDirectory = sourceTextField.getText();
             buildConstructedFileName();
-            DataBank.saveNode(this);
+            save();
         });
 
         Button fileChooserButton = new Button();
@@ -200,7 +195,7 @@ public class ExportNode extends DrawableNode {
                 fileOutputDirectory = fileOutputDirectory.replaceAll("\\\\", "/");
                 directoryField.setText(fileOutputDirectory);
                 buildConstructedFileName();
-                DataBank.saveNode(this);
+                save();
             }
         });
 
@@ -222,7 +217,7 @@ public class ExportNode extends DrawableNode {
             TextField sourceTextField = (TextField) event.getSource();
             fileOutputName = sourceTextField.getText();
             buildConstructedFileName();
-            DataBank.saveNode(this);
+            save();
         });
 
         Label dateHelpLabel = new Label();
@@ -295,8 +290,16 @@ public class ExportNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("FileOutputDirectory", fileOutputDirectory.getClass().getName(), fileOutputDirectory));
-        savableAttributes.add(new SavableAttribute("FileOutputName", fileOutputName.getClass().getName(), fileOutputName));
+        // FileOutputDirectory
+        SavableAttribute fileOutputDirectoryAttribute = SavableAttribute.create(SavableAttribute.class);
+        fileOutputDirectoryAttribute.init("FileOutputDirectory", fileOutputDirectory.getClass().getName(), fileOutputDirectory, this);
+        savableAttributes.add(fileOutputDirectoryAttribute);
+
+        // FileOutputName
+        SavableAttribute fileOutputNameAttribute = SavableAttribute.create(SavableAttribute.class);
+        fileOutputNameAttribute.init("FileOutputName", fileOutputName.getClass().getName(), fileOutputName, this);
+        savableAttributes.add(fileOutputNameAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;

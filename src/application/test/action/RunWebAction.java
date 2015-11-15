@@ -49,7 +49,7 @@ public class RunWebAction extends WebAction {
 
         Program.runHelper(nodeToRun.getParameterValue(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), null, true, false, nodeRunParams);
 
-        DataBank.saveTestStep(testStep);
+        testStep.save();
     }
 }
 

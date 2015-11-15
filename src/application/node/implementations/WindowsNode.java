@@ -2,7 +2,6 @@ package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
-import application.error.*;
 import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
@@ -18,7 +17,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -33,7 +31,6 @@ public class WindowsNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public WindowsNode(LinuxNode linuxNode) {
-        this.setId(-1);
         this.setX(linuxNode.getX());
         this.setY(linuxNode.getY());
         this.setWidth(linuxNode.getWidth());
@@ -41,21 +38,12 @@ public class WindowsNode extends DrawableNode {
         this.setColor(linuxNode.getColor());
         this.setScale(linuxNode.getScale());
         this.setContainedText(linuxNode.getContainedText());
-        this.setProgramId(linuxNode.getProgramId());
+//        this.setProgramUuid(linuxNode.getProgramUuid());
         this.setNextNodeToRun(linuxNode.getNextNodeToRun());
     }
 
-
-    public WindowsNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public WindowsNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    public WindowsNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public WindowsNode() {
+        super();
     }
 
     public Tab createInterface() {

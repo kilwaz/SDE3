@@ -23,6 +23,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This purpose of this class is to draw graphs and charts of data that is passed into it.
@@ -42,7 +43,6 @@ public class ChartNode extends DrawableNode {
      * @param chartNode The {@link application.node.implementations.ChartNode} we want to create a copy of.
      */
     public ChartNode(ChartNode chartNode) {
-        this.setId(-1);
         this.setX(chartNode.getX());
         this.setY(chartNode.getY());
         this.setWidth(chartNode.getWidth());
@@ -50,47 +50,13 @@ public class ChartNode extends DrawableNode {
         this.setColor(chartNode.getColor());
         this.setScale(chartNode.getScale());
         this.setContainedText(chartNode.getContainedText());
-        this.setProgramId(chartNode.getProgramId());
+        //this.setProgramUuid(chartNode.getProgramUuid());
         this.setNextNodeToRun(chartNode.getNextNodeToRun());
     }
 
-    /**
-     * @param id
-     * @param programId
-     */
-
-    public ChartNode(Integer id, Integer programId) {
-        super(id, programId);
+    public ChartNode(){
+        super();
     }
-
-    /**
-     * @param x
-     * @param y
-     * @param containedText
-     */
-
-    public ChartNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    /**
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @param color
-     * @param containedText
-     * @param programId
-     * @param id
-     */
-
-    public ChartNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
-    }
-
-    /**
-     * @return
-     */
 
     public Tab createInterface() {
         Controller controller = Controller.getInstance();

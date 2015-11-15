@@ -87,7 +87,7 @@ public class WebProxyRequestManager {
 
             recordedRequest.save();
 
-            RecordedRequest recordedRequest1 = DataBank.loadRecordedRequest(recordedRequest.getId(), recordedRequest.getParentHttpProxy());
+            RecordedRequest recordedRequest1 = DataBank.loadRecordedRequest(recordedRequest.getUuidString(), recordedRequest.getParentHttpProxy());
 
             for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
                 requestTrackerNode.addResult(recordedRequest1);

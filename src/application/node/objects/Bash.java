@@ -83,7 +83,7 @@ public class Bash {
         if (!this.script.equals(script)) {
             this.script = script;
             if (!parentBashNode.isInitialising()) {
-                DataBank.saveNode(parentBashNode);
+                parentBashNode.save();
             }
         }
     }

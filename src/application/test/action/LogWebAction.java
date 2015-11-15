@@ -57,7 +57,7 @@ public class LogWebAction extends WebAction {
             processElement(loopedElement, testStep);
         }
 
-        DataBank.saveTestStep(testStep);
+        testStep.save();
     }
 
     private void processElement(Element element, TestStep testStep) {

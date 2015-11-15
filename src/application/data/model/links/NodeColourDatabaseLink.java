@@ -2,19 +2,16 @@ package application.data.model.links;
 
 import application.data.NodeColour;
 import application.data.model.DatabaseLink;
-import application.error.Error;
 
 public class NodeColourDatabaseLink extends DatabaseLink {
     public NodeColourDatabaseLink() {
-        super("node_colour");
-        try {
-            // Make sure the order is the same as column order in database
-            link("node_type", NodeColour.class.getMethod("getNodeType")); // 1
-            link("colour_r", NodeColour.class.getMethod("getRed")); // 2
-            link("colour_g", NodeColour.class.getMethod("getGreen")); // 3
-            link("colour_b", NodeColour.class.getMethod("getBlue")); // 4
-        } catch (NoSuchMethodException ex) {
-            Error.DATA_LINK_METHOD_NOT_FOUND.record().create(ex);
-        }
+        super("node_colour", NodeColour.class);
+
+        // Make sure the order is the same as column order in database
+        link("uuid", method("getUuidString"), method("setUuidFromString", String.class)); // 1
+        link("node_type", method("getNodeType"), method("setNodeType", String.class)); // 2
+        link("colour_r", method("getRed"), method("setRed", Integer.class)); // 3
+        link("colour_g", method("getGreen"), method("setGreen", Integer.class)); // 4
+        link("colour_b", method("getBlue"), method("setBlue", Integer.class)); // 5
     }
 }

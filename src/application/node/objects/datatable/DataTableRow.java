@@ -5,20 +5,21 @@ import application.data.model.DatabaseObject;
 import application.node.implementations.DataTableNode;
 
 import java.util.LinkedHashMap;
+import java.util.UUID;
 
 public class DataTableRow extends DatabaseObject {
     private LinkedHashMap<String, DataTableValue> dataTableValues = new LinkedHashMap<>();
     private DataTableNode parentNode;
 
-    public DataTableRow(Integer id, DataTableNode parentNode) {
-        super(id);
+    public DataTableRow(UUID uuid, DataTableNode parentNode) {
+        super(uuid);
         this.parentNode = parentNode;
         DataBank.loadDataTableValue(this);
     }
 
     public void removeDataTableValue(String key) {
         if (dataTableValues.containsKey(key)) {
-            DataBank.deleteDataTableValue(dataTableValues.get(key));
+            dataTableValues.get(key).delete();
             dataTableValues.remove(key);
         }
     }
@@ -52,8 +53,11 @@ public class DataTableRow extends DatabaseObject {
         return parentNode;
     }
 
-    public Integer getParentId() {
-        return parentNode.getId();
+    public String getParentUuid() {
+        if (parentNode != null) {
+            return parentNode.getUuidString();
+        }
+        return null;
     }
 
     public LinkedHashMap<String, DataTableValue> getDataTableValues() {

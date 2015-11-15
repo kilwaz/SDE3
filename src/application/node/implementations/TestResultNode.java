@@ -17,13 +17,13 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TestResultNode extends DrawableNode {
     private ObservableList<TestStep> resultStepList = FXCollections.observableArrayList();
 
     // This will make a copy of the node passed to it
     public TestResultNode(TestResultNode testResultNode) {
-        this.setId(-1);
         this.setX(testResultNode.getX());
         this.setY(testResultNode.getY());
         this.setWidth(testResultNode.getWidth());
@@ -31,20 +31,12 @@ public class TestResultNode extends DrawableNode {
         this.setColor(testResultNode.getColor());
         this.setScale(testResultNode.getScale());
         this.setContainedText(testResultNode.getContainedText());
-        this.setProgramId(testResultNode.getProgramId());
+//        this.setProgramUuid(testResultNode.getProgramUuid());
         this.setNextNodeToRun(testResultNode.getNextNodeToRun());
     }
 
-    public TestResultNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public TestResultNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-    }
-
-    public TestResultNode(Double x, Double y, String containedText, Integer id, Integer programId) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, programId, id);
+    public TestResultNode(){
+        super();
     }
 
     public void addResult(TestStep testStep) {
@@ -78,7 +70,7 @@ public class TestResultNode extends DrawableNode {
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
         TableView<TestStep> resultsTable = new TableView<>();
-        resultsTable.setId("resultsTable-" + getId());
+        resultsTable.setId("resultsTable-" + getUuidStringWithoutHyphen());
 
         TableColumn testId = new TableColumn("ID");
         testId.setMinWidth(30);

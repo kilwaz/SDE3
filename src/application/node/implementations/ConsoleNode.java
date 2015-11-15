@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This node displays a console that can be written to.  It also allows other nodes to run triggers on it which
@@ -28,7 +29,6 @@ public class ConsoleNode extends DrawableNode {
      * @param consoleNode
      */
     public ConsoleNode(ConsoleNode consoleNode) {
-        this.setId(-1);
         this.setX(consoleNode.getX());
         this.setY(consoleNode.getY());
         this.setWidth(consoleNode.getWidth());
@@ -36,25 +36,12 @@ public class ConsoleNode extends DrawableNode {
         this.setColor(consoleNode.getColor());
         this.setScale(consoleNode.getScale());
         this.setContainedText(consoleNode.getContainedText());
-        this.setProgramId(consoleNode.getProgramId());
+//        this.setProgramUuid(consoleNode.getProgramUuid());
         this.setNextNodeToRun(consoleNode.getNextNodeToRun());
     }
 
-    /**
-     * @param id
-     * @param programId
-     */
-    public ConsoleNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    /**
-     * @param x
-     * @param y
-     * @param containedText
-     */
-    public ConsoleNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
+    public ConsoleNode(){
+        super();
     }
 
     /**

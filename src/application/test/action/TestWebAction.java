@@ -49,7 +49,7 @@ public class TestWebAction extends WebAction {
                 testStep.setExpectedEqual(contentToEqual);
                 testStep.setObservedEqual(content);
 
-                DataBank.saveTestStep(testStep);
+                testStep.save();
 
                 // Add the result to a result node if it is linked
                 TestParameter resultNodeName = getTestCommand().getParameterByPath("resultNode");

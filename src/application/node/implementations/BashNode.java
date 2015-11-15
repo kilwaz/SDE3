@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class BashNode extends DrawableNode {
@@ -20,7 +21,6 @@ public class BashNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public BashNode(BashNode bashNode) {
-        this.setId(-1);
         this.setX(bashNode.getX());
         this.setY(bashNode.getY());
         this.setWidth(bashNode.getWidth());
@@ -28,24 +28,16 @@ public class BashNode extends DrawableNode {
         this.setColor(bashNode.getColor());
         this.setScale(bashNode.getScale());
         this.setContainedText(bashNode.getContainedText());
-        this.setProgramId(bashNode.getProgramId());
+//        this.setProgramUuid(bashNode.getProgramUuid());
         this.setNextNodeToRun(bashNode.getNextNodeToRun());
 
         this.bash = new Bash(this);
         this.setBash(bashNode.getBash().getScript());
     }
 
-    public BashNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public BashNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        this.bash = new Bash(this);
-    }
-
-    public BashNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public BashNode(){
+        super();
+        super.setColor(Color.BLACK);
     }
 
     public Tab createInterface() {
@@ -78,7 +70,11 @@ public class BashNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("Bash", getBash().getScript().getClass().getName(), getBash().getScript()));
+        // Bash
+        SavableAttribute bashAttribute = SavableAttribute.create(SavableAttribute.class);
+        bashAttribute.init("Bash", getBash().getScript().getClass().getName(), getBash().getScript(), this);
+        savableAttributes.add(bashAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;

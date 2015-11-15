@@ -1,7 +1,6 @@
 package application.node.implementations;
 
 import application.data.DBConnection;
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
@@ -17,6 +16,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class DataBaseNode extends DrawableNode {
 
@@ -28,7 +28,6 @@ public class DataBaseNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public DataBaseNode(DataBaseNode dataBaseNode) {
-        this.setId(-1);
         this.setX(dataBaseNode.getX());
         this.setY(dataBaseNode.getY());
         this.setWidth(dataBaseNode.getWidth());
@@ -36,16 +35,12 @@ public class DataBaseNode extends DrawableNode {
         this.setColor(dataBaseNode.getColor());
         this.setScale(dataBaseNode.getScale());
         this.setContainedText(dataBaseNode.getContainedText());
-        this.setProgramId(dataBaseNode.getProgramId());
+//        this.setProgramUuid(dataBaseNode.getProgramUuid());
         this.setNextNodeToRun(dataBaseNode.getNextNodeToRun());
     }
 
-    public DataBaseNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public DataBaseNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
+    public DataBaseNode(){
+        super();
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
@@ -60,9 +55,21 @@ public class DataBaseNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("ConnectionString", connectionString.getClass().getName(), connectionString));
-        savableAttributes.add(new SavableAttribute("Username", username.getClass().getName(), username));
-        savableAttributes.add(new SavableAttribute("Password", password.getClass().getName(), password));
+        // ConnectionString
+        SavableAttribute connectionStringAttribute = SavableAttribute.create(SavableAttribute.class);
+        connectionStringAttribute.init("ConnectionString", connectionString.getClass().getName(), connectionString, this);
+        savableAttributes.add(connectionStringAttribute);
+
+        // Username
+        SavableAttribute usernameAttribute = SavableAttribute.create(SavableAttribute.class);
+        usernameAttribute.init("Username", username.getClass().getName(), username, this);
+        savableAttributes.add(usernameAttribute);
+
+        // Password
+        SavableAttribute passwordAttribute = SavableAttribute.create(SavableAttribute.class);
+        passwordAttribute.init("Password", password.getClass().getName(), password, this);
+        savableAttributes.add(passwordAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
@@ -107,10 +114,10 @@ public class DataBaseNode extends DrawableNode {
         TextField rowField = new TextField();
 
         rowLabel.setText(labelName);
-        rowLabel.setId("databaseLabel-" + rowName + "-" + this.getId());
+        rowLabel.setId("databaseLabel-" + rowName + "-" + this.getUuidStringWithoutHyphen());
 
         rowField.setText(rowValue);
-        rowField.setId("databaseField-" + rowName + "-" + this.getId());
+        rowField.setId("databaseField-" + rowName + "-" + this.getUuidStringWithoutHyphen());
         rowField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
@@ -128,7 +135,7 @@ public class DataBaseNode extends DrawableNode {
                         break;
                 }
 
-                DataBank.saveNode(this);
+                save();
             }
         });
 

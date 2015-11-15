@@ -20,7 +20,7 @@ public class Test {
         if (!this.text.equals(text)) {
             this.text = text;
             if (!parentTestNode.isInitialising()) {
-                DataBank.saveNode(parentTestNode);
+                parentTestNode.save();
             }
         }
     }

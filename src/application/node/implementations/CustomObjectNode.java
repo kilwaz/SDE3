@@ -11,8 +11,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomObjectNode extends DrawableNode {
@@ -20,7 +20,6 @@ public class CustomObjectNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public CustomObjectNode(CustomObjectNode customObjectNode) {
-        this.setId(-1);
         this.setX(customObjectNode.getX());
         this.setY(customObjectNode.getY());
         this.setWidth(customObjectNode.getWidth());
@@ -28,25 +27,19 @@ public class CustomObjectNode extends DrawableNode {
         this.setColor(customObjectNode.getColor());
         this.setScale(customObjectNode.getScale());
         this.setContainedText(customObjectNode.getContainedText());
-        this.setProgramId(customObjectNode.getProgramId());
+//        this.setProgramUuid(customObjectNode.getProgramUuid());
         this.setNextNodeToRun(customObjectNode.getNextNodeToRun());
     }
 
-    public CustomObjectNode(Integer id, Integer programId) {
-        super(id, programId);
-        loadObjects();
-    }
-
-    public CustomObjectNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        loadObjects();
+    public CustomObjectNode(){
+        super();
     }
 
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.addAll(super.getDataToSave());
-        customObjectHashMap.values().forEach(DataBank::saveCustomObject);
+        customObjectHashMap.values().forEach(CustomObject::save);
 
         return savableAttributes;
     }
@@ -54,7 +47,7 @@ public class CustomObjectNode extends DrawableNode {
     public void addCustomObject(Object payload, String payloadReference) {
         if (customObjectHashMap.get(payloadReference) != null) {
             customObjectHashMap.get(payloadReference).setPayload(payload);
-            DataBank.saveCustomObject(customObjectHashMap.get(payloadReference));
+            customObjectHashMap.get(payloadReference).save();
         } else {
             DataBank.createNewCustomObject(payload, payloadReference, this);
         }
@@ -66,16 +59,18 @@ public class CustomObjectNode extends DrawableNode {
 
     public void deleteCustomObject(String payloadReference) {
         if (payloadReference != null && customObjectHashMap.get(payloadReference) != null) {
-            DataBank.deleteCustomObject(customObjectHashMap.remove(payloadReference));
+            customObjectHashMap.remove(payloadReference).save();
         }
     }
 
     public void loadObjects() {
+        //CustomObject customObject = new CustomObject();
+
         DataBank.loadCustomObjects(this);
     }
 
     public void saveObjects() {
-        customObjectHashMap.values().forEach(DataBank::saveCustomObject);
+        customObjectHashMap.values().forEach(CustomObject::save);
     }
 
     public CustomObject getCustomObject(String reference) {

@@ -50,8 +50,8 @@ public class BashTest {
      * Cleanup test {@link application.gui.Program} and test {@link application.node.implementations.BashNode} and close database connections.
      */
     public static void afterClass() {
-        DataBank.deleteNode(testBashNode);
-        DataBank.deleteProgram(testProgram);
+        testBashNode.delete();
+        testProgram.delete();
         TestingUtils.closeDatabase();
     }
 

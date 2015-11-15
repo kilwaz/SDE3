@@ -2,13 +2,15 @@ package application.node.objects.datatable;
 
 import application.data.model.DatabaseObject;
 
+import java.util.UUID;
+
 public class DataTableValue extends DatabaseObject {
     private DataTableRow parentRow = null;
     private String dataKey = "";
     private String dataValue = "";
 
-    public DataTableValue(Integer id, String dataKey, String dataValue, DataTableRow parentRow) {
-        super(id);
+    public DataTableValue(UUID uuid, String dataKey, String dataValue, DataTableRow parentRow) {
+        super(uuid);
         this.parentRow = parentRow;
         this.dataKey = dataKey;
         this.dataValue = dataValue;
@@ -36,8 +38,11 @@ public class DataTableValue extends DatabaseObject {
         this.save();
     }
 
-    public Integer getParentId() {
-        return parentRow.getId();
+    public String getParentUuid() {
+        if (parentRow != null) {
+            return parentRow.getUuidString();
+        }
+        return null;
     }
 
     public DataTableRow getParentRow() {

@@ -2,7 +2,6 @@ package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
-import application.error.*;
 import application.error.Error;
 import application.gui.AceTextArea;
 import application.gui.Controller;
@@ -38,6 +37,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class TestNode extends DrawableNode {
@@ -50,7 +50,6 @@ public class TestNode extends DrawableNode {
 
     // This will make a copy of the node passed to it
     public TestNode(TestNode testNode) {
-        this.setId(-1);
         this.setX(testNode.getX());
         this.setY(testNode.getY());
         this.setY(testNode.getY());
@@ -59,24 +58,15 @@ public class TestNode extends DrawableNode {
         this.setColor(testNode.getColor());
         this.setScale(testNode.getScale());
         this.setContainedText(testNode.getContainedText());
-        this.setProgramId(testNode.getProgramId());
+//        this.setProgramUuid(testNode.getProgramUuid());
         this.setNextNodeToRun(testNode.getNextNodeToRun());
 
         this.test = new Test(this);
         this.setTest(testNode.getTest().getText());
     }
 
-    public TestNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    public TestNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        this.test = new Test(this);
-    }
-
-    public TestNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public TestNode(){
+        super();
     }
 
     public Tab createInterface() {
@@ -90,7 +80,7 @@ public class TestNode extends DrawableNode {
 
         recordButton.setPrefWidth(35);
         recordButton.setTooltip(new Tooltip("Record from browser"));
-        recordButton.setId("recordButton-" + getId());
+        recordButton.setId("recordButton-" + getUuidString());
         recordButton.setOnAction(event -> {
             HttpProxyServer httpProxyServer = new HttpProxyServer();
             SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server - http://jboss-alex:8080/spl/focal/Login");
@@ -127,7 +117,11 @@ public class TestNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("Test", getTest().getText().getClass().getName(), getTest().getText()));
+        // Test
+        SavableAttribute testAttribute = SavableAttribute.create(SavableAttribute.class);
+        testAttribute.init("Test", getTest().getText().getClass().getName(), getTest().getText(), this);
+        savableAttributes.add(testAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
@@ -286,6 +280,9 @@ public class TestNode extends DrawableNode {
     }
 
     public Test getTest() {
+        if (this.test == null) {
+            this.test = new Test(this);
+        }
         return test;
     }
 

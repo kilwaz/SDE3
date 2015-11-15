@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -32,7 +33,6 @@ public class BatchNode extends DrawableNode {
      * @param batchNode The {@link application.node.implementations.BatchNode} we want to create a copy of.
      */
     public BatchNode(BatchNode batchNode) {
-        this.setId(-1);
         this.setX(batchNode.getX());
         this.setY(batchNode.getY());
         this.setWidth(batchNode.getWidth());
@@ -40,43 +40,16 @@ public class BatchNode extends DrawableNode {
         this.setColor(batchNode.getColor());
         this.setScale(batchNode.getScale());
         this.setContainedText(batchNode.getContainedText());
-        this.setProgramId(batchNode.getProgramId());
+//        this.setProgramUuid(batchNode.getProgramUuid());
         this.setNextNodeToRun(batchNode.getNextNodeToRun());
 
         this.batch = new Batch(this);
         this.setBatch(batchNode.getBatch().getScript());
     }
 
-    /**
-     * @param id
-     * @param programId
-     */
-    public BatchNode(Integer id, Integer programId) {
-        super(id, programId);
-    }
-
-    /**
-     * @param x
-     * @param y
-     * @param containedText
-     */
-    public BatchNode(Double x, Double y, String containedText) {
-        super(x, y, 50.0, 40.0, Color.BLACK, containedText, -1, -1);
-        this.batch = new Batch(this);
-    }
-
-    /**
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     * @param color
-     * @param containedText
-     * @param programId
-     * @param id
-     */
-    public BatchNode(Double x, Double y, Double width, Double height, Color color, String containedText, Integer programId, Integer id) {
-        super(x, y, width, height, color, containedText, programId, id);
+    public BatchNode() {
+        super();
+        super.setColor(Color.BLACK);
     }
 
     /**
@@ -110,7 +83,11 @@ public class BatchNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
-        savableAttributes.add(new SavableAttribute("Batch", getBatch().getScript().getClass().getName(), getBatch().getScript()));
+        // Batch
+        SavableAttribute batchAttribute = SavableAttribute.create(SavableAttribute.class);
+        batchAttribute.init("Batch", getBatch().getScript().getClass().getName(), getBatch().getScript(), this);
+        savableAttributes.add(batchAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;

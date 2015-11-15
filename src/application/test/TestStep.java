@@ -1,5 +1,6 @@
 package application.test;
 
+import application.data.model.DatabaseObject;
 import application.error.Error;
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;
@@ -12,13 +13,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
-public class TestStep {
+public class TestStep extends DatabaseObject {
     public static final Integer TEST_TYPE_EQUAL = 1;
 
     private static Logger log = Logger.getLogger(TestStep.class);
 
-    private Integer id = -1;
     private String testString = "";
     private String expectedEqual = "";
     private String observedEqual = "";
@@ -31,8 +32,8 @@ public class TestStep {
 
     }
 
-    public TestStep(Integer id, String testString, Boolean successful, BufferedImage screenshot, TestResult parentResult) {
-        this.id = id;
+    public TestStep(UUID uuid, String testString, Boolean successful, BufferedImage screenshot, TestResult parentResult) {
+        super(uuid);
         this.testString = testString;
         this.successful = successful;
         this.screenshot = screenshot;
@@ -97,14 +98,6 @@ public class TestStep {
 
     public void setTestString(String testString) {
         this.testString = testString;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getExpectedEqual() {

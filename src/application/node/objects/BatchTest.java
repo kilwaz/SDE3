@@ -20,7 +20,7 @@ public class BatchTest {
         if (!this.text.equals(text)) {
             this.text = text;
             if (!parentBatchNode.isInitialising()) {
-                DataBank.saveNode(parentBatchNode);
+                parentBatchNode.save();
             }
         }
     }
