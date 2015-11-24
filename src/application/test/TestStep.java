@@ -56,8 +56,11 @@ public class TestStep extends DatabaseObject {
         return inputStream;
     }
 
-    public Integer getTestResultId() {
-        return parentResult.getId();
+    public String getParentUuid() {
+        if (parentResult != null) {
+            return parentResult.getUuidString();
+        }
+        return "";
     }
 
     public Label getSuccessLabel() {

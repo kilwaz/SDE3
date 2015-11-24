@@ -1,23 +1,20 @@
 package application.test;
 
+import application.data.model.DatabaseObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestResult {
-    private Integer id = -1;
+public class TestResult extends DatabaseObject {
     private List<TestStep> testSteps = new ArrayList<>();
+
+    public TestResult() {
+        super();
+    }
 
     public void addTestStep(TestStep testStep) {
         testSteps.add(testStep);
         testStep.setParentResult(this);
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public List<TestStep> getTestSteps() {

@@ -96,6 +96,11 @@ public class DataBank {
     public static void createCurrentSession() {
         UserDAO userDAO = new UserDAO();
         User user = userDAO.getUserFromUsername(AppParams.CURRENT_USER);
+        if (user == null) { // Initial user does not exist, we need to create it
+            user = User.create(User.class);
+            user.setUsername(AppParams.CURRENT_USER);
+            user.save();
+        }
         Session session = new Session();
         session.setUser(user);
         SessionManager.getInstance().addSession(session);
@@ -221,168 +226,6 @@ public class DataBank {
         }
     }
 
-    public static void loadPrograms(User user) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id,name,start_node,view_offset_height,view_offset_width from program where user_id = ?;")
-//                .addParameter(user.getId())
-//                .execute();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            String name = resultRow.getString("name");
-//            Integer programId = resultRow.getInt("id");
-//            Integer startNode = resultRow.getInt("start_node");
-//            Program loadedProgram = new Program(name, programId);
-//
-//            if (loadedProgram.getId().equals(user.getLastProgram())) {
-//                user.setCurrentProgram(loadedProgram);
-//            }
-//
-//            FlowController flowController = loadedProgram.getFlowController();
-//            flowController.setViewOffsetHeight(resultRow.getDouble("view_offset_height"));
-//            flowController.setViewOffsetWidth(resultRow.getDouble("view_offset_width"));
-//
-//            SelectResult selectResultNode = (SelectResult) new SelectQuery("select id,program_id,node_type from node where program_id = ?;")
-//                    .addParameter(programId)
-//                    .execute();
-//            for (SelectResultRow resultRowNode : selectResultNode.getResults()) {
-//                DrawableNode drawableNode = flowController.createNewNode(
-//                        resultRowNode.getInt("id"),
-//                        resultRowNode.getInt("program_id"),
-//                        resultRowNode.getString("node_type"),
-//                        true
-//                );
-//
-//                if (drawableNode != null) {
-//                    // This disables auto saving when running setters.  We don't want that while we are first populating the object
-//                    drawableNode.setIsInitialising(true);
-//
-//                    SelectResult selectResultNodeDetail = (SelectResult) new SelectQuery("select node_id,object_name,object_class,object_value from node_details where node_id = ?")
-//                            .addParameter(resultRowNode.getInt("id"))
-//                            .execute();
-//                    for (SelectResultRow resultRowNodeDetail : selectResultNodeDetail.getResults()) {
-//                        Method method;
-//                        try {
-//                            if ("java.lang.Double".equals(resultRowNodeDetail.getString("object_class"))) {
-//                                Double doubleValue = resultRowNodeDetail.getBlobDouble("object_value");
-//
-//                                method = drawableNode.getClass().getMethod("set" + resultRowNodeDetail.getString("object_name"), Class.forName(resultRowNodeDetail.getString("object_class")));
-//                                method.invoke(drawableNode, doubleValue);
-//                            } else if ("java.lang.String".equals(resultRowNodeDetail.getString("object_class"))) {
-//                                String stringValue = resultRowNodeDetail.getBlobString("object_value");
-//
-//                                method = drawableNode.getClass().getMethod("set" + resultRowNodeDetail.getString("object_name"), Class.forName(resultRowNodeDetail.getString("object_class")));
-//                                method.invoke(drawableNode, stringValue);
-//                            } else if ("java.lang.Integer".equals(resultRowNodeDetail.getString("object_class"))) {
-//                                Integer integerValue = resultRowNodeDetail.getBlobInt("object_value");
-//
-//                                method = drawableNode.getClass().getMethod("set" + resultRowNodeDetail.getString("object_name"), Class.forName(resultRowNodeDetail.getString("object_class")));
-//                                method.invoke(drawableNode, integerValue);
-//                            }
-//                        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
-//                            Error.LOADING_PROGRAM.record().create(ex);
-//                        }
-//                    }
-//
-//                    drawableNode.setIsInitialising(false);
-//                }
-//            }
-//
-//            flowController.setStartNode(flowController.getNodeById(startNode));
-//            addProgram(loadedProgram);
-//        }
-    }
-
-    public static void loadSwitches(SwitchNode switchNode) {
-//        List<Switch> aSwitches = new ArrayList<>();
-//
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, target, enabled from switch where node_id = ?")
-//                .addParameter(switchNode.getId())
-//                .execute();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            aSwitches.add(new Switch(resultRow.getInt("id"), switchNode, resultRow.getString("target"), resultRow.getBoolean("enabled")));
-//        }
-//
-//        switchNode.setSwitches(aSwitches);
-    }
-
-
-    public static void loadInputs(InputNode inputNode) {
-//        List<Input> inputs = new ArrayList<>();
-//
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, variable_name, variable_value from input where node_id = ?")
-//                .addParameter(inputNode.getId())
-//                .execute();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            inputs.add(new Input(resultRow.getInt("id"), resultRow.getString("variable_name"), resultRow.getString("variable_value"), inputNode));
-//        }
-//
-//        inputNode.setInputs(inputs);
-    }
-
-    public static Switch createNewSwitch(String target, Boolean enabled, SwitchNode parent) {
-//        Switch aSwitch = new Switch(getNextId("switch"), parent, target, enabled);
-//
-//        parent.addSwitch(aSwitch);
-//        aSwitch.save();
-//
-//        return aSwitch;
-        return null;
-    }
-
-    public static Input createNewInput(String variableName, String variableValue, InputNode parent) {
-//        Input input = new Input(getNextId("input"), variableName, variableValue, parent);
-//
-//        parent.addInput(input);
-//        input.save();
-//
-//        return input;
-        return null;
-    }
-
-    public static void loadTriggers(TriggerNode triggerNode) {
-//        List<Trigger> triggers = new ArrayList<>();
-//
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, trigger_watch, trigger_when, trigger_then from trigger_condition where node_id = ?")
-//                .addParameter(triggerNode.getId())
-//                .execute();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            triggers.add(new Trigger(resultRow.getInt("id"), resultRow.getString("trigger_watch"), resultRow.getString("trigger_when"), resultRow.getString("trigger_then"), triggerNode));
-//        }
-//
-//        triggerNode.setTriggers(triggers);
-    }
-
-    public static Trigger createNewTrigger(String watch, String when, String then, TriggerNode parent) {
-//        Trigger trigger = new Trigger(getNextId("trigger_condition"), watch, when, then, parent);
-//
-//        parent.addTrigger(trigger);
-//        trigger.save();
-//
-//        return trigger;
-        return null;
-    }
-
-    public static TestResult createNewTestResult() {
-//        TestResult newTestResult = new TestResult();
-//        newTestResult.setId(getNextId("test_result"));
-//
-//        new UpdateQuery("insert into test_result values (default)")
-//                .execute();
-//
-//        return newTestResult;
-        return null;
-    }
-
-    public static TestStep createNewTestStep(TestResult testResult) {
-//        TestStep newTestStep = new TestStep();
-//        newTestStep.setId(getNextId("test_step"));
-//        newTestStep.setParentResult(testResult);
-//
-//        new UpdateQuery("insert into test_step values (default,NULL,NULL,NULL,NULL,NULL,NULL,NULL)")
-//                .execute();
-//
-//        return newTestStep;
-        return null;
-    }
-
     public static void loadTestSteps(TestResult testResult) {
 //        SelectResult selectResult = (SelectResult) new SelectQuery("select id, test_string, successful, screenshot, test_result from test_step where test_result = ?")
 //                .addParameter(testResult.getId())
@@ -398,19 +241,6 @@ public class DataBank {
 //            } catch (IOException ex) {
 //                Error.LOADING_TEST_STEP.record().create(ex);
 //            }
-//        }
-    }
-
-    public static void loadNodeColours(NodeColours nodeColours) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, colour_r, colour_g, colour_b, node_type from node_colour")
-//                .execute();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            NodeColour nodeColour = new NodeColour(resultRow.getInt("colour_r"),
-//                    resultRow.getInt("colour_g"),
-//                    resultRow.getInt("colour_b"),
-//                    resultRow.getString("node_type"));
-//
-//            nodeColours.addNodeColour(nodeColour);
 //        }
     }
 
@@ -499,35 +329,6 @@ public class DataBank {
 //        }
     }
 
-    public static RecordedRequest createNewRecordedRequest(RecordedProxy parent) {
-//        RecordedRequest recordedRequest = new RecordedRequest(getNextId("recorded_requests"), parent);
-//        recordedRequest.save();
-        return null;
-    }
-
-    public static RecordedProxy createNewRecordedProxy() {
-//        RecordedProxy recordedProxy = new RecordedProxy(getNextId("http_proxys"));
-//        recordedProxy.save();
-        return null;
-    }
-
-    public static DataTableRow createNewDataTableRow(DataTableNode parent) {
-//        DataTableRow dataTableRow = new DataTableRow(getNextId("data_table_rows"), parent);
-//
-//        dataTableRow.save();
-//        parent.addDataTableRow(dataTableRow);
-//
-//        return dataTableRow;
-        return null;
-    }
-
-    public static RecordedHeader createNewRecordedHeader(RecordedRequest recordedRequest) {
-//        RecordedHeader recordedHeader = new RecordedHeader(getNextId("http_headers"), recordedRequest);
-//        recordedHeader.save();
-//        return recordedHeader;
-        return null;
-    }
-
     public static void loadLazyRequest(RecordedRequest recordedRequest) {
 //        SelectResult selectResult = (SelectResult) new SelectQuery("select request_content from recorded_requests where id = ?")
 //                .addParameter(recordedRequest.getId())
@@ -545,78 +346,6 @@ public class DataBank {
 //
 //        for (SelectResultRow resultRow : selectResult.getResults()) {
 //            recordedRequest.setResponse(resultRow.getString("response_content"));
-//        }
-    }
-
-    public static RecordedRequest loadRecordedRequest(String id, RecordedProxy recordedProxy) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, http_proxy_id, url, duration, request_size, response_size from recorded_requests where id = ?")
-//                .addParameter(id) // 1
-//                .execute();
-//        RecordedRequest recordedRequest = null;
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            recordedRequest = new RecordedRequest(resultRow.getInt("id"), recordedProxy);
-//            recordedRequest.setURL(resultRow.getString("url"));
-//            recordedRequest.setDuration(resultRow.getInt("duration"));
-//            recordedRequest.setRequestSize(resultRow.getInt("request_size"));
-//            recordedRequest.setResponseSize(resultRow.getInt("response_size"));
-//        }
-//        return recordedRequest;
-        return null;
-    }
-
-    public static void loadRecordedHeaders(RecordedRequest recordedRequest) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, header_name, header_value, header_type from http_headers where request_id = ?")
-//                .addParameter(recordedRequest.getId()) // 1
-//                .execute();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            RecordedHeader recordedHeader = new RecordedHeader(resultRow.getInt("id"),
-//                    recordedRequest
-//            );
-//            recordedHeader.setName(resultRow.getString("header_name"));
-//            recordedHeader.setValue(resultRow.getString("header_value"));
-//            recordedHeader.setType(resultRow.getString("header_type"));
-//
-//            recordedRequest.addRecordedHeader(recordedHeader);
-//        }
-    }
-
-    public static void loadDataTableRows(DataTableNode dataTableNode) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, node_id from data_table_rows where node_id = ?")
-//                .addParameter(dataTableNode.getId()) // 1
-//                .execute();
-//        List<DataTableRow> dataTableRows = new ArrayList<>();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            DataTableRow dataTableRow = new DataTableRow(resultRow.getInt("id"),
-//                    dataTableNode
-//            );
-//
-//            dataTableRows.add(dataTableRow);
-//        }
-//        dataTableNode.addAllDataTableRow(dataTableRows);
-    }
-
-    public static DataTableValue createNewDataTableValue(DataTableRow parentRow, String key, String value) {
-//        DataTableValue dataTableValue = new DataTableValue(getNextId("data_table_values"), key, value, parentRow);
-//
-//        parentRow.addDataTableValue(dataTableValue);
-//        dataTableValue.save();
-//
-//        return dataTableValue;
-        return null;
-    }
-
-    public static void loadDataTableValue(DataTableRow dataTableRow) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, data_table_id, data_key, data_value from data_table_values where data_table_id = ?")
-//                .addParameter(dataTableRow.getId()) // 1
-//                .execute();
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            DataTableValue dataTableValue = new DataTableValue(resultRow.getInt("id"),
-//                    resultRow.getString("data_key"),
-//                    resultRow.getString("data_value"),
-//                    dataTableRow
-//            );
-//
-//            dataTableRow.addDataTableValue(dataTableValue);
 //        }
     }
 

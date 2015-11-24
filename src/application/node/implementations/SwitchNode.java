@@ -2,6 +2,7 @@ package application.node.implementations;
 
 import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.data.model.dao.SwitchDAO;
 import application.gui.Controller;
 import application.gui.Program;
 import application.node.design.DrawableNode;
@@ -15,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 import org.w3c.dom.Document;
@@ -23,11 +23,10 @@ import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class SwitchNode extends DrawableNode {
-    private List<Switch> aSwitches = new ArrayList<>();
+    private List<Switch> aSwitches = null;
 
     private VBox switchRows;
     private static Logger log = Logger.getLogger(SwitchNode.class);
@@ -45,16 +44,16 @@ public class SwitchNode extends DrawableNode {
         this.setNextNodeToRun(switchNode.getNextNodeToRun());
 
         // This copies all of the switches and creates new object for each one using the copy constructor
-        aSwitches.addAll(switchNode.getSwitches().stream().map(loopSwitch -> new Switch(loopSwitch, this)).collect(Collectors.toList()));
+        getSwitches().addAll(switchNode.getSwitches().stream().map(loopSwitch -> new Switch(loopSwitch, this)).collect(Collectors.toList()));
     }
 
-    public SwitchNode(){
+    public SwitchNode() {
         super();
     }
 
-    public void updateSwitchTarget(Integer switchId, String target) {
-        for (Switch aSwitch : aSwitches) {
-            if (aSwitch.getUuidString().equals(switchId)) {
+    public void updateSwitchTarget(String switchId, String target) {
+        for (Switch aSwitch : getSwitches()) {
+            if (aSwitch.getUuidStringWithoutHyphen().equals(switchId)) {
                 aSwitch.setTarget(target);
                 aSwitch.save();
                 break;
@@ -62,9 +61,9 @@ public class SwitchNode extends DrawableNode {
         }
     }
 
-    public void updateSwitchEnabled(Integer switchId, Boolean enabled) {
-        for (Switch aSwitch : aSwitches) {
-            if (aSwitch.getUuidString().equals(switchId)) {
+    public void updateSwitchEnabled(String switchId, Boolean enabled) {
+        for (Switch aSwitch : getSwitches()) {
+            if (aSwitch.getUuidStringWithoutHyphen().equals(switchId)) {
                 aSwitch.setEnabled(enabled);
                 aSwitch.save();
                 break;
@@ -77,12 +76,17 @@ public class SwitchNode extends DrawableNode {
     }
 
     public List<Switch> getSwitches() {
-        return this.aSwitches;
+        if (aSwitches == null) {
+            SwitchDAO switchDAO = new SwitchDAO();
+            aSwitches = switchDAO.getSwitchesByNode(this);
+        }
+
+        return aSwitches;
     }
 
-    public Switch getSwitch(Integer id) {
-        for (Switch aSwitch : aSwitches) {
-            if (aSwitch.getUuidString().equals(id)) {
+    public Switch getSwitch(String id) {
+        for (Switch aSwitch : getSwitches()) {
+            if (aSwitch.getUuidStringWithoutHyphen().equals(id)) {
                 return aSwitch;
             }
         }
@@ -92,14 +96,14 @@ public class SwitchNode extends DrawableNode {
 
     public void removeSwitch(Switch switchObj) {
         Switch switchToRemove = null;
-        for (Switch aSwitch : aSwitches) {
+        for (Switch aSwitch : getSwitches()) {
             if (aSwitch.getUuidString().equals(switchObj.getUuidString())) {
                 switchToRemove = aSwitch;
             }
         }
 
         if (switchToRemove != null) {
-            aSwitches.remove(switchToRemove);
+            getSwitches().remove(switchToRemove);
         } else {
             log.info("Cannot find switch to remove with id " + switchObj.getUuidString());
         }
@@ -114,11 +118,11 @@ public class SwitchNode extends DrawableNode {
     }
 
     public void addSwitch(Switch aSwitch) {
-        aSwitches.add(aSwitch);
+        getSwitches().add(aSwitch);
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        for (Switch aSwitch : aSwitches) {
+        for (Switch aSwitch : getSwitches()) {
             if (aSwitch.isEnabled()) {
                 Program.runHelper(aSwitch.getTarget(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), this, whileWaiting, false, nodeRunParams);
             }
@@ -139,8 +143,7 @@ public class SwitchNode extends DrawableNode {
         switchRows.setLayoutY(55);
         switchRows.setLayoutX(11);
 
-        List<Switch> aSwitches = getSwitches();
-        for (Switch aSwitch : aSwitches) {
+        for (Switch aSwitch : getSwitches()) {
             switchRows.getChildren().add(createSwitchNodeRow(aSwitch));
         }
 
@@ -155,21 +158,21 @@ public class SwitchNode extends DrawableNode {
 
     public HBox createSwitchNodeRow(Switch aSwitch) {
         HBox switchRow = new HBox(5);
-        switchRow.setId("switchRow-" + aSwitch.getUuidString() + "-" + getUuidString());
+        switchRow.setId("switchRow-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
 
         // Remove input button
         Button deleteSwitch = AwesomeDude.createIconButton(AwesomeIcon.MINUS);
         deleteSwitch.setPrefWidth(35);
         deleteSwitch.setTooltip(new Tooltip("Delete this switch"));
-        deleteSwitch.setId("deleteSwitchButton-" + aSwitch.getUuidString() + "-" + getUuidString());
+        deleteSwitch.setId("deleteSwitchButton-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
         deleteSwitch.setOnAction(event -> {
             Button deleteButton = (Button) event.getSource();
             Program program = DataBank.currentlyEditProgram;
             String[] fieldId = deleteButton.getId().split("-");
-            SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(fieldId[2]);
+            SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
 
             // Remove the switch
-            deleteSwitch(switchNode, Integer.parseInt(fieldId[1]));
+            deleteSwitch(switchNode, fieldId[1]);
         });
         switchRow.getChildren().add(deleteSwitch);
 
@@ -183,21 +186,21 @@ public class SwitchNode extends DrawableNode {
             firstSwitchButton.setSelected(false);
         }
         firstSwitchButton.setPrefWidth(35);
-        firstSwitchButton.setId("switchButton-" + aSwitch.getUuidString() + "-" + getUuidString());
+        firstSwitchButton.setId("switchButton-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
         firstSwitchButton.setOnAction(event -> {
             ToggleButton toggleButton = (ToggleButton) event.getSource();
             Program program = DataBank.currentlyEditProgram;
             String[] fieldId = toggleButton.getId().split("-");
-            SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(fieldId[2]);
+            SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
 
             if (toggleButton.isSelected()) {
                 AwesomeDude.setIcon(toggleButton, AwesomeIcon.CHECK);
                 toggleButton.setSelected(true);
-                switchNode.updateSwitchEnabled(Integer.parseInt(fieldId[1]), true);
+                switchNode.updateSwitchEnabled(fieldId[1], true);
             } else {
                 AwesomeDude.setIcon(toggleButton, AwesomeIcon.CLOSE);
                 toggleButton.setSelected(false);
-                switchNode.updateSwitchEnabled(Integer.parseInt(fieldId[1]), false);
+                switchNode.updateSwitchEnabled(fieldId[1], false);
             }
 
             program.getFlowController().checkConnections(); // Toggling a switch will make or break connections
@@ -213,20 +216,20 @@ public class SwitchNode extends DrawableNode {
         switchField.setText(aSwitch.getTarget()); // The text of the field should be set before linking it to auto complete to avoid jittery UI
         TextFields.bindAutoCompletion(switchField, DataBank.currentlyEditProgram.getFlowController().getNodes());
 
-        switchField.setId("switchField-" + aSwitch.getUuidString() + "-" + getUuidString());
+        switchField.setId("switchField-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
         switchField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             Program program = DataBank.currentlyEditProgram;
             String[] fieldId = textField.getId().split("-");
-            SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeById(fieldId[2]);
+            SwitchNode switchNode = (SwitchNode) program.getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
             if (!textField.getText().isEmpty()) {
-                switchNode.updateSwitchTarget(Integer.parseInt(fieldId[1]), textField.getText());
+                switchNode.updateSwitchTarget(fieldId[1], textField.getText());
 
                 program.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
                 switchNode.save();
             } else {
-                deleteSwitch(switchNode, Integer.parseInt(fieldId[1]));
+                deleteSwitch(switchNode, fieldId[1]);
             }
 
             Controller.getInstance().updateCanvasControllerNow();
@@ -237,7 +240,7 @@ public class SwitchNode extends DrawableNode {
         return switchRow;
     }
 
-    private void deleteSwitch(SwitchNode switchNode, Integer switchId) {
+    private void deleteSwitch(SwitchNode switchNode, String switchId) {
         Switch switchToRemove = switchNode.getSwitch(switchId);
 
         switchToRemove.delete();
@@ -246,7 +249,7 @@ public class SwitchNode extends DrawableNode {
         // Removes the row off of the UI
         Node rowToRemove = null;
         for (Node node : switchRows.getChildren()) {
-            if (node.getId().equals("switchRow-" + switchToRemove.getUuidString() + "-" + getUuidString())) {
+            if (node.getId().equals("switchRow-" + switchToRemove.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen())) {
                 rowToRemove = node;
             }
         }
@@ -261,14 +264,20 @@ public class SwitchNode extends DrawableNode {
 
     public HBox createAddSwitchNodeRow() {
         HBox addSwitchRow = new HBox(5);
-        addSwitchRow.setId("addSwitchRow-" + getUuidString());
+        addSwitchRow.setId("addSwitchRow-" + getUuidStringWithoutHyphen());
 
         Button addButton = AwesomeDude.createIconButton(AwesomeIcon.PLUS);
         addButton.setTooltip(new Tooltip("Add new switch"));
         addButton.setPrefWidth(35);
 
         addButton.setOnAction(event -> {
-            Switch newSwitch = DataBank.createNewSwitch("target", false, this);
+            Switch newSwitch = Switch.create(Switch.class);
+            newSwitch.setTarget("target");
+            newSwitch.setEnabled(false);
+            newSwitch.setParent(this);
+            newSwitch.save();
+
+            addSwitch(newSwitch);
 
             // Add the new switch just above the plus button
             switchRows.getChildren().add(switchRows.getChildren().size() - 1, createSwitchNodeRow(newSwitch));
@@ -285,7 +294,7 @@ public class SwitchNode extends DrawableNode {
         // Create a new element to save all inputs inside
         Element switchElements = document.createElement("Switches");
 
-        for (Switch aSwitch : aSwitches) {
+        for (Switch aSwitch : getSwitches()) {
             Element switchElement = document.createElement("Input");
 
             Element targetElement = document.createElement("Target");

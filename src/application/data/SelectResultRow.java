@@ -40,7 +40,7 @@ public class SelectResultRow {
     }
 
     public Boolean getBoolean(String colName) {
-        return (Boolean) rowValues.get(colName);
+        return (Integer) rowValues.get(colName) == 1;
     }
 
     public InputStream getBlobInputStream(String colName) {

@@ -35,6 +35,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Main handling class of the application.
@@ -99,11 +101,7 @@ public class Main extends Application {
         new NetworkManager();
         new SessionManager();
         new DatabaseObjectManager();
-
-        // SQLite setup
-        Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/sqlite3.exe", "sde.db").start();
-        BufferedReader input = new BufferedReader(new InputStreamReader(sqlite.getInputStream()));
-        DBConnection sqliteConnection = new DBConnection("jdbc:sqlite:sde.db");
+        new DatabaseTransactionManager();
 
         // Start loading data from the database
         if (connectionSuccessful) {
@@ -229,6 +227,7 @@ public class Main extends Application {
      */
     public void shutdownApplication() {
         // On Application Close we try and clean up all the open connections and running threads
+        DatabaseTransactionManager.getInstance().finaliseTransactions();
         SSHConnectionManager.getInstance().closeConnections();
         ThreadManager.getInstance().closeThreads();
         BrowserManager.getInstance().closeBrowsers();

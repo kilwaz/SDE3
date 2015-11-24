@@ -1,20 +1,17 @@
 package application.node.objects.datatable;
 
-import application.data.DataBank;
 import application.data.model.DatabaseObject;
 import application.node.implementations.DataTableNode;
 
 import java.util.LinkedHashMap;
-import java.util.UUID;
+import java.util.List;
 
 public class DataTableRow extends DatabaseObject {
     private LinkedHashMap<String, DataTableValue> dataTableValues = new LinkedHashMap<>();
     private DataTableNode parentNode;
 
-    public DataTableRow(UUID uuid, DataTableNode parentNode) {
-        super(uuid);
-        this.parentNode = parentNode;
-        DataBank.loadDataTableValue(this);
+    public DataTableRow() {
+        super();
     }
 
     public void removeDataTableValue(String key) {
@@ -29,8 +26,17 @@ public class DataTableRow extends DatabaseObject {
             dataTableValues.get(key).setDataValue(value);
             dataTableValues.get(key).save();
         } else {
-            dataTableValues.put(key, DataBank.createNewDataTableValue(this, key, value));
+            DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
+            dataTableValue.setParentRow(this);
+            dataTableValue.setDataKey(key);
+            dataTableValue.setDataValue(value);
+            dataTableValue.save();
+            dataTableValues.put(key, dataTableValue);
         }
+    }
+
+    public void addAllDataTableValue(List<DataTableValue> dataTableValueList) {
+        dataTableValueList.forEach(this::addDataTableValue);
     }
 
     public void addDataTableValue(DataTableValue dataTableValue) {
@@ -58,6 +64,10 @@ public class DataTableRow extends DatabaseObject {
             return parentNode.getUuidString();
         }
         return null;
+    }
+
+    public void setParent(DataTableNode parentNode) {
+        this.parentNode = parentNode;
     }
 
     public LinkedHashMap<String, DataTableValue> getDataTableValues() {

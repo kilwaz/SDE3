@@ -1,11 +1,16 @@
 package application.data;
 
+import application.utils.managers.DatabaseTransactionManager;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SelectQuery implements Query {
     private String query;
     private List<Object> parameters = new ArrayList<>();
+
+    private static Logger log = Logger.getLogger(SelectQuery.class);
 
     public SelectQuery(String query) {
         this.query = query;
@@ -25,6 +30,7 @@ public class SelectQuery implements Query {
     }
 
     public Object execute() {
+        DatabaseTransactionManager.getInstance().addSelect(this);
         return DataBank.runSelectQuery(this);
     }
 }

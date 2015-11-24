@@ -197,7 +197,7 @@ public class CopyNode extends DrawableNode {
 
         // CopyFrom
         SavableAttribute copyFromAttribute = SavableAttribute.create(SavableAttribute.class);
-        copyFromAttribute.init("copyFromAttribute", copyFrom.getClass().getName(), copyFrom, this);
+        copyFromAttribute.init("CopyFrom", copyFrom.getClass().getName(), copyFrom, this);
         savableAttributes.add(copyFromAttribute);
 
         savableAttributes.addAll(super.getDataToSave());

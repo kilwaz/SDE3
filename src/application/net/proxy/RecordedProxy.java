@@ -7,8 +7,8 @@ import java.util.UUID;
 public class RecordedProxy extends DatabaseObject {
     private Integer requestCount = 0;
 
-    public RecordedProxy(UUID uuid) {
-        super(uuid);
+    public RecordedProxy(){
+        super();
     }
 
     public Integer getRequestCount() {

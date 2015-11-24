@@ -1,8 +1,12 @@
 package application.data;
 
 import application.error.Error;
+import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -37,6 +41,15 @@ public class DBConnection {
 
     public Boolean connect() {
         try {
+            // If the database connection is using sqlite then we need to start the sqlite.exe
+            if (connectionString.contains("sqlite")) {
+                try {
+                    Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/sqlite3.exe", "sde.db").start();
+                    BufferedReader input = new BufferedReader(new InputStreamReader(sqlite.getInputStream()));
+                } catch (IOException ex) {
+                    Error.SQLITE_START_EXE.record().create(ex);
+                }
+            }
             connection = DriverManager.getConnection(connectionString, username, password);
             isApplicationConnection = true;
             return true;
@@ -79,5 +92,9 @@ public class DBConnection {
 
     public Boolean isApplicationConnection() {
         return isApplicationConnection;
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 }

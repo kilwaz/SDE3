@@ -29,7 +29,7 @@ public class ExportCell {
         this.columnPosition = columnPosition;
     }
 
-    int compareTo(Object cell){
+    int compareTo(Object cell) {
         return 0;
     }
 }

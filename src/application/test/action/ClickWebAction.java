@@ -32,7 +32,8 @@ public class ClickWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestStep testStep = DataBank.createNewTestStep(getTestResult());
+            TestStep testStep  =  TestStep.create(TestStep.class);
+            testStep.setParentResult(getTestResult());
             getTestResult().addTestStep(testStep);
 
             TestParameter xPathElement = getParameterByPath("xPath");

@@ -15,6 +15,7 @@ import application.node.objects.Switch;
 import application.node.objects.Trigger;
 import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
+import application.test.TestResult;
 import application.test.TestStep;
 
 import java.lang.reflect.Method;
@@ -25,6 +26,7 @@ import java.util.List;
 public class DatabaseLink {
     private String tableName = "";
     private List<ModelColumn> modelColumns = new ArrayList<>();
+    private List<DeleteColumn> onDeleteColumns = new ArrayList<>();
     private Class linkClass;
 
     private static HashMap<Class, Class> linkClasses = new HashMap<>();
@@ -43,6 +45,7 @@ public class DatabaseLink {
         linkClasses.put(Program.class, ProgramDatabaseLink.class);
         linkClasses.put(Switch.class, SwitchDatabaseLink.class);
         linkClasses.put(TestStep.class, TestStepDatabaseLink.class);
+        linkClasses.put(TestResult.class, TestResultDatabaseLink.class);
         linkClasses.put(DrawableNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(SavableAttribute.class, SavableAttributeDatabaseLink.class);
 
@@ -83,6 +86,10 @@ public class DatabaseLink {
         return modelColumns;
     }
 
+    public List<DeleteColumn> getOnDeleteColumns() {
+        return onDeleteColumns;
+    }
+
     public void link(String databaseColumn, Method objectSaveMethod, Method objectLoadMethod) {
         modelColumns.add(new ModelColumn(databaseColumn, objectSaveMethod, objectLoadMethod, ModelColumn.STANDARD_COLUMN));
     }
@@ -103,9 +110,26 @@ public class DatabaseLink {
         try {
             return getLinkClass().getMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException ex) {
+            application.error.Error.DATA_LINK_METHOD_NOT_FOUND.record()
+                    .additionalInformation("Class: " + getLinkClass().getName())
+                    .additionalInformation("MethodName: " + methodName)
+                    .create(ex);
+        }
+
+        return null;
+    }
+
+    public Method externalMethod(String methodName, Class clazz, Class<?>... parameterTypes) {
+        try {
+            return clazz.getMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException ex) {
             application.error.Error.DATA_LINK_METHOD_NOT_FOUND.record().create(ex);
         }
 
         return null;
+    }
+
+    public void onDelete(String columnName, Class clazz) {
+        onDeleteColumns.add(new DeleteColumn(columnName, clazz));
     }
 }

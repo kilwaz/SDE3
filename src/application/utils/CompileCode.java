@@ -1,7 +1,6 @@
 package application.utils;
 
 import application.error.Error;
-import application.gui.FlowController;
 import application.gui.dialog.ErrorDialog;
 import application.gui.dialog.ExceptionDialog;
 import application.node.objects.Logic;
@@ -25,8 +24,8 @@ public class CompileCode {
         counter++;
         String flowControllerReferenceId = "[Unloaded FlowController]";
         try {
-            flowControllerReferenceId = FlowController.getFlowControllerFromLogic(logic).getReferenceID();
-            String logicReferenceId = logic.getUuidStringWithoutHyphen().toString();
+            flowControllerReferenceId = logic.getParentLogicNode().getProgram().getFlowController().getReferenceID();
+            String logicReferenceUuid = logic.getParentLogicNode().getUuidString();
             String logicString = "package programs;" +
                     "import application.utils.*;" +
                     "import application.utils.managers.*;" +
@@ -49,15 +48,15 @@ public class CompileCode {
                     "import org.apache.log4j.Logger;" +
                     "public class " + className + " extends SDERunnable {" +
                     "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
-                    "   private String logicReferenceId = \"" + logicReferenceId + "\";" +
+                    "   private String logicReferenceUuid = \"" + logicReferenceUuid + "\";" +
                     "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
                     "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getUuidStringWithoutHyphen() + ")\");" +
                     "   " + logic.getLogic() + "" +
                     "   public void threadRun() {" +
                     "      try {" +
-                    "           FlowController.sourceStarted(this.logicReferenceId);" +
+                    "           FlowController.sourceStarted(this.logicReferenceUuid);" +
                     "           function();" +
-                    "           FlowController.sourceFinished(this.logicReferenceId);" +
+                    "           FlowController.sourceFinished(this.logicReferenceUuid);" +
                     "      } catch (Exception ex) {" +
                     "           Error.COMPILED_LOGIC_NODE.record().additionalInformation(\"Node - " + logic.getParentLogicNode().getContainedText() + " (" + className + ")\").create(ex);" +
                     "      }" +

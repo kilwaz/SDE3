@@ -26,10 +26,8 @@ public class RecordedRequest extends DatabaseObject {
 
     private static Logger log = Logger.getLogger(RecordedRequest.class);
 
-    public RecordedRequest(UUID uuid, RecordedProxy parentHttpProxy) {
-        super(uuid);
-        this.parentHttpProxy = parentHttpProxy;
-        DataBank.loadRecordedHeaders(this);
+    public RecordedRequest(){
+        super();
     }
 
     public String getURL() {
@@ -64,7 +62,8 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public void addNewRequestHeader(String name, String value) {
-        RecordedHeader requestHeader = DataBank.createNewRecordedHeader(this);
+        RecordedHeader requestHeader = RecordedHeader.create(RecordedHeader.class);
+        requestHeader.setParent(this);
         requestHeader.setName(name);
         requestHeader.setValue(value);
         requestHeader.setType("request");
@@ -73,7 +72,8 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public void addNewResponseHeader(String name, String value) {
-        RecordedHeader responseHeader = DataBank.createNewRecordedHeader(this);
+        RecordedHeader responseHeader = RecordedHeader.create(RecordedHeader.class);
+        responseHeader.setParent(this);
         responseHeader.setName(name);
         responseHeader.setValue(value);
         responseHeader.setType("response");
@@ -160,5 +160,9 @@ public class RecordedRequest extends DatabaseObject {
 
     public HashMap<String, RecordedHeader> getResponseHeaders() {
         return responseHeaders;
+    }
+
+    public void setParentHttpProxy(RecordedProxy parentHttpProxy) {
+        this.parentHttpProxy = parentHttpProxy;
     }
 }

@@ -2,8 +2,11 @@ package application.data.model;
 
 import application.data.*;
 import application.data.model.dao.DAO;
+import application.data.model.dao.DrawableNodeDAO;
 import application.error.Error;
 import application.gui.Program;
+import application.node.design.DrawableNode;
+import application.node.objects.datatable.DataTableRow;
 import application.utils.managers.DatabaseObjectManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -45,7 +48,12 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
             try {
                 updateQuery.addParameter(modelColumn.getObjectSaveMethod().invoke(dbObject));
             } catch (IllegalAccessException | InvocationTargetException ex) {
-                Error.DATABASE_OBJECT_METHOD_NOT_FOUND.record().create(ex);
+                Error.DATABASE_OBJECT_METHOD_NOT_FOUND
+                        .record()
+                        .additionalInformation("Column: " + modelColumn.getColumnName())
+                        .additionalInformation("Method: " + modelColumn.getObjectSaveMethod().getName())
+                        .additionalInformation("Linked Class: " + dbLink.getLinkClass())
+                        .create(ex);
             }
         }
 
@@ -57,8 +65,6 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
 
         // If record does not exist insert a new one..
         if (updateResult.getResultNumber() == 0) {
-            dbObject.setUuid(UUID.randomUUID());
-
             // Build the insert statement
             updateQueryBuilder = new StringBuilder();
             updateQueryBuilder.append("insert into ")
@@ -154,6 +160,10 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
                                 modelColumn.getObjectLoadMethod().invoke(dbObject, resultRow.getString(modelColumn.getColumnName()));
                             } else if (loadParameterClass.equals(Double.class)) { // DOUBLE
                                 modelColumn.getObjectLoadMethod().invoke(dbObject, resultRow.getDouble(modelColumn.getColumnName()));
+                            } else if (loadParameterClass.equals(Integer.class)) { // INTEGER
+                                modelColumn.getObjectLoadMethod().invoke(dbObject, resultRow.getInt(modelColumn.getColumnName()));
+                            } else if (loadParameterClass.equals(Boolean.class)) { // BOOLEAN
+                                modelColumn.getObjectLoadMethod().invoke(dbObject, resultRow.getBoolean(modelColumn.getColumnName()));
                             } else if (loadParameterClass.equals(UUID.class)) { // UUID
                                 String uuid = resultRow.getString(modelColumn.getColumnName());
                                 if (uuid != null && !uuid.isEmpty()) {
@@ -165,14 +175,27 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
                                     User user = loadCachedObject(uuidStr, User.class);
                                     modelColumn.getObjectLoadMethod().invoke(dbObject, user);
                                 }
+                            } else if (loadParameterClass.equals(DataTableRow.class)) { // DATA TABLE ROW
+                                String uuidStr = resultRow.getString(modelColumn.getColumnName());
+                                if (uuidStr != null && !uuidStr.isEmpty()) {
+                                    DataTableRow user = loadCachedObject(uuidStr, DataTableRow.class);
+                                    modelColumn.getObjectLoadMethod().invoke(dbObject, user);
+                                }
                             } else if (loadParameterClass.equals(Program.class)) { // PROGRAM
                                 String uuidStr = resultRow.getString(modelColumn.getColumnName());
                                 if (uuidStr != null && !uuidStr.isEmpty()) {
                                     Program program = loadCachedObject(uuidStr, Program.class);
                                     modelColumn.getObjectLoadMethod().invoke(dbObject, program);
                                 }
+                            } else if (loadParameterClass.equals(DrawableNode.class) || loadParameterClass.getSuperclass() != null && loadParameterClass.getSuperclass().equals(DrawableNode.class)) { // DRAWABLE NODE
+                                String uuidStr = resultRow.getString(modelColumn.getColumnName());
+                                if (uuidStr != null && !uuidStr.isEmpty()) {
+                                    DrawableNodeDAO drawableNodeDAO = new DrawableNodeDAO();
+                                    DrawableNode drawableNode = drawableNodeDAO.getDrawableNodeUnknownClassFromUuid(DAO.UUIDFromString(uuidStr));
+                                    modelColumn.getObjectLoadMethod().invoke(dbObject, drawableNode);
+                                }
                             } else if (loadParameterClass.equals(Object.class)) { // OBJECT
-                                modelColumn.getObjectLoadMethod().invoke(dbObject, resultRow.getColumnObject(modelColumn.getColumnName() + "-String"));
+                                modelColumn.getObjectLoadMethod().invoke(dbObject, resultRow.getColumnObject(modelColumn.getColumnName()));
                             }
                         }
                     }

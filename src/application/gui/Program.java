@@ -19,6 +19,7 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.List;
 import java.util.UUID;
 
 public class Program extends DatabaseObject {
@@ -49,11 +50,15 @@ public class Program extends DatabaseObject {
         this.name = name;
     }
 
-    public String getStartNodeUuid() {
+    public UUID getStartNodeUuid() {
         if (flowController != null && flowController.getStartNode() != null) {
-            return flowController.getStartNode().getUuidString();
+            return flowController.getStartNode().getUuid();
         }
-        return "";
+        return null;
+    }
+
+    public void setStartNode(DrawableNode startNode) {
+        flowController.setStartNode(startNode);
     }
 
     public Double getViewOffsetHeight() {
@@ -223,9 +228,17 @@ public class Program extends DatabaseObject {
         }
     }
 
+    public List<DrawableNode> getNodes() {
+        return flowController.getNodes();
+    }
+
+    public void delete() {
+        getNodes().forEach(application.node.design.DrawableNode::delete);
+        super.delete();
+    }
+
     public Document getXMLRepresentation() {
         Document document;
-        Element elementNode = null;
 
         // instance of a DocumentBuilderFactory
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

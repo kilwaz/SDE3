@@ -10,6 +10,10 @@ public class Input extends DatabaseObject {
     private String variableValue;
     private InputNode parentNode;
 
+    public Input() {
+        super();
+    }
+
     public Input(UUID uuid, String variableName, String variableValue, InputNode parent) {
         super(uuid);
         this.variableName = variableName;
@@ -40,15 +44,15 @@ public class Input extends DatabaseObject {
     }
 
     public String getVariableValueLimited() {
-        if (variableValue.length() > 100) {
+        if (variableValue != null && variableValue.length() > 100) {
             return variableValue.substring(0, 99);
         }
         return variableValue;
     }
 
-    public String getParentUuid() {
-        if(parentNode != null){
-            return parentNode.getUuidString();
+    public UUID getParentUuid() {
+        if (parentNode != null) {
+            return parentNode.getUuid();
         }
         return null;
     }

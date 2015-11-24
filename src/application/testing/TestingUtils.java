@@ -63,8 +63,10 @@ public class TestingUtils {
      * @param testClass   A {@link java.lang.Class} reference to the node implementation we want to create.
      * @return Returns the created {@link application.node.design.DrawableNode}.
      */
-    public static DrawableNode createTestNode(Program testProgram, Class testClass) {
-        return testProgram.getFlowController().createNewNode(null, testProgram.getUuid(), testClass.getSimpleName(), false);
+    public static DrawableNode createTestNode(Program testProgram, Class<DrawableNode> testClass) {
+        DrawableNode drawableNode = DrawableNode.create(testClass);
+        drawableNode.setProgram(testProgram);
+        return drawableNode;
     }
 
     /**

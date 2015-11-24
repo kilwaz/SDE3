@@ -23,7 +23,6 @@ public class Logic {
     private String logic;
     private Object compiledInstance;
     private LogicNode parentLogicNode;
-    private UUID uuid;
     private String compiledClassName = "UNKNOWN";
 
     private static Logger log = Logger.getLogger(Logic.class);
@@ -38,7 +37,7 @@ public class Logic {
     public Logic(LogicNode parentLogicNode, String logic, UUID uuid) {
         this.parentLogicNode = parentLogicNode;
         this.logic = logic;
-        this.uuid = uuid;
+        //this.uuid = uuid;
     }
 
     public LogicNode getParentLogicNode() {
@@ -50,7 +49,7 @@ public class Logic {
     }
 
     public String getUuidStringWithoutHyphen() {
-        return uuid.toString().replace("-", "");
+        return parentLogicNode.getUuidStringWithoutHyphen();
     }
 
     public void setLogic(String logic) {
@@ -68,13 +67,13 @@ public class Logic {
         }
     }
 
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
+//    public UUID getUuid() {
+//        return uuid;
+//    }
+//
+//    public void setUuid(UUID uuid) {
+//        this.uuid = uuid;
+//    }
 
     public Boolean isCompiled() {
         return this.compiled;

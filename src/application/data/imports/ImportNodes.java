@@ -10,9 +10,15 @@ import application.node.implementations.DataTableNode;
 import application.node.implementations.InputNode;
 import application.node.implementations.SwitchNode;
 import application.node.implementations.TriggerNode;
+import application.node.objects.Input;
+import application.node.objects.Switch;
+import application.node.objects.Trigger;
 import application.node.objects.datatable.DataTableRow;
+import application.node.objects.datatable.DataTableValue;
 import application.utils.SDERunnable;
 import application.utils.SDEUtils;
+import application.utils.managers.DatabaseTransactionManager;
+import application.utils.managers.SessionManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -81,6 +87,9 @@ public class ImportNodes extends SDERunnable {
                     }
                 }
             }
+
+            newProgram.setParentUser(SessionManager.getInstance().getCurrentSession().getUser());
+            newProgram.save();
         }
 
         // Closes the import window and update the display to show the new node, also check all connections
@@ -97,19 +106,27 @@ public class ImportNodes extends SDERunnable {
     }
 
     private void importNode(Program program, Element element) {
-        DrawableNode importedNode = program.getFlowController().createNewNode(null, program.getUuid(), element.getTagName(), false);
+        DrawableNode importedNode = null;
+        try {
+            Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("application.node.implementations." + element.getTagName());
 
-        NodeList childNodeList = element.getChildNodes();
-        for (int i = 0; i < childNodeList.getLength(); i++) {
-            if (childNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                Element nodeTopElements = (Element) childNodeList.item(i);
+            importedNode = DrawableNode.create(clazz);
+            importedNode.setProgram(program);
+        } catch (ClassNotFoundException ex) {
+            Error.CREATE_NEW_NODE.record().create(ex);
+        }
 
-                if ("Variable".equals(nodeTopElements.getTagName())) {
-                    String variableName = getTextValue("", nodeTopElements, "VariableName");
-                    String className = getTextValue("", nodeTopElements, "ClassName");
-                    String variableValue = getTextValue("", nodeTopElements, "VariableValue");
+        if (importedNode != null) {
+            NodeList childNodeList = element.getChildNodes();
+            for (int i = 0; i < childNodeList.getLength(); i++) {
+                if (childNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                    Element nodeTopElements = (Element) childNodeList.item(i);
 
-                    if (!"Id".equals(variableName)) { // Here we don't want to keep the same Id as it may cause conflicts
+                    if ("Variable".equals(nodeTopElements.getTagName())) {
+                        String variableName = getTextValue("", nodeTopElements, "VariableName");
+                        String className = getTextValue("", nodeTopElements, "ClassName");
+                        String variableValue = getTextValue("", nodeTopElements, "VariableValue");
+
                         Method method;
                         try {
                             if ("java.lang.Double".equals(className)) {
@@ -129,85 +146,105 @@ public class ImportNodes extends SDERunnable {
                                 method.invoke(importedNode, integerValue);
                             }
                         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
-                            Error.IMPORT_NODE.record().create(ex);
+                            Error.IMPORT_NODE.record().additionalInformation("Method: " + "set" + variableName).create(ex);
                         }
-                    }
-                } else if ("IsStartNode".equals(nodeTopElements.getTagName())) {
-                    program.getFlowController().setStartNode(importedNode);
-                } else if ("Inputs".equals(nodeTopElements.getTagName())) {
-                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
+                    } else if ("IsStartNode".equals(nodeTopElements.getTagName())) {
+                        program.getFlowController().setStartNode(importedNode);
+                    } else if ("Inputs".equals(nodeTopElements.getTagName())) {
+                        NodeList inputNodesList = nodeTopElements.getChildNodes();
+                        InputNode inputNode = (InputNode) importedNode;
+                        for (Integer inputsCount = 0; inputsCount < inputNodesList.getLength(); inputsCount++) {
+                            if (inputNodesList.item(inputsCount).getNodeType() == Node.ELEMENT_NODE) {
+                                Element inputElement = (Element) inputNodesList.item(inputsCount);
 
-                    NodeList inputNodesList = nodeTopElements.getChildNodes();
-                    InputNode inputNode = (InputNode) importedNode;
-                    for (Integer inputsCount = 0; inputsCount < inputNodesList.getLength(); inputsCount++) {
-                        if (inputNodesList.item(inputsCount).getNodeType() == Node.ELEMENT_NODE) {
-                            Element inputElement = (Element) inputNodesList.item(inputsCount);
+                                String inputVariableName = getTextValue("", inputElement, "VariableName");
+                                String inputVariableValue = getTextValue("", inputElement, "VariableValue");
 
-                            String inputVariableName = getTextValue("", inputElement, "VariableName");
-                            String inputVariableValue = getTextValue("", inputElement, "VariableValue");
+                                Input input = Input.create(Input.class);
 
-                            DataBank.createNewInput(inputVariableName, inputVariableValue, inputNode);
+                                input.setVariableName(inputVariableName);
+                                input.setVariableValue(inputVariableValue);
+                                input.setParent(inputNode);
+                                input.save();
+                                inputNode.addInput(input);
+                            }
                         }
-                    }
-                } else if ("Triggers".equals(nodeTopElements.getTagName())) {
-                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
+                    } else if ("Triggers".equals(nodeTopElements.getTagName())) {
+                        NodeList triggersNodeList = nodeTopElements.getChildNodes();
+                        TriggerNode triggerNode = (TriggerNode) importedNode;
+                        for (Integer triggerCounts = 0; triggerCounts < triggersNodeList.getLength(); triggerCounts++) {
+                            if (triggersNodeList.item(triggerCounts).getNodeType() == Node.ELEMENT_NODE) {
+                                Element triggerElement = (Element) triggersNodeList.item(triggerCounts);
 
-                    NodeList triggersNodeList = nodeTopElements.getChildNodes();
-                    TriggerNode triggerNode = (TriggerNode) importedNode;
-                    for (Integer triggerCounts = 0; triggerCounts < triggersNodeList.getLength(); triggerCounts++) {
-                        if (triggersNodeList.item(triggerCounts).getNodeType() == Node.ELEMENT_NODE) {
-                            Element triggerElement = (Element) triggersNodeList.item(triggerCounts);
+                                String triggerWatch = getTextValue("", triggerElement, "Watch");
+                                String triggerWhen = getTextValue("", triggerElement, "When");
+                                String triggerThen = getTextValue("", triggerElement, "Then");
 
-                            String triggerWatch = getTextValue("", triggerElement, "Watch");
-                            String triggerWhen = getTextValue("", triggerElement, "When");
-                            String triggerThen = getTextValue("", triggerElement, "Then");
-
-                            DataBank.createNewTrigger(triggerWatch, triggerWhen, triggerThen, triggerNode);
+                                Trigger trigger = Trigger.create(Trigger.class);
+                                trigger.setThen(triggerThen);
+                                trigger.setWatch(triggerWatch);
+                                trigger.setWhen(triggerWhen);
+                                trigger.setParent(triggerNode);
+                                trigger.save();
+                                triggerNode.addTrigger(trigger);
+                            }
                         }
-                    }
-                } else if ("Switches".equals(nodeTopElements.getTagName())) {
-                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
+                    } else if ("Switches".equals(nodeTopElements.getTagName())) {
+                        NodeList switchesNodeList = nodeTopElements.getChildNodes();
+                        SwitchNode switchNode = (SwitchNode) importedNode;
+                        for (Integer switchCount = 0; switchCount < switchesNodeList.getLength(); switchCount++) {
+                            if (switchesNodeList.item(switchCount).getNodeType() == Node.ELEMENT_NODE) {
+                                Element switchElement = (Element) switchesNodeList.item(switchCount);
 
-                    NodeList switchesNodeList = nodeTopElements.getChildNodes();
-                    SwitchNode switchNode = (SwitchNode) importedNode;
-                    for (Integer switchCount = 0; switchCount < switchesNodeList.getLength(); switchCount++) {
-                        if (switchesNodeList.item(switchCount).getNodeType() == Node.ELEMENT_NODE) {
-                            Element switchElement = (Element) switchesNodeList.item(switchCount);
+                                String switchTarget = getTextValue("", switchElement, "Target");
+                                Boolean switchEnabled = Boolean.parseBoolean(getTextValue("", switchElement, "Enabled"));
 
-                            String switchTarget = getTextValue("", switchElement, "Target");
-                            Boolean switchEnabled = Boolean.parseBoolean(getTextValue("", switchElement, "Enabled"));
-
-                            DataBank.createNewSwitch(switchTarget, switchEnabled, switchNode);
+                                Switch aSwitch = Switch.create(Switch.class);
+                                aSwitch.setTarget(switchTarget);
+                                aSwitch.setEnabled(switchEnabled);
+                                aSwitch.setParent(switchNode);
+                                aSwitch.save();
+                                switchNode.addSwitch(aSwitch);
+                            }
                         }
-                    }
-                } else if ("DataTableData".equals(nodeTopElements.getTagName())) {
-                    importedNode.save(); // We need to save the node to set the ID first before we can add anything else
+                    } else if ("DataTableData".equals(nodeTopElements.getTagName())) {
+                        NodeList dataTableDataRowList = nodeTopElements.getChildNodes();
+                        DataTableNode dataTableNode = (DataTableNode) importedNode;
+                        for (Integer rowCount = 0; rowCount < dataTableDataRowList.getLength(); rowCount++) {
+                            if (dataTableDataRowList.item(rowCount).getNodeType() == Node.ELEMENT_NODE) {
+                                DataTableRow dataTableRow = DataTableRow.create(DataTableRow.class);
+                                dataTableRow.setParent(dataTableNode);
+                                dataTableRow.save();
+                                dataTableNode.addDataTableRow(dataTableRow);
 
-                    NodeList dataTableDataRowList = nodeTopElements.getChildNodes();
-                    DataTableNode dataTableNode = (DataTableNode) importedNode;
-                    for (Integer rowCount = 0; rowCount < dataTableDataRowList.getLength(); rowCount++) {
-                        if (dataTableDataRowList.item(rowCount).getNodeType() == Node.ELEMENT_NODE) {
-                            DataTableRow dataTableRow = DataBank.createNewDataTableRow(dataTableNode);
-                            Element dataTableRowElement = (Element) dataTableDataRowList.item(rowCount);
+                                Element dataTableRowElement = (Element) dataTableDataRowList.item(rowCount);
 
-                            NodeList dataTableDataValueList = dataTableRowElement.getChildNodes();
-                            for (Integer valueCount = 0; valueCount < dataTableDataValueList.getLength(); valueCount++) {
-                                if (dataTableDataValueList.item(valueCount).getNodeType() == Node.ELEMENT_NODE) {
-                                    Element dataTableValueElement = (Element) dataTableDataValueList.item(valueCount);
+                                NodeList dataTableDataValueList = dataTableRowElement.getChildNodes();
+                                for (Integer valueCount = 0; valueCount < dataTableDataValueList.getLength(); valueCount++) {
+                                    if (dataTableDataValueList.item(valueCount).getNodeType() == Node.ELEMENT_NODE) {
+                                        Element dataTableValueElement = (Element) dataTableDataValueList.item(valueCount);
 
-                                    String dataKey = getTextValue("", dataTableValueElement, "DataKey");
-                                    String dataValue = getTextValue("", dataTableValueElement, "DataValue");
+                                        String dataKey = getTextValue("", dataTableValueElement, "DataKey");
+                                        String dataValue = getTextValue("", dataTableValueElement, "DataValue");
 
-                                    dataTableRow.addDataTableValue(DataBank.createNewDataTableValue(dataTableRow, dataKey, dataValue));
+                                        DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
+                                        dataTableValue.setParentRow(dataTableRow);
+                                        dataTableValue.setDataKey(dataKey);
+                                        dataTableValue.setDataValue(dataValue);
+                                        dataTableValue.save();
+                                        dataTableRow.addDataTableValue(dataTableValue);
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+
+            importedNode.save();
         }
 
-        importedNode.save();
+        DatabaseTransactionManager.getInstance().finaliseTransactions();
     }
 
     private static String getTextValue(String def, Element element, String tag) {

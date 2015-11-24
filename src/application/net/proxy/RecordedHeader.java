@@ -2,17 +2,14 @@ package application.net.proxy;
 
 import application.data.model.DatabaseObject;
 
-import java.util.UUID;
-
 public class RecordedHeader extends DatabaseObject {
     private RecordedRequest parentRequest;
     private String type = "";
     private String name = "";
     private String value = "";
 
-    public RecordedHeader(UUID uuid, RecordedRequest parentRequest) {
-        super(uuid);
-        this.parentRequest = parentRequest;
+    public RecordedHeader() {
+        super();
     }
 
     public String getParentRequestUuid() {
@@ -20,6 +17,13 @@ public class RecordedHeader extends DatabaseObject {
             return parentRequest.getUuidString();
         }
         return null;
+    }
+
+    public String getParentUuid() {
+        if (parentRequest != null) {
+            return parentRequest.getUuidString();
+        }
+        return "";
     }
 
     public RecordedRequest getParentRequest() {
@@ -51,5 +55,9 @@ public class RecordedHeader extends DatabaseObject {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public void setParent(RecordedRequest parentRequest) {
+        this.parentRequest = parentRequest;
     }
 }

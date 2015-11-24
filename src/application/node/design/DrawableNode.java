@@ -4,8 +4,8 @@ import application.Main;
 import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.data.model.DatabaseObject;
+import application.data.model.dao.SavableAttributeDAO;
 import application.error.Error;
-import application.gui.FlowController;
 import application.gui.Program;
 import application.gui.canvas.DrawablePoint;
 import application.node.objects.Trigger;
@@ -205,13 +205,20 @@ public class DrawableNode extends DatabaseObject {
         return null;
     }
 
+    public void delete() {
+        SavableAttributeDAO savableAttributeDAO = new SavableAttributeDAO();
+        List<SavableAttribute> savableAttributes = savableAttributeDAO.getAttributes(this);
+        savableAttributes.forEach(application.data.SavableAttribute::delete);
+        super.delete();
+    }
+
     public Element getXMLRepresentation(Document document) {
         Element elementNode = null;
         // Create the root element
         Element nodeElement = document.createElement(this.getClass().getSimpleName());
 
         // Record if this node is the start node of the program
-        DrawableNode drawableNode = FlowController.getFlowControllerFromNode(this).getStartNode();
+        DrawableNode drawableNode = program.getFlowController().getStartNode();
         if (drawableNode != null && drawableNode.equals(this)) {
             Element startNodeElement = document.createElement("IsStartNode");
             startNodeElement.appendChild(document.createTextNode("Yes"));
@@ -420,5 +427,9 @@ public class DrawableNode extends DatabaseObject {
         }
 
         return node;
+    }
+
+    public Program getProgram() {
+        return program;
     }
 }

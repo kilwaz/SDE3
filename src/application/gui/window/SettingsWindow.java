@@ -1,8 +1,11 @@
 package application.gui.window;
 
+import application.data.DBConnection;
+import application.data.DBConnectionManager;
 import application.error.Error;
 import application.utils.AppParams;
 import application.utils.AppProperties;
+import application.utils.SDEUtils;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -15,7 +18,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.SQLException;
 
 public class SettingsWindow extends Stage {
     public SettingsWindow() {
@@ -82,9 +89,42 @@ public class SettingsWindow extends Stage {
                 this.close();
             });
 
+            Button buildNewDatabase = new Button();
+            buildNewDatabase.setText("Build new database");
+            buildNewDatabase.setOnAction(event -> {
+                try {
+                    DBConnection sqliteConnection = DBConnectionManager.getInstance().getApplicationConnection();
+
+                    sqliteConnection.getConnection().setAutoCommit(false);
+
+                    String resourcesPath = SDEUtils.getResourcePath();
+                    String bashEditorPath = resourcesPath + "/data/blankdb.sql";
+
+                    String content = "";
+                    try {
+                        byte[] encoded = Files.readAllBytes(Paths.get(bashEditorPath));
+                        content = new String(encoded, "UTF8");
+
+                        String[] sqlQuery = content.split(";");
+
+                        for (String query : sqlQuery) {
+                            sqliteConnection.getPreparedStatement(query).execute();
+                        }
+                    } catch (IOException ex) {
+                        application.error.Error.ACE_TEXT_PASTE.record().create(ex);
+                    }
+
+                    sqliteConnection.getConnection().commit();
+                    sqliteConnection.getConnection().setAutoCommit(true);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
+
             rows.getChildren().add(dbConnectionStringRow);
             rows.getChildren().add(dbUsernameRow);
             rows.getChildren().add(dbPasswordRow);
+            rows.getChildren().add(buildNewDatabase);
             rows.getChildren().add(saveButton);
 
             StackPane root = new StackPane();

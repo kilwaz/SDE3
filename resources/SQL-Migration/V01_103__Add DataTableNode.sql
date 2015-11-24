@@ -1,3 +1,0 @@
--- Adds DataTableNode to the list of possible nodes in the application
-alter table node change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode','DataBaseNode','ExportNode','CustomObjectNode','ChartNode','FileStoreNode','DataTableNode');
-alter table node_colour change node_type node_type enum('ConsoleNode','LogicNode','SwitchNode','TestResultNode','LinuxNode','BashNode','InputNode','TimerNode','TriggerNode','WindowsNode','BatchNode','EmailNode','CopyNode','TestNode','RequestTrackerNode','DataBaseNode','ExportNode','CustomObjectNode','ChartNode','FileStoreNode','DataTableNode');

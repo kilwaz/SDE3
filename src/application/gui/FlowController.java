@@ -1,6 +1,7 @@
 package application.gui;
 
 import application.data.DataBank;
+import application.data.model.dao.DAO;
 import application.error.Error;
 import application.node.design.DrawableNode;
 import application.node.implementations.BashNode;
@@ -45,30 +46,6 @@ public class FlowController {
         startNode.setContainedText("Start");
 
         referenceID = parentProgram.getUuidString();
-    }
-
-    public DrawableNode createNewNode(UUID uuid, UUID programUuid, String nodeType, Boolean isStartNode) {
-        DrawableNode drawableNode = null;
-
-        // Here we are searching for the class by name and calling the constructor manually to get our DrawableNode object
-        try {
-            Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("application.node.implementations." + nodeType);
-
-            drawableNode = DrawableNode.create(clazz);
-            drawableNode.setProgram(parentProgram);
-            drawableNode.save();
-        } catch (ClassNotFoundException ex) {
-            Error.CREATE_NEW_NODE.record().create(ex);
-        }
-
-        if (drawableNode != null) {
-            nodes.add(drawableNode);
-            if (isStartNode && drawableNode instanceof LogicNode) {
-                startNode = drawableNode;
-            }
-        }
-
-        return drawableNode;
     }
 
     public void addNode(DrawableNode drawableNode) {
@@ -453,14 +430,14 @@ public class FlowController {
         return null;
     }
 
-    public static void sourceStarted(String reference) {
-        LogicNode logicNode = FlowController.getSourceFromReference(reference);
+    public static void sourceStarted(String uuid) {
+        LogicNode logicNode = LogicNode.load(DAO.UUIDFromString(uuid), LogicNode.class);
         logicNode.setColor(Color.RED);
         Controller.getInstance().updateCanvasControllerLater();
     }
 
-    public static void sourceFinished(String reference) {
-        LogicNode logicNode = FlowController.getSourceFromReference(reference);
+    public static void sourceFinished(String uuid) {
+        LogicNode logicNode = LogicNode.load(DAO.UUIDFromString(uuid), LogicNode.class);
         logicNode.setColor(Color.BLACK);
         Controller.getInstance().updateCanvasControllerLater();
     }
@@ -507,11 +484,9 @@ public class FlowController {
     public static FlowController getFlowControllerFromNode(DrawableNode nodeToFind) {
         for (Program program : DataBank.getPrograms()) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
-                //if (node instanceof LogicNode) {
                 if (nodeToFind.equals(node)) {
                     return program.getFlowController();
                 }
-                //}
             }
         }
 

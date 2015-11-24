@@ -14,13 +14,6 @@ public class SavableAttribute extends DatabaseObject {
         super();
     }
 
-//    public SavableAttribute(String variableName, String className, Object variable, DrawableNode parent) {
-//        this.variable = variable;
-//        this.className = className;
-//        this.variableName = variableName;
-//        this.parentNode = parent;
-//    }
-
     public void init(String variableName, String className, Object variable, DrawableNode parent) {
         this.variable = variable;
         this.className = className;

@@ -9,11 +9,8 @@ public class DataTableValue extends DatabaseObject {
     private String dataKey = "";
     private String dataValue = "";
 
-    public DataTableValue(UUID uuid, String dataKey, String dataValue, DataTableRow parentRow) {
-        super(uuid);
-        this.parentRow = parentRow;
-        this.dataKey = dataKey;
-        this.dataValue = dataValue;
+    public DataTableValue() {
+       super();
     }
 
     public String getDataKey() {
@@ -43,6 +40,10 @@ public class DataTableValue extends DatabaseObject {
             return parentRow.getUuidString();
         }
         return null;
+    }
+
+    public void setParentRow(DataTableRow parentRow) {
+        this.parentRow = parentRow;
     }
 
     public DataTableRow getParentRow() {

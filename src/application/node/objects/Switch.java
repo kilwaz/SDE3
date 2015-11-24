@@ -10,6 +10,10 @@ public class Switch extends DatabaseObject {
     private String target;
     private SwitchNode parent;
 
+    public Switch() {
+        super();
+    }
+
     public Switch(Switch copySwitch, SwitchNode parent) {
         this.enabled = copySwitch.isEnabled();
         this.target = copySwitch.getTarget();
@@ -48,5 +52,9 @@ public class Switch extends DatabaseObject {
             return parent.getUuidString();
         }
         return null;
+    }
+
+    public void setParent(SwitchNode parent) {
+        this.parent = parent;
     }
 }

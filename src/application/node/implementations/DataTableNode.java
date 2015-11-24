@@ -1,7 +1,7 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
+import application.data.model.dao.DataTableRowDAO;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.node.objects.datatable.DataTableColumn;
@@ -16,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
 import org.w3c.dom.Document;
@@ -25,7 +24,6 @@ import org.w3c.dom.Element;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class DataTableNode extends DrawableNode {
     private List<DataTableColumn> dataTableColumns = new ArrayList<>();
@@ -53,7 +51,7 @@ public class DataTableNode extends DrawableNode {
         this.setNextNodeToRun(dataTableNode.getNextNodeToRun());
     }
 
-    public DataTableNode(){
+    public DataTableNode() {
         super();
     }
 
@@ -64,11 +62,6 @@ public class DataTableNode extends DrawableNode {
         dataTableRows.forEach(DataTableRow::save);
 
         return savableAttributes;
-    }
-
-    public void loadObjects() {
-
-        DataBank.loadDataTableRows(this);
     }
 
     public void saveObjects() {
@@ -131,6 +124,9 @@ public class DataTableNode extends DrawableNode {
         if (dataViewTab != null) {
             AnchorPane dataViewAnchorPane = new AnchorPane();
 
+            DataTableRowDAO dataTableRowDAO = new DataTableRowDAO();
+            addAllDataTableRow(dataTableRowDAO.getDataTableRowByNode(this));
+
             if (dataTableColumns.size() == 0) {
                 dataTableColumns.add(new DataTableColumn("New Column"));
             }
@@ -151,16 +147,29 @@ public class DataTableNode extends DrawableNode {
             spreadsheetView.setGrid(dataTableGrid.getGrid());
 
             MenuItem addNewRow = new MenuItem("Add New Row");
-            addNewRow.setOnAction(event -> DataBank.createNewDataTableRow(this));
+            addNewRow.setOnAction(event -> {
+                DataTableRow dataTableRow = DataTableRow.create(DataTableRow.class);
+                dataTableRow.setParent(this);
+                dataTableRow.save();
+                addDataTableRow(dataTableRow);
+            });
 
             MenuItem addNewColumn = new MenuItem("Add New Column");
             addNewColumn.setOnAction(event -> {
                 if (dataTableRows.size() == 0) {
-                    dataTableRows.add(DataBank.createNewDataTableRow(this));
+                    DataTableRow dataTableRow = DataTableRow.create(DataTableRow.class);
+                    dataTableRow.setParent(this);
+                    dataTableRow.save();
+                    addDataTableRow(dataTableRow);
                 }
 
                 for (DataTableRow dataTableRow : dataTableRows) {
-                    dataTableRow.addDataTableValue(DataBank.createNewDataTableValue(dataTableRow, "New Column", ""));
+                    DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
+                    dataTableValue.setDataKey("New Column");
+                    dataTableValue.setDataValue("");
+                    dataTableValue.setParentRow(dataTableRow);
+                    dataTableValue.save();
+                    dataTableRow.addDataTableValue(dataTableValue);
                 }
 
                 buildDataGrid();
@@ -246,9 +255,14 @@ public class DataTableNode extends DrawableNode {
                     String oldValue = dataTableRow.getData(eventTextField.getId());
 
                     if (oldValue != null) {
-                        dataTableRow.addDataTableValue(DataBank.createNewDataTableValue(dataTableRow, eventTextField.getText(), oldValue));
-                        dataTableRow.removeDataTableValue(eventTextField.getId());
+                        DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
+                        dataTableValue.setDataKey(eventTextField.getText());
+                        dataTableValue.setDataValue(oldValue);
+                        dataTableValue.setParentRow(dataTableRow);
+                        dataTableValue.save();
 
+                        dataTableRow.addDataTableValue(dataTableValue);
+                        dataTableRow.removeDataTableValue(eventTextField.getId());
                     }
                 }
                 eventTextField.setId(eventTextField.getText());

@@ -55,7 +55,7 @@ public class BashNodeTest {
      */
     @Before
     public void setUp() throws Exception {
-        testBashNode = (BashNode) testProgram.getFlowController().createNewNode(null, testProgram.getUuid(), "BashNode", false);
+        testBashNode = BashNode.create(BashNode.class);
         testBashNode.setX(bashX);
         testBashNode.setY(bashY);
         testBashNode.setWidth(bashWidth);

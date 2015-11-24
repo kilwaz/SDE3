@@ -18,7 +18,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 import org.w3c.dom.Document;
@@ -26,7 +25,6 @@ import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TriggerNode extends DrawableNode {
@@ -49,7 +47,7 @@ public class TriggerNode extends DrawableNode {
         triggers.addAll(triggerNode.getTriggers().stream().map(loopTrigger -> new Trigger(loopTrigger, this)).collect(Collectors.toList()));
     }
 
-    public TriggerNode(){
+    public TriggerNode() {
         super();
     }
 
@@ -73,7 +71,13 @@ public class TriggerNode extends DrawableNode {
 
         if (triggers.size() < 1) {
             // Automatically assigned to this triggerNode via 'this' reference
-            DataBank.createNewTrigger("", "", "", this);
+            Trigger trigger = Trigger.create(Trigger.class);
+            trigger.setParent(this);
+            trigger.setThen("");
+            trigger.setWhen("");
+            trigger.setWatch("");
+            trigger.save();
+            addTrigger(trigger);
             save();
         }
 

@@ -97,7 +97,10 @@ public enum Error {
     DUPLICATE_RESULTS(92, "Duplicate record returned"),
     DATABASE_LOAD_CLASS_INIT(93, "Unable to load object"),
     CREATE_NEW_INSTANCE_ERROR(94, "Unable to create a new instance via the blank constructor"),
-    DATABASE_OBJECT_METHOD_MISMATCH_PARAMETERS(95, "The wrong number of arguments have being used");
+    DATABASE_OBJECT_METHOD_MISMATCH_PARAMETERS(95, "The wrong number of arguments have being used"),
+    SQLITE_START_EXE(96, "Trouble handling sqlite.exe"),
+    DATABASE_TRANSACTION(97, "Database transaction had problems"),
+    NODE_CLASS_NOT_FOUND(98, "Could not find node class");
 
     private Integer code;
     private String description;

@@ -9,6 +9,10 @@ public class NodeColour extends DatabaseObject {
     private Integer blue;
     private String nodeType;
 
+    public NodeColour(){
+
+    }
+
     public NodeColour(Color color, String nodeType) {
         super();
         this.red = new Double(color.getRed() * 255).intValue();

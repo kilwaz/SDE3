@@ -1,6 +1,5 @@
 package application.node.objects.datatable;
 
-import application.data.DataBank;
 import application.node.implementations.DataTableNode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -62,7 +61,11 @@ public class DataTableWithHeader extends DataTableGrid {
                 }
             } else {
                 for (int i = 0; i < columnNames.size(); i++) {
-                    DataTableValue dataTableValue = DataBank.createNewDataTableValue(dataTableRow, columnNames.get(i), "");
+                    DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
+                    dataTableValue.setParentRow(dataTableRow);
+                    dataTableValue.setDataKey(columnNames.get(i));
+                    dataTableValue.setDataValue("");
+                    dataTableValue.save();
                     SpreadsheetCell spreadsheetCell = SpreadsheetCellType.STRING.createCell(rowCount, i, 1, 1, dataTableValue.getDataValue());
                     dataTableValuePositionHashMap.put(rowCount + "," + i, dataTableValue);
                     list.add(spreadsheetCell);

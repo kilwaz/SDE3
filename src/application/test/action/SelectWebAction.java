@@ -29,7 +29,8 @@ public class SelectWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep = DataBank.createNewTestStep(getTestResult());
+        TestStep testStep  =  TestStep.create(TestStep.class);
+        testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
         TestParameter idElement = getTestCommand().getParameterByPath("id");

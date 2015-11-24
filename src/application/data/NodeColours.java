@@ -1,5 +1,6 @@
 package application.data;
 
+import application.data.model.dao.NodeColourDAO;
 import javafx.scene.paint.Color;
 
 import java.util.HashMap;
@@ -8,7 +9,8 @@ public class NodeColours {
     HashMap<String, NodeColour> nodeColours = new HashMap<>();
 
     public NodeColours() {
-        DataBank.loadNodeColours(this);
+        NodeColourDAO nodeColourDAO = new NodeColourDAO();
+        nodeColourDAO.getNodeColours().forEach(this::addNodeColour);
     }
 
     public void addNodeColour(NodeColour nodeColour) {

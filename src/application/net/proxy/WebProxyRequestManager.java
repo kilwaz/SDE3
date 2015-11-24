@@ -21,7 +21,8 @@ public class WebProxyRequestManager {
     private RecordedProxy recordedProxy;
 
     public WebProxyRequestManager() {
-        this.recordedProxy = DataBank.createNewRecordedProxy();
+        recordedProxy = RecordedProxy.create(RecordedProxy.class);
+        recordedProxy.save();
     }
 
     public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -67,7 +68,8 @@ public class WebProxyRequestManager {
             webProxyRequest.instantCompleteServerToProxy();
 
             // Save the request to the database
-            RecordedRequest recordedRequest = DataBank.createNewRecordedRequest(recordedProxy);
+            RecordedRequest recordedRequest = RecordedRequest.create(RecordedRequest.class);
+            recordedRequest.setParentHttpProxy(recordedProxy);
             recordedRequest.setURL(webProxyRequest.getRequestURL());
             recordedRequest.setDuration(webProxyRequest.getRequestDuration().intValue());
             recordedRequest.setRequestSize(webProxyRequest.getRequestContentSize());
@@ -87,10 +89,8 @@ public class WebProxyRequestManager {
 
             recordedRequest.save();
 
-            RecordedRequest recordedRequest1 = DataBank.loadRecordedRequest(recordedRequest.getUuidString(), recordedRequest.getParentHttpProxy());
-
             for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
-                requestTrackerNode.addResult(recordedRequest1);
+                requestTrackerNode.addResult(recordedRequest);
             }
         }
     }

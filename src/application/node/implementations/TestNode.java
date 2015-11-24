@@ -1,6 +1,5 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.error.Error;
 import application.gui.AceTextArea;
@@ -28,7 +27,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.SessionNotFoundException;
@@ -37,7 +35,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class TestNode extends DrawableNode {
@@ -65,7 +62,7 @@ public class TestNode extends DrawableNode {
         this.setTest(testNode.getTest().getText());
     }
 
-    public TestNode(){
+    public TestNode() {
         super();
     }
 
@@ -139,7 +136,8 @@ public class TestNode extends DrawableNode {
         }
 
         if (testToRun != null) {
-            TestResult testResult = DataBank.createNewTestResult();
+            TestResult testResult = TestResult.create(TestResult.class);
+            testResult.save();
 
             List<String> commands = new ArrayList<>();
             Collections.addAll(commands, testToRun.getText().split("[\\r\\n]"));
@@ -220,10 +218,6 @@ public class TestNode extends DrawableNode {
                     }
                 }
             }
-
-            TestResult testResultReloaded = new TestResult();
-            testResultReloaded.setId(testResult.getId());
-            DataBank.loadTestSteps(testResultReloaded);
 
             // Tidy up any resources if they are still in use
             try {

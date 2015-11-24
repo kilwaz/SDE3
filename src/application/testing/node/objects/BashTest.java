@@ -37,7 +37,7 @@ public class BashTest {
         TestingUtils.setupJavaFX();
         TestingUtils.initDatabase();
         testProgram = TestingUtils.createTestProgram();
-        testBashNode = (BashNode) TestingUtils.createTestNode(testProgram, BashNode.class);
+        //testBashNode = (BashNode) TestingUtils.createTestNode(testProgram, BashNode.class);
     }
 
     @Before

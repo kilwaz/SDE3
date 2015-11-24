@@ -27,7 +27,8 @@ public class SetWebAction extends WebAction {
      * These values are saved and can be retrieved from the {@link application.test.action.helpers.VariableTracker}.
      */
     public void performAction() {
-        TestStep testStep = DataBank.createNewTestStep(getTestResult());
+        TestStep testStep  =  TestStep.create(TestStep.class);
+        testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
         TestParameter variableName = getTestCommand().getParameterByName("var");

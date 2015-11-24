@@ -31,7 +31,8 @@ public class TestWebAction extends WebAction {
             WebElement testElement = getDriver().findElement(testBy);
 
             if (getTestCommand().getParameterByPath("equals").exists()) {
-                TestStep testStep = DataBank.createNewTestStep(getTestResult());
+                TestStep testStep  =  TestStep.create(TestStep.class);
+                testStep.setParentResult(getTestResult());
                 testStep.setTestType(TestStep.TEST_TYPE_EQUAL);
                 getTestResult().addTestStep(testStep);
                 testStep.setTestString(getTestCommand().getRawCommand());
