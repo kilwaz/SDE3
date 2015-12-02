@@ -55,6 +55,8 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
+                                <MenuItem fx:id="menuBarMenuItemExportNodeColours" mnemonicParsing="false"
+                                          text="Node Colours"/>
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Import">
@@ -62,6 +64,17 @@
                                 <MenuItem fx:id="menuBarMenuItemImport" mnemonicParsing="false" text="Import">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Data">
+                            <items>
+                                <MenuItem fx:id="menuBarMenuItemClearRequestData" mnemonicParsing="false"
+                                          text="Clear Request Data">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP"
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>

@@ -1,7 +1,10 @@
 package application.data;
 
+import application.gui.Program;
+
 public class Session {
     private User user;
+    private Program selectedProgram;
 
     public Session() {
 
@@ -13,5 +16,13 @@ public class Session {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Program getSelectedProgram() {
+        return selectedProgram;
+    }
+
+    public void setSelectedProgram(Program selectedProgram) {
+        this.selectedProgram = selectedProgram;
     }
 }

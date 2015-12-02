@@ -57,7 +57,7 @@ public class ClickWebAction extends WebAction {
                 }
             } else if (loopElement.exists()) {
                 WebElement loopedElement = null;
-                LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
+                LoopedWebElement loopedWebElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
                 if (loopedWebElement != null) {
                     loopedElement = loopedWebElement.getWebElement(getDriver());
                 }

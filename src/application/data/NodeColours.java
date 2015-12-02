@@ -13,6 +13,12 @@ public class NodeColours {
         nodeColourDAO.getNodeColours().forEach(this::addNodeColour);
     }
 
+    public void reloadNodeColours() {
+        nodeColours.clear();
+        NodeColourDAO nodeColourDAO = new NodeColourDAO();
+        nodeColourDAO.getNodeColours().forEach(this::addNodeColour);
+    }
+
     public void addNodeColour(NodeColour nodeColour) {
         nodeColours.put(nodeColour.getNodeType(), nodeColour);
     }

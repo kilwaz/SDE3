@@ -3,18 +3,18 @@ package application.utils.managers;
 import application.data.model.DatabaseObject;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseObjectManager {
     private static DatabaseObjectManager instance;
-    public HashMap<String, DatabaseObject> databaseObjects;
+    public ConcurrentHashMap<String, DatabaseObject> databaseObjects;
 
     private static Logger log = Logger.getLogger(DatabaseObjectManager.class);
 
     public DatabaseObjectManager() {
         instance = this;
-        databaseObjects = new HashMap<>();
+        databaseObjects = new ConcurrentHashMap<>();
     }
 
     public Boolean objectExists(UUID uuid) {
@@ -37,5 +37,9 @@ public class DatabaseObjectManager {
 
     public static DatabaseObjectManager getInstance() {
         return instance;
+    }
+
+    public void clearAllObjects() {
+        databaseObjects.clear();
     }
 }

@@ -50,7 +50,7 @@ public class LogWebAction extends WebAction {
             }
         } else if (loopElement.exists()) {
             Element loopedElement = null;
-            LoopedWebElement loopedWebElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
+            LoopedWebElement loopedWebElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
             if (loopedWebElement != null) {
                 loopedElement = loopedWebElement.getElement();
             }

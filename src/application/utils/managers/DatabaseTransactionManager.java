@@ -5,7 +5,13 @@ import application.data.Query;
 import application.data.SelectQuery;
 import application.data.UpdateQuery;
 import application.error.Error;
+import application.utils.Timer;
+import application.utils.timers.TransactionJob;
 import org.apache.log4j.Logger;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.TriggerBuilder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,11 +22,24 @@ public class DatabaseTransactionManager {
 
     private List<Query> pendingQueryList = new ArrayList<>();
     private Boolean inTransaction = false;
+    private Boolean transactionTimer = false;
+
+    private JobDetail transactionJob;
+    private Timer timeOfLastQuery = new Timer();
 
     private static Logger log = Logger.getLogger(DatabaseTransactionManager.class);
 
     public DatabaseTransactionManager() {
         databaseTransactionManager = this;
+
+        transactionJob = JobBuilder.newJob(TransactionJob.class).build();
+        SimpleScheduleBuilder simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
+        TriggerBuilder triggerBuilder = TriggerBuilder.newTrigger();
+
+        simpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(1000);
+
+        JobManager.getInstance().scheduleJob(transactionJob, triggerBuilder.withSchedule(simpleScheduleBuilder).build());
+        triggerBuilder.startNow();
     }
 
     public static DatabaseTransactionManager getInstance() {
@@ -59,6 +78,8 @@ public class DatabaseTransactionManager {
                 Error.DATABASE_TRANSACTION.record().create(ex);
             }
         }
+
+        timeOfLastQuery = new Timer();
         pendingQueryList.add(updateQuery);
     }
 
@@ -79,6 +100,18 @@ public class DatabaseTransactionManager {
         List<Object> params = query.getParameters();
         for (Object o : params) {
             log.info("   " + o.toString());
+        }
+    }
+
+    public void checkIfNeedToFinalise() {
+        if (inTransaction) {
+            if (pendingQueryList.size() > 0 && timeOfLastQuery.getTimeSince() > 1000) {
+                //log.info("Committing " + pendingQueryList.size() + " query transactions after 1000ms");
+                finaliseTransactions();
+            }
+//            else if (pendingQueryList.size() > 1000) {
+//                log.info("Committing " + pendingQueryList.size() + " query transactions due to 1000 pending queries");
+//                finaliseTransactions();
         }
     }
 

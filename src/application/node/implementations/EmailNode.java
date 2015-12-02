@@ -98,11 +98,11 @@ public class EmailNode extends DrawableNode {
     public void newEmailTrigger() {
         class EmailNodeNewEmail implements Runnable {
             public void run() {
-                List<Trigger> triggers = DataBank.currentlyEditProgram.getFlowController().getActiveTriggers(getContainedText(), "Receive New Email");
+                List<Trigger> triggers = getProgram().getFlowController().getActiveTriggers(getContainedText(), "Receive New Email");
                 for (Trigger trigger : triggers) {
                     NodeRunParams nodeRunParams = new NodeRunParams();
                     nodeRunParams.setOneTimeVariable("Hello");
-                    Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
+                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
                 }
             }
         }

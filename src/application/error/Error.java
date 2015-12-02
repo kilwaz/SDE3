@@ -100,7 +100,9 @@ public enum Error {
     DATABASE_OBJECT_METHOD_MISMATCH_PARAMETERS(95, "The wrong number of arguments have being used"),
     SQLITE_START_EXE(96, "Trouble handling sqlite.exe"),
     DATABASE_TRANSACTION(97, "Database transaction had problems"),
-    NODE_CLASS_NOT_FOUND(98, "Could not find node class");
+    NODE_CLASS_NOT_FOUND(98, "Could not find node class"),
+    DATABASE_MIGRATE_FAILED(99, "Flyway database migration failed"),
+    DATABASE_REBUILD_FAILED(100, "Database rebuild failed");
 
     private Integer code;
     private String description;

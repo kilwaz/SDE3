@@ -40,8 +40,8 @@ public class LoopWebAction extends WebAction {
         if (startElement.exists()) {
             String loopRef = startElement.getParameterValue();
 
-            if (LoopTracker.getLoop(loopRef) == null) {
-                Loop newLoop = new Loop(getParentTestNode().getCurrentTestLine());
+            if (getLoopTracker().getLoop(loopRef) == null) {
+                Loop newLoop = new Loop(getRunningTest().getCurrentLine());
 
                 TestParameter loopRepeatCount = getTestCommand().getParameterByName("repeat");
                 TestParameter loopList = getTestCommand().getParameterByName("list");
@@ -68,7 +68,7 @@ public class LoopWebAction extends WebAction {
 
                         Element listElement = null;
                         if (loopElement.exists()) {
-                            Loop loop = LoopTracker.getLoop(loopElement.getParameterValue());
+                            Loop loop = getLoopTracker().getLoop(loopElement.getParameterValue());
                             if (loop != null) {
                                 LoopedWebElement loopedWebElement = loop.getCurrentLoopWebElement();
                                 if (loopedWebElement != null) {
@@ -113,29 +113,29 @@ public class LoopWebAction extends WebAction {
                     newLoop.setLoopType("LoopList");
                 }
 
-                LoopTracker.setLoop(loopRef, newLoop);
+                getLoopTracker().setLoop(loopRef, newLoop);
             }
         }
 
         if (endElement.exists()) {
             String loopRef = endElement.getParameterValue();
 
-            if (LoopTracker.getLoop(loopRef) != null) {
-                Loop loop = LoopTracker.getLoop(loopRef);
+            if (getLoopTracker().getLoop(loopRef) != null) {
+                Loop loop = getLoopTracker().getLoop(loopRef);
 
                 if ("LoopCount".equals(loop.getLoopType())) {
                     if (!loop.getLoopUntil().equals(loop.getCurrentLoopCount())) {
-                        getParentTestNode().setCurrentTestLine(loop.getStartLineNumber());
+                        getRunningTest().setCurrentLine(loop.getStartLineNumber());
                         loop.setCurrentLoopCount(loop.getCurrentLoopCount() + 1);
                     } else {
-                        LoopTracker.removeLoop(loopRef);
+                        getLoopTracker().removeLoop(loopRef);
                     }
                 } else if ("LoopList".equals(loop.getLoopType())) {
                     if (!loop.getLoopUntil().equals(loop.getCurrentLoopCount())) {
-                        getParentTestNode().setCurrentTestLine(loop.getStartLineNumber());
+                        getRunningTest().setCurrentLine(loop.getStartLineNumber());
                         loop.setCurrentLoopCount(loop.getCurrentLoopCount() + 1);
                     } else {
-                        LoopTracker.removeLoop(loopRef);
+                        getLoopTracker().removeLoop(loopRef);
                     }
                 }
             }

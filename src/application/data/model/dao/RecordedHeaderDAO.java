@@ -1,8 +1,6 @@
 package application.data.model.dao;
 
-import application.data.SelectQuery;
-import application.data.SelectResult;
-import application.data.SelectResultRow;
+import application.data.*;
 import application.net.proxy.RecordedHeader;
 import application.net.proxy.RecordedRequest;
 
@@ -24,5 +22,9 @@ public class RecordedHeaderDAO {
             recordedHeaders.add(recordedHeader);
         }
         return recordedHeaders;
+    }
+
+    public void deleteAllRecordedHeaders(){
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("delete from http_headers").execute();
     }
 }

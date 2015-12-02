@@ -1,6 +1,5 @@
 package application;
 
-import application.data.DBConnection;
 import application.data.DBConnectionManager;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
@@ -8,7 +7,6 @@ import application.gui.Controller;
 import application.net.proxy.WebProxyManager;
 import application.utils.AppParams;
 import application.utils.AppProperties;
-import application.utils.SDEUtils;
 import application.utils.managers.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
@@ -30,13 +28,9 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Main handling class of the application.
@@ -87,6 +81,7 @@ public class Main extends Application {
         new DBConnectionManager();
         new DatabaseConnectionWatcher();  // Creates the database watcher which will let the user know when the database disconnects
         Boolean connectionSuccessful = DBConnectionManager.getInstance().createApplicationConnection();
+        DBConnectionManager.getInstance().getApplicationConnection().migrateFlyway();
 
         loadProgress.setProgress(0.5);
 
@@ -229,7 +224,7 @@ public class Main extends Application {
         // On Application Close we try and clean up all the open connections and running threads
         DatabaseTransactionManager.getInstance().finaliseTransactions();
         SSHConnectionManager.getInstance().closeConnections();
-        ThreadManager.getInstance().closeThreads();
+        ThreadManager.getInstance().removeInactiveThreads();
         BrowserManager.getInstance().closeBrowsers();
         WebProxyManager.getInstance().closeProxies();
         DBConnectionManager.getInstance().closeConnections();

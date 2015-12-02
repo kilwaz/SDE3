@@ -27,14 +27,14 @@ public class FunctionWebAction extends WebAction {
 
         if (functionStart.exists()) {
             // If we reach a function start we need to skip to the end of the function, functions can only be run via calling them
-            FunctionTracker.setIsSkippingFunction(true);
-            FunctionTracker.setFunctionReference(functionStart.getParameterValue());
+            getFunctionTracker().setIsSkippingFunction(true);
+            getFunctionTracker().setFunctionReference(functionStart.getParameterValue());
         }
 
         if (functionEnd.exists()) {
             // If we get to the end of our function then we need to back to the original call
-            Integer callingLineNumber = FunctionTracker.popFunctionStack() + 1;
-            getParentTestNode().setCurrentTestLine(callingLineNumber);
+            Integer callingLineNumber = getFunctionTracker().popFunctionStack() + 1;
+            getRunningTest().setCurrentLine(callingLineNumber);
         }
     }
 }

@@ -10,27 +10,27 @@ import java.util.HashMap;
  */
 
 public class VariableTracker {
-    private static HashMap<String, Variable> variables = new HashMap<>();
+    private HashMap<String, Variable> variables = new HashMap<>();
 
     /**
-     * @param ref Variable reference to find.
+     * @param ref Variable reference to find.                                                    l
      * @return Returned found variable, or null if one isn't found.
      */
-    public static Variable getVariable(String ref) {
+    public Variable getVariable(String ref) {
         return variables.get(ref);
     }
 
     /**
      * @param ref Variable reference to remove
      */
-    public static void removeVariable(String ref) {
+    public void removeVariable(String ref) {
         variables.remove(ref);
     }
 
     /**
      * @param variable Variable to save.
      */
-    public static void setVariable(Variable variable) {
+    public void setVariable(Variable variable) {
         variables.put(variable.getVariableName(), variable);
     }
 }

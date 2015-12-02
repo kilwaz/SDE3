@@ -18,15 +18,20 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.security.cert.CertificateException;
 
 public final class HttpProxyServer extends SDERunnable {
     public final static boolean SSL = false;
-    static final int PORT = 8080;
+    static int PORT = 8080;
     private WebProxyRequestManager webProxyRequestManager = new WebProxyRequestManager();
 
+    private int runningPort = 8080;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+    private Boolean connected = false;
 
     private static Logger log = Logger.getLogger(HttpProxyServer.class);
 
@@ -61,8 +66,24 @@ public final class HttpProxyServer extends SDERunnable {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new HttpProxyServerInitializer(sslCtx, webProxyRequestManager));
 
-            Channel ch = b.bind(PORT).sync().channel();
+            Boolean availablePortFound = false;
+            Integer testingPort = PORT;
 
+            while (!availablePortFound) {
+                if (!available(testingPort)) {
+                    testingPort++;
+                } else {
+                    availablePortFound = true;
+                }
+            }
+
+            runningPort = testingPort;
+
+            log.info("Starting on port " + runningPort);
+            Channel ch = b.bind(runningPort).sync().channel();
+            webProxyRequestManager.getRecordedProxy().setConnectionString("localhost:" + runningPort);
+            webProxyRequestManager.getRecordedProxy().save();
+            connected = true;
             ch.closeFuture().sync();
         } catch (InterruptedException | CertificateException | SSLException ex) {
             Error.START_HTTP_PROXY.record().create(ex);
@@ -73,16 +94,62 @@ public final class HttpProxyServer extends SDERunnable {
     }
 
     public void close() {
+        connected = false;
+
         if (bossGroup != null) {
             bossGroup.shutdownGracefully();
         }
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
-        ThreadManager.getInstance().closeThreads(); // Check to see if the thread has been removed
+        ThreadManager.getInstance().removeInactiveThreads(); // Check to see if the thread has been removed
     }
 
     public WebProxyRequestManager getWebProxyRequestManager() {
         return webProxyRequestManager;
+    }
+
+    /**
+     * Checks to see if a specific port is available.
+     *
+     * @param port the port to check for availability
+     */
+    public static boolean available(int port) {
+        if (port < 8080 || port > 10000) {
+            throw new IllegalArgumentException("Invalid start port: " + port);
+        }
+
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public int getRunningPort() {
+        return runningPort;
+    }
+
+    public Boolean isConnected() {
+        return connected;
     }
 }

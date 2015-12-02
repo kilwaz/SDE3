@@ -4,7 +4,7 @@ import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
-import application.utils.TimerJob;
+import application.utils.timers.TimerNodeJob;
 import application.utils.managers.JobManager;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -14,14 +14,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.joda.time.DateTime;
 import org.quartz.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class TimerNode extends DrawableNode {
@@ -487,7 +485,7 @@ public class TimerNode extends DrawableNode {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("node", jobNode);
 
-        JobDetail timerJob = JobBuilder.newJob(TimerJob.class)
+        JobDetail timerJob = JobBuilder.newJob(TimerNodeJob.class)
                 .usingJobData(jobDataMap)
                 .build();
 

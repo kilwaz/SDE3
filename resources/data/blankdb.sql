@@ -39,16 +39,14 @@ create table input(
 create table data_table_rows(
     uuid char(36) NOT NULL,
     node_id char(36),
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (node_id) REFERENCES node(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table data_table_values(
     uuid char(36) NOT NULL,
     data_table_id char(36),
     data_key VARCHAR(1000),
     data_value VARCHAR(1000),
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (data_table_id) REFERENCES data_table_rows(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table node_colour(
     uuid char(36) NOT NULL,
@@ -64,8 +62,7 @@ create table node_details(
     object_name VARCHAR(100),
     object_value BLOB,
     object_class VARCHAR(100),
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (node_id) REFERENCES node(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table recorded_requests(
     uuid char(36) NOT NULL,
@@ -76,24 +73,21 @@ create table recorded_requests(
     response_size INT,
     request_content MEDIUMTEXT,
     response_content MEDIUMTEXT,
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (http_proxy_id) REFERENCES http_proxies(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table serialized(
     uuid char(36) NOT NULL,
     node_id char(36),
     serial_object MEDIUMBLOB,
     serial_reference VARCHAR(1000),
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (node_id) REFERENCES node(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table switch(
     uuid char(36) NOT NULL,
     node_id char(36),
     target VARCHAR(100),
     enabled tinyint,
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (node_id) REFERENCES node(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table test_result(
     uuid char(36) NOT NULL,
@@ -108,8 +102,7 @@ create table test_step(
     successful tinyint,
     test_result char(36),
     test_type INT,
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (test_result) REFERENCES test_result(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table trigger_condition(
     uuid char(36) NOT NULL,
@@ -117,8 +110,7 @@ create table trigger_condition(
     trigger_watch VARCHAR(100),
     trigger_when VARCHAR(100),
     trigger_then VARCHAR(100),
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (node_id) REFERENCES node(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table user(
     uuid char(36) NOT NULL,
@@ -133,8 +125,7 @@ create table program(
     view_offset_height DOUBLE,
     view_offset_width DOUBLE,
     user_id char(36),
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (user_id) REFERENCES user(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));
 
 create table http_headers(
     uuid char(36) NOT NULL,
@@ -142,5 +133,4 @@ create table http_headers(
     header_name VARCHAR(1000),
     header_value VARCHAR(1000),
     header_type VARCHAR(100),
-    PRIMARY KEY (uuid),
-    FOREIGN KEY (request_id) REFERENCES recorded_requests(uuid) ON DELETE CASCADE ON UPDATE CASCADE);
+    PRIMARY KEY (uuid));

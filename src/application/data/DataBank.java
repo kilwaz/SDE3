@@ -2,21 +2,12 @@ package application.data;
 
 import application.data.model.dao.UserDAO;
 import application.error.Error;
-import application.gui.Program;
-import application.net.proxy.RecordedHeader;
-import application.net.proxy.RecordedProxy;
 import application.net.proxy.RecordedRequest;
-import application.node.implementations.*;
-import application.node.objects.Input;
+import application.node.implementations.CustomObjectNode;
+import application.node.implementations.FileStoreNode;
 import application.node.objects.SDEFile;
-import application.node.objects.Switch;
-import application.node.objects.Trigger;
-import application.node.objects.datatable.DataTableRow;
-import application.node.objects.datatable.DataTableValue;
 import application.test.TestResult;
-import application.test.TestStep;
 import application.utils.AppParams;
-import application.utils.CustomObject;
 import application.utils.managers.SessionManager;
 import org.apache.log4j.Logger;
 
@@ -25,33 +16,16 @@ import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class DataBank {
-    public static Program currentlyEditProgram;
-    private static HashMap<String, Program> programs = new HashMap<>();
     private static HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
     private static HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
     private static HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
     private static NodeColours nodeColours = new NodeColours();
 
     private static Logger log = Logger.getLogger(DataBank.class);
-
-    public static List<String> getProgramNames() {
-        return programs.values().stream().map(Program::getName).collect(Collectors.toList());
-    }
-
-    public static Program getProgramById(Integer id) {
-        return programs.get(id);
-    }
-
-    public static ArrayList<Program> getPrograms() {
-        return new ArrayList<>(programs.values());
-    }
 
     public static void saveVariable(String name, Object object, String referenceID) {
         HashMap<String, Object> programVariable = programVariables.get(referenceID);
@@ -242,15 +216,6 @@ public class DataBank {
 //                Error.LOADING_TEST_STEP.record().create(ex);
 //            }
 //        }
-    }
-
-    public static CustomObject createNewCustomObject(Object payload, String payLoadReference, CustomObjectNode parent) {
-//        CustomObject customObject = new CustomObject(getNextId("serialized"), payload, payLoadReference, parent);
-//
-//        parent.addCustomObject(customObject);
-//        DataBank.saveCustomObject(customObject);
-
-        return null;
     }
 
     public static void loadCustomObjects(CustomObjectNode customObjectNode) {

@@ -9,7 +9,7 @@ public class NodeColour extends DatabaseObject {
     private Integer blue;
     private String nodeType;
 
-    public NodeColour(){
+    public NodeColour() {
 
     }
 

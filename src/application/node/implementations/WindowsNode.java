@@ -104,11 +104,11 @@ public class WindowsNode extends DrawableNode {
                 if (consoleTextArea != null) {
                     consoleTextArea.appendText(consoleToWrite);
 
-                    List<Trigger> triggers = DataBank.currentlyEditProgram.getFlowController().getActiveTriggers(getContainedText(), "New line");
+                    List<Trigger> triggers = getProgram().getFlowController().getActiveTriggers(getContainedText(), "New line");
                     for (Trigger trigger : triggers) {
                         NodeRunParams nodeRunParams = new NodeRunParams();
                         nodeRunParams.setOneTimeVariable(consoleToWrite);
-                        Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
+                        Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
                     }
 
                     consoleToWrite = "";

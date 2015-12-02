@@ -144,10 +144,10 @@ public class CopyNode extends DrawableNode {
     public void copyCompleteTrigger() {
         class CopyNodeCopyComplete implements Runnable {
             public void run() {
-                List<Trigger> triggers = DataBank.currentlyEditProgram.getFlowController().getActiveTriggers(getContainedText(), "Copy complete");
+                List<Trigger> triggers = getProgram().getFlowController().getActiveTriggers(getContainedText(), "Copy complete");
                 for (Trigger trigger : triggers) {
                     NodeRunParams nodeRunParams = new NodeRunParams();
-                    Program.runHelper(trigger.getParent().getNextNodeToRun(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
+                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
                 }
             }
         }

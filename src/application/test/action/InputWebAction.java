@@ -1,16 +1,14 @@
 package application.test.action;
 
-import application.data.DataBank;
 import application.test.TestParameter;
 import application.test.TestStep;
-import application.test.action.helpers.LoopTracker;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
  * This action finds an input box on the screen and inputs some text to it.
- *
+ * <p>
  * For a more user simulated approach you can have the characters typed in with a specified delay
  */
 public class InputWebAction extends WebAction {
@@ -23,7 +21,7 @@ public class InputWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep  =  TestStep.create(TestStep.class);
+        TestStep testStep = TestStep.create(TestStep.class);
         testStep.setParentResult(getTestResult());
 
         getTestResult().addTestStep(testStep);
@@ -38,7 +36,7 @@ public class InputWebAction extends WebAction {
         if (elementId != null) { // Get the element via id
             testElement = getDriver().findElement(By.id(elementId.getParameterValue()));
         } else if (loopElement != null) { // Get element via loop
-            testElement = LoopTracker.getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
+            testElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
         }
 
         if (valueToEnter.exists() && testElement != null) {

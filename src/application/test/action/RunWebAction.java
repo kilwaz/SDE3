@@ -1,6 +1,5 @@
 package application.test.action;
 
-import application.data.DataBank;
 import application.gui.Program;
 import application.test.TestParameter;
 import application.test.TestStep;
@@ -10,7 +9,7 @@ import application.utils.NodeRunParams;
 
 /**
  * This action is used to run another Node, generally a logic node.
- *
+ * <p>
  * You can pass variables into the NodeRunParams object
  */
 public class RunWebAction extends WebAction {
@@ -22,7 +21,7 @@ public class RunWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep  =  TestStep.create(TestStep.class);
+        TestStep testStep = TestStep.create(TestStep.class);
         testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
@@ -38,7 +37,7 @@ public class RunWebAction extends WebAction {
                     TestParameter childVariable = testParameter.getChildParameter();
 
                     // Converts the variable name into the variable itself
-                    Variable variable = VariableTracker.getVariable(childVariable.getParameterValue());
+                    Variable variable = getVariableTracker().getVariable(childVariable.getParameterValue());
                     if (variable != null) {
                         nodeRunParams.addVariable(parameters, variable.getVariableValue());
                     }
@@ -48,7 +47,7 @@ public class RunWebAction extends WebAction {
             }
         }
 
-        Program.runHelper(nodeToRun.getParameterValue(), DataBank.currentlyEditProgram.getFlowController().getReferenceID(), null, true, false, nodeRunParams);
+        Program.runHelper(nodeToRun.getParameterValue(), getParentTestNode().getProgram().getFlowController().getReferenceID(), null, true, false, nodeRunParams);
 
         testStep.save();
     }

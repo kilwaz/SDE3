@@ -1,7 +1,7 @@
 package application.gui.window;
 
+import application.data.imports.ImportNodeColours;
 import application.data.imports.ImportNodes;
-import application.error.*;
 import application.error.Error;
 import application.gui.AceTextArea;
 import application.utils.SDEThread;
@@ -86,7 +86,11 @@ public class ImportWindow extends Stage {
             importButton.setText("Run Import");
             importButton.setOnAction(event -> {
                 Document document = XMLTransform.writeStringToXML(importTextArea.getText());
-                new SDEThread(new ImportNodes(document, this), "Importing Node");
+                if (document.getDocumentElement().getTagName().contains("NodeColours")) { // Check for node colours first as the second check checks for anything contain 'node'.
+                    new SDEThread(new ImportNodeColours(document, this), "Importing Node Colours");
+                } else if (document.getDocumentElement().getTagName().contains("Program") || document.getDocumentElement().getTagName().contains("Node")) {
+                    new SDEThread(new ImportNodes(document, this), "Importing Node");
+                }
             });
 
             headerButtons.getChildren().add(loadImportButton);

@@ -24,7 +24,7 @@ public class ThreadManager {
     }
 
     // Synchronized method as we are accessing runningThreads list
-    public synchronized void closeThreads() {
+    public synchronized void removeInactiveThreads() {
         List<SDEThread> threadsToRemove = runningThreads.stream().filter(thread -> !thread.getThread().isAlive()).collect(Collectors.toList());
 
         runningThreads.removeAll(threadsToRemove);
@@ -41,7 +41,7 @@ public class ThreadManager {
         activeThreads--;
         if (Controller.getInstance() != null) {
             Controller.getInstance().updateThreadCount(activeThreads);
-            closeThreads();
+            removeInactiveThreads();
         }
     }
 

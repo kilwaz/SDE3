@@ -18,6 +18,6 @@ public class EndWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        getParentTestNode().setContinueTest(false);
+        getRunningTest().setContinueTest(false);
     }
 }

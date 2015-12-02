@@ -4,7 +4,6 @@ import application.data.SavableAttribute;
 import application.error.Error;
 import application.gui.AceTextArea;
 import application.gui.Controller;
-import application.gui.window.PreviousTestsWindow;
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
@@ -15,6 +14,8 @@ import application.test.TestResult;
 import application.test.action.WebAction;
 import application.test.action.helpers.FunctionTracker;
 import application.test.action.helpers.IfTracker;
+import application.test.action.helpers.LoopTracker;
+import application.test.action.helpers.VariableTracker;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
@@ -40,10 +41,9 @@ import java.util.regex.Pattern;
 public class TestNode extends DrawableNode {
     private Test test;
     private AceTextArea aceTextArea = null;
-    private static Logger log = Logger.getLogger(TestNode.class);
-    private Integer currentTestLine = 0;
-    private Boolean continueTest = true;
     private List<Test> previousTests = new ArrayList<>();
+
+    private static Logger log = Logger.getLogger(TestNode.class);
 
     // This will make a copy of the node passed to it
     public TestNode(TestNode testNode) {
@@ -55,7 +55,6 @@ public class TestNode extends DrawableNode {
         this.setColor(testNode.getColor());
         this.setScale(testNode.getScale());
         this.setContainedText(testNode.getContainedText());
-//        this.setProgramUuid(testNode.getProgramUuid());
         this.setNextNodeToRun(testNode.getNextNodeToRun());
 
         this.test = new Test(this);
@@ -85,17 +84,17 @@ public class TestNode extends DrawableNode {
             driver.get("http://jboss-alex:8080/spl/focal/Login");
         });
 
-        Button previousTestsButton = new Button();
-        previousTestsButton.setText("Previous Tests");
-        previousTestsButton.setOnAction(event -> {
-            new PreviousTestsWindow(this);
-        });
+//        Button previousTestsButton = new Button();
+//        previousTestsButton.setText("Previous Tests");
+//        previousTestsButton.setOnAction(event -> {
+//            new PreviousTestsWindow(this);
+//        });
 
         aceTextArea = new AceTextArea(this, "ace/mode/sde");
 
         HBox hBox = new HBox(5);
         hBox.getChildren().add(recordButton);
-        hBox.getChildren().add(previousTestsButton);
+//        hBox.getChildren().add(previousTestsButton);
         hBox.setAlignment(Pos.BASELINE_LEFT);
 
         vBox.getChildren().add(hBox);
@@ -128,7 +127,7 @@ public class TestNode extends DrawableNode {
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         // One Time Variable can be used to pass in a replacement Test object to run - for example one edited by an InputNode
         // If one time variable does not exist then it will fall back to the original test
-        Test testToRun = test;
+        Test testToRun = null;
         if (nodeRunParams.getOneTimeVariable() != null) {
             if (nodeRunParams.getOneTimeVariable() instanceof Test) {
                 testToRun = (Test) nodeRunParams.getOneTimeVariable();
@@ -142,67 +141,97 @@ public class TestNode extends DrawableNode {
             List<String> commands = new ArrayList<>();
             Collections.addAll(commands, testToRun.getText().split("[\\r\\n]"));
 
+            IfTracker ifTracker = new IfTracker();
+            FunctionTracker functionTracker = new FunctionTracker();
+            LoopTracker loopTracker = new LoopTracker();
+            VariableTracker variableTracker = new VariableTracker();
+
+            String remoteDriverURL = "";
+            Boolean useLocalDriver = true;
+
             // Finds the functions within the script
-            currentTestLine = 0;
-            FunctionTracker.cleanFunctions();
+            testToRun.setCurrentLine(0);
+            functionTracker.cleanFunctions();
             for (String command : commands) {
                 // We need to trim this to remove spaces and tabs
                 if (command.startsWith("//") || command.equals("")) { // Ignore the command if it is a comment
-                    currentTestLine++;
+                    testToRun.incrementLineNumber();
                     continue;
                 }
 
                 TestCommand testCommand = TestCommand.parseCommand(command);
                 if (testCommand != null && "function".equals(testCommand.getMainCommand())) {
                     TestParameter functionStart = testCommand.getParameterByPath("start");
-                    if (functionStart != null) {
-                        FunctionTracker.addFunction(functionStart.getParameterValue(), currentTestLine);
+                    if (functionStart.exists()) {
+                        functionTracker.addFunction(functionStart.getParameterValue(), testToRun.getCurrentLine());
+                    }
+                } else if (testCommand != null && "driver".equals(testCommand.getMainCommand())) { // Find the driver configuration if there is any
+                    TestParameter driverRemoteURL = testCommand.getParameterByPath("location::remoteURL");
+                    if (driverRemoteURL.exists()) {
+                        useLocalDriver = false;
+                        remoteDriverURL = driverRemoteURL.getParameterValue();
                     }
                 }
 
-                currentTestLine++;
+                testToRun.incrementLineNumber();
             }
 
-            WebDriver driver = BrowserHelper.getChrome();
-
-            currentTestLine = 0;
+            testToRun.setCurrentLine(0);
 
             // Creates the WebProxy used for this node
             HttpProxyServer httpProxyServer = new HttpProxyServer();
             SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server for node - " + getContainedText());
+            Integer waited = 0;
+            while (!httpProxyServer.isConnected() && waited < 60 * 1000) { // Wait for 60 seconds to connect, this could probably be done better
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                waited += 100;
+            }
+
+            log.info("Local driver is " + useLocalDriver + " at " + remoteDriverURL);
+
+            WebDriver driver;
+            if (useLocalDriver) {
+                driver = BrowserHelper.getChrome();
+            } else {
+                driver = BrowserHelper.getRemoteChrome("172.16.10.208:" + httpProxyServer.getRunningPort(), remoteDriverURL);
+            }
 
             log.info("Number of commands in test " + commands.size());
 
-            continueTest = true;
-            while (currentTestLine < commands.size() && continueTest) {
-                String command = commands.get(currentTestLine).trim(); // We need to trim this to remove spaces and tabs
+            testToRun.setContinueTest(true);
+            while (testToRun.getCurrentLine() < commands.size() && testToRun.getContinueTest()) {
+                String command = commands.get(testToRun.getCurrentLine()).trim(); // We need to trim this to remove spaces and tabs
 
                 if (command.startsWith("//") || command.equals("")) { // Ignore the command if it is a comment
-                    currentTestLine++;
+                    testToRun.incrementLineNumber();
                     continue;
                 }
 
                 TestCommand testCommand = TestCommand.parseCommand(command);
 
                 // Here we are checking if an if statement is currently happening, if so we need to move to end if statement
-                if (IfTracker.isSkippingIf()) {  // Maybe move this so somewhere else?
-                    if (command.equals("if>end::" + IfTracker.getIfReference())) {
-                        IfTracker.setIsSkippingIf(false);
+                if (ifTracker.isSkippingIf()) {  // Maybe move this so somewhere else?
+                    if (command.equals("if>end::" + ifTracker.getIfReference())) {
+                        ifTracker.setIsSkippingIf(false);
                     }
-                    currentTestLine++;
-                } else if (FunctionTracker.isSkippingFunction()) {
-                    if (command.equals("function>end::" + FunctionTracker.getFunctionReference())) {
-                        FunctionTracker.setIsSkippingFunction(false);
+                    testToRun.incrementLineNumber();
+                } else if (functionTracker.isSkippingFunction()) {
+                    if (command.equals("function>end::" + functionTracker.getFunctionReference())) {
+                        functionTracker.setIsSkippingFunction(false);
                     }
-                    currentTestLine++;
+                    testToRun.incrementLineNumber();
                 } else { // If no if is being skipped we continue as normal
-                    log.info("Command " + command);
+                    log.info("(" + testToRun.toString() + ") - Command " + command);
 
                     // If the user is viewing the node at the time we can select the line that is currently being run
                     if (aceTextArea != null) {
-                        aceTextArea.goToLine(currentTestLine + 1);
+                        aceTextArea.goToLine(testToRun.getCurrentLine() + 1);
                     }
-                    currentTestLine++;
+                    testToRun.incrementLineNumber();
 
                     // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
                     // and initialising the object and performing the required action which is then handled by the object
@@ -210,7 +239,7 @@ public class TestNode extends DrawableNode {
                         try {
                             Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
                             WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
-                            webAction.initialise(httpProxyServer, driver, testCommand, testResult, this);
+                            webAction.initialise(httpProxyServer, driver, testCommand, testResult, this, testToRun, ifTracker, functionTracker, loopTracker, variableTracker);
                             webAction.performAction();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                             Error.TEST_NODE_ACTION.record().create(ex);
@@ -257,13 +286,13 @@ public class TestNode extends DrawableNode {
         return editedTest;
     }
 
-    public void setCurrentTestLine(Integer currentTestLine) {
-        this.currentTestLine = currentTestLine;
-    }
-
-    public Integer getCurrentTestLine() {
-        return currentTestLine;
-    }
+//    public void setCurrentTestLine(Integer currentTestLine) {
+//        this.currentTestLine = currentTestLine;
+//    }
+//
+//    public Integer getCurrentTestLine() {
+//        return currentTestLine;
+//    }
 
     public String getAceTextAreaText() {
         return getTest().getText();
@@ -287,7 +316,7 @@ public class TestNode extends DrawableNode {
         this.test.setText(testString);
     }
 
-    public void setContinueTest(Boolean continueTest) {
-        this.continueTest = continueTest;
-    }
+//    public void setContinueTest(Boolean continueTest) {
+//        this.continueTest = continueTest;
+//    }
 }

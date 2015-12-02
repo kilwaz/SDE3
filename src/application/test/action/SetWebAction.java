@@ -37,12 +37,12 @@ public class SetWebAction extends WebAction {
         TestParameter variableLoop = getTestCommand().getParameterByPath("value::loop");
 
         if (variableStringValue.exists()) {
-            VariableTracker.setVariable(new Variable(variableName.getParameterValue(), variableStringValue.getParameterValue()));
+            getVariableTracker().setVariable(new Variable(variableName.getParameterValue(), variableStringValue.getParameterValue()));
         } else if (variableLoop.exists()) {
-            Element loopedElement = LoopTracker.getLoop(variableLoop.getParameterValue()).getCurrentLoopWebElement().getElement();
+            Element loopedElement = getLoopTracker().getLoop(variableLoop.getParameterValue()).getCurrentLoopWebElement().getElement();
 
             if (variableContent.exists()) {
-                VariableTracker.setVariable(new Variable(variableName.getParameterValue(), loopedElement.html()));
+                getVariableTracker().setVariable(new Variable(variableName.getParameterValue(), loopedElement.html()));
             }
         }
 

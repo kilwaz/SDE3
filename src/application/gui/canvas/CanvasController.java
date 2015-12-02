@@ -1,6 +1,5 @@
 package application.gui.canvas;
 
-import application.data.DataBank;
 import application.gui.Controller;
 import application.gui.FlowController;
 import application.gui.NodeConnection;
@@ -8,6 +7,7 @@ import application.gui.Program;
 import application.node.design.DrawableNode;
 import application.node.implementations.LinuxNode;
 import application.utils.AppParams;
+import application.utils.managers.SessionManager;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
@@ -85,8 +85,9 @@ public class CanvasController {
             } else if (event.isPrimaryButtonDown() && isDraggingCanvas) {
                 offsetWidth = initialOffsetWidth - (initialMouseX - event.getX());
                 offsetHeight = initialOffsetHeight - (initialMouseY - event.getY());
-                DataBank.currentlyEditProgram.getFlowController().setViewOffsetWidth(offsetWidth);
-                DataBank.currentlyEditProgram.getFlowController().setViewOffsetHeight(offsetHeight);
+                FlowController flowController = SessionManager.getInstance().getCurrentSession().getSelectedProgram().getFlowController();
+                flowController.setViewOffsetWidth(offsetWidth);
+                flowController.setViewOffsetHeight(offsetHeight);
                 drawProgram();
             }
         }
@@ -99,7 +100,7 @@ public class CanvasController {
             groupSelectInitialY = event.getY();
         } else {
             if (event.isPrimaryButtonDown()) {
-                Program program = DataBank.currentlyEditProgram;
+                Program program = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
                 if (program != null) {
                     List<DrawableNode> selectedNodes = program.getFlowController().getSelectedNodes();
@@ -133,6 +134,7 @@ public class CanvasController {
     }
 
     public Boolean canvasMouseUp(MouseEvent event) {
+        Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
         if (isDraggingNode) {
             draggedNodes.forEach(DrawableNode::save);
             draggedNodes = new ArrayList<>();
@@ -143,14 +145,13 @@ public class CanvasController {
         } else if (isDraggingCanvas) {
             isDraggingCanvas = false;
             Controller.getInstance().setCursor(Cursor.DEFAULT);
-            DataBank.currentlyEditProgram.save();
+            selectedProgram.save();
             return true;
         } else if (isGroupSelect) {
             isGroupSelect = false;
-            Program program = DataBank.currentlyEditProgram;
-            if (program != null) {
-                List<DrawableNode> selectedNodes = program.getFlowController().getGroupSelectedNodes(groupSelectInitialX - offsetWidth, groupSelectInitialY - offsetHeight, event.getX() - offsetWidth, event.getY() - offsetHeight);
-                program.getFlowController().setSelectedNodes(selectedNodes);
+            if (selectedProgram != null) {
+                List<DrawableNode> selectedNodes = selectedProgram.getFlowController().getGroupSelectedNodes(groupSelectInitialX - offsetWidth, groupSelectInitialY - offsetHeight, event.getX() - offsetWidth, event.getY() - offsetHeight);
+                selectedProgram.getFlowController().setSelectedNodes(selectedNodes);
                 updateAStarNetwork();
             }
             drawProgram();
@@ -168,17 +169,17 @@ public class CanvasController {
     }
 
     public void updateAStarNetwork() {
-        Program program = DataBank.currentlyEditProgram;
+        Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
         network = null;
-        if (program != null) {
-            updateAStarNetwork(program.getFlowController().getNodes());
+        if (selectedProgram != null) {
+            updateAStarNetwork(selectedProgram.getFlowController().getNodes());
         }
     }
 
     public void updateAStarNetwork(List<DrawableNode> nodesToUpdate) {
-        Program program = DataBank.currentlyEditProgram;
+        Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
-        FlowController flowController = program.getFlowController();
+        FlowController flowController = selectedProgram.getFlowController();
         List<NodeConnection> connectionsToUpdate = new ArrayList<>();
 
         for (DrawableNode node : nodesToUpdate) {
@@ -201,20 +202,22 @@ public class CanvasController {
     }
 
     public void drawProgram() {
-        Program program = DataBank.currentlyEditProgram;
+        Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
-        if (program != null) {
-            offsetWidth = program.getFlowController().getViewOffsetWidth();
-            offsetHeight = program.getFlowController().getViewOffsetHeight();
+        // Clears the screen
+        gc.clearRect(0, 0, canvasFlow.getWidth(), canvasFlow.getHeight());
 
-            setFlowNodeScale(program.getFlowController().getStartNode(), this.scale);
-            gc.clearRect(0, 0, canvasFlow.getWidth(), canvasFlow.getHeight()); // Clears the screen
+        if (selectedProgram != null) {
+            offsetWidth = selectedProgram.getFlowController().getViewOffsetWidth();
+            offsetHeight = selectedProgram.getFlowController().getViewOffsetHeight();
+
+            setFlowNodeScale(selectedProgram.getFlowController().getStartNode(), this.scale);
 
             // Draw the bottom layers first and build up
-            for (NodeConnection connection : program.getFlowController().getConnections()) {
+            for (NodeConnection connection : selectedProgram.getFlowController().getConnections()) {
                 // Bold lines for the selected node
-                if (program.getFlowController().getSelectedNodes().contains(connection.getConnectionStart())
-                        || program.getFlowController().getSelectedNodes().contains(connection.getConnectionEnd())) {
+                if (selectedProgram.getFlowController().getSelectedNodes().contains(connection.getConnectionStart())
+                        || selectedProgram.getFlowController().getSelectedNodes().contains(connection.getConnectionEnd())) {
                     gc.setLineWidth(2.0);
                 } else {
                     gc.setLineWidth(1.0);
@@ -244,8 +247,8 @@ public class CanvasController {
             }
 
             // Nodes boxes and contained text
-            for (DrawableNode node : program.getFlowController().getNodes()) {
-                if (program.getFlowController().getSelectedNodes().contains(node)) {
+            for (DrawableNode node : selectedProgram.getFlowController().getNodes()) {
+                if (selectedProgram.getFlowController().getSelectedNodes().contains(node)) {
                     drawNode(node, true);
                 } else {
                     drawNode(node, false);
@@ -291,7 +294,7 @@ public class CanvasController {
         gc.setLineWidth(1.0);
 
         // Draw the start node arrow
-        DrawableNode startNode = DataBank.currentlyEditProgram.getFlowController().getStartNode();
+        DrawableNode startNode = SessionManager.getInstance().getCurrentSession().getSelectedProgram().getFlowController().getStartNode();
         if (startNode != null && startNode.equals(drawableNode)) {
             gc.beginPath();
             gc.moveTo(drawableNode.getX() + offsetWidth - 25, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));

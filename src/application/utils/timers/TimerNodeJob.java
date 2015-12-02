@@ -1,4 +1,4 @@
-package application.utils;
+package application.utils.timers;
 
 
 import application.gui.FlowController;
@@ -10,9 +10,9 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-public class TimerJob implements Job {
+public class TimerNodeJob implements Job {
     private DrawableNode nodeToRun;
-    private static Logger log = Logger.getLogger(TimerJob.class);
+    private static Logger log = Logger.getLogger(TimerNodeJob.class);
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {

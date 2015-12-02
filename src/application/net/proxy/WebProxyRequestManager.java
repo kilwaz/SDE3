@@ -1,6 +1,5 @@
 package application.net.proxy;
 
-import application.data.DataBank;
 import application.node.implementations.RequestTrackerNode;
 import org.apache.log4j.Logger;
 
@@ -99,5 +98,9 @@ public class WebProxyRequestManager {
         return () -> {
             return activeRequests.size() == 0; // The condition that must be fulfilled
         };
+    }
+
+    public RecordedProxy getRecordedProxy() {
+        return recordedProxy;
     }
 }

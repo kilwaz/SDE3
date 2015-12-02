@@ -49,7 +49,12 @@ public class CustomObjectNode extends DrawableNode {
             customObjectHashMap.get(payloadReference).setPayload(payload);
             customObjectHashMap.get(payloadReference).save();
         } else {
-            DataBank.createNewCustomObject(payload, payloadReference, this);
+            CustomObject customObject = CustomObject.create(CustomObject.class);
+            customObject.setPayload(payload);
+            customObject.setPayLoadReference(payloadReference);
+            customObject.setParent(this);
+            customObject.save();
+            customObjectHashMap.put(customObject.getPayLoadReference(), customObject);
         }
     }
 
@@ -74,7 +79,6 @@ public class CustomObjectNode extends DrawableNode {
     }
 
     public CustomObject getCustomObject(String reference) {
-
         return customObjectHashMap.get(reference);
     }
 

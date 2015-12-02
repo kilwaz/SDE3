@@ -60,7 +60,7 @@ public class Logic {
                 parentLogicNode.save();
             }
 
-            Program program = DataBank.currentlyEditProgram;
+            Program program = getParentLogicNode().getProgram();
             if (program != null) {
                 program.getFlowController().checkConnections();
             }

@@ -11,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class RecordedRequest extends DatabaseObject {
     private String URL = "";
@@ -26,7 +25,7 @@ public class RecordedRequest extends DatabaseObject {
 
     private static Logger log = Logger.getLogger(RecordedRequest.class);
 
-    public RecordedRequest(){
+    public RecordedRequest() {
         super();
     }
 
@@ -164,5 +163,12 @@ public class RecordedRequest extends DatabaseObject {
 
     public void setParentHttpProxy(RecordedProxy parentHttpProxy) {
         this.parentHttpProxy = parentHttpProxy;
+    }
+
+    public String getProxyConnectionString() {
+        if (parentHttpProxy != null) {
+            return parentHttpProxy.getConnectionString();
+        }
+        return "No Proxy";
     }
 }

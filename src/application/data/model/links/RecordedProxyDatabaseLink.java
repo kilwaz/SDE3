@@ -10,5 +10,6 @@ public class RecordedProxyDatabaseLink extends DatabaseLink {
         // Make sure the order is the same as column order in database
         link("uuid", method("getUuidString"), method("setUuidFromString", String.class)); // 1
         link("request_count", method("getRequestCount"), method("setRequestCount", Integer.class)); // 2
+        link("connection_string", method("getConnectionString"), method("setConnectionString", String.class)); // 3
     }
 }

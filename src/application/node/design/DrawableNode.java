@@ -18,12 +18,7 @@ import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -184,68 +179,11 @@ public class DrawableNode extends DatabaseObject {
         return drawablePoints;
     }
 
-    public Document getXMLRepresentation() {
-        Document document;
-
-        // instance of a DocumentBuilderFactory
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        try {
-            // use factory to get an instance of document builder
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            // create instance of DOM
-            document = db.newDocument();
-
-            document.appendChild(getXMLRepresentation(document));
-
-            return document;
-        } catch (ParserConfigurationException ex) {
-            Error.NODE_XML_REPRESENTATION.record().create(ex);
-        }
-
-        return null;
-    }
-
     public void delete() {
         SavableAttributeDAO savableAttributeDAO = new SavableAttributeDAO();
         List<SavableAttribute> savableAttributes = savableAttributeDAO.getAttributes(this);
         savableAttributes.forEach(application.data.SavableAttribute::delete);
         super.delete();
-    }
-
-    public Element getXMLRepresentation(Document document) {
-        Element elementNode = null;
-        // Create the root element
-        Element nodeElement = document.createElement(this.getClass().getSimpleName());
-
-        // Record if this node is the start node of the program
-        DrawableNode drawableNode = program.getFlowController().getStartNode();
-        if (drawableNode != null && drawableNode.equals(this)) {
-            Element startNodeElement = document.createElement("IsStartNode");
-            startNodeElement.appendChild(document.createTextNode("Yes"));
-            nodeElement.appendChild(startNodeElement);
-        }
-
-        // Loops through savable attributes
-        for (SavableAttribute savableAttribute : getDataToSave()) {
-            elementNode = document.createElement("Variable");
-
-            Element className = document.createElement("ClassName");
-            className.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(savableAttribute.getClassName())));
-
-            Element variableName = document.createElement("VariableName");
-            variableName.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(savableAttribute.getVariableName())));
-
-            Element variableValue = document.createElement("VariableValue");
-            variableValue.appendChild(document.createCDATASection(SDEUtils.escapeXMLCData(savableAttribute.getVariable().toString())));
-
-            elementNode.appendChild(variableName);
-            elementNode.appendChild(className);
-            elementNode.appendChild(variableValue);
-
-            nodeElement.appendChild(elementNode);
-        }
-
-        return nodeElement;
     }
 
     public Double getCenterX() {

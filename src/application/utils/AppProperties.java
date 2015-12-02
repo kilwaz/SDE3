@@ -44,11 +44,13 @@ public class AppProperties {
             // XML file
             document = db.parse(propertiesPath);
 
-            Element doc = document.getDocumentElement();
+            Element documentElement = document.getDocumentElement();
 
-            AppParams.setDatabaseConnection(getTextValue(AppParams.getDatabaseConnection(), doc, "DBConnectionString"));
-            AppParams.setDatabasePassword(getTextValue(AppParams.getDatabasePassword(), doc, "DBPassword"));
-            AppParams.setDatabaseUsername(getTextValue(AppParams.getDatabaseUsername(), doc, "DBUsername"));
+            AppParams.setRemoteDatabaseConnection(getTextValue(AppParams.getRemoteDatabaseConnection(), documentElement, "DBConnectionString"));
+            AppParams.setRemoteDatabasePassword(getTextValue(AppParams.getRemoteDatabasePassword(), documentElement, "DBPassword"));
+            AppParams.setRemoteDatabaseUsername(getTextValue(AppParams.getRemoteDatabaseUsername(), documentElement, "DBUsername"));
+            AppParams.setLocalDatabase(Boolean.parseBoolean(getTextValue(AppParams.isLocalDatabase().toString(), documentElement, "LocalDatabase")));
+            AppParams.setLocalDatabaseName(getTextValue(AppParams.getRemoteDatabaseUsername(), documentElement, "LocalDatabaseName"));
             return true;
 
         } catch (ParserConfigurationException | SAXException | IOException ex) {
@@ -58,10 +60,10 @@ public class AppProperties {
         return false;
     }
 
-    private static String getTextValue(String def, Element doc, String tag) {
-        String value = def;
+    private static String getTextValue(String defaultValue, Element documentElement, String tagName) {
+        String value = defaultValue;
         NodeList nl;
-        nl = doc.getElementsByTagName(tag);
+        nl = documentElement.getElementsByTagName(tagName);
         if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
             value = nl.item(0).getFirstChild().getNodeValue();
         }
@@ -85,15 +87,23 @@ public class AppProperties {
 
             // create data elements and place them under root
             e = document.createElement("DBUsername");
-            e.appendChild(document.createTextNode(AppParams.getDatabaseUsername()));
+            e.appendChild(document.createTextNode(AppParams.getRemoteDatabaseUsername()));
             rootEle.appendChild(e);
 
             e = document.createElement("DBPassword");
-            e.appendChild(document.createTextNode(AppParams.getDatabasePassword()));
+            e.appendChild(document.createTextNode(AppParams.getRemoteDatabasePassword()));
             rootEle.appendChild(e);
 
             e = document.createElement("DBConnectionString");
-            e.appendChild(document.createTextNode(AppParams.getDatabaseConnection()));
+            e.appendChild(document.createTextNode(AppParams.getRemoteDatabaseConnection()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("LocalDatabase");
+            e.appendChild(document.createTextNode(AppParams.isLocalDatabase().toString()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("LocalDatabaseName");
+            e.appendChild(document.createTextNode(AppParams.getLocalDatabaseName()));
             rootEle.appendChild(e);
 
             document.appendChild(rootEle);
@@ -102,5 +112,12 @@ public class AppProperties {
         } catch (ParserConfigurationException ex) {
             Error.APP_PROPERTIES_SAVE_XML.record().create(ex);
         }
+    }
+
+    public AppProperties getInstance() {
+        if (instance == null) {
+            instance = new AppProperties();
+        }
+        return instance;
     }
 }

@@ -2,12 +2,11 @@ package application.net.proxy;
 
 import application.data.model.DatabaseObject;
 
-import java.util.UUID;
-
 public class RecordedProxy extends DatabaseObject {
     private Integer requestCount = 0;
+    private String connectionString = "Unknown";
 
-    public RecordedProxy(){
+    public RecordedProxy() {
         super();
     }
 
@@ -17,5 +16,13 @@ public class RecordedProxy extends DatabaseObject {
 
     public void setRequestCount(Integer requestCount) {
         this.requestCount = requestCount;
+    }
+
+    public String getConnectionString() {
+        return connectionString;
+    }
+
+    public void setConnectionString(String connectionString) {
+        this.connectionString = connectionString;
     }
 }

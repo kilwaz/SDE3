@@ -1,6 +1,5 @@
 package application.utils.managers;
 
-import application.error.Error;
 import application.error.RecordedError;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,6 +22,9 @@ public class ErrorManager {
     }
 
     public static ErrorManager getInstance() {
+        if (instance == null) {
+            instance = new ErrorManager();
+        }
         return instance;
     }
 }

@@ -1,11 +1,15 @@
 package application.gui.window;
 
-import application.data.DataBank;
+import application.data.model.dao.NodeColourDAO;
+import application.data.xml.DrawableNodeXML;
+import application.data.xml.NodeColoursXML;
+import application.data.xml.ProgramXML;
 import application.error.Error;
 import application.gui.AceTextArea;
 import application.gui.Program;
 import application.node.design.DrawableNode;
 import application.utils.XMLTransform;
+import application.utils.managers.SessionManager;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,6 +29,7 @@ import java.util.List;
 public class ExportWindow extends Stage {
     public final static Integer EXPORT_NODE = 1;
     public final static Integer EXPORT_PROGRAM = 2;
+    public final static Integer EXPORT_NODE_COLOURS = 3;
 
     private Integer exportType;
     private List<DrawableNode> selectedNodes;
@@ -38,7 +43,7 @@ public class ExportWindow extends Stage {
 
     private void init() {
         try {
-            Program program = DataBank.currentlyEditProgram;
+            Program program = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
             selectedNodes = new ArrayList<>();
             if (program != null) {
                 selectedNodes = program.getFlowController().getSelectedNodes();
@@ -70,6 +75,10 @@ public class ExportWindow extends Stage {
                     if (program != null) {
                         fileName = program.getName();
                     }
+                } else if (exportType.equals(EXPORT_NODE_COLOURS)) {
+                    if (program != null) {
+                        fileName = "Node Colours";
+                    }
                 }
 
                 fileChooser.setInitialFileName(fileName + ".xml");
@@ -78,10 +87,16 @@ public class ExportWindow extends Stage {
                 if (file != null) {
                     if (exportType.equals(EXPORT_NODE)) {
                         for (DrawableNode drawableNode : selectedNodes) {
-                            XMLTransform.writeXMLToFile(drawableNode.getXMLRepresentation(), file.getAbsolutePath());
+                            DrawableNodeXML drawableNodeXML = new DrawableNodeXML(drawableNode);
+                            XMLTransform.writeXMLToFile(drawableNodeXML.getXMLRepresentation(), file.getAbsolutePath());
                         }
                     } else if (exportType.equals(EXPORT_PROGRAM)) {
-                        XMLTransform.writeXMLToFile(DataBank.currentlyEditProgram.getXMLRepresentation(), file.getAbsolutePath());
+                        ProgramXML programXML = new ProgramXML(SessionManager.getInstance().getCurrentSession().getSelectedProgram());
+                        XMLTransform.writeXMLToFile(programXML.getXMLRepresentation(), file.getAbsolutePath());
+                    } else if (exportType.equals(EXPORT_NODE_COLOURS)) {
+                        NodeColourDAO nodeColourDAO = new NodeColourDAO();
+                        NodeColoursXML nodeColoursXML = new NodeColoursXML(nodeColourDAO.getNodeColours());
+                        XMLTransform.writeXMLToFile(nodeColoursXML.getXMLRepresentation(), file.getAbsolutePath());
                     }
                 }
             });
@@ -111,13 +126,22 @@ public class ExportWindow extends Stage {
             this.setScene(newScene);
 
             if (exportType.equals(EXPORT_NODE)) {
-                this.setTitle("Export Node");
                 for (DrawableNode drawableNode : selectedNodes) {
-                    exportTextArea.setText(exportTextArea.getText() + "\r\n" + XMLTransform.writeXMLToString(drawableNode.getXMLRepresentation()));
+                    DrawableNodeXML drawableNodeXML = new DrawableNodeXML(drawableNode);
+                    exportTextArea.setText(exportTextArea.getText() + "\r\n" + XMLTransform.writeXMLToString(drawableNodeXML.getXMLRepresentation()));
                 }
+                this.setTitle("Export Node " + (selectedNodes.size() > 0 ? selectedNodes.get(0).getContainedText() : ""));
             } else if (exportType.equals(EXPORT_PROGRAM)) {
-                exportTextArea.setText(XMLTransform.writeXMLToString(DataBank.currentlyEditProgram.getXMLRepresentation()));
-                this.setTitle("Export Program");
+                Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                ProgramXML programXML = new ProgramXML(selectedProgram);
+                exportTextArea.setText(XMLTransform.writeXMLToString(programXML.getXMLRepresentation()));
+                this.setTitle("Export Program " + selectedProgram.getName());
+            } else if (exportType.equals(EXPORT_NODE_COLOURS)) {
+                NodeColourDAO nodeColourDAO = new NodeColourDAO();
+                NodeColoursXML nodeColoursXML = new NodeColoursXML(nodeColourDAO.getNodeColours());
+                exportTextArea.setText(exportTextArea.getText() + "\r\n" + XMLTransform.writeXMLToString(nodeColoursXML.getXMLRepresentation()));
+
+                this.setTitle("Export Node Colours");
             }
 
             URL url = getClass().getResource("/icon.png");

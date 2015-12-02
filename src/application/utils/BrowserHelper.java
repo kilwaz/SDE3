@@ -1,6 +1,7 @@
 package application.utils;
 
 import application.utils.managers.BrowserManager;
+import org.apache.log4j.Logger;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.Proxy;
@@ -18,14 +19,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class BrowserHelper {
+    private static Logger log = Logger.getLogger(BrowserHelper.class);
+
     public static WebDriver getChrome() {
+        return getChrome("localhost:8080");
+    }
+
+    public static WebDriver getChrome(String proxyConnectionString) {
         DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("test-type");
         capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 
-        String proxyConnectionString = "localhost:8080";
         Proxy proxy = new Proxy();
         proxy.setHttpProxy(proxyConnectionString)
                 .setFtpProxy(proxyConnectionString)
@@ -37,7 +43,7 @@ public class BrowserHelper {
         return driver;
     }
 
-    public static WebDriver getRemoteChrome() {
+    public static WebDriver getRemoteChrome(String proxyConnectionString, String seleniumGridUrl) {
         try {
             DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 
@@ -45,14 +51,14 @@ public class BrowserHelper {
             options.addArguments("test-type");
             capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 
-            String proxyConnectionString = "172.16.10.208:8080";
             Proxy proxy = new Proxy();
             proxy.setHttpProxy(proxyConnectionString)
                     .setFtpProxy(proxyConnectionString)
                     .setSslProxy(proxyConnectionString);
             capabilities.setCapability(CapabilityType.PROXY, proxy);
 
-            WebDriver driver = new RemoteWebDriver(new URL("http://172.16.10.208:4444/wd/hub"), capabilities);
+            WebDriver driver = new RemoteWebDriver(new URL(seleniumGridUrl), capabilities);
+            setupBrowser(driver);
 
             BrowserManager.getInstance().addBrowser(driver);
             return driver;
@@ -81,5 +87,7 @@ public class BrowserHelper {
         driver.manage().window().setSize(new Dimension(screenWidth.intValue(), screenHeight.intValue()));
         driver.manage().window().setPosition(new Point(0, 0));
         BrowserManager.getInstance().addBrowser(driver);
+
+        driver.manage().deleteAllCookies();
     }
 }

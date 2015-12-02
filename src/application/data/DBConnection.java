@@ -2,11 +2,16 @@ package application.data;
 
 import application.error.Error;
 import application.utils.SDEUtils;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import org.apache.log4j.Logger;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -96,5 +101,72 @@ public class DBConnection {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getConnectionString() {
+        return connectionString;
+    }
+
+    public void rebuildDatabase() {
+        try {
+            getConnection().setAutoCommit(false);
+
+            String resourcesPath = SDEUtils.getResourcePath();
+            String bashEditorPath = resourcesPath + "/data/blankdb.sql";
+
+            String content = "";
+            String currentQuery = "";
+            try {
+                byte[] encoded = Files.readAllBytes(Paths.get(bashEditorPath));
+                content = new String(encoded, "UTF8");
+
+                String[] sqlQuery = content.split(";");
+
+                for (String query : sqlQuery) {
+                    currentQuery = query;
+                    getPreparedStatement(query).execute();
+                }
+            } catch (IOException | MySQLSyntaxErrorException ex) {
+                application.error.Error.DATABASE_REBUILD_FAILED.record().additionalInformation(currentQuery).create(ex);
+            }
+
+            getConnection().commit();
+            getConnection().setAutoCommit(true);
+
+            migrateFlyway();
+        } catch (SQLException ex) {
+            Error.DATABASE_REBUILD_FAILED.record().create(ex);
+        }
+    }
+
+    public void migrateFlyway() {
+        try {
+            // Migrate the database
+            Flyway flyway = new Flyway();
+            log.info("Migrating " + connectionString);
+            flyway.setDataSource(connectionString, username, password);
+
+            String sqlMigrationPath = "filesystem:" + SDEUtils.getResourcePath() + "/SQL-Migration/";
+
+            flyway.setLocations(sqlMigrationPath);
+
+            String[] flywayLocations = flyway.getLocations();
+            for (String aLoc : flywayLocations) {
+                log.info("Flyway location for sql = " + aLoc);
+            }
+
+            flyway.setBaselineOnMigrate(true);
+            flyway.migrate();
+        } catch (FlywaySqlScriptException ex) {
+            Error.DATABASE_MIGRATE_FAILED.record().create(ex);
+        }
     }
 }

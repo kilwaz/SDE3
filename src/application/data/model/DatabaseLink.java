@@ -17,6 +17,7 @@ import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
 import application.test.TestResult;
 import application.test.TestStep;
+import application.utils.CustomObject;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class DatabaseLink {
         linkClasses.put(TestResult.class, TestResultDatabaseLink.class);
         linkClasses.put(DrawableNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(SavableAttribute.class, SavableAttributeDatabaseLink.class);
+        linkClasses.put(CustomObject.class, CustomObjectDatabaseLink.class);
 
         // Drawable Node Classes - Better way to do this?
         linkClasses.put(BashNode.class, DrawableNodeDatabaseLink.class);

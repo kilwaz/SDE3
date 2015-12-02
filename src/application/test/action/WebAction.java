@@ -2,10 +2,15 @@ package application.test.action;
 
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.implementations.TestNode;
+import application.node.objects.Test;
 import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
+import application.test.action.helpers.FunctionTracker;
+import application.test.action.helpers.IfTracker;
+import application.test.action.helpers.LoopTracker;
+import application.test.action.helpers.VariableTracker;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,6 +30,11 @@ public abstract class WebAction implements Action {
     private TestResult testResult = null;
     private HttpProxyServer httpProxyServer = null;
     private TestNode parentTestNode = null;
+    private Test runningTest = null;
+    private IfTracker ifTracker = null;
+    private LoopTracker loopTracker = null;
+    private VariableTracker variableTracker = null;
+    private FunctionTracker functionTracker = null;
     private static Document currentDocument = null;
 
     private static Logger log = Logger.getLogger(WebAction.class);
@@ -54,6 +64,7 @@ public abstract class WebAction implements Action {
         actionClasses.put("end", EndWebAction.class);
         actionClasses.put("select", SelectWebAction.class);
         actionClasses.put("javascript", JavascriptWebAction.class);
+        actionClasses.put("driver", DriverWebAction.class);
     }
 
     public WebAction() {
@@ -68,12 +79,18 @@ public abstract class WebAction implements Action {
      * @param testResult     The final result of the test, this object is provided to be updated by the action.
      * @param parentTestNode Reference to the Test node that is running this test.
      */
-    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, TestNode parentTestNode) {
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, TestNode parentTestNode, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker) {
         this.parentTestNode = parentTestNode;
         this.httpProxyServer = webProxy;
         this.driver = driver;
         this.testCommand = testCommand;
         this.testResult = testResult;
+        this.runningTest = runningTest;
+        this.ifTracker = ifTracker;
+        this.functionTracker = functionTracker;
+        this.loopTracker = loopTracker;
+        this.variableTracker = variableTracker;
+
     }
 
     /**
@@ -250,5 +267,25 @@ public abstract class WebAction implements Action {
         }
 
         return null;
+    }
+
+    public Test getRunningTest() {
+        return runningTest;
+    }
+
+    public IfTracker getIfTracker() {
+        return ifTracker;
+    }
+
+    public FunctionTracker getFunctionTracker() {
+        return functionTracker;
+    }
+
+    public LoopTracker getLoopTracker() {
+        return loopTracker;
+    }
+
+    public VariableTracker getVariableTracker() {
+        return variableTracker;
     }
 }

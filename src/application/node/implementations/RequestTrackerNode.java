@@ -83,8 +83,7 @@ public class RequestTrackerNode extends DrawableNode {
 
         TableColumn requestID = new TableColumn("ID");
         requestID.setMinWidth(30);
-        requestID.setMaxWidth(50);
-        requestID.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("Id"));
+        requestID.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("Uuid"));
 
         TableColumn url = new TableColumn("URL");
         url.setMinWidth(30);
@@ -92,6 +91,7 @@ public class RequestTrackerNode extends DrawableNode {
 
         TableColumn duration = new TableColumn("Duration");
         duration.setMinWidth(30);
+        duration.setMaxWidth(120);
         duration.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("Duration"));
         duration.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
@@ -108,6 +108,7 @@ public class RequestTrackerNode extends DrawableNode {
 
         TableColumn requestSize = new TableColumn("Request Size");
         requestSize.setMinWidth(30);
+        requestSize.setMaxWidth(120);
         requestSize.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("RequestSize"));
         requestSize.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
@@ -124,6 +125,7 @@ public class RequestTrackerNode extends DrawableNode {
 
         TableColumn responseSize = new TableColumn("Response Size");
         responseSize.setMinWidth(30);
+        responseSize.setMaxWidth(120);
         responseSize.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("ResponseSize"));
         responseSize.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
@@ -138,12 +140,17 @@ public class RequestTrackerNode extends DrawableNode {
             }
         });
 
+        TableColumn proxy = new TableColumn("Proxy");
+        proxy.setMinWidth(30);
+        proxy.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("ProxyConnectionString"));
+
         requestTableView.setItems(getResultList());
         requestTableView.getColumns().addAll(requestID);
         requestTableView.getColumns().addAll(url);
         requestTableView.getColumns().addAll(duration);
         requestTableView.getColumns().addAll(requestSize);
         requestTableView.getColumns().addAll(responseSize);
+        requestTableView.getColumns().addAll(proxy);
         requestTableView.setLayoutX(11);
         requestTableView.setLayoutY(50);
 

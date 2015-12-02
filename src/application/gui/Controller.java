@@ -5,8 +5,7 @@ import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
 import application.data.User;
-import application.data.model.dao.DrawableNodeDAO;
-import application.data.model.dao.ProgramDAO;
+import application.data.model.dao.*;
 import application.error.Error;
 import application.gui.canvas.CanvasController;
 import application.gui.dialog.ConfirmDialog;
@@ -46,6 +45,7 @@ import org.controlsfx.control.StatusBar;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -97,6 +97,12 @@ public class Controller implements Initializable {
     private MenuItem menuBarMenuItemError;
 
     @FXML
+    private MenuItem menuBarMenuItemClearRequestData;
+
+    @FXML
+    private MenuItem menuBarMenuItemExportNodeColours;
+
+    @FXML
     private SplitPane splitPanePageCentral;
 
     @FXML
@@ -138,9 +144,6 @@ public class Controller implements Initializable {
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         Controller.controller = this;
 
-        ProgramDAO programDAO = new ProgramDAO();
-        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
-
         flowTabPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             canvasFlow.setWidth(newSceneWidth.intValue());
             canvasController.drawProgram();
@@ -176,9 +179,9 @@ public class Controller implements Initializable {
         });
 
         canvasFlow.setOnMouseMoved(event -> {
-            Program program = DataBank.currentlyEditProgram;
-            if (program != null) {
-                List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
+            Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+            if (selectedProgram != null) {
+                List<DrawableNode> clickNodes = selectedProgram.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
                 if (clickNodes.size() > 0) {
                     scene.setCursor(Cursor.HAND);
                 } else {
@@ -198,14 +201,14 @@ public class Controller implements Initializable {
             if (skipCanvasClick) {
                 skipCanvasClick = false;
             } else {
-                Program program = DataBank.currentlyEditProgram;
-                if (program != null) {
-                    for (DrawableNode drawableNode : program.getFlowController().getSelectedNodes()) {
+                Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                if (selectedProgram != null) {
+                    for (DrawableNode drawableNode : selectedProgram.getFlowController().getSelectedNodes()) {
                         Tab nodeTab = null;
                         // We loop to see if the tab already exists for this node
                         for (Tab loopTab : nodeTabPane.getTabs()) {
                             if (loopTab.getId() != null) {
-                                if (loopTab.getId().equals(drawableNode.getUuidStringWithoutHyphen().toString())) {
+                                if (loopTab.getId().equals(drawableNode.getUuidStringWithoutHyphen())) {
                                     nodeTab = loopTab;
                                     break;
                                 }
@@ -231,7 +234,7 @@ public class Controller implements Initializable {
         canvasFlow.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
             @Override
             public void handle(ContextMenuEvent event) {
-                Program program = currentUser.getCurrentProgram();
+                Program program = SessionManager.getInstance().getCurrentSession().getUser().getCurrentProgram();
                 if (program != null) {
                     if (canvasFlowContextMenu != null) {
                         canvasFlowContextMenu.hide();
@@ -337,9 +340,8 @@ public class Controller implements Initializable {
             }
         });
 
-        List<Program> programs = programDAO.getProgramsByUser(currentUser);
+        reloadPrograms();
 
-        programList.getItems().addAll(programs);
         programList.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
             private String clickedName = "";
 
@@ -357,7 +359,7 @@ public class Controller implements Initializable {
                 menuItemNewProgram.setOnAction(event1 -> {
                     Program program = Program.create(Program.class);
                     program.setName("New program");
-                    program.setParentUser(currentUser);
+                    program.setParentUser(SessionManager.getInstance().getCurrentSession().getUser());
                     program.save();
 
                     programList.getItems().add(program);
@@ -365,31 +367,31 @@ public class Controller implements Initializable {
 
                 MenuItem menuItemDeleteProgram = new MenuItem("Delete Program");
                 menuItemDeleteProgram.setOnAction(event1 -> {
-                    Program program = DataBank.currentlyEditProgram;
+                    Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
                     application.gui.dialog.Dialog confirmDialog = new ConfirmDialog()
-                            .content("Are you sure you want to delete " + program.getName())
+                            .content("Are you sure you want to delete " + selectedProgram.getName())
                             .title("Deleting program")
                             .onYesAction(() -> {
                                 // First close all the node tabs that are open as we will be deleting these nodes
-                                program.getFlowController().getNodes().forEach(Controller.this::closeDeleteNodeTabs);
+                                selectedProgram.getFlowController().getNodes().forEach(Controller.this::closeDeleteNodeTabs);
                                 // Finally delete the program
-                                program.delete();
-                                programList.getItems().remove(program);
+                                selectedProgram.delete();
+                                programList.getItems().remove(selectedProgram);
                             });
                     confirmDialog.show();
                 });
 
                 MenuItem menuItemCompile = new MenuItem("Compile...");
                 menuItemCompile.setOnAction(event1 -> {
-                    Program program = DataBank.currentlyEditProgram;
-                    program.compile();
+                    Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                    selectedProgram.compile();
                 });
 
                 MenuItem menuItemRun = new MenuItem("Run...");
                 menuItemRun.setOnAction(event1 -> {
-                    Program program = DataBank.currentlyEditProgram;
-                    program.run();
+                    Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                    selectedProgram.run();
                 });
 
                 programListContextMenu = new ContextMenu();
@@ -418,9 +420,12 @@ public class Controller implements Initializable {
 
             @Override
             public Program fromString(String input) {
-                Program program = DataBank.currentlyEditProgram;
-                program.setName(input);
-                program.save();
+                Program program = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                if (program != null) {
+                    program.setName(input);
+                    program.save();
+                }
+
                 return program;
             }
         });
@@ -437,20 +442,24 @@ public class Controller implements Initializable {
                     // If we only have one program in the list and we rename it newProgram is null and gets deselected in the list
                     // But we still want the flow to show this renamed program so don't update these values with null
                     if (newProgram != null) {
-                        DataBank.currentlyEditProgram = newProgram;
+                        SessionManager.getInstance().getCurrentSession().setSelectedProgram(newProgram);
 
+                        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
                         currentUser.setCurrentProgram(newProgram);
                         currentUser.save();
 
                         DrawableNodeDAO drawableNodeDAO = new DrawableNodeDAO();
                         List<DrawableNode> drawableNodes = drawableNodeDAO.getNodes(newProgram);
 
+                        newProgram.getFlowController().clearNodes();
                         newProgram.getFlowController().addNodes(drawableNodes);
                         newProgram.getFlowController().checkConnections();
                     }
                     canvasController.updateAStarNetwork();
                     canvasController.drawProgram();
                 });
+
+        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
 
         if (currentUser != null && currentUser.getCurrentProgram() != null) {
             programList.getSelectionModel().select(currentUser.getCurrentProgram());
@@ -467,9 +476,9 @@ public class Controller implements Initializable {
         runButtonToolBar.setOnMouseReleased(event -> runButtonToolBar.setStyle("-fx-background-color: lightgray;"));
         runButtonToolBar.setOnMouseExited(event -> runButtonToolBar.setStyle("-fx-background-color: null;"));
         runButtonToolBar.setOnAction(event -> {
-                    Program program = DataBank.currentlyEditProgram;
-                    if (program != null) {
-                        program.run();
+                    Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                    if (selectedProgram != null) {
+                        selectedProgram.run();
                     }
                 }
         );
@@ -494,8 +503,18 @@ public class Controller implements Initializable {
         menuBarMenuItemThread.setOnAction(event -> new ThreadWindow());
         menuBarMenuItemExportProgram.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_PROGRAM));
         menuBarMenuItemExportNode.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE));
+        menuBarMenuItemExportNodeColours.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE_COLOURS));
         menuBarMenuItemImport.setOnAction(event -> new ImportWindow());
         menuBarMenuItemError.setOnAction(event -> new ErrorWindow());
+        menuBarMenuItemClearRequestData.setOnAction(event -> {
+            RecordedHeaderDAO recordedHeaderDAO = new RecordedHeaderDAO();
+            RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
+            RecordedProxyDAO recordedProxyDAO = new RecordedProxyDAO();
+
+            recordedHeaderDAO.deleteAllRecordedHeaders();
+            recordedRequestDAO.deleteAllRecordedRequests();
+            recordedProxyDAO.deleteAllRecordedProxies();
+        });
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());
@@ -508,7 +527,7 @@ public class Controller implements Initializable {
     public MenuItem createNodeMenuItem(String className) {
         MenuItem menuItem = new MenuItem("Add " + className);
         menuItem.setOnAction(event -> {
-            Program program = DataBank.currentlyEditProgram;
+            Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
             try {
                 Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("application.node.implementations." + className);
@@ -517,7 +536,7 @@ public class Controller implements Initializable {
                 newNode.setX(lastCanvasContextMenuX - canvasController.getOffsetWidth());
                 newNode.setY(lastCanvasContextMenuY - canvasController.getOffsetHeight());
 
-                program.getFlowController().addNode(newNode);
+                selectedProgram.getFlowController().addNode(newNode);
                 newNode.save();
                 canvasController.drawProgram();
             } catch (ClassNotFoundException ex) {
@@ -542,10 +561,10 @@ public class Controller implements Initializable {
         nameField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
             if (!textField.getText().isEmpty()) {
-                Program program = DataBank.currentlyEditProgram;
-                DrawableNode nodeToUpdate = program.getFlowController().getNodeByUuidWithoutHyphen(textField.getId().replace("fieldName-", ""));
+                Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                DrawableNode nodeToUpdate = selectedProgram.getFlowController().getNodeByUuidWithoutHyphen(textField.getId().replace("fieldName-", ""));
                 nodeToUpdate.setContainedText(textField.getText());
-                program.getFlowController().checkConnections(); // Renaming a node might make or break connections
+                selectedProgram.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
                 nodeTabPane.getTabs().stream().filter(loopTab -> loopTab.getId() != null).forEach(loopTab -> {
                     if (loopTab.getId().equals(nodeToUpdate.getUuidStringWithoutHyphen().toString())) {
@@ -568,10 +587,10 @@ public class Controller implements Initializable {
 
         nameField.setOnAction(event -> {
             TextField textField = (TextField) event.getSource();
-            Program program = DataBank.currentlyEditProgram;
-            DrawableNode nodeToUpdate = program.getFlowController().getNodeByUuidWithoutHyphen(textField.getId().replace("fieldNextNode-", ""));
+            Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+            DrawableNode nodeToUpdate = selectedProgram.getFlowController().getNodeByUuidWithoutHyphen(textField.getId().replace("fieldNextNode-", ""));
             nodeToUpdate.setNextNodeToRun(textField.getText());
-            program.getFlowController().checkConnections(); // Renaming a node might make or break connections
+            selectedProgram.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
             nodeToUpdate.save();
             canvasController.drawProgram();
@@ -731,6 +750,39 @@ public class Controller implements Initializable {
             } else {
                 tabToRemove.getTabPane().getTabs().remove(tabToRemove);
             }
+        }
+    }
+
+    public void closeAllNodeTabs() {
+        class GUIUpdate implements Runnable {
+            GUIUpdate() {
+            }
+
+            public void run() {
+                List<Tab> tabs = new ArrayList<>();
+                tabs.addAll(nodeTabPane.getTabs());
+                for (Tab loopTab : tabs) {
+                    loopTab.getTabPane().getTabs().remove(loopTab);
+                }
+            }
+        }
+
+        Platform.runLater(new GUIUpdate());
+    }
+
+    public void reloadPrograms() {
+        if (programList != null) {
+            programList.getItems().clear();
+        }
+
+        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
+
+        ProgramDAO programDAO = new ProgramDAO();
+        List<Program> programs = programDAO.getProgramsByUser(currentUser);
+        programList.getItems().addAll(programs);
+        if (currentUser != null && currentUser.getCurrentProgram() != null) {
+            programList.getSelectionModel().select(currentUser.getCurrentProgram());
+            programList.scrollTo(currentUser.getCurrentProgram());
         }
     }
 }

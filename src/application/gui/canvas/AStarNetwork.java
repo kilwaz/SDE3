@@ -1,10 +1,10 @@
 package application.gui.canvas;
 
-import application.data.DataBank;
 import application.error.Error;
 import application.gui.NodeConnection;
 import application.gui.Program;
 import application.node.design.DrawableNode;
+import application.utils.managers.SessionManager;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -21,14 +21,14 @@ public class AStarNetwork {
     private static Logger log = Logger.getLogger(AStarNetwork.class);
 
     public AStarNetwork(Integer nodeCornerPadding) {
-        Program program = DataBank.currentlyEditProgram;
+        Program program = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
         this.nodeCornerPadding = nodeCornerPadding;
         updateAStarNetwork(program.getFlowController().getNodes(), true);
     }
 
     public void updateAStarNetwork(List<DrawableNode> nodes, Boolean recalculateVisibility) {
         List<Point> points = new ArrayList<>();
-        Program program = DataBank.currentlyEditProgram;
+        Program program = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
         // Create points, 6 points one in each corner and then one on the middle left and right edges
         for (DrawableNode node : program.getFlowController().getNodes()) {

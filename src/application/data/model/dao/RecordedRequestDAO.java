@@ -1,8 +1,6 @@
 package application.data.model.dao;
 
-import application.data.SelectQuery;
-import application.data.SelectResult;
-import application.data.SelectResultRow;
+import application.data.*;
 import application.net.proxy.RecordedProxy;
 import application.net.proxy.RecordedRequest;
 
@@ -23,5 +21,9 @@ public class RecordedRequestDAO {
             recordedRequests.add(RecordedRequest.load(DAO.UUIDFromString(resultRow.getString("uuid")), RecordedRequest.class));
         }
         return recordedRequests;
+    }
+
+    public void deleteAllRecordedRequests(){
+        UpdateResult updateResult = (UpdateResult) new UpdateQuery("delete from recorded_requests").execute();
     }
 }

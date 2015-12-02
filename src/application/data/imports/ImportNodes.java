@@ -46,7 +46,7 @@ public class ImportNodes extends SDERunnable {
             importWindow.startImportProgress();
         }
         if (element.getTagName().contains("Node")) {
-            importNode(DataBank.currentlyEditProgram, element);
+            importNode(SessionManager.getInstance().getCurrentSession().getSelectedProgram(), element);
             if (importWindow != null) {
                 importWindow.updateImportProgress(0.5);
             }
@@ -90,15 +90,12 @@ public class ImportNodes extends SDERunnable {
 
             newProgram.setParentUser(SessionManager.getInstance().getCurrentSession().getUser());
             newProgram.save();
+
+            Controller.getInstance().updateCanvasControllerLater();
+            newProgram.getFlowController().checkConnections();
         }
 
         // Closes the import window and update the display to show the new node, also check all connections
-        Controller.getInstance().updateCanvasControllerLater();
-        Program program = DataBank.currentlyEditProgram;
-        if (program != null) {
-            program.getFlowController().checkConnections();
-        }
-
         if (importWindow != null) {
             importWindow.endImportProgress();
             importWindow.closeWindow();

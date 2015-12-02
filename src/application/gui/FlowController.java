@@ -2,7 +2,7 @@ package application.gui;
 
 import application.data.DataBank;
 import application.data.model.dao.DAO;
-import application.error.Error;
+import application.data.model.dao.ProgramDAO;
 import application.node.design.DrawableNode;
 import application.node.implementations.BashNode;
 import application.node.implementations.LogicNode;
@@ -14,6 +14,7 @@ import application.node.objects.Switch;
 import application.node.objects.Trigger;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
+import application.utils.managers.SessionManager;
 import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 
@@ -53,11 +54,12 @@ public class FlowController {
         nodes.add(drawableNode);
     }
 
+    public void clearNodes() {
+        nodes.clear();
+    }
+
     public void addNodes(List<DrawableNode> drawableNodes) {
-        for (DrawableNode drawableNode : drawableNodes) {
-            drawableNode.setProgram(parentProgram);
-        }
-        nodes.addAll(drawableNodes);
+        drawableNodes.forEach(this::addNode);
     }
 
     public void removeNode(DrawableNode drawableNode) {
@@ -460,7 +462,10 @@ public class FlowController {
     }
 
     public static DrawableNode getNodeFromContainedText(String text) {
-        for (Program program : DataBank.getPrograms()) {
+        ProgramDAO programDAO = new ProgramDAO();
+        List<Program> programs = programDAO.getProgramsByUser(SessionManager.getInstance().getCurrentSession().getUser());
+
+        for (Program program : programs) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node.getContainedText().equals(text)) {
                     return node;
@@ -472,7 +477,10 @@ public class FlowController {
     }
 
     public static FlowController getFlowControllerFromReference(String flowControllerReferenceId) {
-        for (Program program : DataBank.getPrograms()) {
+        ProgramDAO programDAO = new ProgramDAO();
+        List<Program> programs = programDAO.getProgramsByUser(SessionManager.getInstance().getCurrentSession().getUser());
+
+        for (Program program : programs) {
             if (program.getFlowController().getReferenceID().equals(flowControllerReferenceId)) {
                 return program.getFlowController();
             }
@@ -482,7 +490,10 @@ public class FlowController {
     }
 
     public static FlowController getFlowControllerFromNode(DrawableNode nodeToFind) {
-        for (Program program : DataBank.getPrograms()) {
+        ProgramDAO programDAO = new ProgramDAO();
+        List<Program> programs = programDAO.getProgramsByUser(SessionManager.getInstance().getCurrentSession().getUser());
+
+        for (Program program : programs) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (nodeToFind.equals(node)) {
                     return program.getFlowController();
@@ -494,7 +505,10 @@ public class FlowController {
     }
 
     public static FlowController getFlowControllerFromLogic(Logic logic) {
-        for (Program program : DataBank.getPrograms()) {
+        ProgramDAO programDAO = new ProgramDAO();
+        List<Program> programs = programDAO.getProgramsByUser(SessionManager.getInstance().getCurrentSession().getUser());
+
+        for (Program program : programs) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node instanceof LogicNode) {
                     if (((LogicNode) node).getLogic() == logic) {
@@ -508,7 +522,10 @@ public class FlowController {
     }
 
     public static FlowController getFlowControllerFromBash(Bash bash) {
-        for (Program program : DataBank.getPrograms()) {
+        ProgramDAO programDAO = new ProgramDAO();
+        List<Program> programs = programDAO.getProgramsByUser(SessionManager.getInstance().getCurrentSession().getUser());
+
+        for (Program program : programs) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node instanceof BashNode) {
                     if (((BashNode) node).getBash() == bash) {
@@ -522,7 +539,10 @@ public class FlowController {
     }
 
     public static LogicNode getSourceFromReference(String reference) {
-        for (Program program : DataBank.getPrograms()) {
+        ProgramDAO programDAO = new ProgramDAO();
+        List<Program> programs = programDAO.getProgramsByUser(SessionManager.getInstance().getCurrentSession().getUser());
+
+        for (Program program : programs) {
             for (DrawableNode node : program.getFlowController().getNodes()) {
                 if (node.getUuidString().equals(reference)) {
                     return (LogicNode) node;

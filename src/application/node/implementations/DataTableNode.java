@@ -36,7 +36,7 @@ public class DataTableNode extends DrawableNode {
     private Tab dataViewTab;
     private Tab renameColumnsTab;
 
-    private ObservableList<DataTableRow> dataTableRows = FXCollections.observableArrayList();
+    private ObservableList<DataTableRow> dataTableRows = null;
 
     // This will make a copy of the node passed to it
     public DataTableNode(DataTableNode dataTableNode) {
@@ -59,17 +59,17 @@ public class DataTableNode extends DrawableNode {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
         savableAttributes.addAll(super.getDataToSave());
-        dataTableRows.forEach(DataTableRow::save);
+        getDataTableRows().forEach(DataTableRow::save);
 
         return savableAttributes;
     }
 
     public void saveObjects() {
-        dataTableRows.forEach(DataTableRow::save);
+        getDataTableRows().forEach(DataTableRow::save);
     }
 
     public void addAllDataTableRow(List<DataTableRow> dataTableRowList) {
-        dataTableRows.addAll(dataTableRowList);
+        getDataTableRows().addAll(dataTableRowList);
         buildDataGrid();
     }
 
@@ -80,7 +80,7 @@ public class DataTableNode extends DrawableNode {
     }
 
     private void buildDataGrid() {
-        dataTableGrid = new DataTableWithHeader(dataTableRows);
+        dataTableGrid = new DataTableWithHeader(getDataTableRows());
         spreadsheetView.setGrid(dataTableGrid.getGrid());
         createRenameColumnTab();
     }
@@ -124,9 +124,6 @@ public class DataTableNode extends DrawableNode {
         if (dataViewTab != null) {
             AnchorPane dataViewAnchorPane = new AnchorPane();
 
-            DataTableRowDAO dataTableRowDAO = new DataTableRowDAO();
-            addAllDataTableRow(dataTableRowDAO.getDataTableRowByNode(this));
-
             if (dataTableColumns.size() == 0) {
                 dataTableColumns.add(new DataTableColumn("New Column"));
             }
@@ -143,7 +140,7 @@ public class DataTableNode extends DrawableNode {
 
             dataViewAnchorPane.getChildren().add(spreadsheetView);
 
-            dataTableGrid = new DataTableWithHeader(dataTableRows);
+            dataTableGrid = new DataTableWithHeader(getDataTableRows());
             spreadsheetView.setGrid(dataTableGrid.getGrid());
 
             MenuItem addNewRow = new MenuItem("Add New Row");
@@ -156,14 +153,14 @@ public class DataTableNode extends DrawableNode {
 
             MenuItem addNewColumn = new MenuItem("Add New Column");
             addNewColumn.setOnAction(event -> {
-                if (dataTableRows.size() == 0) {
+                if (getDataTableRows().size() == 0) {
                     DataTableRow dataTableRow = DataTableRow.create(DataTableRow.class);
                     dataTableRow.setParent(this);
                     dataTableRow.save();
                     addDataTableRow(dataTableRow);
                 }
 
-                for (DataTableRow dataTableRow : dataTableRows) {
+                for (DataTableRow dataTableRow : getDataTableRows()) {
                     DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
                     dataTableValue.setDataKey("New Column");
                     dataTableValue.setDataValue("");
@@ -178,7 +175,7 @@ public class DataTableNode extends DrawableNode {
             MenuItem deleteColumn = new MenuItem("Delete Column(s)");
             deleteColumn.setOnAction(event -> {
                 for (TablePosition tablePosition : spreadsheetView.getSelectionModel().getSelectedCells()) {
-                    for (DataTableRow dataTableRow : dataTableRows) {
+                    for (DataTableRow dataTableRow : getDataTableRows()) {
                         dataTableRow.removeDataTableValue(tablePosition.getTableColumn().getText());
                     }
                 }
@@ -197,11 +194,11 @@ public class DataTableNode extends DrawableNode {
                 }
 
                 for (Integer rowNumber : rowsToDelete) {
-                    dataTableRowsToDelete.add(dataTableRows.get(rowNumber));
+                    dataTableRowsToDelete.add(getDataTableRows().get(rowNumber));
                 }
 
                 for (DataTableRow dataTableRow : dataTableRowsToDelete) {
-                    dataTableRows.remove(dataTableRow);
+                    getDataTableRows().remove(dataTableRow);
                     dataTableRow.delete();
                 }
 
@@ -226,7 +223,7 @@ public class DataTableNode extends DrawableNode {
             AnchorPane.setRightAnchor(renameColumnsAnchorPane, 0.0);
             AnchorPane.setTopAnchor(renameColumnsAnchorPane, 0.0);
 
-            List<String> columnNames = findColumnNames(dataTableRows);
+            List<String> columnNames = findColumnNames(getDataTableRows());
 
             VBox vbox = new VBox(5);
             AnchorPane.setBottomAnchor(vbox, 10.0);
@@ -251,7 +248,7 @@ public class DataTableNode extends DrawableNode {
         textField.setOnAction(event -> {
             TextField eventTextField = (TextField) event.getSource();
             if (!eventTextField.getText().isEmpty()) {
-                for (DataTableRow dataTableRow : dataTableRows) {
+                for (DataTableRow dataTableRow : getDataTableRows()) {
                     String oldValue = dataTableRow.getData(eventTextField.getId());
 
                     if (oldValue != null) {
@@ -278,38 +275,6 @@ public class DataTableNode extends DrawableNode {
         return hBox;
     }
 
-    public Element getXMLRepresentation(Document document) {
-        Element nodeElement = super.getXMLRepresentation(document);
-
-        // Create a new element to save all inputs inside
-        Element dataTableDataElement = document.createElement("DataTableData");
-
-        for (DataTableRow dataTableRow : dataTableRows) {
-            Element dataTableRowsElement = document.createElement("DataTableRows");
-
-            for (DataTableValue dataTableValue : dataTableRow.getDataTableValues().values()) {
-                Element dataTableValueElement = document.createElement("DataTableValue");
-
-                Element dataKeyElement = document.createElement("DataKey");
-                dataKeyElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(dataTableValue.getDataKey())));
-
-                Element dataValueElement = document.createElement("DataValue");
-                dataValueElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(dataTableValue.getDataValue())));
-
-                dataTableValueElement.appendChild(dataKeyElement);
-                dataTableValueElement.appendChild(dataValueElement);
-
-                dataTableRowsElement.appendChild(dataTableValueElement);
-            }
-
-            dataTableDataElement.appendChild(dataTableRowsElement);
-        }
-
-        nodeElement.appendChild(dataTableDataElement);
-
-        return nodeElement;
-    }
-
     public static List<String> findColumnNames(List<DataTableRow> dataTableRowList) {
         List<String> columnNames = new ArrayList<>();
         for (DataTableRow dataTableRow : dataTableRowList) {
@@ -325,6 +290,11 @@ public class DataTableNode extends DrawableNode {
     }
 
     public ObservableList<DataTableRow> getDataTableRows() {
+        if (dataTableRows == null) {
+            DataTableRowDAO dataTableRowDAO = new DataTableRowDAO();
+            dataTableRows = FXCollections.observableArrayList();
+            dataTableRows.addAll(dataTableRowDAO.getDataTableRowByNode(this));
+        }
         return dataTableRows;
     }
 }

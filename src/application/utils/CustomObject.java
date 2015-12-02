@@ -11,15 +11,8 @@ public class CustomObject extends DatabaseObject {
     private Object payload = "";
     private String payLoadReference = "";
 
-    public CustomObject(UUID uuid) {
-        super(uuid);
-    }
-
-    public CustomObject(UUID uuid, Object payload, String payLoadReference, CustomObjectNode parentNode) {
-        super(uuid);
-        this.parentNode = parentNode;
-        this.payload = payload;
-        this.payLoadReference = payLoadReference;
+    public CustomObject(){
+        super();
     }
 
     public Object getPayload() {
@@ -32,7 +25,6 @@ public class CustomObject extends DatabaseObject {
 
     public void setPayload(Object payload) {
         this.payload = payload;
-        save();
     }
 
     public InputStream getPayLoadInputStream() {
@@ -52,7 +44,10 @@ public class CustomObject extends DatabaseObject {
 
     public void setPayLoadReference(String payLoadReference) {
         this.payLoadReference = payLoadReference;
-        save();
+    }
+
+    public void setParent(CustomObjectNode parentNode) {
+        this.parentNode = parentNode;
     }
 
     public CustomObjectNode getParentNode() {

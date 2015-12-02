@@ -31,4 +31,8 @@ public class SessionManager {
     public static SessionManager getInstance() {
         return sessionManager;
     }
+
+    public void clearAllSessions(){
+        sessions.clear();
+    }
 }

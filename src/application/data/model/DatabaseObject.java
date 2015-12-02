@@ -68,8 +68,12 @@ public class DatabaseObject {
     public void save() {
         try {
             new DatabaseAction<>().save(this, (DatabaseLink) DatabaseLink.getLinkClass(this.getClass()).newInstance());
-        } catch (NullPointerException | InstantiationException | IllegalAccessException ex) {
+        } catch (InstantiationException | IllegalAccessException ex) {
             application.error.Error.DATABASE_SAVE_CLASS_INIT.record().additionalInformation("Class " + this.getClass()).create(ex);
+        } catch (NullPointerException ex) {
+            application.error.Error.DATABASE_SAVE_CLASS_INIT.record()
+                    .additionalInformation("Class/DBLink likely not defined")
+                    .additionalInformation("Class " + this.getClass()).create(ex);
         }
     }
 

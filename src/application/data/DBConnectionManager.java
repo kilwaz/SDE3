@@ -1,9 +1,12 @@
 package application.data;
 
+import application.error.Error;
 import application.utils.AppParams;
 import application.utils.SDEUtils;
+import application.utils.managers.DatabaseTransactionManager;
 import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,28 +31,22 @@ public class DBConnectionManager {
     }
 
     public Boolean createApplicationConnection() {
-        applicationConnection = new DBConnection(AppParams.getDatabaseConnection(), AppParams.getDatabaseUsername(), AppParams.getDatabasePassword(), true);
+        if (applicationConnection != null) {
+            DatabaseTransactionManager.getInstance().finaliseTransactions();
+            applicationConnection.close();
+        }
+
+        if (AppParams.isLocalDatabase()) {
+            applicationConnection = new DBConnection("jdbc:sqlite:" + AppParams.getLocalDatabaseName(), "", "", true);
+        } else {
+            applicationConnection = new DBConnection(AppParams.getRemoteDatabaseConnection(), AppParams.getRemoteDatabaseUsername(), AppParams.getRemoteDatabasePassword(), true);
+        }
+
         addConnection(applicationConnection);
         if (!applicationConnection.connect()) {
             return false;
         }
         DatabaseConnectionWatcher.getInstance().setConnected(true);
-
-        // Migrate the database
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(AppParams.getDatabaseConnection(), AppParams.getDatabaseUsername(), AppParams.getDatabasePassword());
-
-        String sqlMigrationPath = "filesystem:" + SDEUtils.getResourcePath() + "/SQL-Migration/";
-
-        flyway.setLocations(sqlMigrationPath);
-
-        String[] flywayLocations = flyway.getLocations();
-        for (String aLoc : flywayLocations) {
-            log.info("Flyway location for sql = " + aLoc);
-        }
-
-        flyway.setBaselineOnMigrate(true);
-        flyway.migrate();
 
         return true;
     }
@@ -64,4 +61,5 @@ public class DBConnectionManager {
         }
         return instance;
     }
+
 } 

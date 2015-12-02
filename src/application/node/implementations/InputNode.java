@@ -118,9 +118,8 @@ public class InputNode extends DrawableNode {
         deleteInput.setId("deleteInputButton-" + input.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
         deleteInput.setOnAction(event -> {
             Button deleteButton = (Button) event.getSource();
-            Program program = DataBank.currentlyEditProgram;
             String[] fieldId = deleteButton.getId().split("-");
-            InputNode inputNode = (InputNode) program.getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
+            InputNode inputNode = (InputNode) getProgram().getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
 
             // Remove the input
             inputNode.removeInput(inputNode.getInputById(fieldId[1]));
@@ -230,31 +229,6 @@ public class InputNode extends DrawableNode {
         return savableAttributes;
     }
 
-    public Element getXMLRepresentation(Document document) {
-        Element nodeElement = super.getXMLRepresentation(document);
-
-        // Create a new element to save all inputs inside
-        Element inputsElement = document.createElement("Inputs");
-
-        for (Input input : getInputs()) {
-            Element inputElement = document.createElement("Input");
-
-            Element variableNameElement = document.createElement("VariableName");
-            variableNameElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(input.getVariableName())));
-
-            Element variableValueElement = document.createElement("VariableValue");
-            variableValueElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(input.getVariableValue())));
-
-            inputElement.appendChild(variableNameElement);
-            inputElement.appendChild(variableValueElement);
-            inputsElement.appendChild(inputElement);
-        }
-
-        nodeElement.appendChild(inputsElement);
-
-        return nodeElement;
-    }
-
     public void addInput(Input input) {
         getInputs().add(input);
     }
@@ -299,6 +273,4 @@ public class InputNode extends DrawableNode {
 
         return null;
     }
-
-
 }

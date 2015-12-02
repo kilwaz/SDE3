@@ -11,6 +11,7 @@ import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import application.utils.SDEUtils;
+import application.utils.managers.SessionManager;
 import application.utils.managers.ThreadManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -193,13 +194,13 @@ public class Program extends DatabaseObject {
         }
 
         // Starts a new thread for each time this is called.
-        SDEThread sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + DataBank.currentlyEditProgram.getName() : " Node - " + sourceNode.getContainedText()));
+        SDEThread sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()));
 
         // If we need to wait for this thread to finish first we join to the current thread.
         if (whileWaiting) {
             try {
                 sdeThread.getThread().join();
-                ThreadManager.getInstance().closeThreads(); // Check to see if this thread has finished yet
+                ThreadManager.getInstance().removeInactiveThreads(); // Check to see if this thread has finished yet
             } catch (InterruptedException ex) {
                 Error.PROGRAM_JOIN_THREAD.record().create(ex);
             }
@@ -208,8 +209,6 @@ public class Program extends DatabaseObject {
 
     // This methods takes a sourceNode where a connection is coming from and a name of a target and triggers the connection to flash on the GUI
     private static void triggerConnections(DrawableNode sourceNode, String targetNodeName, String referenceID) {
-        FlowController flowController = DataBank.currentlyEditProgram.getFlowController();
-
         Object node = DataBank.getInstanceObject(referenceID, targetNodeName);
         DrawableNode targetNode = null;
         if (node instanceof Logic) {
@@ -219,6 +218,7 @@ public class Program extends DatabaseObject {
         }
 
         if (sourceNode != null && targetNode != null) {
+            FlowController flowController = sourceNode.getProgram().getFlowController();
             NodeConnection nodeConnection = flowController.getConnection(sourceNode, targetNode);
             if (nodeConnection != null) {
                 nodeConnection.triggerGradient();
@@ -235,43 +235,5 @@ public class Program extends DatabaseObject {
     public void delete() {
         getNodes().forEach(application.node.design.DrawableNode::delete);
         super.delete();
-    }
-
-    public Document getXMLRepresentation() {
-        Document document;
-
-        // instance of a DocumentBuilderFactory
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        try {
-            // use factory to get an instance of document builder
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            // create instance of DOM
-            document = db.newDocument();
-
-            // Create the root element for the program
-            Element programElement = document.createElement("Program");
-
-            // Create and append the programs name
-            Element programName = document.createElement("ProgramName");
-            programName.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(getName())));
-            programElement.appendChild(programName);
-
-            // Create the element which will hold all of the node information
-            Element nodesElement = document.createElement("Nodes");
-
-            // Loops through savable attributes
-            for (DrawableNode node : flowController.getNodes()) {
-                nodesElement.appendChild(node.getXMLRepresentation(document));
-            }
-
-            programElement.appendChild(nodesElement);
-            document.appendChild(programElement);
-
-            return document;
-        } catch (ParserConfigurationException ex) {
-            Error.NODE_XML_REPRESENTATION.record().create(ex);
-        }
-
-        return null;
     }
 }
