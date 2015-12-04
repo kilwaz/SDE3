@@ -90,7 +90,7 @@ public class CustomObjectNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        tab.getContent();
 
         return tab;
     }

@@ -88,12 +88,12 @@ public class BashTest {
     @Test
     public void testGetId() throws Exception {
         assertNotNull(testBash.getId());  // This should never be null
-        assertEquals(new Integer(-1), testBash.getId());  // If we are creating the object ourselves then this should actually be -1
+        assertEquals(Integer.valueOf(-1), testBash.getId());  // If we are creating the object ourselves then this should actually be -1
     }
 
     @Test
     public void testSetId() throws Exception {
         testBash.setId(1);
-        assertEquals(new Integer(1), testBash.getId());
+        assertEquals(Integer.valueOf(1), testBash.getId());
     }
 }

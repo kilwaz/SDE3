@@ -27,15 +27,14 @@ public class InputWebAction extends WebAction {
         getTestResult().addTestStep(testStep);
 
         TestParameter elementId = getTestCommand().getParameterByPath("id");
-        TestParameter elementXPath = getTestCommand().getParameterByPath("xPath");
         TestParameter valueToEnter = getTestCommand().getParameterByPath("value");
         TestParameter characterDelay = getTestCommand().getParameterByPath("characterDelay");
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
 
         WebElement testElement = null;
-        if (elementId != null) { // Get the element via id
+        if (elementId.exists()) { // Get the element via id
             testElement = getDriver().findElement(By.id(elementId.getParameterValue()));
-        } else if (loopElement != null) { // Get element via loop
+        } else if (loopElement.exists()) { // Get element via loop
             testElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
         }
 

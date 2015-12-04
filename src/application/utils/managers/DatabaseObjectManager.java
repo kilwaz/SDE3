@@ -22,12 +22,12 @@ public class DatabaseObjectManager {
     }
 
     public DatabaseObject getDatabaseObject(UUID uuid) {
-        //log.info("Got object " + uuid + " -> " + databaseObjects.get(uuid.toString()));
+//        log.info("Got object " + uuid + " -> " + databaseObjects.get(uuid.toString()));
         return databaseObjects.get(uuid.toString());
     }
 
     public void addObject(DatabaseObject databaseObject) {
-        //log.info("Added object " + databaseObject.getUuid() + " -> " + databaseObject);
+//        log.info("Added object " + databaseObject.getUuid() + " -> " + databaseObject);
         databaseObjects.put(databaseObject.getUuidString(), databaseObject);
     }
 

@@ -10,6 +10,6 @@ public class RecordedProxyDAO {
     }
 
     public void deleteAllRecordedProxies() {
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("delete from http_proxies").execute();
+        new UpdateQuery("delete from http_proxies").execute();
     }
 }

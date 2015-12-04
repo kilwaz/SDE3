@@ -130,7 +130,7 @@ public class ExportNode extends DrawableNode {
             File exportOutputFile = null;
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
             Date date = new Date();
-            String fileDate = dateFormat.format(date);
+            dateFormat.format(date);
             FileOutputStream fos = null;
             try {
                 buildConstructedFileName();

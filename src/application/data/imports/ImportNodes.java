@@ -212,7 +212,6 @@ public class ImportNodes extends SDERunnable {
                                 DataTableRow dataTableRow = DataTableRow.create(DataTableRow.class);
                                 dataTableRow.setParent(dataTableNode);
                                 dataTableRow.save();
-                                dataTableNode.addDataTableRow(dataTableRow);
 
                                 Element dataTableRowElement = (Element) dataTableDataRowList.item(rowCount);
 
@@ -232,6 +231,8 @@ public class ImportNodes extends SDERunnable {
                                         dataTableRow.addDataTableValue(dataTableValue);
                                     }
                                 }
+
+                                dataTableNode.addDataTableRow(dataTableRow);
                             }
                         }
                     }

@@ -77,6 +77,7 @@ public class DataBank {
         }
         Session session = new Session();
         session.setUser(user);
+        session.setSelectedProgram(user.getCurrentProgram());
         SessionManager.getInstance().addSession(session);
     }
 

@@ -5,7 +5,10 @@ import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.data.NodeColour;
 import application.data.User;
-import application.data.model.dao.*;
+import application.data.model.dao.ProgramDAO;
+import application.data.model.dao.RecordedHeaderDAO;
+import application.data.model.dao.RecordedProxyDAO;
+import application.data.model.dao.RecordedRequestDAO;
 import application.error.Error;
 import application.gui.canvas.CanvasController;
 import application.gui.dialog.ConfirmDialog;
@@ -415,7 +418,11 @@ public class Controller implements Initializable {
         Callback<ListView<Program>, ListCell<Program>> onCommit = TextFieldListCell.forListView(new StringConverter<Program>() {
             @Override
             public String toString(Program program) {
-                return "" + program.getName();
+                if (program != null) {
+                    return "" + program.getName();
+                } else {
+                    return "Unnamed";
+                }
             }
 
             @Override
@@ -448,15 +455,10 @@ public class Controller implements Initializable {
                         currentUser.setCurrentProgram(newProgram);
                         currentUser.save();
 
-                        DrawableNodeDAO drawableNodeDAO = new DrawableNodeDAO();
-                        List<DrawableNode> drawableNodes = drawableNodeDAO.getNodes(newProgram);
-
-                        newProgram.getFlowController().clearNodes();
-                        newProgram.getFlowController().addNodes(drawableNodes);
-                        newProgram.getFlowController().checkConnections();
+                        newProgram.loadNodesToFlowController();
                     }
-                    canvasController.updateAStarNetwork();
                     canvasController.drawProgram();
+                    canvasController.updateAStarNetwork();
                 });
 
         User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
@@ -520,8 +522,13 @@ public class Controller implements Initializable {
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());
 
         // As a final step we draw the loaded program with a fully updated network
+        Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+        if (selectedProgram != null) {
+            selectedProgram.loadNodesToFlowController();
+        }
+
+        canvasController.drawProgram(); // Not 100% sure why we need to draw first and then update network after
         canvasController.updateAStarNetwork();
-        canvasController.drawProgram();
     }
 
     public MenuItem createNodeMenuItem(String className) {
@@ -717,12 +724,10 @@ public class Controller implements Initializable {
         Platform.runLater(new GUIUpdate(program));
     }
 
-    public void setWindowTitle(String title) {
+    public void setWindowTitle() {
         class GUIUpdate implements Runnable {
-            String title;
 
-            GUIUpdate(String title) {
-                this.title = title;
+            GUIUpdate() {
             }
 
             public void run() {
@@ -730,7 +735,7 @@ public class Controller implements Initializable {
             }
         }
 
-        Platform.runLater(new GUIUpdate(title));
+        Platform.runLater(new GUIUpdate());
     }
 
     public void closeDeleteNodeTabs(DrawableNode removedNode) {
@@ -773,16 +778,16 @@ public class Controller implements Initializable {
     public void reloadPrograms() {
         if (programList != null) {
             programList.getItems().clear();
-        }
 
-        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
+            User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
 
-        ProgramDAO programDAO = new ProgramDAO();
-        List<Program> programs = programDAO.getProgramsByUser(currentUser);
-        programList.getItems().addAll(programs);
-        if (currentUser != null && currentUser.getCurrentProgram() != null) {
-            programList.getSelectionModel().select(currentUser.getCurrentProgram());
-            programList.scrollTo(currentUser.getCurrentProgram());
+            ProgramDAO programDAO = new ProgramDAO();
+            List<Program> programs = programDAO.getProgramsByUser(currentUser);
+            programList.getItems().addAll(programs);
+            if (currentUser.getCurrentProgram() != null) {
+                programList.getSelectionModel().select(currentUser.getCurrentProgram());
+                programList.scrollTo(currentUser.getCurrentProgram());
+            }
         }
     }
 }

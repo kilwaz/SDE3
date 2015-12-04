@@ -26,6 +26,7 @@ public class DataTableWithHeader extends DataTableGrid {
         DataTableValue dataTableValue = dataTableValuePositionHashMap.get(change.getRow() + "," + change.getColumn());
         if (dataTableValue != null) {
             dataTableValue.setDataValue((String) change.getNewValue());
+            dataTableValue.save();
         }
     }
 
@@ -66,6 +67,7 @@ public class DataTableWithHeader extends DataTableGrid {
                     dataTableValue.setDataKey(columnNames.get(i));
                     dataTableValue.setDataValue("");
                     dataTableValue.save();
+                    dataTableRow.addDataTableValue(dataTableValue);
                     SpreadsheetCell spreadsheetCell = SpreadsheetCellType.STRING.createCell(rowCount, i, 1, 1, dataTableValue.getDataValue());
                     dataTableValuePositionHashMap.put(rowCount + "," + i, dataTableValue);
                     list.add(spreadsheetCell);

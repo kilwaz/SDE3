@@ -10,6 +10,9 @@
         <element id="directory" name="SQL-Migration">
           <element id="dir-copy" path="$PROJECT_DIR$/resources/SQL-Migration" />
         </element>
+        <element id="directory" name="data">
+          <element id="dir-copy" path="$PROJECT_DIR$/resources/data" />
+        </element>
       </element>
       <element id="file-copy" path="$PROJECT_DIR$/resources/SDE3 - No Console.bat" />
       <element id="directory" name="logs">

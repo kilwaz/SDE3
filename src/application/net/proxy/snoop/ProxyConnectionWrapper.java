@@ -12,13 +12,11 @@ import java.util.Map;
 
 public class ProxyConnectionWrapper {
     private Boolean https;
-    private URL destinationURL;
 
     private HttpURLConnection httpConnection;
     private HttpsURLConnection httpsConnection;
 
     public ProxyConnectionWrapper(URL destinationURL, Boolean https) throws IOException {
-        this.destinationURL = destinationURL;
         this.https = https;
 
         if (https) {

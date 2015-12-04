@@ -24,6 +24,6 @@ public class RecordedRequestDAO {
     }
 
     public void deleteAllRecordedRequests(){
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("delete from recorded_requests").execute();
+        new UpdateQuery("delete from recorded_requests").execute();
     }
 }

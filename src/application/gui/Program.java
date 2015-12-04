@@ -3,6 +3,7 @@ package application.gui;
 import application.data.DataBank;
 import application.data.User;
 import application.data.model.DatabaseObject;
+import application.data.model.dao.DrawableNodeDAO;
 import application.error.Error;
 import application.gui.dialog.ErrorDialog;
 import application.node.design.DrawableNode;
@@ -10,16 +11,10 @@ import application.node.objects.Logic;
 import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
-import application.utils.SDEUtils;
 import application.utils.managers.SessionManager;
 import application.utils.managers.ThreadManager;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,15 +27,6 @@ public class Program extends DatabaseObject {
 
     public Program() {
         super();
-    }
-
-    public Program(String name) {
-        this.name = name;
-    }
-
-    public Program(String name, UUID id) {
-        super(id);
-        this.name = name;
     }
 
     public String getName() {
@@ -230,6 +216,15 @@ public class Program extends DatabaseObject {
 
     public List<DrawableNode> getNodes() {
         return flowController.getNodes();
+    }
+
+    public void loadNodesToFlowController() {
+        DrawableNodeDAO drawableNodeDAO = new DrawableNodeDAO();
+        List<DrawableNode> drawableNodes = drawableNodeDAO.getNodes(this);
+
+        getFlowController().clearNodes();
+        getFlowController().addNodes(drawableNodes);
+        getFlowController().checkConnections();
     }
 
     public void delete() {

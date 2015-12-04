@@ -180,7 +180,7 @@ public class TestNode extends DrawableNode {
 
             // Creates the WebProxy used for this node
             HttpProxyServer httpProxyServer = new HttpProxyServer();
-            SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server for node - " + getContainedText());
+            new SDEThread(httpProxyServer, "Running proxy server for node - " + getContainedText());
             Integer waited = 0;
             while (!httpProxyServer.isConnected() && waited < 60 * 1000) { // Wait for 60 seconds to connect, this could probably be done better
                 try {

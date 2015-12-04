@@ -25,6 +25,6 @@ public class RecordedHeaderDAO {
     }
 
     public void deleteAllRecordedHeaders(){
-        UpdateResult updateResult = (UpdateResult) new UpdateQuery("delete from http_headers").execute();
+        new UpdateQuery("delete from http_headers").execute();
     }
 }

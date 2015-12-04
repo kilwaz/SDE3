@@ -27,12 +27,10 @@ public class DataTableValue extends DatabaseObject {
 
     public void setDataKey(String dataKey) {
         this.dataKey = dataKey;
-        this.save();
     }
 
     public void setDataValue(String dataValue) {
         this.dataValue = dataValue;
-        this.save();
     }
 
     public String getParentUuid() {

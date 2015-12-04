@@ -42,7 +42,7 @@ public class DatabaseTransactionManager {
         triggerBuilder.startNow();
     }
 
-    public static DatabaseTransactionManager getInstance() {
+    public static synchronized DatabaseTransactionManager getInstance() {
         if (databaseTransactionManager == null) {
             databaseTransactionManager = new DatabaseTransactionManager();
         }
@@ -67,7 +67,7 @@ public class DatabaseTransactionManager {
     }
 
     public synchronized void addUpdate(UpdateQuery updateQuery) {
-//        log.info("Update - " + updateQuery.getQuery());
+//       log.info("Update - " + updateQuery.getQuery());
 //        logQueryParams(updateQuery);
         if (!inTransaction) {
             try {
@@ -109,9 +109,6 @@ public class DatabaseTransactionManager {
                 //log.info("Committing " + pendingQueryList.size() + " query transactions after 1000ms");
                 finaliseTransactions();
             }
-//            else if (pendingQueryList.size() > 1000) {
-//                log.info("Committing " + pendingQueryList.size() + " query transactions due to 1000 pending queries");
-//                finaliseTransactions();
         }
     }
 

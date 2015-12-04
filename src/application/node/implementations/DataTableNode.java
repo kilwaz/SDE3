@@ -9,7 +9,6 @@ import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
 import application.node.objects.datatable.DataTableWithHeader;
 import application.utils.NodeRunParams;
-import application.utils.SDEUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
@@ -18,8 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
