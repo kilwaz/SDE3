@@ -67,28 +67,32 @@ public class CanvasController {
     }
 
     public void canvasDragged(MouseEvent event) {
-        if (isGroupSelect) {
-            groupSelectCurrentX = event.getX();
-            groupSelectCurrentY = event.getY();
-            updateAStarNetwork(draggedNodes);
-            drawProgram();  // Draw program method will draw the selection box as it is being dragged
-        } else {
-            if (event.isPrimaryButtonDown() && draggedNodes.size() > 0) {
-                for (DrawableNode draggedNode : draggedNodes) {
-                    List<Double> dragOffsetXY = draggedOffsets.get(draggedNode);
-                    draggedNode.setX(event.getX() + dragOffsetXY.get(0));
-                    draggedNode.setY(event.getY() + dragOffsetXY.get(1));
-                }
+        Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+        Controller.getInstance().setCursor(Cursor.MOVE);
+        if (selectedProgram != null) {
+            if (isGroupSelect) {
+                groupSelectCurrentX = event.getX();
+                groupSelectCurrentY = event.getY();
                 updateAStarNetwork(draggedNodes);
-                drawProgram();
-                isDraggingNode = true;
-            } else if (event.isPrimaryButtonDown() && isDraggingCanvas) {
-                offsetWidth = initialOffsetWidth - (initialMouseX - event.getX());
-                offsetHeight = initialOffsetHeight - (initialMouseY - event.getY());
-                FlowController flowController = SessionManager.getInstance().getCurrentSession().getSelectedProgram().getFlowController();
-                flowController.setViewOffsetWidth(offsetWidth);
-                flowController.setViewOffsetHeight(offsetHeight);
-                drawProgram();
+                drawProgram();  // Draw program method will draw the selection box as it is being dragged
+            } else {
+                if (event.isPrimaryButtonDown() && draggedNodes.size() > 0 && !selectedProgram.getLocked()) {
+                    for (DrawableNode draggedNode : draggedNodes) {
+                        List<Double> dragOffsetXY = draggedOffsets.get(draggedNode);
+                        draggedNode.setX(event.getX() + dragOffsetXY.get(0));
+                        draggedNode.setY(event.getY() + dragOffsetXY.get(1));
+                    }
+                    updateAStarNetwork(draggedNodes);
+                    drawProgram();
+                    isDraggingNode = true;
+                } else if ((event.isPrimaryButtonDown() && isDraggingCanvas) || selectedProgram.getLocked()) {
+                    offsetWidth = initialOffsetWidth - (initialMouseX - event.getX());
+                    offsetHeight = initialOffsetHeight - (initialMouseY - event.getY());
+                    FlowController flowController = SessionManager.getInstance().getCurrentSession().getSelectedProgram().getFlowController();
+                    flowController.setViewOffsetWidth(offsetWidth);
+                    flowController.setViewOffsetHeight(offsetHeight);
+                    drawProgram();
+                }
             }
         }
     }
@@ -100,13 +104,13 @@ public class CanvasController {
             groupSelectInitialY = event.getY();
         } else {
             if (event.isPrimaryButtonDown()) {
-                Program program = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
-                if (program != null) {
-                    List<DrawableNode> selectedNodes = program.getFlowController().getSelectedNodes();
+                if (selectedProgram != null) {
+                    List<DrawableNode> selectedNodes = selectedProgram.getFlowController().getSelectedNodes();
                     if (selectedNodes.size() == 0 || selectedNodes.size() == 1) {
-                        selectedNodes = program.getFlowController().getClickedNodes(event.getX() - offsetWidth, event.getY() - offsetHeight);
-                        program.getFlowController().setSelectedNodes(selectedNodes);
+                        selectedNodes = selectedProgram.getFlowController().getClickedNodes(event.getX() - offsetWidth, event.getY() - offsetHeight);
+                        selectedProgram.getFlowController().setSelectedNodes(selectedNodes);
                     }
                     draggedNodes = selectedNodes;
 
@@ -118,14 +122,17 @@ public class CanvasController {
                             dragOffsetXY.add(draggedNode.getY() - event.getY());
                             draggedOffsets.put(draggedNode, dragOffsetXY);
                         }
-                    } else {
+                    }
+                    if (selectedNodes.size() == 0 || selectedProgram.getLocked()) {
                         initialMouseX = event.getX();
                         initialMouseY = event.getY();
                         initialOffsetWidth = offsetWidth;
                         initialOffsetHeight = offsetHeight;
-                        Controller.getInstance().setCursor(Cursor.MOVE);
-                        isDraggingCanvas = true;
-                        draggedNodes = new ArrayList<>();
+                        if (!selectedProgram.getLocked()) {
+                            Controller.getInstance().setCursor(Cursor.MOVE);
+                            draggedNodes = new ArrayList<>();
+                            isDraggingCanvas = true;
+                        }
                         isDraggingNode = false;
                     }
                 }
@@ -295,7 +302,7 @@ public class CanvasController {
 
         // Draw the start node arrow
         DrawableNode startNode = SessionManager.getInstance().getCurrentSession().getSelectedProgram().getFlowController().getStartNode();
-        if (startNode != null && startNode.equals(drawableNode)) {
+        if (startNode != null && startNode.getUuidString().equals(drawableNode.getUuidString())) {
             gc.beginPath();
             gc.moveTo(drawableNode.getX() + offsetWidth - 25, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));
             gc.lineTo(drawableNode.getX() + offsetWidth - nodeCornerPadding, drawableNode.getY() + offsetHeight + (drawableNode.getHeight() / 2));

@@ -22,7 +22,7 @@ public class DataTableRowXML implements XML {
     public Element getXMLRepresentation(Document document) {
         Element dataTableRowsElement = document.createElement("DataTableRows");
 
-        for (DataTableValue dataTableValue : dataTableRow.getDataTableValues().values()) {
+        for (DataTableValue dataTableValue : dataTableRow.getDataTableValuesCollection().getOrderedValues()) {
             Element dataTableValueElement = document.createElement("DataTableValue");
 
             Element dataKeyElement = document.createElement("DataKey");
@@ -31,8 +31,12 @@ public class DataTableRowXML implements XML {
             Element dataValueElement = document.createElement("DataValue");
             dataValueElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(dataTableValue.getDataValue())));
 
+            Element dataOrderElement = document.createElement("DataOrder");
+            dataOrderElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(dataTableValue.getOrder().toString())));
+
             dataTableValueElement.appendChild(dataKeyElement);
             dataTableValueElement.appendChild(dataValueElement);
+            dataTableValueElement.appendChild(dataOrderElement);
 
             dataTableRowsElement.appendChild(dataTableValueElement);
         }

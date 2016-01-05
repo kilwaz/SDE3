@@ -32,10 +32,15 @@ public class ProgramXML implements XML {
             Element programElement = document.createElement("Program");
 
             if (program != null) {
-                // Create and append the programs name
+                // Create and append the program's name
                 Element programName = document.createElement("ProgramName");
                 programName.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(program.getName())));
                 programElement.appendChild(programName);
+
+                // Create and append the program's locked status
+                Element lockedStatus = document.createElement("Locked");
+                lockedStatus.appendChild(document.createTextNode(program.getLocked() ? "Y" : "N"));
+                programElement.appendChild(lockedStatus);
 
                 // Create the element which will hold all of the node information
                 Element nodesElement = document.createElement("Nodes");

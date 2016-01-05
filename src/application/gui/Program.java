@@ -21,6 +21,7 @@ import java.util.UUID;
 public class Program extends DatabaseObject {
     private String name;
     private FlowController flowController = new FlowController(this);
+    private Boolean locked = false;
     private User parentUser;
 
     private static Logger log = Logger.getLogger(Program.class);
@@ -230,5 +231,13 @@ public class Program extends DatabaseObject {
     public void delete() {
         getNodes().forEach(application.node.design.DrawableNode::delete);
         super.delete();
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
     }
 }

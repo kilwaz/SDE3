@@ -36,17 +36,17 @@ public class DataTableWithHeader extends DataTableGrid {
         Integer rowCount = 0;
         Integer colCount = 0;
 
-        List<String> columnNames = DataTableNode.findColumnNames(getDataTableRows());
+        List<DataTableNodeRenameListItem> columnNames = DataTableNode.findColumnNames(getDataTableRows());
 
         for (DataTableRow dataTableRow : getDataTableRows()) {
             ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
 
-            LinkedHashMap<String, DataTableValue> rowValues = dataTableRow.getDataTableValues();
+            DataTableValuesCollection dataTableValues = dataTableRow.getDataTableValuesCollection();
 
-            if (rowValues.size() > 0) {
+            if (dataTableValues.size() > 0) {
                 colCount = 0;
 
-                for (DataTableValue dataTableValue : rowValues.values()) {
+                for (DataTableValue dataTableValue : dataTableValues.getOrderedValues()) {
                     SpreadsheetCell spreadsheetCell = SpreadsheetCellType.STRING.createCell(rowCount, colCount, 1, 1, dataTableValue.getDataValue());
 
                     dataTableValuePositionHashMap.put(rowCount + "," + colCount, dataTableValue);
@@ -64,7 +64,7 @@ public class DataTableWithHeader extends DataTableGrid {
                 for (int i = 0; i < columnNames.size(); i++) {
                     DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
                     dataTableValue.setParentRow(dataTableRow);
-                    dataTableValue.setDataKey(columnNames.get(i));
+                    dataTableValue.setDataKey(columnNames.get(i).getValue());
                     dataTableValue.setDataValue("");
                     dataTableValue.save();
                     dataTableRow.addDataTableValue(dataTableValue);
@@ -78,7 +78,9 @@ public class DataTableWithHeader extends DataTableGrid {
         }
 
         grid = new GridBase(getDataTableRows().size(), columnNames.size());
-        grid.getColumnHeaders().addAll(columnNames);
+        for (DataTableNodeRenameListItem dataTableNodeRenameListItem : columnNames) {
+            grid.getColumnHeaders().add(dataTableNodeRenameListItem.getValue());
+        }
 
         grid.setRows(getRows());
         grid.addEventHandler(GridChange.GRID_CHANGE_EVENT, this::handleOnChange);

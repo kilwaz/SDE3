@@ -18,6 +18,7 @@ public class ProgramDatabaseLink extends DatabaseLink {
         link("view_offset_width", method("getViewOffsetWidth"), method("setViewOffsetWidth", Double.class)); // 4
         link("view_offset_height", method("getViewOffsetHeight"), method("setViewOffsetHeight", Double.class)); // 5
         link("user_id", method("getParentUserUuid"), method("setParentUser", User.class)); // 6
+        link("locked", method("getLocked"), method("setLocked", Boolean.class)); // 7
 
         onDelete("program_id", DrawableNode.class);
     }

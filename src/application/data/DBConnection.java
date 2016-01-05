@@ -5,6 +5,7 @@ import application.utils.SDEUtils;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 
 import java.io.BufferedReader;
@@ -166,6 +167,8 @@ public class DBConnection {
             flyway.setBaselineOnMigrate(true);
             flyway.migrate();
         } catch (FlywaySqlScriptException ex) {
+            Error.DATABASE_MIGRATE_SQL_FAILED.record().create(ex);
+        } catch (FlywayException ex){
             Error.DATABASE_MIGRATE_FAILED.record().create(ex);
         }
     }

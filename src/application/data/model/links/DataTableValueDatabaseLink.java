@@ -15,5 +15,6 @@ public class DataTableValueDatabaseLink extends DatabaseLink {
         link("data_table_id", method("getParentUuid"), method("setParentRow", DataTableRow.class)); // 2
         link("data_key", method("getDataKey"), method("setDataKey", String.class)); // 3
         link("data_value", method("getDataValue"), method("setDataValue", String.class)); // 4
+        link("data_order", method("getOrder"), method("setOrder", Integer.class)); // 5
     }
 }

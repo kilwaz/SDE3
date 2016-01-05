@@ -1,11 +1,11 @@
 package application.node.implementations;
 
 import application.data.SavableAttribute;
+import application.data.model.dao.TriggerDAO;
 import application.gui.Controller;
 import application.gui.FlowController;
 import application.node.design.DrawableNode;
 import application.node.objects.Trigger;
-import application.utils.SDEUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -19,15 +19,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class TriggerNode extends DrawableNode {
-    private List<Trigger> triggers = new ArrayList<>();
+    private List<Trigger> triggers = null;
     private static Logger log = Logger.getLogger(TriggerNode.class);
 
     // This will make a copy of the node passed to it
@@ -43,7 +41,7 @@ public class TriggerNode extends DrawableNode {
         this.setNextNodeToRun(triggerNode.getNextNodeToRun());
 
         // This copies all of the switches and creates new object for each one using the copy constructor
-        triggers.addAll(triggerNode.getTriggers().stream().map(loopTrigger -> new Trigger(loopTrigger, this)).collect(Collectors.toList()));
+        getTriggers().addAll(triggerNode.getTriggers().stream().map(loopTrigger -> new Trigger(loopTrigger, this)).collect(Collectors.toList()));
     }
 
     public TriggerNode() {
@@ -68,7 +66,7 @@ public class TriggerNode extends DrawableNode {
         rows.setLayoutY(55);
         rows.setLayoutX(11);
 
-        if (triggers.size() < 1) {
+        if (getTriggers().size() < 1) {
             // Automatically assigned to this triggerNode via 'this' reference
             Trigger trigger = Trigger.create(Trigger.class);
             trigger.setParent(this);
@@ -80,7 +78,7 @@ public class TriggerNode extends DrawableNode {
             save();
         }
 
-        for (Trigger trigger : triggers) {
+        for (Trigger trigger : getTriggers()) {
             rows.getChildren().add(createTriggerNodeRow(trigger));
         }
 
@@ -190,7 +188,7 @@ public class TriggerNode extends DrawableNode {
     }
 
     public void addTrigger(Trigger trigger) {
-        triggers.add(trigger);
+        getTriggers().add(trigger);
     }
 
     public void setTriggers(List<Trigger> triggers) {
@@ -198,6 +196,11 @@ public class TriggerNode extends DrawableNode {
     }
 
     public List<Trigger> getTriggers() {
+        if (triggers == null) {
+            TriggerDAO triggerDAO = new TriggerDAO();
+            triggers = triggerDAO.getTriggersByNode(this);
+        }
+
         return triggers;
     }
 }

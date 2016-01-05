@@ -1,6 +1,5 @@
 package application.data.imports;
 
-import application.data.DataBank;
 import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
@@ -52,9 +51,11 @@ public class ImportNodes extends SDERunnable {
             }
         } else if (element.getTagName().equals("Program")) {
             String programName = ImportNodes.getTextValue("", element, "ProgramName");
+            String lockedStatus = ImportNodes.getTextValue("", element, "Locked");
 
             Program newProgram = Program.create(Program.class);
             newProgram.setName(programName);
+            newProgram.setLocked("Y".equals(lockedStatus));
             Controller.getInstance().addNewProgram(newProgram);
 
             NodeList programChildNodes = element.getChildNodes();
@@ -146,7 +147,7 @@ public class ImportNodes extends SDERunnable {
                             Error.IMPORT_NODE.record().additionalInformation("Method: " + "set" + variableName).create(ex);
                         }
                     } else if ("IsStartNode".equals(nodeTopElements.getTagName())) {
-                        program.getFlowController().setStartNode(importedNode);
+                        program.setStartNode(importedNode);
                     } else if ("Inputs".equals(nodeTopElements.getTagName())) {
                         NodeList inputNodesList = nodeTopElements.getChildNodes();
                         InputNode inputNode = (InputNode) importedNode;
@@ -222,11 +223,13 @@ public class ImportNodes extends SDERunnable {
 
                                         String dataKey = getTextValue("", dataTableValueElement, "DataKey");
                                         String dataValue = getTextValue("", dataTableValueElement, "DataValue");
+                                        String dataOrder = getTextValue("", dataTableValueElement, "DataOrder");
 
                                         DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
                                         dataTableValue.setParentRow(dataTableRow);
                                         dataTableValue.setDataKey(dataKey);
                                         dataTableValue.setDataValue(dataValue);
+                                        dataTableValue.setOrder(Integer.parseInt(dataOrder));
                                         dataTableValue.save();
                                         dataTableRow.addDataTableValue(dataTableValue);
                                     }

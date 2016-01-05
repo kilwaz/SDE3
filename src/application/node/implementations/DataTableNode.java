@@ -4,13 +4,13 @@ import application.data.SavableAttribute;
 import application.data.model.dao.DataTableRowDAO;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
-import application.node.objects.datatable.DataTableColumn;
-import application.node.objects.datatable.DataTableRow;
-import application.node.objects.datatable.DataTableValue;
-import application.node.objects.datatable.DataTableWithHeader;
+import application.node.objects.datatable.*;
 import application.utils.NodeRunParams;
+import de.jensd.fx.fontawesome.AwesomeDude;
+import de.jensd.fx.fontawesome.AwesomeIcon;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
 
 public class DataTableNode extends DrawableNode {
@@ -32,6 +32,16 @@ public class DataTableNode extends DrawableNode {
 
     private Tab dataViewTab;
     private Tab renameColumnsTab;
+
+    private TextField renameTextField;
+    private ListView<DataTableNodeRenameListItem> columnListView;
+    private Button orderUpButton;
+    private Button orderDownButton;
+
+    private VBox leftSection;
+    private HBox detailsHBox;
+
+    private String selectedValue = "";
 
     private ObservableList<DataTableRow> dataTableRows = null;
 
@@ -79,7 +89,10 @@ public class DataTableNode extends DrawableNode {
     private void buildDataGrid() {
         dataTableGrid = new DataTableWithHeader(getDataTableRows());
         spreadsheetView.setGrid(dataTableGrid.getGrid());
-        createRenameColumnTab();
+        if (columnListView != null) {
+            columnListView.getItems().clear();
+            columnListView.getItems().addAll(findColumnNames(getDataTableRows()));
+        }
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
@@ -100,12 +113,11 @@ public class DataTableNode extends DrawableNode {
         createViewDataTab();
 
         // Create Rename columns
-        renameColumnsTab = new Tab("Rename Columns");
+        renameColumnsTab = new Tab("Rename/Edit Columns");
         renameColumnsTab.setClosable(false);
         createRenameColumnTab();
 
         // Add created tabs to main frame
-
         dataTableTabPane.getTabs().addAll(dataViewTab, renameColumnsTab);
 
         AnchorPane.setBottomAnchor(dataTableTabPane, 0.0);
@@ -220,66 +232,148 @@ public class DataTableNode extends DrawableNode {
             AnchorPane.setRightAnchor(renameColumnsAnchorPane, 0.0);
             AnchorPane.setTopAnchor(renameColumnsAnchorPane, 0.0);
 
-            List<String> columnNames = findColumnNames(getDataTableRows());
+            List<DataTableNodeRenameListItem> columnNames = findColumnNames(getDataTableRows());
 
-            VBox vbox = new VBox(5);
-            AnchorPane.setBottomAnchor(vbox, 10.0);
-            AnchorPane.setLeftAnchor(vbox, 10.0);
-            AnchorPane.setRightAnchor(vbox, 10.0);
-            AnchorPane.setTopAnchor(vbox, 10.0);
+            leftSection = new VBox(5);
+            detailsHBox = new HBox(5);
+            AnchorPane.setBottomAnchor(detailsHBox, 10.0);
+            AnchorPane.setLeftAnchor(detailsHBox, 10.0);
+            AnchorPane.setRightAnchor(detailsHBox, 10.0);
+            AnchorPane.setTopAnchor(detailsHBox, 10.0);
 
-            for (String columnName : columnNames) {
-                vbox.getChildren().add(createRenameColumnRow(columnName));
-            }
+            Label nameLabel = new Label("Name:");
+            nameLabel.setPadding(new Insets(4, 0, 0, 0));
 
-            renameColumnsAnchorPane.getChildren().add(vbox);
+            renameTextField = new TextField();
+            renameTextField.setOnAction(event -> {
+                TextField eventTextField = (TextField) event.getSource();
+                if (!eventTextField.getText().isEmpty()) {
+                    for (DataTableRow dataTableRow : getDataTableRows()) {
+                        String newValue = dataTableRow.getData(eventTextField.getId());
+
+                        if (newValue != null) {
+                            DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
+                            dataTableValue.setDataKey(eventTextField.getText());
+                            dataTableValue.setDataValue(newValue);
+                            dataTableValue.setParentRow(dataTableRow);
+                            dataTableValue.save();
+
+                            dataTableRow.addDataTableValue(dataTableValue);
+                            dataTableRow.removeDataTableValue(eventTextField.getId());
+
+                            selectedValue = newValue;
+                        }
+                    }
+
+                    eventTextField.setId(eventTextField.getText());
+                }
+
+                buildDataGrid();
+            });
+            renameTextField.setText("");
+            renameTextField.setId("");
+            renameTextField.setDisable(true);
+
+            orderUpButton = AwesomeDude.createIconButton(AwesomeIcon.ARROW_UP);
+            orderUpButton.setOnAction(event -> orderChanged(true));
+
+            orderDownButton = AwesomeDude.createIconButton(AwesomeIcon.ARROW_DOWN);
+            orderDownButton.setOnAction(event -> orderChanged(false));
+
+            detailsHBox.getChildren().add(nameLabel);
+            detailsHBox.getChildren().add(renameTextField);
+
+            leftSection.getChildren().add(detailsHBox);
+            leftSection.getChildren().add(orderUpButton);
+            leftSection.getChildren().add(orderDownButton);
+
+            columnListView = new ListView<>();
+            columnListView.getItems().addAll(columnNames);
+            columnListView.getSelectionModel().selectedItemProperty().addListener(
+                    (ov, oldString, newString) -> {
+                        if (newString != null && !newString.getValue().isEmpty()) {
+                            renameTextField.setText(newString.getValue());
+                            renameTextField.setId(newString.getValue());
+                            renameTextField.setDisable(false);
+                            selectedValue = newString.getValue();
+                        }
+                    });
+
+            HBox hbox = new HBox(5);
+            AnchorPane.setBottomAnchor(hbox, 10.0);
+            AnchorPane.setLeftAnchor(hbox, 10.0);
+            AnchorPane.setRightAnchor(hbox, 10.0);
+            AnchorPane.setTopAnchor(hbox, 10.0);
+
+            hbox.getChildren().add(columnListView);
+            hbox.getChildren().add(leftSection);
+
+            renameColumnsAnchorPane.getChildren().add(hbox);
 
             renameColumnsTab.setContent(renameColumnsAnchorPane);
         }
     }
 
-    private HBox createRenameColumnRow(String columnName) {
-        HBox hBox = new HBox(5);
+    private void orderChanged(Boolean up) {
+        for (DataTableRow dataTableRow : getDataTableRows()) {
+            if (selectedValue != null) {
+                DataTableValue dataTableValue = dataTableRow.getDataTableValuesCollection().get(selectedValue);
 
-        TextField textField = new TextField();
-        textField.setOnAction(event -> {
-            TextField eventTextField = (TextField) event.getSource();
-            if (!eventTextField.getText().isEmpty()) {
-                for (DataTableRow dataTableRow : getDataTableRows()) {
-                    String oldValue = dataTableRow.getData(eventTextField.getId());
+                if (dataTableValue != null) {
+                    if (up) {
+                        dataTableValue.setOrder(dataTableValue.getOrder() - 1);
+                    } else {
+                        dataTableValue.setOrder(dataTableValue.getOrder() + 1);
+                    }
 
-                    if (oldValue != null) {
-                        DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
-                        dataTableValue.setDataKey(eventTextField.getText());
-                        dataTableValue.setDataValue(oldValue);
-                        dataTableValue.setParentRow(dataTableRow);
-                        dataTableValue.save();
+                    dataTableValue.save();
+                }
 
-                        dataTableRow.addDataTableValue(dataTableValue);
-                        dataTableRow.removeDataTableValue(eventTextField.getId());
+                dataTableRow.getDataTableValuesCollection().sort();
+            }
+        }
+
+        columnListView.getItems().clear();
+        columnListView.getItems().addAll(findColumnNames(getDataTableRows()));
+
+        buildDataGrid();
+
+        if (selectedValue != null) {
+            Integer selectedIndex = 0;
+            Integer currentIndex = 0;
+            for (DataTableNodeRenameListItem dataTableNodeRenameListItem : columnListView.getItems()) {
+                if (selectedValue != null) {
+                    if (dataTableNodeRenameListItem.equals(selectedValue)) {
+                        selectedIndex = currentIndex;
                     }
                 }
-                eventTextField.setId(eventTextField.getText());
+                currentIndex++;
             }
-
-            buildDataGrid();
-        });
-        textField.setText(columnName);
-        textField.setId(columnName);
-
-        hBox.getChildren().add(textField);
-
-        return hBox;
+            columnListView.getSelectionModel().select(selectedIndex);
+            columnListView.getFocusModel().focus(selectedIndex);
+            columnListView.scrollTo(selectedIndex);
+        }
     }
 
-    public static List<String> findColumnNames(List<DataTableRow> dataTableRowList) {
-        List<String> columnNames = new ArrayList<>();
+    public static List<DataTableNodeRenameListItem> findColumnNames(List<DataTableRow> dataTableRowList) {
+        List<DataTableNodeRenameListItem> columnNames = new ArrayList<>();
+        List<DataTableValue> dataTableValues = new ArrayList<>();
         for (DataTableRow dataTableRow : dataTableRowList) {
-            LinkedHashMap<String, DataTableValue> rowValues = dataTableRow.getDataTableValues();
-            for (DataTableValue dataTableValue : rowValues.values()) {
-                if (!columnNames.contains(dataTableValue.getDataKey())) {
-                    columnNames.add(dataTableValue.getDataKey());
+            dataTableValues.addAll(dataTableRow.getDataTableValuesCollection().getOrderedValues());
+        }
+
+        Collections.sort(dataTableValues); // Should order by order by in DataTableValue
+
+        for (DataTableValue dataTableValue : dataTableValues) {
+            Boolean alreadyContains = false;
+            for (DataTableNodeRenameListItem dataTableNodeRenameListItem : columnNames) {
+                if (dataTableNodeRenameListItem.equals(dataTableValue.getDataKey())) {
+                    alreadyContains = true;
                 }
+            }
+
+            if (!alreadyContains) {
+                columnNames.add(dataTableValue.getAsListItem());
             }
         }
 

@@ -32,6 +32,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -397,6 +398,17 @@ public class Controller implements Initializable {
                     selectedProgram.run();
                 });
 
+                // Add program Lock/Unlock to Flow Tab
+                MenuItem lock = new MenuItem("Lock/Unlock");
+                lock.setOnAction(event1 -> {
+                    Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                    if (selectedProgram != null) {
+                        selectedProgram.setLocked(!selectedProgram.getLocked());
+                        selectedProgram.save();
+                        updateFlowLockedStatus();
+                    }
+                });
+
                 programListContextMenu = new ContextMenu();
 
                 if (clickedName == null) {
@@ -406,6 +418,7 @@ public class Controller implements Initializable {
                     programListContextMenu.getItems().add(menuItemDeleteProgram);
                     programListContextMenu.getItems().add(menuItemCompile);
                     programListContextMenu.getItems().add(menuItemRun);
+                    programListContextMenu.getItems().add(lock);
                 }
 
                 programListContextMenu.show(programList, event.getScreenX(), event.getScreenY());
@@ -456,6 +469,7 @@ public class Controller implements Initializable {
                         currentUser.save();
 
                         newProgram.loadNodesToFlowController();
+                        updateFlowLockedStatus();
                     }
                     canvasController.drawProgram();
                     canvasController.updateAStarNetwork();
@@ -525,6 +539,7 @@ public class Controller implements Initializable {
         Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
         if (selectedProgram != null) {
             selectedProgram.loadNodesToFlowController();
+            updateFlowLockedStatus();
         }
 
         canvasController.drawProgram(); // Not 100% sure why we need to draw first and then update network after
@@ -768,6 +783,39 @@ public class Controller implements Initializable {
                 tabs.addAll(nodeTabPane.getTabs());
                 for (Tab loopTab : tabs) {
                     loopTab.getTabPane().getTabs().remove(loopTab);
+                }
+            }
+        }
+
+        Platform.runLater(new GUIUpdate());
+    }
+
+    public void updateFlowLockedStatus() {
+        class GUIUpdate implements Runnable {
+            GUIUpdate() {
+            }
+
+            public void run() {
+                Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+                if (selectedProgram != null) {
+                    Tab flowTab = flowTabPane.getTabs().get(0);
+                    if (selectedProgram.getLocked()) {
+                        Label awesomeLabel = AwesomeDude.createIconLabel(AwesomeIcon.LOCK);
+
+                        awesomeLabel.setOnMouseClicked(mouseEvent -> {
+                            if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                                if (mouseEvent.getClickCount() == 2) {
+                                    selectedProgram.setLocked(!selectedProgram.getLocked());
+                                    selectedProgram.save();
+                                    updateFlowLockedStatus();
+                                }
+                            }
+                        });
+
+                        flowTab.setGraphic(awesomeLabel);
+                    } else {
+                        flowTab.setGraphic(null);
+                    }
                 }
             }
         }

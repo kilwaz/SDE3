@@ -12,11 +12,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class DataBaseNode extends DrawableNode {
 
@@ -24,7 +22,7 @@ public class DataBaseNode extends DrawableNode {
     private String password = "";
     private String connectionString = "";
 
-    private DBConnection dbConnection;
+    private List<DBConnection> dbConnections = new ArrayList<>();
 
     // This will make a copy of the node passed to it
     public DataBaseNode(DataBaseNode dataBaseNode) {
@@ -35,21 +33,26 @@ public class DataBaseNode extends DrawableNode {
         this.setColor(dataBaseNode.getColor());
         this.setScale(dataBaseNode.getScale());
         this.setContainedText(dataBaseNode.getContainedText());
-//        this.setProgramUuid(dataBaseNode.getProgramUuid());
         this.setNextNodeToRun(dataBaseNode.getNextNodeToRun());
     }
 
-    public DataBaseNode(){
+    public DataBaseNode() {
         super();
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        dbConnection = new DBConnection(connectionString, username, password);
+        DBConnection dbConnection = new DBConnection(connectionString, username, password);
         dbConnection.connect();
+        dbConnections.add(dbConnection);
     }
 
-    public DBConnection getDbConnection() {
-        return dbConnection;
+    public DBConnection getDbConnection(String connectionString) {
+        for (DBConnection dbConnection : dbConnections) {
+            if (connectionString != null && connectionString.equals(dbConnection.getConnectionString())) {
+                return dbConnection;
+            }
+        }
+        return null;
     }
 
     public List<SavableAttribute> getDataToSave() {

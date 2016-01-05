@@ -101,8 +101,9 @@ public enum Error {
     SQLITE_START_EXE(96, "Trouble handling sqlite.exe"),
     DATABASE_TRANSACTION(97, "Database transaction had problems"),
     NODE_CLASS_NOT_FOUND(98, "Could not find node class"),
-    DATABASE_MIGRATE_FAILED(99, "Flyway database migration failed"),
-    DATABASE_REBUILD_FAILED(100, "Database rebuild failed");
+    DATABASE_MIGRATE_SQL_FAILED(99, "Flyway database migration failed from SQL"),
+    DATABASE_REBUILD_FAILED(100, "Database rebuild failed"),
+    DATABASE_MIGRATE_FAILED(101, "Flyway database migration failed");
 
     private Integer code;
     private String description;

@@ -11,6 +11,10 @@ public class Trigger extends DatabaseObject {
     private String then = "";
     private TriggerNode parentNode;
 
+    public Trigger(){
+
+    }
+
     public Trigger(Trigger copyTrigger, TriggerNode parent) {
         this.watch = copyTrigger.getWatch();
         this.when = copyTrigger.getWhen();

@@ -2,15 +2,14 @@ package application.node.objects.datatable;
 
 import application.data.model.DatabaseObject;
 
-import java.util.UUID;
-
-public class DataTableValue extends DatabaseObject {
+public class DataTableValue extends DatabaseObject implements Comparable<DataTableValue> {
     private DataTableRow parentRow = null;
     private String dataKey = "";
     private String dataValue = "";
+    private Integer order = 0;
 
     public DataTableValue() {
-       super();
+        super();
     }
 
     public String getDataKey() {
@@ -46,5 +45,22 @@ public class DataTableValue extends DatabaseObject {
 
     public DataTableRow getParentRow() {
         return parentRow;
+    }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
+    public DataTableNodeRenameListItem getAsListItem() {
+        return new DataTableNodeRenameListItem(getDataKey(), getOrder());
+    }
+
+    public int compareTo(DataTableValue dataTableValue) {
+        // Ascending order
+        return this.order - dataTableValue.getOrder();
     }
 }

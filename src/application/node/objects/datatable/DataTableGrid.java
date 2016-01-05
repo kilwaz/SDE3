@@ -7,6 +7,10 @@ import org.controlsfx.control.spreadsheet.GridBase;
 import org.controlsfx.control.spreadsheet.GridChange;
 import org.controlsfx.control.spreadsheet.SpreadsheetCell;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class DataTableGrid {
     private ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private GridBase grid;
@@ -15,7 +19,24 @@ public class DataTableGrid {
     private static Logger log = Logger.getLogger(DataTableGrid.class);
 
     public DataTableGrid(ObservableList<DataTableRow> dataTableRows) {
-        this.dataTableRows = dataTableRows;
+        ObservableList<DataTableRow> orderedDataTableRows = FXCollections.observableArrayList();
+
+        // Order columns correctly
+        List<DataTableValue> dataTableValues = new ArrayList<>();
+
+        for (DataTableRow dataTableRow : dataTableRows) {
+            dataTableValues.addAll(dataTableRow.getDataTableValuesCollection().getOrderedValues());
+        }
+
+        Collections.sort(dataTableValues); // Should order by order by in DataTableValue
+
+        for (DataTableValue dataTableValue : dataTableValues) {
+            if (!orderedDataTableRows.contains(dataTableValue.getParentRow())) {
+                orderedDataTableRows.add(dataTableValue.getParentRow());
+            }
+        }
+
+        this.dataTableRows = orderedDataTableRows;
         initGrid();
     }
 

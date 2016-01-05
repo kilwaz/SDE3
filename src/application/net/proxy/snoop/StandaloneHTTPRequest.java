@@ -201,10 +201,6 @@ public class StandaloneHTTPRequest {
                     // null is the response code
                     // As we are a proxy we don't want to keep their content length or transfer encoding as we will decide our own
                     if (header != null && !header.equals("Transfer-Encoding") && !header.equals("Content-Length")) {
-                        if ("Set-Cookie".equals(header)) {
-                            log.info("URL:" + url.getPath());
-                            log.info("Header: " + header + " -> " + concatHeader);
-                        }
                         responseHeaders.put(header, concatHeader);
                     }
                 }
