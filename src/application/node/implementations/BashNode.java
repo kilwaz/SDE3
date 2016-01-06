@@ -62,7 +62,7 @@ public class BashNode extends DrawableNode {
         for (Input input : inputNode.getInputs()) {
             if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
                 String script = getBash().getScript();
-                getBash().setScript(script.replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
+                getBash().setScript(script.replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$","\\$")));
             }
         }
     }

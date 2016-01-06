@@ -125,7 +125,7 @@ public class BatchNode extends DrawableNode {
         editedTest.setText(getBatch().getScript());
         for (Input input : inputNode.getInputs()) {
             if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
-                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
+                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$","\\$")));
             }
         }
 

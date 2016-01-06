@@ -279,7 +279,7 @@ public class TestNode extends DrawableNode {
         editedTest.setText(getTest().getText());
         for (Input input : inputNode.getInputs()) {
             if (input.getVariableName() != null && !input.getVariableName().isEmpty() && input.getVariableValue() != null && !input.getVariableValue().isEmpty()) {
-                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue()));
+                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$","\\$")));
             }
         }
 
