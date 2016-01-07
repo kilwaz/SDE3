@@ -10,6 +10,7 @@ import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.regex.Pattern;
 
 public class BashNode extends DrawableNode {
     private Bash bash = null;
+
+    private static Logger log = Logger.getLogger(BashNode.class);
 
     // This will make a copy of the node passed to it
     public BashNode(BashNode bashNode) {

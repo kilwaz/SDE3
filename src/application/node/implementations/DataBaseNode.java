@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class DataBaseNode extends DrawableNode {
     private String connectionString = "";
 
     private List<DBConnection> dbConnections = new ArrayList<>();
+
+    private static Logger log = Logger.getLogger(DataBaseNode.class);
 
     // This will make a copy of the node passed to it
     public DataBaseNode(DataBaseNode dataBaseNode) {
@@ -41,9 +44,33 @@ public class DataBaseNode extends DrawableNode {
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
+        if (getDbConnection(connectionString) == null) {
+            connectToDatabase();
+        } else if (!getDbConnection(connectionString).isConnected()) {
+            log.info("DBConnection " + connectionString + " was closed and so was removed from available list");
+            removeDBConnection(connectionString);
+            connectToDatabase();
+        } else {
+            log.info("DBConnection " + connectionString + " already established");
+        }
+    }
+
+    private void connectToDatabase() {
         DBConnection dbConnection = new DBConnection(connectionString, username, password);
         dbConnection.connect();
         dbConnections.add(dbConnection);
+    }
+
+    public void removeDBConnection(String connectionString) {
+        DBConnection connectionToRemove = null;
+        for (DBConnection dbConnection : dbConnections) {
+            if (connectionString != null && connectionString.equals(dbConnection.getConnectionString())) {
+                connectionToRemove = dbConnection;
+            }
+        }
+        if (connectionToRemove != null) {
+            dbConnections.remove(connectionToRemove);
+        }
     }
 
     public DBConnection getDbConnection(String connectionString) {
