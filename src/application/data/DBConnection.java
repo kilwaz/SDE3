@@ -56,7 +56,12 @@ public class DBConnection {
                     Error.SQLITE_START_EXE.record().create(ex);
                 }
             }
-            log.info("Connecting to " + connectionString + " " + username + "/" + password);
+            if (username.isEmpty() && password.isEmpty()) {
+                log.info("Connecting to " + connectionString);
+            } else {
+                log.info("Connecting to " + connectionString + " " + username + "/" + password);
+            }
+
             connection = DriverManager.getConnection(connectionString, username, password);
             return true;
         } catch (SQLException ex) {
@@ -168,7 +173,7 @@ public class DBConnection {
             flyway.migrate();
         } catch (FlywaySqlScriptException ex) {
             Error.DATABASE_MIGRATE_SQL_FAILED.record().create(ex);
-        } catch (FlywayException ex){
+        } catch (FlywayException ex) {
             Error.DATABASE_MIGRATE_FAILED.record().create(ex);
         }
     }

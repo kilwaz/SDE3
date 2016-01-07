@@ -67,6 +67,8 @@ public class Main extends Application {
         // This lets all logging be captured and then displayed
         new LogManager();
 
+        log.info(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+
         instance = this;
         this.splashStage = stage;
         showSplash();
