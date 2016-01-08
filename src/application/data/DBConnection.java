@@ -63,6 +63,7 @@ public class DBConnection {
             }
 
             connection = DriverManager.getConnection(connectionString, username, password);
+            log.info("Successfully connected to " + connectionString);
             return true;
         } catch (SQLException ex) {
             Error.OPEN_DATABASE_CONNECTION.record().additionalInformation("Connection String:" + connectionString + " Username:" + username + " Password:" + password).create(ex);
