@@ -1,6 +1,5 @@
 package application.net.proxy.snoop;
 
-import application.error.*;
 import application.error.Error;
 import application.net.proxy.WebProxyRequestManager;
 import io.netty.buffer.Unpooled;
@@ -48,34 +47,38 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Object msg) {
-        if (msg instanceof HttpRequest) {
-            HttpRequest request = this.request = (HttpRequest) msg;
+        try {
+            if (msg instanceof HttpRequest) {
+                HttpRequest request = this.request = (HttpRequest) msg;
 
-            if (HttpHeaderUtil.is100ContinueExpected(request)) {
-                send100Continue(ctx);
+                if (HttpHeaderUtil.is100ContinueExpected(request)) {
+                    send100Continue(ctx);
+                }
+
+                if ("CONNECT".equals(request.method().toString())) {
+                    FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+                    ctx.write(response);
+
+                    SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
+                    sslEngine.setUseClientMode(false); // We are a server
+                    sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
+
+                    pipeline.addFirst("ssl", new SslHandler(sslEngine));
+                    SSL = true;
+
+                    return;
+                }
             }
 
-            if ("CONNECT".equals(request.method().toString())) {
-                FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-                ctx.write(response);
-
-                SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
-                sslEngine.setUseClientMode(false); // We are a server
-                sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
-
-                pipeline.addFirst("ssl", new SslHandler(sslEngine));
-                SSL = true;
-
-                return;
+            if (msg instanceof LastHttpContent) {
+                LastHttpContent trailer = (LastHttpContent) msg;
+                if (!writeResponse(trailer, ctx)) {
+                    // If keep-alive is off, close the connection once the content is fully written.
+                    ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+                }
             }
-        }
-
-        if (msg instanceof LastHttpContent) {
-            LastHttpContent trailer = (LastHttpContent) msg;
-            if (!writeResponse(trailer, ctx)) {
-                // If keep-alive is off, close the connection once the content is fully written.
-                ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-            }
+        } catch (IllegalStateException ex) {
+            Error.HTTP_PROXY_RECEIVE_MESSAGE.record().create(ex);
         }
     }
 

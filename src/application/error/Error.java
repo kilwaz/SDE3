@@ -103,7 +103,8 @@ public enum Error {
     NODE_CLASS_NOT_FOUND(98, "Could not find node class"),
     DATABASE_MIGRATE_SQL_FAILED(99, "Flyway database migration failed from SQL"),
     DATABASE_REBUILD_FAILED(100, "Database rebuild failed"),
-    DATABASE_MIGRATE_FAILED(101, "Flyway database migration failed");
+    DATABASE_MIGRATE_FAILED(101, "Flyway database migration failed"),
+    HTTP_PROXY_RECEIVE_MESSAGE(102, "Error receiving Http Proxy message");
 
     private Integer code;
     private String description;
