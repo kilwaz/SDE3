@@ -222,6 +222,39 @@ public class Controller implements Initializable {
                         // If the tab does not already exist we create it
                         if (nodeTab == null) {
                             nodeTab = drawableNode.createInterface();
+
+
+                            // Add context menu to close all tabs
+                            ContextMenu contextMenu = new ContextMenu();
+
+                            MenuItem closeAllTabsItem = new MenuItem("Close all tabs");
+                            closeAllTabsItem.setOnAction(closeAllEvent -> nodeTabPane.getTabs().clear());
+
+                            MenuItem closeOtherTabsItem = new MenuItem("Close other tabs");
+                            closeOtherTabsItem.setId(nodeTab.getId() + "Item");
+                            closeOtherTabsItem.setOnAction(closeAllEvent -> {
+                                MenuItem menuItemSource = (MenuItem) closeAllEvent.getSource();
+                                Tab sourceTab = null;
+
+                                for (Tab loopTab : nodeTabPane.getTabs()) {
+                                    if (loopTab.getId() != null) {
+                                        if (menuItemSource.getId().contains(loopTab.getId())) {
+                                            sourceTab = loopTab;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                nodeTabPane.getTabs().clear();
+                                if (sourceTab != null) {
+                                    nodeTabPane.getTabs().add(sourceTab);
+                                }
+                            });
+
+                            contextMenu.getItems().add(closeAllTabsItem);
+                            contextMenu.getItems().add(closeOtherTabsItem);
+                            nodeTab.setContextMenu(contextMenu);
+
                             nodeTabPane.getTabs().add(nodeTab);
                         }
 
