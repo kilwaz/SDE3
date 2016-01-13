@@ -3,6 +3,7 @@ package application.node.implementations;
 import application.data.SavableAttribute;
 import application.data.model.dao.DataTableRowDAO;
 import application.gui.Controller;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.node.objects.datatable.*;
 import application.utils.NodeRunParams;
@@ -30,6 +31,7 @@ public class DataTableNode extends DrawableNode {
     private SpreadsheetView spreadsheetView = new SpreadsheetView();
     private DataTableWithHeader dataTableGrid;
 
+    private TabPane dataTableTabPane = null;
     private Tab dataViewTab;
     private Tab renameColumnsTab;
 
@@ -101,11 +103,10 @@ public class DataTableNode extends DrawableNode {
 
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
-
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
-        TabPane dataTableTabPane = new TabPane();
+        dataTableTabPane = new TabPane();
 
         // Create View Data
         dataViewTab = new Tab("View Data");
@@ -120,10 +121,7 @@ public class DataTableNode extends DrawableNode {
         // Add created tabs to main frame
         dataTableTabPane.getTabs().addAll(dataViewTab, renameColumnsTab);
 
-        AnchorPane.setBottomAnchor(dataTableTabPane, 0.0);
-        AnchorPane.setLeftAnchor(dataTableTabPane, 0.0);
-        AnchorPane.setRightAnchor(dataTableTabPane, 0.0);
-        AnchorPane.setTopAnchor(dataTableTabPane, 50.0);
+        UI.setAnchorMargins(dataTableTabPane, 50.0, 0.0, 0.0, 0.0);
 
         anchorPane.getChildren().addAll(dataTableTabPane);
         return tab;
@@ -137,15 +135,8 @@ public class DataTableNode extends DrawableNode {
                 dataTableColumns.add(new DataTableColumn("New Column"));
             }
 
-            AnchorPane.setBottomAnchor(dataViewAnchorPane, 0.0);
-            AnchorPane.setLeftAnchor(dataViewAnchorPane, 0.0);
-            AnchorPane.setRightAnchor(dataViewAnchorPane, 0.0);
-            AnchorPane.setTopAnchor(dataViewAnchorPane, 0.0);
-
-            AnchorPane.setBottomAnchor(spreadsheetView, 0.0);
-            AnchorPane.setLeftAnchor(spreadsheetView, 0.0);
-            AnchorPane.setRightAnchor(spreadsheetView, 0.0);
-            AnchorPane.setTopAnchor(spreadsheetView, 0.0);
+            UI.setAnchorMargins(dataViewAnchorPane, 0.0, 0.0, 0.0, 0.0);
+            UI.setAnchorMargins(spreadsheetView, 0.0, 0.0, 0.0, 0.0);
 
             dataViewAnchorPane.getChildren().add(spreadsheetView);
 
@@ -158,6 +149,17 @@ public class DataTableNode extends DrawableNode {
                 dataTableRow.setParent(this);
                 dataTableRow.save();
                 addDataTableRow(dataTableRow);
+
+                for (DataTableNodeRenameListItem columnName : findColumnNames(getDataTableRows())) {
+                    DataTableValue dataTableValue = DataTableValue.create(DataTableValue.class);
+                    dataTableValue.setDataKey(columnName.getValue());
+                    dataTableValue.setDataValue("");
+                    dataTableValue.setParentRow(dataTableRow);
+                    dataTableValue.save();
+                    dataTableRow.addDataTableValue(dataTableValue);
+                }
+
+                buildDataGrid();
             });
 
             MenuItem addNewColumn = new MenuItem("Add New Column");
@@ -227,19 +229,13 @@ public class DataTableNode extends DrawableNode {
         if (renameColumnsTab != null) {
             AnchorPane renameColumnsAnchorPane = new AnchorPane();
 
-            AnchorPane.setBottomAnchor(renameColumnsAnchorPane, 0.0);
-            AnchorPane.setLeftAnchor(renameColumnsAnchorPane, 0.0);
-            AnchorPane.setRightAnchor(renameColumnsAnchorPane, 0.0);
-            AnchorPane.setTopAnchor(renameColumnsAnchorPane, 0.0);
+            UI.setAnchorMargins(renameColumnsAnchorPane, 0.0, 0.0, 0.0, 0.0);
+            UI.setAnchorMargins(detailsHBox, 10.0, 10.0, 10.0, 10.0);
 
             List<DataTableNodeRenameListItem> columnNames = findColumnNames(getDataTableRows());
 
             leftSection = new VBox(5);
             detailsHBox = new HBox(5);
-            AnchorPane.setBottomAnchor(detailsHBox, 10.0);
-            AnchorPane.setLeftAnchor(detailsHBox, 10.0);
-            AnchorPane.setRightAnchor(detailsHBox, 10.0);
-            AnchorPane.setTopAnchor(detailsHBox, 10.0);
 
             Label nameLabel = new Label("Name:");
             nameLabel.setPadding(new Insets(4, 0, 0, 0));
@@ -300,10 +296,7 @@ public class DataTableNode extends DrawableNode {
                     });
 
             HBox hbox = new HBox(5);
-            AnchorPane.setBottomAnchor(hbox, 10.0);
-            AnchorPane.setLeftAnchor(hbox, 10.0);
-            AnchorPane.setRightAnchor(hbox, 10.0);
-            AnchorPane.setTopAnchor(hbox, 10.0);
+            UI.setAnchorMargins(hbox, 10.0, 10.0, 10.0, 10.0);
 
             hbox.getChildren().add(columnListView);
             hbox.getChildren().add(leftSection);

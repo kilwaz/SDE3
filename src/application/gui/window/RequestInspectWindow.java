@@ -1,6 +1,7 @@
 package application.gui.window;
 
 import application.error.Error;
+import application.gui.UI;
 import application.net.proxy.RecordedHeader;
 import application.net.proxy.RecordedRequest;
 import javafx.scene.Scene;
@@ -32,11 +33,7 @@ public class RequestInspectWindow extends Stage {
 
             // Request Test Area
             TextArea requestTextArea = new TextArea();
-
-            AnchorPane.setBottomAnchor(requestTextArea, 0.0);
-            AnchorPane.setLeftAnchor(requestTextArea, 0.0);
-            AnchorPane.setRightAnchor(requestTextArea, 0.0);
-            AnchorPane.setTopAnchor(requestTextArea, 0.0);
+            UI.setAnchorMargins(requestTextArea, 0.0, 0.0, 0.0, 0.0);
 
             HashMap<String, RecordedHeader> requestHeaders = recordedRequest.getRequestHeaders();
             for (String headerName : requestHeaders.keySet()) {
@@ -49,11 +46,7 @@ public class RequestInspectWindow extends Stage {
 
             // Response Text Area
             TextArea responseTextArea = new TextArea();
-
-            AnchorPane.setBottomAnchor(responseTextArea, 0.0);
-            AnchorPane.setLeftAnchor(responseTextArea, 0.0);
-            AnchorPane.setRightAnchor(responseTextArea, 0.0);
-            AnchorPane.setTopAnchor(responseTextArea, 0.0);
+            UI.setAnchorMargins(responseTextArea, 0.0, 0.0, 0.0, 0.0);
 
             HashMap<String, RecordedHeader> responseHeaders = recordedRequest.getResponseHeaders();
             for (String headerName : responseHeaders.keySet()) {
@@ -79,18 +72,12 @@ public class RequestInspectWindow extends Stage {
             AnchorPane requestContent = new AnchorPane();
             requestContent.getChildren().add(requestTextArea);
 
-            AnchorPane.setLeftAnchor(requestContent, 0.0);
-            AnchorPane.setRightAnchor(requestContent, 0.0);
-            AnchorPane.setTopAnchor(requestContent, 0.0);
-            AnchorPane.setBottomAnchor(requestContent, 0.0);
+            UI.setAnchorMargins(requestContent, 0.0, 0.0, 0.0, 0.0);
 
             AnchorPane responseContent = new AnchorPane();
             responseContent.getChildren().add(responseTextArea);
 
-            AnchorPane.setLeftAnchor(responseContent, 0.0);
-            AnchorPane.setRightAnchor(responseContent, 0.0);
-            AnchorPane.setTopAnchor(responseContent, 0.0);
-            AnchorPane.setBottomAnchor(responseContent, 0.0);
+            UI.setAnchorMargins(responseContent, 0.0, 0.0, 0.0, 0.0);
 
             response.setContent(responseContent);
             request.setContent(requestContent);

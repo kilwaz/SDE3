@@ -3,6 +3,7 @@ package application.node.implementations;
 import application.data.DataBank;
 import application.gui.Controller;
 import application.gui.Program;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.node.objects.Trigger;
 import application.utils.NodeRunParams;
@@ -121,10 +122,7 @@ public class ConsoleNode extends DrawableNode {
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = (AnchorPane) tab.getContent();
 
-        AnchorPane.setBottomAnchor(consoleTextArea, 11.0);
-        AnchorPane.setLeftAnchor(consoleTextArea, 11.0);
-        AnchorPane.setRightAnchor(consoleTextArea, 11.0);
-        AnchorPane.setTopAnchor(consoleTextArea, 50.0);
+        UI.setAnchorMargins(consoleTextArea, 50.0, 11.0, 11.0, 11.0);
 
         anchorPane.getChildren().add(consoleTextArea);
 

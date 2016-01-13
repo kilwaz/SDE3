@@ -4,6 +4,7 @@ import application.data.imports.ImportNodeColours;
 import application.data.imports.ImportNodes;
 import application.error.Error;
 import application.gui.AceTextArea;
+import application.gui.UI;
 import application.utils.SDEThread;
 import application.utils.XMLTransform;
 import javafx.application.Platform;
@@ -45,10 +46,7 @@ public class ImportWindow extends Stage {
         try {
             importTextArea = new AceTextArea("ace/mode/xml");
 
-            AnchorPane.setLeftAnchor(importTextArea, 0.0);
-            AnchorPane.setRightAnchor(importTextArea, 0.0);
-            AnchorPane.setTopAnchor(importTextArea, 0.0);
-            AnchorPane.setBottomAnchor(importTextArea, 0.0);
+            UI.setAnchorMargins(importTextArea, 0.0, 0.0, 0.0, 0.0);
 
             importTextArea.setPrefHeight(900);
 
@@ -103,15 +101,8 @@ public class ImportWindow extends Stage {
 
             AnchorPane exportOutputAnchor = new AnchorPane();
 
-            AnchorPane.setLeftAnchor(exportOutputAnchor, 0.0);
-            AnchorPane.setRightAnchor(exportOutputAnchor, 0.0);
-            AnchorPane.setTopAnchor(exportOutputAnchor, 0.0);
-            AnchorPane.setBottomAnchor(exportOutputAnchor, 0.0);
-
-            AnchorPane.setLeftAnchor(rows, 0.0);
-            AnchorPane.setRightAnchor(rows, 0.0);
-            AnchorPane.setTopAnchor(rows, 0.0);
-            AnchorPane.setBottomAnchor(rows, 0.0);
+            UI.setAnchorMargins(exportOutputAnchor, 0.0, 0.0, 0.0, 0.0);
+            UI.setAnchorMargins(rows, 0.0, 0.0, 0.0, 0.0);
 
             exportOutputAnchor.getChildren().add(rows);
 

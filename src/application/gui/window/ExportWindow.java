@@ -7,6 +7,7 @@ import application.data.xml.ProgramXML;
 import application.error.Error;
 import application.gui.AceTextArea;
 import application.gui.Program;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.utils.XMLTransform;
 import application.utils.managers.SessionManager;
@@ -51,10 +52,7 @@ public class ExportWindow extends Stage {
 
             AceTextArea exportTextArea = new AceTextArea("ace/mode/xml");
 
-            AnchorPane.setLeftAnchor(exportTextArea, 0.0);
-            AnchorPane.setRightAnchor(exportTextArea, 0.0);
-            AnchorPane.setTopAnchor(exportTextArea, 0.0);
-            AnchorPane.setBottomAnchor(exportTextArea, 0.0);
+            UI.setAnchorMargins(exportTextArea, 0.0, 0.0, 0.0, 0.0);
 
             exportTextArea.setPrefHeight(900);
 
@@ -110,15 +108,8 @@ public class ExportWindow extends Stage {
 
             AnchorPane exportOutputAnchor = new AnchorPane();
 
-            AnchorPane.setLeftAnchor(exportOutputAnchor, 0.0);
-            AnchorPane.setRightAnchor(exportOutputAnchor, 0.0);
-            AnchorPane.setTopAnchor(exportOutputAnchor, 0.0);
-            AnchorPane.setBottomAnchor(exportOutputAnchor, 0.0);
-
-            AnchorPane.setLeftAnchor(rows, 0.0);
-            AnchorPane.setRightAnchor(rows, 0.0);
-            AnchorPane.setTopAnchor(rows, 0.0);
-            AnchorPane.setBottomAnchor(rows, 0.0);
+            UI.setAnchorMargins(exportOutputAnchor, 0.0, 0.0, 0.0, 0.0);
+            UI.setAnchorMargins(rows, 0.0, 0.0, 0.0, 0.0);
 
             exportOutputAnchor.getChildren().add(rows);
 

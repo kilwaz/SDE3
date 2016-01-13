@@ -3,6 +3,7 @@ package application.node.implementations;
 import application.data.SavableAttribute;
 import application.gui.AceTextArea;
 import application.gui.Controller;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.node.objects.Bash;
 import application.node.objects.Input;
@@ -51,10 +52,7 @@ public class BashNode extends DrawableNode {
 
         AceTextArea aceTextArea = new AceTextArea(this, "ace/mode/batch");
 
-        AnchorPane.setBottomAnchor(aceTextArea, 0.0);
-        AnchorPane.setLeftAnchor(aceTextArea, 11.0);
-        AnchorPane.setRightAnchor(aceTextArea, 0.0);
-        AnchorPane.setTopAnchor(aceTextArea, 50.0);
+        UI.setAnchorMargins(aceTextArea, 50.0, 0.0, 11.0, 0.0);
 
         anchorPane.getChildren().add(aceTextArea);
 

@@ -2,6 +2,7 @@ package application.node.implementations;
 
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.test.TestStep;
 import javafx.application.Platform;
@@ -111,10 +112,9 @@ public class TestResultNode extends DrawableNode {
 
         resultsTable.setMaxHeight(Integer.MAX_VALUE);
         resultsTable.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(resultsTable, 0.0);
-        AnchorPane.setLeftAnchor(resultsTable, 11.0);
-        AnchorPane.setRightAnchor(resultsTable, 0.0);
-        AnchorPane.setTopAnchor(resultsTable, 50.0);
+
+        UI.setAnchorMargins(resultsTable, 50.0, 0.0, 11.0, 0.0);
+
         resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         anchorPane.getChildren().add(resultsTable);

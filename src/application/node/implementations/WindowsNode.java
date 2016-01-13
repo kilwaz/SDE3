@@ -5,6 +5,7 @@ import application.data.SavableAttribute;
 import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.node.objects.BatchTest;
 import application.node.objects.Trigger;
@@ -56,10 +57,7 @@ public class WindowsNode extends DrawableNode {
         rows.setLayoutY(55);
         rows.setLayoutX(11);
 
-        AnchorPane.setBottomAnchor(rows, 11.0);
-        AnchorPane.setLeftAnchor(rows, 11.0);
-        AnchorPane.setRightAnchor(rows, 11.0);
-        AnchorPane.setTopAnchor(rows, 50.0);
+        UI.setAnchorMargins(rows, 50.0, 11.0, 11.0, 11.0);
 
         rows.getChildren().add(consoleTextArea);
 

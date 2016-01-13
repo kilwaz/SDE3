@@ -2,10 +2,8 @@ package application.test.action;
 
 import application.test.TestParameter;
 import application.test.TestStep;
-import application.test.action.helpers.LoopTracker;
 import application.test.action.helpers.LoopedWebElement;
 import application.test.action.helpers.Variable;
-import application.test.action.helpers.VariableTracker;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
@@ -29,6 +27,7 @@ public class IfWebAction extends WebAction {
         testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
+        // Element References
         TestParameter startElement = getTestCommand().getParameterByName("start");
         TestParameter loopElement = getTestCommand().getParameterByPath("loop");
         TestParameter elementId = getTestCommand().getParameterByPath("id");
@@ -38,6 +37,7 @@ public class IfWebAction extends WebAction {
         TestParameter elementContent = getTestCommand().getParameterByPath("content");
         TestParameter variable = getTestCommand().getParameterByPath("var");
 
+        // Conditions
         TestParameter equals = getTestCommand().getParameterByPath("equals");
         TestParameter contains = getTestCommand().getParameterByPath("contains");
         TestParameter exists = getTestCommand().getParameterByPath("exists");
@@ -73,10 +73,12 @@ public class IfWebAction extends WebAction {
                 if (var != null) {
                     valueToCheck = var.getVariableValue();
                 }
+            } else if (contains.exists() && testElement != null) {
+                valueToCheck = testElement.html();
             }
 
             if (equals.exists() && !"".equals(valueToCheck)) {
-                log.info("Comparing equals " + valueToCheck + " vs " + equals.getParameterValue());
+                //log.info("Comparing equals " + valueToCheck + " vs " + equals.getParameterValue());
                 if (valueToCheck.equals(equals.getParameterValue())) { // TRUE
 
                 } else {  // FALSE
@@ -87,6 +89,7 @@ public class IfWebAction extends WebAction {
             }
 
             if (contains.exists()) {
+                log.info("Checking contains " + valueToCheck + " vs " + contains.getParameterValue());
                 if ("".equals(valueToCheck)) { // FALSE
                     // If no element was found (so valueToCheck is "") then it does not contain our text, return false
                     getIfTracker().setIsSkippingIf(true);

@@ -1,6 +1,9 @@
 package application.node.objects;
 
+import application.node.implementations.InputNode;
 import application.node.implementations.TestNode;
+
+import java.util.regex.Pattern;
 
 public class Test {
     private TestNode parentTestNode;
@@ -44,5 +47,25 @@ public class Test {
 
     public void setContinueTest(Boolean continueTest) {
         this.continueTest = continueTest;
+    }
+
+    public Test prefix(Test test) {
+        text += test.getText();
+        return this;
+    }
+
+    public Test append(Test test) {
+        text = test.getText() + text;
+        return this;
+    }
+
+    public Test applyInputs(InputNode inputNode) {
+        for (Input input : inputNode.getInputs()) {
+            if (input.getVariableName() != null && !input.getVariableName().isEmpty() && input.getVariableValue() != null && !input.getVariableValue().isEmpty()) {
+                setText(getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$", "\\$")));
+            }
+        }
+
+        return this;
     }
 }

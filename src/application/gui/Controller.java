@@ -672,10 +672,7 @@ public class Controller implements Initializable {
         tabAnchorPane.setMaxHeight(Integer.MAX_VALUE);
         tabAnchorPane.setMaxWidth(Integer.MAX_VALUE);
 
-        AnchorPane.setLeftAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setRightAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setTopAnchor(tabAnchorPane, 0.0);
-        AnchorPane.setBottomAnchor(tabAnchorPane, 0.0);
+        UI.setAnchorMargins(tabAnchorPane, 0.0, 0.0, 0.0, 0.0);
 
         tab.setContent(tabAnchorPane);
 

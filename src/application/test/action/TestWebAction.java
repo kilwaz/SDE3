@@ -55,7 +55,7 @@ public class TestWebAction extends WebAction {
                 // Add the result to a result node if it is linked
                 TestParameter resultNodeName = getTestCommand().getParameterByPath("resultNode");
                 if (resultNodeName != null) {
-                    DrawableNode resultNode = getParentTestNode().getProgram().getFlowController().getNodeThisControllerFromContainedText(resultNodeName.getParameterValue());
+                    DrawableNode resultNode = getProgram().getFlowController().getNodeThisControllerFromContainedText(resultNodeName.getParameterValue());
                     if (resultNode != null && resultNode instanceof TestResultNode) {
                         TestResultNode testResultNode = (TestResultNode) resultNode;
                         testResultNode.addResult(testStep);

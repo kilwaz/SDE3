@@ -1,7 +1,7 @@
 package application.test.action;
 
+import application.gui.Program;
 import application.net.proxy.snoop.HttpProxyServer;
-import application.node.implementations.TestNode;
 import application.node.objects.Test;
 import application.test.TestCommand;
 import application.test.TestParameter;
@@ -29,7 +29,7 @@ public abstract class WebAction implements Action {
     private TestCommand testCommand = null;
     private TestResult testResult = null;
     private HttpProxyServer httpProxyServer = null;
-    private TestNode parentTestNode = null;
+    private Program program = null;
     private Test runningTest = null;
     private IfTracker ifTracker = null;
     private LoopTracker loopTracker = null;
@@ -73,14 +73,14 @@ public abstract class WebAction implements Action {
     /**
      * Sets up the action with all the current environment variables needed to run it.
      *
-     * @param webProxy       The proxy that will handle the request.
-     * @param driver         The Selenium web driver that is handling the test.
-     * @param testCommand    The full test command to process.
-     * @param testResult     The final result of the test, this object is provided to be updated by the action.
-     * @param parentTestNode Reference to the Test node that is running this test.
+     * @param webProxy    The proxy that will handle the request.
+     * @param driver      The Selenium web driver that is handling the test.
+     * @param testCommand The full test command to process.
+     * @param testResult  The final result of the test, this object is provided to be updated by the action.
+     * @param program     Reference to the program this test is a spawn of.
      */
-    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, TestNode parentTestNode, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker) {
-        this.parentTestNode = parentTestNode;
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker) {
+        this.program = program;
         this.httpProxyServer = webProxy;
         this.driver = driver;
         this.testCommand = testCommand;
@@ -184,10 +184,10 @@ public abstract class WebAction implements Action {
     }
 
     /**
-     * @return Gets the test node that is running this action.
+     * @return Gets the program that is running this action.
      */
-    public TestNode getParentTestNode() {
-        return parentTestNode;
+    public Program getProgram() {
+        return program;
     }
 
     /**

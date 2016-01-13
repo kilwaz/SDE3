@@ -54,6 +54,7 @@ public class DatabaseLink {
         // Drawable Node Classes - Better way to do this?
         linkClasses.put(BashNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(BatchNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(BulkTestNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(ChartNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(ConsoleNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(CopyNode.class, DrawableNodeDatabaseLink.class);

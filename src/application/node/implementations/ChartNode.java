@@ -5,6 +5,7 @@ import application.data.chart.Chart;
 import application.data.chart.ChartPoint;
 import application.data.chart.ChartSeries;
 import application.gui.Controller;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
 import javafx.embed.swing.SwingNode;
@@ -68,10 +69,7 @@ public class ChartNode extends DrawableNode {
         ChartPanel cpanel = new ChartPanel(jFreeChart);
         chartSwingNode.setContent(cpanel);
 
-        AnchorPane.setBottomAnchor(chartSwingNode, 0.0);
-        AnchorPane.setLeftAnchor(chartSwingNode, 11.0);
-        AnchorPane.setRightAnchor(chartSwingNode, 0.0);
-        AnchorPane.setTopAnchor(chartSwingNode, 50.0);
+        UI.setAnchorMargins(chartSwingNode, 50.0, 0.0, 11.0, 0.0);
 
         anchorPane.getChildren().add(chartSwingNode);
 

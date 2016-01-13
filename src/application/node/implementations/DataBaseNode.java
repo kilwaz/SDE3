@@ -3,6 +3,7 @@ package application.node.implementations;
 import application.data.DBConnection;
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
 import javafx.geometry.Pos;
@@ -120,15 +121,8 @@ public class DataBaseNode extends DrawableNode {
         hbox.getChildren().add(createDatabaseNodeRow("Password:", "password", password));
         hbox.getChildren().add(createDatabaseNodeRow("Url:", "connectionString", connectionString));
 
-        AnchorPane.setBottomAnchor(hbox, 11.0);
-        AnchorPane.setLeftAnchor(hbox, 11.0);
-        AnchorPane.setRightAnchor(hbox, 11.0);
-        AnchorPane.setTopAnchor(hbox, 50.0);
-
-        AnchorPane.setBottomAnchor(rows, 11.0);
-        AnchorPane.setLeftAnchor(rows, 11.0);
-        AnchorPane.setRightAnchor(rows, 11.0);
-        AnchorPane.setTopAnchor(rows, 50.0);
+        UI.setAnchorMargins(hbox, 50.0, 11.0, 11.0, 11.0);
+        UI.setAnchorMargins(rows, 50.0, 11.0, 11.0, 11.0);
 
         rows.getChildren().add(hbox);
 

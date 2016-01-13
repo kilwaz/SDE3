@@ -2,6 +2,7 @@ package application.gui.window;
 
 import application.error.*;
 import application.error.Error;
+import application.gui.UI;
 import application.utils.SDEThread;
 import application.utils.managers.ThreadManager;
 import javafx.scene.Scene;
@@ -51,10 +52,9 @@ public class ThreadWindow extends Stage {
 
             threadTableView.setMaxHeight(Integer.MAX_VALUE);
             threadTableView.setMaxWidth(Integer.MAX_VALUE);
-            AnchorPane.setBottomAnchor(threadTableView, 0.0);
-            AnchorPane.setLeftAnchor(threadTableView, 0.0);
-            AnchorPane.setRightAnchor(threadTableView, 0.0);
-            AnchorPane.setTopAnchor(threadTableView, 0.0);
+
+            UI.setAnchorMargins(threadTableView, 50.0, 0.0, 11.0, 0.0);
+
             threadTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
             root.getChildren().add(threadTableView);

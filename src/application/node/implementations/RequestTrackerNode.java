@@ -2,6 +2,7 @@ package application.node.implementations;
 
 import application.data.SavableAttribute;
 import application.gui.Controller;
+import application.gui.UI;
 import application.gui.window.RequestInspectWindow;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
@@ -156,10 +157,9 @@ public class RequestTrackerNode extends DrawableNode {
 
         requestTableView.setMaxHeight(Integer.MAX_VALUE);
         requestTableView.setMaxWidth(Integer.MAX_VALUE);
-        AnchorPane.setBottomAnchor(requestTableView, 0.0);
-        AnchorPane.setLeftAnchor(requestTableView, 11.0);
-        AnchorPane.setRightAnchor(requestTableView, 0.0);
-        AnchorPane.setTopAnchor(requestTableView, 50.0);
+
+        UI.setAnchorMargins(requestTableView, 50.0, 0.0, 11.0, 0.0);
+
         requestTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // Right click context menu

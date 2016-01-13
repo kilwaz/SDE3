@@ -2,6 +2,7 @@ package application.gui.window;
 
 import application.error.Error;
 import application.error.RecordedError;
+import application.gui.UI;
 import application.utils.managers.ErrorManager;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -59,15 +60,8 @@ public class ErrorWindow extends Stage {
             errorAnchor.setPadding(new Insets(7, 11, 7, 11));
             errorAnchor.getChildren().add(errorTableView);
 
-            AnchorPane.setLeftAnchor(errorAnchor, 0.0);
-            AnchorPane.setRightAnchor(errorAnchor, 0.0);
-            AnchorPane.setTopAnchor(errorAnchor, 0.0);
-            AnchorPane.setBottomAnchor(errorAnchor, 0.0);
-
-            AnchorPane.setLeftAnchor(errorTableView, 0.0);
-            AnchorPane.setRightAnchor(errorTableView, 0.0);
-            AnchorPane.setTopAnchor(errorTableView, 0.0);
-            AnchorPane.setBottomAnchor(errorTableView, 0.0);
+            UI.setAnchorMargins(errorAnchor, 0.0, 0.0, 0.0, 0.0);
+            UI.setAnchorMargins(errorTableView, 0.0, 0.0, 0.0, 0.0);
 
             Scene newScene = new Scene(errorAnchor, 900, 800);
             this.setScene(newScene);

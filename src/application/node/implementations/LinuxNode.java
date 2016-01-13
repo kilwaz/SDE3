@@ -4,6 +4,7 @@ import application.data.SavableAttribute;
 import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
+import application.gui.UI;
 import application.net.ssh.SCPProgress;
 import application.net.ssh.SSHCommand;
 import application.net.ssh.SSHManager;
@@ -77,15 +78,8 @@ public class LinuxNode extends DrawableNode {
         hbox.getChildren().add(createLinuxNodeRow("Password:", "password", password));
         hbox.getChildren().add(createLinuxNodeRow("Address:", "address", address));
 
-        AnchorPane.setBottomAnchor(hbox, 11.0);
-        AnchorPane.setLeftAnchor(hbox, 11.0);
-        AnchorPane.setRightAnchor(hbox, 11.0);
-        AnchorPane.setTopAnchor(hbox, 50.0);
-
-        AnchorPane.setBottomAnchor(rows, 11.0);
-        AnchorPane.setLeftAnchor(rows, 11.0);
-        AnchorPane.setRightAnchor(rows, 11.0);
-        AnchorPane.setTopAnchor(rows, 50.0);
+        UI.setAnchorMargins(hbox, 50.0, 11.0, 11.0, 11.0);
+        UI.setAnchorMargins(rows, 50.0, 11.0, 11.0, 11.0);
 
         TextField inputField = new TextField();
         inputField.setId("inputField-" + this.getUuidStringWithoutHyphen());

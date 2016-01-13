@@ -6,6 +6,7 @@ import application.utils.SDEUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -30,6 +31,8 @@ public class AceTextArea extends VBox {
     private JSObject jsObject;
     private String textMode;
 
+    private Boolean initialised = false;
+
     private String textToBeSet;
     private static Logger log = Logger.getLogger(AceTextArea.class);
 
@@ -42,10 +45,42 @@ public class AceTextArea extends VBox {
         init();
     }
 
+    public AceTextArea(String textMode, Boolean init) {
+        this.textMode = textMode;
+        if (init) {
+            init();
+        }
+    }
+
     public AceTextArea(DrawableNode node, String textMode) {
         this.node = node;
         this.textMode = textMode;
         init();
+    }
+
+    public AceTextArea(DrawableNode node, String textMode, Boolean init) {
+        this.node = node;
+        this.textMode = textMode;
+        if (init) {
+            init();
+        }
+    }
+
+    public void initOnGUIThread(AnchorPane runningAnchorPane) {
+        class GUIUpdate implements Runnable {
+            private AnchorPane runningAnchorPane;
+
+            GUIUpdate(AnchorPane runningAnchorPane) {
+                this.runningAnchorPane = runningAnchorPane;
+            }
+
+            public void run() {
+                init();
+                runningAnchorPane.getChildren().add(getThisTextArea());
+            }
+        }
+
+        Platform.runLater(new GUIUpdate(runningAnchorPane));
     }
 
     private void init() {
@@ -120,6 +155,8 @@ public class AceTextArea extends VBox {
 //        browser.setOnScroll(event -> {
 //            log.info("This is us scrolling on something...");
 //        });
+
+        initialised = true;
     }
 
     // We need to have a delay here as it is possible when setting the text straight after creating the text area
@@ -167,5 +204,13 @@ public class AceTextArea extends VBox {
                 node.setAceTextAreaText(value);
             }
         }
+    }
+
+    public Boolean isInitialised() {
+        return initialised;
+    }
+
+    private AceTextArea getThisTextArea() {
+        return this;
     }
 }
