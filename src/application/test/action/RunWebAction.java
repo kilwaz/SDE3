@@ -33,7 +33,7 @@ public class RunWebAction extends WebAction {
 
             if (!"node".equals(parameters)) {
                 // If a variable is being passed in we handle this here
-                if (testParameter.getChildParameter().exists() && "var".equals(testParameter.getChildParameter().getParameterName())) {
+                if (testParameter.getChildParameter() != null && testParameter.getChildParameter().exists() && "var".equals(testParameter.getChildParameter().getParameterName())) {
                     TestParameter childVariable = testParameter.getChildParameter();
 
                     // Converts the variable name into the variable itself

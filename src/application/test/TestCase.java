@@ -1,5 +1,6 @@
 package application.test;
 
+import application.test.action.helpers.PageStateCapture;
 import application.utils.Timer;
 import com.google.common.base.Function;
 import org.openqa.selenium.By;
@@ -63,7 +64,7 @@ public class TestCase {
     }
 
     public TestResultOld evaluate(WebDriver driver) {
-        PageStateCapture initialState = new PageStateCapture(elementFrame);
+        PageStateCapture initialState = new PageStateCapture(elementFrame, "Case");
         initialState.capturePage(driver);
 
         TestResultOld testResultOld = new TestResultOld();
@@ -94,7 +95,7 @@ public class TestCase {
             driver.switchTo().defaultContent();
         }
 
-        PageStateCapture finalState = new PageStateCapture(elementFrame);
+        PageStateCapture finalState = new PageStateCapture(elementFrame, "final");
         testResultOld.setFinalState(finalState);
 
         finalState.capturePage(driver);

@@ -71,7 +71,9 @@ public class IfWebAction extends WebAction {
             } else if (variable.exists()) {
                 Variable var = getVariableTracker().getVariable(variable.getParameterValue());
                 if (var != null) {
-                    valueToCheck = var.getVariableValue();
+                    if (var.getVariableValue() instanceof String) {
+                        valueToCheck = (String) var.getVariableValue();
+                    }
                 }
             } else if (contains.exists() && testElement != null) {
                 valueToCheck = testElement.html();
@@ -89,7 +91,6 @@ public class IfWebAction extends WebAction {
             }
 
             if (contains.exists()) {
-                log.info("Checking contains " + valueToCheck + " vs " + contains.getParameterValue());
                 if ("".equals(valueToCheck)) { // FALSE
                     // If no element was found (so valueToCheck is "") then it does not contain our text, return false
                     getIfTracker().setIsSkippingIf(true);

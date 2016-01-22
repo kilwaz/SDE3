@@ -10,10 +10,16 @@ public class Test {
     private String text = "";
     private Integer currentLine = 0;
     private Boolean continueTest = true;
+    private Boolean clone = false;
 
     public Test(TestNode testNode) {
         this.parentTestNode = testNode;
         this.text = "";
+    }
+
+    public Test() {
+        this.text = "";
+        clone = true;
     }
 
     public String getText() {
@@ -21,10 +27,16 @@ public class Test {
     }
 
     public void setText(String text) {
-        if (!this.text.equals(text)) {
-            this.text = text;
-            if (!parentTestNode.isInitialising()) {
-                parentTestNode.save();
+        if (clone) {
+            if (!this.text.equals(text)) {
+                this.text = text;
+            }
+        } else {
+            if (!this.text.equals(text)) {
+                this.text = text;
+                if (!parentTestNode.isInitialising()) {
+                    parentTestNode.save();
+                }
             }
         }
     }
@@ -50,13 +62,19 @@ public class Test {
     }
 
     public Test prefix(Test test) {
-        text += test.getText();
+        text = test.getText() + text + System.lineSeparator();
         return this;
     }
 
     public Test append(Test test) {
-        text = test.getText() + text;
+        text += System.lineSeparator() + test.getText();
         return this;
+    }
+
+    public Test cloneTest() {
+        Test cloneTest = new Test();
+        cloneTest.setText(text);
+        return cloneTest;
     }
 
     public Test applyInputs(InputNode inputNode) {

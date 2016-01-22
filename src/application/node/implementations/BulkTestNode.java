@@ -7,7 +7,6 @@ import application.node.design.DrawableNode;
 import application.node.objects.Test;
 import application.test.TestRunner;
 import application.utils.NodeRunParams;
-import application.utils.SDEThread;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
@@ -82,9 +81,14 @@ public class BulkTestNode extends DrawableNode {
         tests.add(testRunner);
     }
 
+    public void clear() {
+        tests.clear();
+    }
+
     public void startAllTests() {
         for (TestRunner testRunner : getTests()) {
-            SDEThread sdeThread = new SDEThread(testRunner, "Browser test");
+            testRunner.run();
+            //SDEThread sdeThread = new SDEThread(testRunner, "Browser test");
         }
     }
 

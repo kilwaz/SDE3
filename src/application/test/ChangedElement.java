@@ -1,5 +1,6 @@
 package application.test;
 
+import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
@@ -31,7 +32,13 @@ public class ChangedElement {
                 }
             }
         } else if ("text".equals(changeType)) {
-            log.info(initialElement.attr("id") + " has text changed '" + initialElement.text() + "' -> '" + initialElement.text() + "'");
+            String elementReference = "";
+            if (initialElement.attr("id") == null || initialElement.attr("id").isEmpty()) {
+                elementReference = SDEUtils.generateXPath(initialElement);
+            } else {
+                elementReference = initialElement.attr("id");
+            }
+            log.info(elementReference + " has text changed '" + initialElement.text() + "' -> '" + finalElement.text() + "'");
         } else if ("newElement".equals(changeType)) {
             log.info("New element added -> " + initialElement.outerHtml());
         }

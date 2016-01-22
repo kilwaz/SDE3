@@ -1,5 +1,7 @@
-package application.test;
+package application.test.action.helpers;
 
+import application.test.ChangedElement;
+import application.test.ChangedElements;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Document;
@@ -22,9 +24,11 @@ public class PageStateCapture {
     private Document doc;
     private Elements allElements;
     private HashMap<String, Element> allElementsMap = new HashMap<String, Element>();
+    private String stateName = "";
 
-    public PageStateCapture(String elementFrame) {
+    public PageStateCapture(String elementFrame, String stateName) {
         this.elementFrame = elementFrame;
+        this.stateName = stateName;
     }
 
     public HashMap<String, String> getSelectValues() {
@@ -147,9 +151,13 @@ public class PageStateCapture {
 
         // Once we have found the ones that have really changed we can save only those.
         for (int i = 0; i < textElementChangesFinal.size(); i++) {
-            changedElements.addElement(new ChangedElement(textElementChangesFinal.get(i), textElementChangesFinal.get(i).text(), textElementChangesFinal.get(i), textElementChangesFinal2.get(i).text(), "text"));
+            changedElements.addElement(new ChangedElement(textElementChangesFinal.get(i), textElementChangesFinal.get(i).text(), textElementChangesFinal2.get(i), textElementChangesFinal2.get(i).text(), "text"));
         }
 
         return changedElements;
+    }
+
+    public String getStateName() {
+        return stateName;
     }
 }

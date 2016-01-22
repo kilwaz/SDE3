@@ -1,10 +1,9 @@
 package application.test.action;
 
-import application.data.DataBank;
 import application.test.TestParameter;
 import application.test.TestStep;
-import application.test.action.helpers.LoopTracker;
 import application.test.action.helpers.LoopedWebElement;
+import application.test.action.helpers.Variable;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
@@ -23,7 +22,7 @@ public class LogWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep  =  TestStep.create(TestStep.class);
+        TestStep testStep = TestStep.create(TestStep.class);
         testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
@@ -31,6 +30,7 @@ public class LogWebAction extends WebAction {
         TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
         TestParameter message = getTestCommand().getParameterByName("message");
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
+        TestParameter variable = getTestCommand().getParameterByName("var");
 
         if (message.exists()) {
             log.info(message.getParameterValue());
@@ -56,6 +56,11 @@ public class LogWebAction extends WebAction {
             }
 
             processElement(loopedElement, testStep);
+        } else if (variable.exists()) {
+            Variable var = getVariableTracker().getVariable(variable.getParameterValue());
+            if (var != null) {
+                log.info(var.getVariableValue());
+            }
         }
 
         testStep.save();

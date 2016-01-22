@@ -154,6 +154,12 @@ public class TestNode extends DrawableNode {
         getTest().setText(scriptText);
     }
 
+    public Test cloneTest() {
+        Test cloneTest = new Test();
+        cloneTest.setText(test.getText());
+        return cloneTest;
+    }
+
     public Test getTest() {
         if (this.test == null) {
             this.test = new Test(this);

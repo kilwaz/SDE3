@@ -1,9 +1,7 @@
 package application.test.action;
 
-import application.data.DataBank;
 import application.test.TestParameter;
 import application.test.TestStep;
-import application.test.action.helpers.LoopTracker;
 import application.test.action.helpers.LoopedWebElement;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
@@ -29,7 +27,7 @@ public class SelectWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep  =  TestStep.create(TestStep.class);
+        TestStep testStep = TestStep.create(TestStep.class);
         testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
@@ -37,6 +35,7 @@ public class SelectWebAction extends WebAction {
         TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
         TestParameter selectText = getTestCommand().getParameterByName("select");
+        TestParameter selectIndex = getTestCommand().getParameterByName("index");
 
         By testBy = null;
 
@@ -64,30 +63,33 @@ public class SelectWebAction extends WebAction {
 
         refreshCurrentDocument();
 
-        Document document = getCurrentDocument();
-        Elements options = document.select("select > option");
-
-        Boolean selectOptionExists = false;
-        for (Element element : options) {
-            if (element.text().equalsIgnoreCase(selectText.getParameterValue())) {
-                selectOptionExists = true;
-                break;
-            }
-        }
-
         if (testElement != null) {
-            if (selectOptionExists) {
-                if (testElement.isDisplayed()) { // WebDriver seems to have issues selecting options when the select box is not visible
-                    Select select = new Select(testElement);
-                    select.selectByVisibleText(selectText.getParameterValue());
+            if (selectIndex.exists()) {
+                Select select = new Select(testElement);
+                select.selectByIndex(Integer.parseInt(selectIndex.getParameterValue()));
+            } else if (selectText.exists()) {
+                Boolean selectOptionExists = false;
+                Document document = getCurrentDocument();
+                Elements options = document.select("select > option");
+                for (Element element : options) {
+                    if (element.text().equalsIgnoreCase(selectText.getParameterValue())) {
+                        selectOptionExists = true;
+                        break;
+                    }
                 }
-            } else {
-                log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
+
+                if (selectOptionExists) {
+                    if (testElement.isDisplayed()) { // WebDriver seems to have issues selecting options when the select box is not visible
+                        Select select = new Select(testElement);
+                        select.selectByVisibleText(selectText.getParameterValue());
+                    }
+                } else {
+                    log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
+                }
             }
         }
-        if (testStep != null) {
-            testStep.save();
-        }
+
+        testStep.save();
     }
 
     private void processElement(WebElement webElement, TestStep testStep) {

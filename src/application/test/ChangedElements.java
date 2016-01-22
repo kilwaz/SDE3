@@ -24,4 +24,12 @@ public class ChangedElements {
             changedElement.printChange();
         }
     }
+
+    public Integer size() {
+        return changedElements.size();
+    }
+
+    public List<ChangedElement> getChangedElements() {
+        return changedElements;
+    }
 }

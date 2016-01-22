@@ -27,6 +27,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.apache.log4j.Logger;
+import org.xbill.DNS.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +74,39 @@ public class Main extends Application {
         this.splashStage = stage;
         showSplash();
 
-        loadProgress.setProgress(0.0);
+//        log.info("Starting the DNS");
+//        log.info(Address.getByName("www.google.com"));
+//        log.info(Address.getByName("jboss-alex.uk.spl.com"));
+//
+//
+//        String domain = "uk.spl.com";
+//        Name zoneName = Name.fromString(domain);
+//        //Name zoneName = null;
+//
+//        String host = "172.16.10.116";
+//        int ttl = 600;
+//
+////        Lookup lookup = new Lookup(Name.fromString("jboss-alex"));
+////        Record[] records = lookup.run();
+////        if (records != null) {
+////            zoneName = records[0].getName();
+////        }
+//        if (zoneName != null) {
+//            Name hostName = Name.fromString("jboss-alex.", zoneName);
+//            Update update = new Update(hostName);
+//            log.info("HOST " + hostName);
+//            update.add(hostName, Type.A, 600, "172.16.10.116");
+//            Resolver resolver = new SimpleResolver();
+//            resolver.setTCP(true);
+//            //resolver.setTSIGKey(new TSIG(domain, "z0pll56C4cwLXYd2HG6WsQ=="));
+//
+//            Message response1 = resolver.send(update);
+//            String response = response1.getHeader().toString();
+//            log.info(response1);
+//            log.info(response);
+//        }
+//        log.info(Address.getByName("jboss-alex."));
+
 
         new AppProperties(); // Set the location of where to find the properties xml file
         if (!AppProperties.readXML()) {

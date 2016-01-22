@@ -5,13 +5,13 @@ package application.test.action.helpers;
  */
 public class Variable {
     private String variableName;
-    private String variableValue;
+    private Object variableValue;
 
     /**
      * @param variableName  String variable reference name we want to use.
-     * @param variableValue String variable value.
+     * @param variableValue Object variable value.
      */
-    public Variable(String variableName, String variableValue) {
+    public Variable(String variableName, Object variableValue) {
         this.variableName = variableName;
         this.variableValue = variableValue;
     }
@@ -26,7 +26,7 @@ public class Variable {
     /**
      * @return Gets Variable Value.
      */
-    public String getVariableValue() {
+    public Object getVariableValue() {
         return variableValue;
     }
 }

@@ -7,10 +7,7 @@ import application.test.TestCommand;
 import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
-import application.test.action.helpers.FunctionTracker;
-import application.test.action.helpers.IfTracker;
-import application.test.action.helpers.LoopTracker;
-import application.test.action.helpers.VariableTracker;
+import application.test.action.helpers.*;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -35,6 +32,7 @@ public abstract class WebAction implements Action {
     private LoopTracker loopTracker = null;
     private VariableTracker variableTracker = null;
     private FunctionTracker functionTracker = null;
+    private StateTracker stateTracker = null;
     private static Document currentDocument = null;
 
     private static Logger log = Logger.getLogger(WebAction.class);
@@ -65,6 +63,7 @@ public abstract class WebAction implements Action {
         actionClasses.put("select", SelectWebAction.class);
         actionClasses.put("javascript", JavascriptWebAction.class);
         actionClasses.put("driver", DriverWebAction.class);
+        actionClasses.put("state", StateWebAction.class);
     }
 
     public WebAction() {
@@ -79,7 +78,7 @@ public abstract class WebAction implements Action {
      * @param testResult  The final result of the test, this object is provided to be updated by the action.
      * @param program     Reference to the program this test is a spawn of.
      */
-    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker) {
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker, StateTracker stateTracker) {
         this.program = program;
         this.httpProxyServer = webProxy;
         this.driver = driver;
@@ -88,9 +87,9 @@ public abstract class WebAction implements Action {
         this.runningTest = runningTest;
         this.ifTracker = ifTracker;
         this.functionTracker = functionTracker;
+        this.stateTracker = stateTracker;
         this.loopTracker = loopTracker;
         this.variableTracker = variableTracker;
-
     }
 
     /**
@@ -279,6 +278,10 @@ public abstract class WebAction implements Action {
 
     public FunctionTracker getFunctionTracker() {
         return functionTracker;
+    }
+
+    public StateTracker getStateTracker() {
+        return stateTracker;
     }
 
     public LoopTracker getLoopTracker() {

@@ -4,10 +4,7 @@ import application.gui.Program;
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.objects.Test;
 import application.test.action.WebAction;
-import application.test.action.helpers.FunctionTracker;
-import application.test.action.helpers.IfTracker;
-import application.test.action.helpers.LoopTracker;
-import application.test.action.helpers.VariableTracker;
+import application.test.action.helpers.*;
 import application.utils.BrowserHelper;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
@@ -50,6 +47,7 @@ public class TestRunner extends SDERunnable {
             FunctionTracker functionTracker = new FunctionTracker();
             LoopTracker loopTracker = new LoopTracker();
             VariableTracker variableTracker = new VariableTracker();
+            StateTracker stateTracker = new StateTracker();
 
             String remoteDriverURL = "";
             Boolean useLocalDriver = true;
@@ -144,7 +142,7 @@ public class TestRunner extends SDERunnable {
                         try {
                             Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
                             WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
-                            webAction.initialise(httpProxyServer, driver, testCommand, testResult, program, test, ifTracker, functionTracker, loopTracker, variableTracker);
+                            webAction.initialise(httpProxyServer, driver, testCommand, testResult, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker);
                             webAction.performAction();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                             application.error.Error.TEST_NODE_ACTION.record().create(ex);

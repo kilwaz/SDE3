@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Class-Path: apache-poi autocomplete.jar controlsfx-8.40.10-20151006.12
+Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8.40.10-20151006.12
  5850-507.jar flyway-core-3.2.1.jar fontawesomefx-8.0.10.jar jflex-1.6
  .0.jar jna.jar joda-time-2.4.jar jsch-0.1.51.jar jsch.agentproxy.core
  -0.0.6.jar jsch.agentproxy.jsch-0.0.5-sources.jar jsch.agentproxy.pag

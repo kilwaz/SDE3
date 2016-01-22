@@ -1,5 +1,6 @@
 package application.test;
 
+import application.test.action.helpers.PageStateCapture;
 import org.joda.time.Duration;
 
 public class TestResultOld {
