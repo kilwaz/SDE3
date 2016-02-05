@@ -1,6 +1,5 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.Program;
@@ -13,11 +12,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class CopyNode extends DrawableNode {
     private String copyFrom = "";
@@ -34,14 +31,14 @@ public class CopyNode extends DrawableNode {
         this.setColor(copyNode.getColor());
         this.setScale(copyNode.getScale());
         this.setContainedText(copyNode.getContainedText());
-       // this.setProgramUuid(copyNode.getProgramUuid());
+        // this.setProgramUuid(copyNode.getProgramUuid());
         this.setNextNodeToRun(copyNode.getNextNodeToRun());
 
         this.setCopyFrom(copyNode.getCopyFrom());
         this.setCopyTo(copyNode.getCopyTo());
     }
 
-    public CopyNode(){
+    public CopyNode() {
         super();
     }
 

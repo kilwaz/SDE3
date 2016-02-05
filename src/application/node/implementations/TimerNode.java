@@ -4,8 +4,8 @@ import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
-import application.utils.timers.TimerNodeJob;
 import application.utils.managers.JobManager;
+import application.utils.timers.TimerNodeJob;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -97,7 +97,7 @@ public class TimerNode extends DrawableNode {
         this.setStartChoice(timerNode.getStartChoice());
     }
 
-    public TimerNode(){
+    public TimerNode() {
         super();
     }
 

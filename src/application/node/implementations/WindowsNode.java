@@ -1,6 +1,5 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.error.Error;
 import application.gui.Controller;

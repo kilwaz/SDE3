@@ -14,11 +14,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class TestResultNode extends DrawableNode {
     private ObservableList<TestStep> resultStepList = FXCollections.observableArrayList();
@@ -36,7 +34,7 @@ public class TestResultNode extends DrawableNode {
         this.setNextNodeToRun(testResultNode.getNextNodeToRun());
     }
 
-    public TestResultNode(){
+    public TestResultNode() {
         super();
     }
 

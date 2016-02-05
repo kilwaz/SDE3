@@ -1,16 +1,14 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.data.model.dao.InputDAO;
 import application.gui.Controller;
-import application.gui.Program;
 import application.gui.SDETextField;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
-import application.utils.SDEUtils;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -19,20 +17,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class InputNode extends DrawableNode {
+    private static Logger log = Logger.getLogger(InputNode.class);
     private List<Input> inputs = null;
-
     private VBox inputRows;
     private InputNode instance;
-
-    private static Logger log = Logger.getLogger(InputNode.class);
 
     // This will make a copy of the node passed to it
     public InputNode(InputNode inputNode) {
@@ -112,7 +106,8 @@ public class InputNode extends DrawableNode {
         inputRow.setAlignment(Pos.CENTER);
 
         // Remove input button
-        Button deleteInput = AwesomeDude.createIconButton(AwesomeIcon.MINUS);
+        Button deleteInput = new Button();
+        deleteInput.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.MINUS).build());
         deleteInput.setPrefWidth(35);
         deleteInput.setTooltip(new Tooltip("Delete this input"));
         deleteInput.setId("deleteInputButton-" + input.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
@@ -201,7 +196,8 @@ public class InputNode extends DrawableNode {
         HBox addInputRow = new HBox(5);
         addInputRow.setId("addInputRow-" + getUuidStringWithoutHyphen());
 
-        Button addButton = AwesomeDude.createIconButton(AwesomeIcon.PLUS);
+        Button addButton = new Button();
+        addButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.PLUS).build());
         addButton.setPrefWidth(35);
         addButton.setTooltip(new Tooltip("Add new input"));
 

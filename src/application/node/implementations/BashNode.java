@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class BashNode extends DrawableNode {
@@ -39,7 +38,7 @@ public class BashNode extends DrawableNode {
         this.setBash(bashNode.getBash().getScript());
     }
 
-    public BashNode(){
+    public BashNode() {
         super();
         super.setColor(Color.BLACK);
     }
@@ -63,7 +62,7 @@ public class BashNode extends DrawableNode {
         for (Input input : inputNode.getInputs()) {
             if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
                 String script = getBash().getScript();
-                getBash().setScript(script.replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$","\\$")));
+                getBash().setScript(script.replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$", "\\$")));
             }
         }
     }

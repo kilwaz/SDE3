@@ -10,6 +10,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.opera.OperaDriver;
+import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -25,8 +27,22 @@ public class BrowserHelper {
         return getChrome("localhost:8080");
     }
 
+    public static WebDriver getFireFox() {
+        return getFireFox("localhost:8080");
+    }
+
+    public static WebDriver getOpera() {
+        return getOpera("localhost:8080");
+    }
+
+    public static WebDriver getIE() {
+        return getIE("localhost:8080");
+    }
+
     public static WebDriver getChrome(String proxyConnectionString) {
         DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+
+        System.setProperty("webdriver.chrome.driver", SDEUtils.getResourcePath() + "WebDrivers/chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("test-type");
@@ -69,14 +85,52 @@ public class BrowserHelper {
         return null;
     }
 
-    public static WebDriver getFirefox() {
-        WebDriver driver = new FirefoxDriver();
+    public static WebDriver getFireFox(String proxyConnectionString) {
+        DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+
+        Proxy proxy = new Proxy();
+        proxy.setHttpProxy(proxyConnectionString)
+                .setFtpProxy(proxyConnectionString)
+                .setSslProxy(proxyConnectionString);
+        capabilities.setCapability(CapabilityType.PROXY, proxy);
+
+        WebDriver driver = new FirefoxDriver(capabilities);
         setupBrowser(driver);
         return driver;
     }
 
-    public static WebDriver getIE() {
-        WebDriver driver = new InternetExplorerDriver();
+    public static WebDriver getOpera(String proxyConnectionString) {
+        DesiredCapabilities capabilities = DesiredCapabilities.operaBlink();
+
+        System.setProperty("webdriver.opera.driver", SDEUtils.getResourcePath() + "WebDrivers/operadriver.exe");
+
+        OperaOptions options = new OperaOptions();
+        options.addArguments("ignore-certificate-errors");
+        capabilities.setCapability(OperaOptions.CAPABILITY, options);
+
+        Proxy proxy = new Proxy();
+        proxy.setHttpProxy(proxyConnectionString)
+                .setFtpProxy(proxyConnectionString)
+                .setSslProxy(proxyConnectionString);
+        capabilities.setCapability(CapabilityType.PROXY, proxy);
+
+        WebDriver driver = new OperaDriver(capabilities);
+        setupBrowser(driver);
+        return driver;
+    }
+
+    public static WebDriver getIE(String proxyConnectionString) {
+        DesiredCapabilities capabilities = DesiredCapabilities.internetExplorer();
+
+        System.setProperty("webdriver.ie.driver", SDEUtils.getResourcePath() + "WebDrivers/IEDriverServer.exe");
+
+        Proxy proxy = new Proxy();
+        proxy.setHttpProxy(proxyConnectionString)
+                .setFtpProxy(proxyConnectionString)
+                .setSslProxy(proxyConnectionString);
+        capabilities.setCapability(CapabilityType.PROXY, proxy);
+
+        WebDriver driver = new InternetExplorerDriver(capabilities);
         setupBrowser(driver);
         return driver;
     }

@@ -7,8 +7,9 @@ import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.node.objects.datatable.*;
 import application.utils.NodeRunParams;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -24,10 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class DataTableNode extends DrawableNode {
-    private List<DataTableColumn> dataTableColumns = new ArrayList<>();
-
     private static Logger log = Logger.getLogger(DataTableNode.class);
-
+    private List<DataTableColumn> dataTableColumns = new ArrayList<>();
     private SpreadsheetView spreadsheetView = new SpreadsheetView();
     private DataTableWithHeader dataTableGrid;
 
@@ -62,6 +61,31 @@ public class DataTableNode extends DrawableNode {
 
     public DataTableNode() {
         super();
+    }
+
+    public static List<DataTableNodeRenameListItem> findColumnNames(List<DataTableRow> dataTableRowList) {
+        List<DataTableNodeRenameListItem> columnNames = new ArrayList<>();
+        List<DataTableValue> dataTableValues = new ArrayList<>();
+        for (DataTableRow dataTableRow : dataTableRowList) {
+            dataTableValues.addAll(dataTableRow.getDataTableValuesCollection().getOrderedValues());
+        }
+
+        Collections.sort(dataTableValues); // Should order by order by in DataTableValue
+
+        for (DataTableValue dataTableValue : dataTableValues) {
+            Boolean alreadyContains = false;
+            for (DataTableNodeRenameListItem dataTableNodeRenameListItem : columnNames) {
+                if (dataTableNodeRenameListItem.equals(dataTableValue.getDataKey())) {
+                    alreadyContains = true;
+                }
+            }
+
+            if (!alreadyContains) {
+                columnNames.add(dataTableValue.getAsListItem());
+            }
+        }
+
+        return columnNames;
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -270,10 +294,13 @@ public class DataTableNode extends DrawableNode {
             renameTextField.setId("");
             renameTextField.setDisable(true);
 
-            orderUpButton = AwesomeDude.createIconButton(AwesomeIcon.ARROW_UP);
+
+            orderUpButton = new Button();
+            orderUpButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.ARROW_UP).build());
             orderUpButton.setOnAction(event -> orderChanged(true));
 
-            orderDownButton = AwesomeDude.createIconButton(AwesomeIcon.ARROW_DOWN);
+            orderDownButton = new Button();
+            orderDownButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.ARROW_DOWN).build());
             orderDownButton.setOnAction(event -> orderChanged(false));
 
             detailsHBox.getChildren().add(nameLabel);
@@ -346,31 +373,6 @@ public class DataTableNode extends DrawableNode {
             columnListView.getFocusModel().focus(selectedIndex);
             columnListView.scrollTo(selectedIndex);
         }
-    }
-
-    public static List<DataTableNodeRenameListItem> findColumnNames(List<DataTableRow> dataTableRowList) {
-        List<DataTableNodeRenameListItem> columnNames = new ArrayList<>();
-        List<DataTableValue> dataTableValues = new ArrayList<>();
-        for (DataTableRow dataTableRow : dataTableRowList) {
-            dataTableValues.addAll(dataTableRow.getDataTableValuesCollection().getOrderedValues());
-        }
-
-        Collections.sort(dataTableValues); // Should order by order by in DataTableValue
-
-        for (DataTableValue dataTableValue : dataTableValues) {
-            Boolean alreadyContains = false;
-            for (DataTableNodeRenameListItem dataTableNodeRenameListItem : columnNames) {
-                if (dataTableNodeRenameListItem.equals(dataTableValue.getDataKey())) {
-                    alreadyContains = true;
-                }
-            }
-
-            if (!alreadyContains) {
-                columnNames.add(dataTableValue.getAsListItem());
-            }
-        }
-
-        return columnNames;
     }
 
     public ObservableList<DataTableRow> getDataTableRows() {

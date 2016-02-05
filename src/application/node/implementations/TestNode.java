@@ -11,8 +11,9 @@ import application.test.TestRunner;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
@@ -71,7 +72,9 @@ public class TestNode extends DrawableNode {
 
         VBox vBox = new VBox(5);
         AnchorPane testEditAnchorPane = new AnchorPane();
-        Button recordButton = AwesomeDude.createIconButton(AwesomeIcon.DOT_CIRCLE_ALT);
+
+        Button recordButton = new Button();
+        recordButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.DOT_CIRCLE_ALT).build());
 
         recordButton.setPrefWidth(35);
         recordButton.setTooltip(new Tooltip("Record from browser"));

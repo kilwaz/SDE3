@@ -7,12 +7,9 @@ import application.node.design.DrawableNode;
 import application.utils.CustomObject;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomObjectNode extends DrawableNode {
@@ -31,7 +28,7 @@ public class CustomObjectNode extends DrawableNode {
         this.setNextNodeToRun(customObjectNode.getNextNodeToRun());
     }
 
-    public CustomObjectNode(){
+    public CustomObjectNode() {
         super();
     }
 

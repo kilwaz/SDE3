@@ -1,6 +1,5 @@
 package application.test.action;
 
-import application.error.*;
 import application.error.Error;
 import application.test.TestParameter;
 import com.jayway.awaitility.Awaitility;
@@ -14,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This action waits for a specific case to be true before continuing.
- *
+ * <p>
  * A default timeout of 10 seconds is used.
  */
 public class WaitWebAction extends WebAction {
@@ -64,7 +63,7 @@ public class WaitWebAction extends WebAction {
                 Thread.sleep(Long.parseLong(waitForTime.getParameterValue()));
             }
             if (waitForRequests.exists()) {
-                Awaitility.await().atMost(Integer.parseInt(waitForRequests.getParameterValue()), TimeUnit.SECONDS).until(getHttpProxyServer().getWebProxyRequestManager().haveAllRequestsFinished());
+                Awaitility.await().atMost(Integer.parseInt(waitForRequests.getParameterValue()), TimeUnit.MILLISECONDS).until(getHttpProxyServer().getWebProxyRequestManager().haveAllRequestsFinished());
             }
 
             refreshCurrentDocument();
@@ -72,6 +71,8 @@ public class WaitWebAction extends WebAction {
             Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("10 second limit").create(ex);
         } catch (InterruptedException ex) {
             Error.WAIT_ACTION_INTERRUPT.record().create(ex);
+        } catch (com.jayway.awaitility.core.ConditionTimeoutException ex) {
+            Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("Wait for all requests timed out").create(ex);
         }
     }
 }

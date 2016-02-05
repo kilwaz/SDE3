@@ -18,8 +18,9 @@ import application.node.implementations.BatchNode;
 import application.utils.AppParams;
 import application.utils.managers.SessionManager;
 import application.utils.managers.ThreadManager;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -55,94 +56,70 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
+    private static Controller controller;
+    private static Logger log = Logger.getLogger(Controller.class);
     @FXML
     private StackPane stackPane;
-
     @FXML
     private ListView<Program> programList;
-
     @FXML
     private AnchorPane programAccordion;
-
     @FXML
     private AnchorPane leftAccordionAnchorPane;
-
     @FXML
     private AnchorPane lowerMainSplitPane;
-
     @FXML
     private AnchorPane rightContextAnchorPane;
-
     @FXML
     private TitledPane programTitlePane;
-
     @FXML
     private Accordion leftAccordion;
-
     @FXML
     private MenuItem menuBarMenuItemQuit;
-
     @FXML
     private MenuItem menuBarMenuItemLog;
-
     @FXML
     private MenuItem menuBarMenuItemThread;
-
     @FXML
     private MenuItem menuBarMenuItemExportProgram;
-
     @FXML
     private MenuItem menuBarMenuItemExportNode;
-
     @FXML
     private MenuItem menuBarMenuItemImport;
-
     @FXML
     private MenuItem menuBarMenuItemError;
-
     @FXML
     private MenuItem menuBarMenuItemClearRequestData;
-
     @FXML
     private MenuItem menuBarMenuItemExportNodeColours;
-
     @FXML
     private SplitPane splitPanePageCentral;
-
     @FXML
     private TabPane flowTabPane;
-
     @FXML
     private javafx.scene.canvas.Canvas canvasFlow;
-
     @FXML
     private TabPane nodeTabPane;
-
     @FXML
     private StatusBar statusBar;
-
     @FXML
     private ToolBar toolBar;
-
     @FXML
     private Button runButtonToolBar;
-
     private Button settingsButtonToolBar = null;
-
     private Label activeThreadsStatusBar = null;
-
     private CanvasController canvasController;
     private ContextMenu canvasFlowContextMenu;
     private ContextMenu programListContextMenu;
     private PopOver canvasPopOver;
     private Boolean skipCanvasClick = false;
-    private static Controller controller;
     private Scene scene;
-
     private Double lastCanvasContextMenuX = 0d;
     private Double lastCanvasContextMenuY = 0d;
 
-    private static Logger log = Logger.getLogger(Controller.class);
+    public static Controller getInstance() {
+        return Controller.controller;
+    }
 
     @Override // This method is called by the FXMLLoader when initialization is complete
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -517,8 +494,10 @@ public class Controller implements Initializable {
 
         leftAccordion.setExpandedPane(programTitlePane);
 
+
         // Run button on toolbar
-        runButtonToolBar = AwesomeDude.createIconButton(AwesomeIcon.PLAY);
+        runButtonToolBar = new Button();
+        runButtonToolBar.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.PLAY).build());
         runButtonToolBar.setStyle("-fx-background-color: null;");
         runButtonToolBar.setOnMouseEntered(event -> runButtonToolBar.setStyle("-fx-background-color: lightgray;"));
         runButtonToolBar.setOnMousePressed(event -> runButtonToolBar.setStyle("-fx-background-color: darkgray;"));
@@ -533,7 +512,8 @@ public class Controller implements Initializable {
         );
 
         // Settings button on toolbar
-        settingsButtonToolBar = AwesomeDude.createIconButton(AwesomeIcon.COGS);
+        settingsButtonToolBar = new Button();
+        settingsButtonToolBar.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.COGS).build());
         settingsButtonToolBar.setStyle("-fx-background-color: null;");
         settingsButtonToolBar.setOnMouseEntered(event -> settingsButtonToolBar.setStyle("-fx-background-color: lightgray;"));
         settingsButtonToolBar.setOnMousePressed(event -> settingsButtonToolBar.setStyle("-fx-background-color: darkgray;"));
@@ -733,10 +713,6 @@ public class Controller implements Initializable {
         return scene.lookup("#" + id);
     }
 
-    public static Controller getInstance() {
-        return Controller.controller;
-    }
-
     public void updateThreadCount(Integer threadCount) {
         class GUIUpdate implements Runnable {
             Integer threadCount;
@@ -830,8 +806,9 @@ public class Controller implements Initializable {
                 if (selectedProgram != null) {
                     Tab flowTab = flowTabPane.getTabs().get(0);
                     if (selectedProgram.getLocked()) {
-                        Label awesomeLabel = AwesomeDude.createIconLabel(AwesomeIcon.LOCK);
 
+                        Label awesomeLabel = new Label();
+                        awesomeLabel.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.LOCK).build());
                         awesomeLabel.setOnMouseClicked(mouseEvent -> {
                             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                                 if (mouseEvent.getClickCount() == 2) {

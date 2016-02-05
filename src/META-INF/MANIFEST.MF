@@ -1,13 +1,13 @@
 Manifest-Version: 1.0
-Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8.40.10-20151006.12
- 5850-507.jar flyway-core-3.2.1.jar fontawesomefx-8.0.10.jar jflex-1.6
+Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8.40.10.jar
+ flyway-core-3.2.1.jar fontawesomefx-8.9.jar jflex-1.6
  .0.jar jna.jar joda-time-2.4.jar jsch-0.1.51.jar jsch.agentproxy.core
  -0.0.6.jar jsch.agentproxy.jsch-0.0.5-sources.jar jsch.agentproxy.pag
  eant-0.0.6.jar jsch.agentproxy.sshagent-0.0.6.jar jsch.agentproxy.uso
- cket-jna-0.0.6.jar jsoup-1.8.2.jar junit-4.12.jar mail.jar maven micr
+ cket-jna-0.0.6.jar jsoup-1.8.3.jar junit-4.12.jar mail.jar maven micr
  oemu-midp-2.0.1.jar mysql-connector-java-5.1.34-bin.jar netty-all-5.0
  .0.Alpha2.jar ojdbc6.jar rsyntaxtextarea.jar selenium selenium-java-2
- .48.2.jar tools.jar zt-zip-1.8.jar poi-3.12-20150511.jar poi-examples
+ .50.1.jar tools.jar zt-zip-1.8.jar poi-3.12-20150511.jar poi-examples
  -3.12-20150511.jar poi-excelant-3.12-20150511.jar poi-ooxml-3.12-2015
  0511.jar poi-ooxml-schemas-3.12-20150511.jar poi-scratchpad-3.12-2015
  0511.jar xmlbeans-2.6.0.jar activation-1.1.jar aether-api-0.9.0.M2.ja
@@ -32,10 +32,10 @@ Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8.40.10-201
  5.jar sisu-guice-3.1.0-no_aop.jar slf4j-api-1.7.2.jar slf4j-log4j12-1
  .7.2.jar xml-apis-1.0.b2.jar apache-mime4j-0.6.jar
  bsh-2.0b4.jar cglib-nodep-2.1_3.jar commons-codec-1
- .10.jar commons-collections-3.2.1.jar commons-el-1.
+ .10.jar commons-collections-3.2.2.jar commons-el-1.
  0.jar commons-exec-1.3.jar commons-io-2.4.jar selen
  ium\commons-lang3-3.4.jar commons-logging-1.2.jar c
- ssparser-0.9.16.jar gson-2.3.1.jar guava-18.0.jar hamcrest-core-1.3.j
+ ssparser-0.9.16.jar gson-2.3.1.jar guava-19.0.jar hamcrest-core-1.3.j
  ar hamcrest-library-1.3.jar htmlunit-2.18.jar htmlunit-core-js-2.17.j
  ar httpclient-4.5.1.jar httpcore-4.4.3.jar httpmime-4.5.jar jasper-co
  mpiler-5.5.15.jar jasper-compiler-jdt-5.5.15.jar jasper-runtime-5.5.1
@@ -46,7 +46,7 @@ Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8.40.10-201
  3.v20150730.jar jetty-servlets-9.2.13.v20150730.jar jetty-util-9.2.13
  .v20150730.jar jna-4.1.0.jar jna-platform-4.1.0.jar jsp-api-2.0.jar j
  unit-4.12.jar nekohtml-1.9.22.jar netty-3.5.7.Final.jar phantomjsdriv
- er-1.2.1.jar sac-1.3.jar serializer-2.7.2.jar testng-6.9.6.jar websoc
+ er-1.2.1.jar sac-1.3.jar serializer-2.7.2.jar testng-6.9.9.jar websoc
  ket-api-9.2.13.v20150730.jar websocket-client-9.2.13.v20150730.jar we
  bsocket-common-9.2.13.v20150730.jar xalan-2.7.2.jar xercesImpl-2.11.0
  .jar xml-apis-1.4.01.jar sqlite-jdbc-3.8.11.2.jar

@@ -3,9 +3,7 @@ package application.test.action;
 import org.apache.log4j.Logger;
 
 /**
- * This action immediately ends the current test as soon as it is run.
- * <p>
- * It should be used as a way to end a test in case an error happens.
+ * This action specifies what browser the test should be run with.
  */
 public class DriverWebAction extends WebAction {
     private static Logger log = Logger.getLogger(DriverWebAction.class);
@@ -17,6 +15,7 @@ public class DriverWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
+        // The possible methods here are for location::remoteURL and browser
         //getRunningTest().setContinueTest(false);
     }
 }

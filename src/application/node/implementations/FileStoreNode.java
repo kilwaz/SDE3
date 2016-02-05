@@ -7,14 +7,11 @@ import application.node.design.DrawableNode;
 import application.node.objects.SDEFile;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class FileStoreNode extends DrawableNode {
     private HashMap<String, SDEFile> sdeFileHashMap = new HashMap<>();
@@ -32,7 +29,7 @@ public class FileStoreNode extends DrawableNode {
         this.setNextNodeToRun(fileStoreNode.getNextNodeToRun());
     }
 
-    public FileStoreNode(){
+    public FileStoreNode() {
         super();
     }
 

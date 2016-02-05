@@ -15,7 +15,6 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -123,7 +122,7 @@ public class BatchNode extends DrawableNode {
         editedTest.setText(getBatch().getScript());
         for (Input input : inputNode.getInputs()) {
             if (!input.getVariableName().isEmpty() && !input.getVariableValue().isEmpty()) {
-                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$","\\$")));
+                editedTest.setText(editedTest.getText().replaceAll(Pattern.quote(input.getVariableName()), input.getVariableValue().replace("$", "\\$")));
             }
         }
 

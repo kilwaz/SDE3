@@ -19,10 +19,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import org.apache.log4j.Logger;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FormulaError;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -37,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class ExportNode extends DrawableNode {
     private String fileOutputDirectory = "";
@@ -66,16 +66,18 @@ public class ExportNode extends DrawableNode {
         this.setFileOutputName(exportNode.getFileOutputName());
     }
 
-     public ExportNode(){
-         super();
-     }
+    public ExportNode() {
+        super();
+    }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         if (nodeRunParams.getOneTimeVariable() instanceof Export) {
-            Export export = (Export) nodeRunParams.getOneTimeVariable();
+            FileOutputStream fos = null;
+            try {
+                Export export = (Export) nodeRunParams.getOneTimeVariable();
 
-            XSSFWorkbook workbook = new XSSFWorkbook();
-            XSSFSheet sheet = workbook.createSheet("Export");
+                XSSFWorkbook workbook = new XSSFWorkbook();
+                XSSFSheet sheet = workbook.createSheet("Export");
 
 //            SheetConditionalFormatting sheetCF = sheet.getSheetConditionalFormatting();
 //            ConditionalFormattingRule rule1 = sheetCF.createConditionalFormattingRule(ComparisonOperator.GT, "0");
@@ -90,49 +92,59 @@ public class ExportNode extends DrawableNode {
 //            };
 //
 //            sheetCF.addConditionalFormatting(regions, cfRules);
+                for (Integer row = 0; row < export.getRowCount(); row++) {
+                    XSSFRow currentRow = sheet.createRow(row);
 
-            for (Integer row = 0; row < export.getRowCount(); row++) {
-                XSSFRow currentRow = sheet.createRow(row);
+                    for (Integer col = 0; col < export.getColCount(); col++) {
+                        ExportCell exportCell = export.getValue(row, col);
 
-                for (Integer col = 0; col < export.getColCount(); col++) {
-                    ExportCell exportCell = export.getValue(row, col);
+                        XSSFCell currentCell = currentRow.createCell(col);
 
-                    XSSFCell currentCell = currentRow.createCell(col);
+//                        // Set the cell colour if it has any assigned
 
-                    if (exportCell instanceof ExportValue) {
-                        ExportValue exportValue = (ExportValue) exportCell;
-
-                        // Find the type of value that this is and set it correctly
-                        if (exportValue.getDataValue() instanceof String) { // String
-                            currentCell.setCellValue((String) exportValue.getDataValue());
-                        } else if (exportValue.getDataValue() instanceof Long) { // Long
-                            currentCell.setCellValue((Long) exportValue.getDataValue());
-                        } else if (exportValue.getDataValue() instanceof Double) { // Double
-                            DecimalFormat df2 = new DecimalFormat("###.##");
-                            currentCell.setCellValue(Double.valueOf(df2.format(exportValue.getDataValue())));
-                        } else if (exportValue.getDataValue() instanceof Integer) { // Integer
-                            currentCell.setCellValue((Integer) exportValue.getDataValue());
+                        if (exportCell != null && exportCell.getCellColour() != null) {
+                            CellStyle cellStyle = workbook.createCellStyle();
+                            IndexedColors indexedColors = IndexedColors.valueOf(exportCell.getCellColour());
+                            if (indexedColors != null) {
+                                cellStyle.setFillForegroundColor(indexedColors.getIndex());
+                                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+                                currentCell.setCellStyle(cellStyle);
+                            }
                         }
-                    } else if (exportCell instanceof ExportFormula) {
-                        ExportFormula exportFormula = (ExportFormula) exportCell;
 
-                        currentCell.setCellFormula(exportFormula.getFormula());
-                        currentCell.setCellErrorValue(FormulaError.NA);
+                        if (exportCell instanceof ExportValue) {
+                            ExportValue exportValue = (ExportValue) exportCell;
+
+                            // Find the type of value that this is and set it correctly
+                            if (exportValue.getDataValue() instanceof String) { // String
+                                currentCell.setCellValue((String) exportValue.getDataValue());
+                            } else if (exportValue.getDataValue() instanceof Long) { // Long
+                                currentCell.setCellValue((Long) exportValue.getDataValue());
+                            } else if (exportValue.getDataValue() instanceof Double) { // Double
+                                DecimalFormat df2 = new DecimalFormat("###.##");
+                                currentCell.setCellValue(Double.valueOf(df2.format(exportValue.getDataValue())));
+                            } else if (exportValue.getDataValue() instanceof Integer) { // Integer
+                                currentCell.setCellValue((Integer) exportValue.getDataValue());
+                            }
+                        } else if (exportCell instanceof ExportFormula) {
+                            ExportFormula exportFormula = (ExportFormula) exportCell;
+
+                            currentCell.setCellFormula(exportFormula.getFormula());
+                            currentCell.setCellErrorValue(FormulaError.NA);
+                        }
                     }
                 }
-            }
 
-            for (Integer col = 0; col < export.getColCount(); col++) {
-                sheet.autoSizeColumn(col);
-            }
+                for (Integer col = 0; col < export.getColCount(); col++) {
+                    sheet.autoSizeColumn(col);
+                }
 
-            // Setup and create the file location we are going to use
-            File exportOutputFile = null;
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-            Date date = new Date();
-            dateFormat.format(date);
-            FileOutputStream fos = null;
-            try {
+                // Setup and create the file location we are going to use
+                File exportOutputFile = null;
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+                Date date = new Date();
+                dateFormat.format(date);
+
                 buildConstructedFileName();
 
                 exportOutputFile = new File(constructedFileName);
@@ -144,8 +156,10 @@ public class ExportNode extends DrawableNode {
                 // Try writing the file
                 fos = new FileOutputStream(exportOutputFile);
                 workbook.write(fos);
-            } catch (IOException ex) {
+            } catch (IOException | NullPointerException ex) {
                 Error.RUN_EXPORT_NODE.record().create(ex);
+            } catch (Exception ex) {
+                Error.RUN_EXPORT_NODE.record().additionalInformation("Unexpected Error").create(ex);
             } finally {
                 try {
                     if (fos != null) {

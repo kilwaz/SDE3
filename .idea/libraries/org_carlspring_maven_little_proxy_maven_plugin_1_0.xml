@@ -39,6 +39,47 @@
       <root url="jar://$PROJECT_DIR$/lib/maven/aether-util-0.9.0.M2.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/maven/aether-impl-0.9.0.M2.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/maven/maven-plugin-annotations-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/little-proxy-maven-plugin-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/littleproxy-1.0.0-beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/guava-14.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/commons-cli-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/commons-codec-1.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/commons-io-2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/commons-lang3-3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/netty-all-4.0.14.Final.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/barchart-udt-bundle-2.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/dnssec4j-0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/dnsjava-2.1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/log4j-1.2.17.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/slf4j-log4j12-1.7.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/slf4j-api-1.7.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-artifact-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/plexus-utils-3.0.17.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-model-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-model-builder-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/plexus-interpolation-1.19.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/plexus-component-annotations-1.5.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-settings-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-core-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-settings-builder-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/plexus-sec-dispatcher-1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/plexus-cipher-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-repository-metadata-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-plugin-api-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/org.eclipse.sisu.plexus-0.0.0.M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/cdi-api-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/jsr250-api-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/javax.inject-1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/sisu-guice-3.1.0-no_aop.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/aopalliance-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/org.eclipse.sisu.inject-0.0.0.M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/plexus-classworlds-2.5.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-aether-provider-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/aether-api-0.9.0.M2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/aether-spi-0.9.0.M2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/aether-util-0.9.0.M2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/aether-impl-0.9.0.M2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/maven-plugin-annotations-3.2.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

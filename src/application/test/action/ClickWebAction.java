@@ -1,10 +1,8 @@
 package application.test.action;
 
-import application.data.DataBank;
 import application.error.Error;
 import application.test.TestParameter;
 import application.test.TestStep;
-import application.test.action.helpers.LoopTracker;
 import application.test.action.helpers.LoopedWebElement;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -32,7 +30,7 @@ public class ClickWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestStep testStep  =  TestStep.create(TestStep.class);
+            TestStep testStep = TestStep.create(TestStep.class);
             testStep.setParentResult(getTestResult());
             getTestResult().addTestStep(testStep);
 
@@ -65,12 +63,12 @@ public class ClickWebAction extends WebAction {
                 processElement(loopedElement, testStep);
             }
 
-            // We sent the driver back to being unlimited timeout for page loads
-            getDriver().manage().timeouts().pageLoadTimeout(-1, TimeUnit.SECONDS);
-
             testStep.save();
         } catch (Exception ex) {
             Error.SELENIUM_CLICK_ACTION_NOT_FOUND.record().create(ex);
+        } finally {
+            // We sent the driver back to being unlimited timeout for page loads
+            getDriver().manage().timeouts().pageLoadTimeout(-1, TimeUnit.SECONDS);
         }
     }
 

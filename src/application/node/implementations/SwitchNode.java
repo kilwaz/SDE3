@@ -1,6 +1,5 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.data.model.dao.SwitchDAO;
 import application.gui.Controller;
@@ -8,9 +7,9 @@ import application.gui.Program;
 import application.node.design.DrawableNode;
 import application.node.objects.Switch;
 import application.utils.NodeRunParams;
-import application.utils.SDEUtils;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -18,18 +17,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SwitchNode extends DrawableNode {
-    private List<Switch> aSwitches = null;
-
-    private VBox switchRows;
     private static Logger log = Logger.getLogger(SwitchNode.class);
+    private List<Switch> aSwitches = null;
+    private VBox switchRows;
 
     // This will make a copy of the node passed to it
     public SwitchNode(SwitchNode switchNode) {
@@ -71,10 +67,6 @@ public class SwitchNode extends DrawableNode {
         }
     }
 
-    public void setSwitches(List<Switch> aSwitches) {
-        this.aSwitches = aSwitches;
-    }
-
     public List<Switch> getSwitches() {
         if (aSwitches == null) {
             SwitchDAO switchDAO = new SwitchDAO();
@@ -82,6 +74,10 @@ public class SwitchNode extends DrawableNode {
         }
 
         return aSwitches;
+    }
+
+    public void setSwitches(List<Switch> aSwitches) {
+        this.aSwitches = aSwitches;
     }
 
     public Switch getSwitch(String id) {
@@ -161,7 +157,8 @@ public class SwitchNode extends DrawableNode {
         switchRow.setId("switchRow-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
 
         // Remove input button
-        Button deleteSwitch = AwesomeDude.createIconButton(AwesomeIcon.MINUS);
+        Button deleteSwitch = new Button();
+        deleteSwitch.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.MINUS).build());
         deleteSwitch.setPrefWidth(35);
         deleteSwitch.setTooltip(new Tooltip("Delete this switch"));
         deleteSwitch.setId("deleteSwitchButton-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
@@ -176,12 +173,15 @@ public class SwitchNode extends DrawableNode {
         switchRow.getChildren().add(deleteSwitch);
 
         // Tick / Cross button
-        ToggleButton firstSwitchButton = AwesomeDude.createIconToggleButton(AwesomeIcon.CLOSE, "", "12", null);
+        ToggleButton firstSwitchButton = new ToggleButton();
+
+        firstSwitchButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CLOSE).build());
+
         if (aSwitch.isEnabled()) {
-            AwesomeDude.setIcon(firstSwitchButton, AwesomeIcon.CHECK);
+            firstSwitchButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CHECK).build());
             firstSwitchButton.setSelected(true);
         } else {
-            AwesomeDude.setIcon(firstSwitchButton, AwesomeIcon.CLOSE);
+            firstSwitchButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CLOSE).build());
             firstSwitchButton.setSelected(false);
         }
         firstSwitchButton.setPrefWidth(35);
@@ -192,11 +192,11 @@ public class SwitchNode extends DrawableNode {
             SwitchNode switchNode = (SwitchNode) getProgram().getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
 
             if (toggleButton.isSelected()) {
-                AwesomeDude.setIcon(toggleButton, AwesomeIcon.CHECK);
+                toggleButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CHECK).build());
                 toggleButton.setSelected(true);
                 switchNode.updateSwitchEnabled(fieldId[1], true);
             } else {
-                AwesomeDude.setIcon(toggleButton, AwesomeIcon.CLOSE);
+                toggleButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CLOSE).build());
                 toggleButton.setSelected(false);
                 switchNode.updateSwitchEnabled(fieldId[1], false);
             }
@@ -212,7 +212,7 @@ public class SwitchNode extends DrawableNode {
         //validationSupport.registerValidator(switchField, Validator.createEmptyValidator("SHOULD NOT BE EMPTY"));
 
         switchField.setText(aSwitch.getTarget()); // The text of the field should be set before linking it to auto complete to avoid jittery UI
-        TextFields.bindAutoCompletion(switchField,getProgram().getFlowController().getNodes());
+        TextFields.bindAutoCompletion(switchField, getProgram().getFlowController().getNodes());
 
         switchField.setId("switchField-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
         switchField.setOnAction(event -> {
@@ -262,7 +262,8 @@ public class SwitchNode extends DrawableNode {
         HBox addSwitchRow = new HBox(5);
         addSwitchRow.setId("addSwitchRow-" + getUuidStringWithoutHyphen());
 
-        Button addButton = AwesomeDude.createIconButton(AwesomeIcon.PLUS);
+        Button addButton = new Button();
+        addButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.PLUS).build());
         addButton.setTooltip(new Tooltip("Add new switch"));
         addButton.setPrefWidth(35);
 

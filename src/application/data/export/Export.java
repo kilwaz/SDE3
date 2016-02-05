@@ -12,6 +12,8 @@ public class Export {
     private Integer colCount;
     private Integer rowCount;
 
+    private Integer nextFreeRow = 0;
+
     private static Logger log = Logger.getLogger(Export.class);
 
     public Export(Integer rowCount, Integer colCount) {
@@ -21,8 +23,15 @@ public class Export {
         exportValues = new ExportCell[rowCount][colCount];
     }
 
+    public Integer getNextFreeRow() {
+        return nextFreeRow;
+    }
+
     public void add(ExportCell exportValue) {
         exportValues[exportValue.getRowPosition()][exportValue.getColumnPosition()] = exportValue;
+        if (nextFreeRow <= exportValue.getRowPosition()) {
+            nextFreeRow = exportValue.getRowPosition() + 1;
+        }
     }
 
     public ExportCell getValue(Integer rowCount, Integer colCount) {

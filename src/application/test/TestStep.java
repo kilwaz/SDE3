@@ -2,8 +2,9 @@ package application.test;
 
 import application.data.model.DatabaseObject;
 import application.error.Error;
-import de.jensd.fx.fontawesome.AwesomeDude;
-import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.scene.control.Label;
 import org.apache.log4j.Logger;
 
@@ -65,9 +66,13 @@ public class TestStep extends DatabaseObject {
 
     public Label getSuccessLabel() {
         if (successful) {
-            return AwesomeDude.createIconLabel(AwesomeIcon.CHECK);
+            Label label = new Label();
+            label.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CHECK).build());
+            return label;
         } else {
-            return AwesomeDude.createIconLabel(AwesomeIcon.CLOSE);
+            Label label = new Label();
+            label.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CLOSE).build());
+            return label;
         }
     }
 

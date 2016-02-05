@@ -9,6 +9,13 @@
       <root url="jar://$PROJECT_DIR$/lib/maven/javaee-api-6.0-5.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/maven/mail-1.4.7.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/maven/activation-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/quartz-jobs-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/quartz-core-2.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/c3p0-0.9.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/slf4j-api-1.6.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/javaee-api-6.0-5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/mail-1.4.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven/activation-1.1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -14,7 +14,9 @@ public class ErrorManager {
     }
 
     public void addError(application.error.RecordedError error) {
-        errors.add(error);
+        if (errors != null && error != null) {
+            errors.add(error);
+        }
     }
 
     public ObservableList<RecordedError> getErrors() {

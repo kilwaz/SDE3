@@ -11,6 +11,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * This action can manipulate a select box within the browser.
  * <p>
@@ -27,69 +29,78 @@ public class SelectWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep = TestStep.create(TestStep.class);
-        testStep.setParentResult(getTestResult());
-        getTestResult().addTestStep(testStep);
+        try {
+            TestStep testStep = TestStep.create(TestStep.class);
+            testStep.setParentResult(getTestResult());
+            getTestResult().addTestStep(testStep);
 
-        TestParameter idElement = getTestCommand().getParameterByPath("id");
-        TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
-        TestParameter loopElement = getTestCommand().getParameterByName("loop");
-        TestParameter selectText = getTestCommand().getParameterByName("select");
-        TestParameter selectIndex = getTestCommand().getParameterByName("index");
+            TestParameter idElement = getTestCommand().getParameterByPath("id");
+            TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
+            TestParameter loopElement = getTestCommand().getParameterByName("loop");
+            TestParameter selectText = getTestCommand().getParameterByName("select");
+            TestParameter selectIndex = getTestCommand().getParameterByName("index");
 
-        By testBy = null;
+            // We only wait for 10 seconds for page loads, sometimes the click hangs forever otherwise
+            getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 
-        WebElement testElement = null;
-        if (idElement.exists() || xPathElement.exists()) {
-            if (xPathElement.exists()) {
-                testBy = findElement(xPathElement);
-            } else if (idElement.exists()) {
-                testBy = findElement(idElement);
-            }
+            By testBy = null;
 
-            if (testBy != null) {
-                testElement = getDriver().findElement(testBy);
-                processElement(testElement, testStep);
-            }
-        } else if (loopElement.exists()) {
-            WebElement loopedElement = null;
-            LoopedWebElement loopedWebElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
-            if (loopedWebElement != null) {
-                loopedElement = loopedWebElement.getWebElement(getDriver());
-            }
-
-            processElement(loopedElement, testStep);
-        }
-
-        refreshCurrentDocument();
-
-        if (testElement != null) {
-            if (selectIndex.exists()) {
-                Select select = new Select(testElement);
-                select.selectByIndex(Integer.parseInt(selectIndex.getParameterValue()));
-            } else if (selectText.exists()) {
-                Boolean selectOptionExists = false;
-                Document document = getCurrentDocument();
-                Elements options = document.select("select > option");
-                for (Element element : options) {
-                    if (element.text().equalsIgnoreCase(selectText.getParameterValue())) {
-                        selectOptionExists = true;
-                        break;
-                    }
+            WebElement testElement = null;
+            if (idElement.exists() || xPathElement.exists()) {
+                if (xPathElement.exists()) {
+                    testBy = findElement(xPathElement);
+                } else if (idElement.exists()) {
+                    testBy = findElement(idElement);
                 }
 
-                if (selectOptionExists) {
-                    if (testElement.isDisplayed()) { // WebDriver seems to have issues selecting options when the select box is not visible
-                        Select select = new Select(testElement);
-                        select.selectByVisibleText(selectText.getParameterValue());
+                if (testBy != null) {
+                    testElement = getDriver().findElement(testBy);
+                    processElement(testElement, testStep);
+                }
+            } else if (loopElement.exists()) {
+                WebElement loopedElement = null;
+                LoopedWebElement loopedWebElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
+                if (loopedWebElement != null) {
+                    loopedElement = loopedWebElement.getWebElement(getDriver());
+                }
+
+                processElement(loopedElement, testStep);
+            }
+
+            refreshCurrentDocument();
+
+            if (testElement != null) {
+                if (selectIndex.exists()) {
+                    Select select = new Select(testElement);
+                    select.selectByIndex(Integer.parseInt(selectIndex.getParameterValue()));
+                } else if (selectText.exists()) {
+                    Boolean selectOptionExists = false;
+                    Document document = getCurrentDocument();
+                    Elements options = document.select("select > option");
+                    for (Element element : options) {
+                        if (element.text().equalsIgnoreCase(selectText.getParameterValue())) {
+                            selectOptionExists = true;
+                            break;
+                        }
                     }
-                } else {
-                    log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
+
+                    if (selectOptionExists) {
+                        if (testElement.isDisplayed()) { // WebDriver seems to have issues selecting options when the select box is not visible
+                            Select select = new Select(testElement);
+                            select.selectByVisibleText(selectText.getParameterValue());
+                        }
+                    } else {
+                        log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
+                    }
                 }
             }
-        }
 
-        testStep.save();
+        } catch (Exception ex) {
+            application.error.Error.SELENIUM_SELECT_ACTION_NOT_FOUND.record().create(ex);
+        } finally {
+            // We sent the driver back to being unlimited timeout for page loads
+            getDriver().manage().timeouts().pageLoadTimeout(-1, TimeUnit.SECONDS);
+        }
     }
 
     private void processElement(WebElement webElement, TestStep testStep) {

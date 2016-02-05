@@ -34,7 +34,10 @@ public class InputWebAction extends WebAction {
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
         TestParameter eventToTrigger = getTestCommand().getParameterByName("event");
         TestParameter clearFirstText = getTestCommand().getParameterByName("clearFirst");
+        TestParameter increaseBy = getTestCommand().getParameterByName("increaseBy");
+        TestParameter decreaseBy = getTestCommand().getParameterByName("decreaseBy");
 
+        // Finds element
         WebElement testElement = null;
         if (elementId.exists()) { // Get the element via id
             testElement = getDriver().findElement(By.id(elementId.getParameterValue()));
@@ -42,16 +45,38 @@ public class InputWebAction extends WebAction {
             testElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
         }
 
-        if (valueToEnter.exists() && testElement != null) {
-            if (clearFirstText.exists()) {
+        if (testElement != null) {
+            String textToEnter = "";
+            Boolean clearText = false;
+
+            // Creates the text value we want
+            if (valueToEnter.exists()) {
+                textToEnter = valueToEnter.getParameterValue();
+            } else if (increaseBy.exists() || decreaseBy.exists()) {
+                String currentText = testElement.getAttribute("value");
+                currentText = currentText.replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
+                Double textValue = Double.parseDouble(currentText);
+
+                if (increaseBy.exists()) {
+                    textToEnter = Double.toString(textValue + Double.parseDouble(increaseBy.getParameterValue()));
+                } else if (decreaseBy.exists()) {
+                    textToEnter = Double.toString(textValue - Double.parseDouble(decreaseBy.getParameterValue()));
+                }
+
+                clearText = true;
+            }
+
+            // Clear the text first
+            if (clearFirstText.exists() || clearText) {
                 testElement.sendKeys(Keys.CONTROL + "a");
                 testElement.sendKeys(Keys.DELETE);
             }
 
             // This delays the input of the text to simulate as if the user were typing it themselves
+            log.info("Entering value '" + textToEnter + "'");
             if (characterDelay.exists()) {
                 Long delay = Long.parseLong(characterDelay.getParameterValue());
-                char[] textSplit = valueToEnter.getParameterValue().toCharArray();
+                char[] textSplit = textToEnter.toCharArray();
 
                 for (Character c : textSplit) {
                     testElement.sendKeys(c.toString());
@@ -63,8 +88,8 @@ public class InputWebAction extends WebAction {
                         e.printStackTrace();
                     }
                 }
-            } else {
-                testElement.sendKeys(valueToEnter.getParameterValue());
+            } else { // Update the text without a delay
+                testElement.sendKeys(textToEnter);
             }
             takeScreenshotOfElement(testStep, testElement);
             testStep.setTestString(getTestCommand().getRawCommand());

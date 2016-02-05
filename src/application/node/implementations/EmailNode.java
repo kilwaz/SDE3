@@ -1,6 +1,5 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.Program;
@@ -17,11 +16,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class EmailNode extends DrawableNode {
     private String emailUrl = "";
@@ -47,7 +44,7 @@ public class EmailNode extends DrawableNode {
         this.setEmailUsername(emailNode.getEmailUsername());
     }
 
-    public EmailNode(){
+    public EmailNode() {
         super();
     }
 

@@ -109,15 +109,22 @@ public class PageStateCapture {
                     if (tag.tagName().equals(tag2.tagName())) {
                         for (Attribute att : tag.attributes()) {
                             if (!att.getValue().equals(tag2.attr(att.getKey()))) {
-                                changedElements.addElement(new ChangedElement(tag, att.getValue(), tag2, tag2.attr(att.getKey()), "attribute"));
+                                changedElements.addElement(new ChangedElement(tag, tag2, att.getKey(), "attribute"));
                             }
                         }
                     }
                 }
 
-                if (!tag.text().equals(tag2.text())) {
-                    textElementChanges.add(tag);
-                    textElementChanges2.add(tag2);
+                if ("input".equals(tag.tag().getName())) {
+                    if (tag.parent() != null && tag2.parent() != null && !tag.parent().text().equals(tag2.parent().text())) {
+                        textElementChanges.add(tag);
+                        textElementChanges2.add(tag2);
+                    }
+                } else {
+                    if (!tag.text().equals(tag2.text())) {
+                        textElementChanges.add(tag);
+                        textElementChanges2.add(tag2);
+                    }
                 }
             } else {
                 Element tag = allElementsMap.get(reference);
@@ -151,7 +158,11 @@ public class PageStateCapture {
 
         // Once we have found the ones that have really changed we can save only those.
         for (int i = 0; i < textElementChangesFinal.size(); i++) {
-            changedElements.addElement(new ChangedElement(textElementChangesFinal.get(i), textElementChangesFinal.get(i).text(), textElementChangesFinal2.get(i), textElementChangesFinal2.get(i).text(), "text"));
+            if ("input".equals(textElementChangesFinal.get(i).tag().getName())) {
+                changedElements.addElement(new ChangedElement(textElementChangesFinal.get(i), textElementChangesFinal.get(i).parent().text(), textElementChangesFinal2.get(i), textElementChangesFinal2.get(i).parent().text(), "text"));
+            } else {
+                changedElements.addElement(new ChangedElement(textElementChangesFinal.get(i), textElementChangesFinal.get(i).text(), textElementChangesFinal2.get(i), textElementChangesFinal2.get(i).text(), "text"));
+            }
         }
 
         return changedElements;

@@ -1,6 +1,7 @@
 package application.net.proxy.snoop;
 
 import application.error.Error;
+import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
@@ -23,15 +25,19 @@ public class SSLContextProvider {
         if (sslContext == null) {
             FileInputStream fis = null;
             try {
+                CertificateFactory factory = CertificateFactory.getInstance("X.509");
+                String keyStoreFileName = SDEUtils.getResourcePath() + "keystore.jks";
+                log.info("File path " + keyStoreFileName);
+                File keyStore = new File(keyStoreFileName);
+                if (!keyStore.exists()) {
+                    Boolean fileCreateResult = keyStore.createNewFile();
+                }
 
-
-//                CertificateFactory factory = CertificateFactory.getInstance("X.509");
-//                X509Certificate cert = (X509Certificate) factory.generateCertificate(new FileInputStream("C:\\Users\\alex\\keystore.jks"));
-//
+                //X509Certificate cert = (X509Certificate) factory.generateCertificate(new FileInputStream(keyStoreFileName));
 
                 sslContext = SSLContext.getInstance("TLS");
                 KeyStore ks = KeyStore.getInstance("JKS");
-                fis = new FileInputStream("C:\\Users\\alex\\keystore.jks");
+                fis = new FileInputStream(keyStoreFileName);
                 ks.load(fis, "secret".toCharArray());
 
 //                ks.setCertificateEntry("SDE", cert);

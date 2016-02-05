@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChangedElements {
-    private List<ChangedElement> changedElements = new ArrayList<ChangedElement>();
+    private List<ChangedElement> changedElements = new ArrayList<>();
 
     private static Logger log = Logger.getLogger(ChangedElements.class);
 
@@ -29,7 +29,7 @@ public class ChangedElements {
         return changedElements.size();
     }
 
-    public List<ChangedElement> getChangedElements() {
+    public List<ChangedElement> getElements() {
         return changedElements;
     }
 }

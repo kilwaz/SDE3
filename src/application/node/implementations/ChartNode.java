@@ -11,7 +11,6 @@ import application.utils.NodeRunParams;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -24,7 +23,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * This purpose of this class is to draw graphs and charts of data that is passed into it.
@@ -55,7 +53,7 @@ public class ChartNode extends DrawableNode {
         this.setNextNodeToRun(chartNode.getNextNodeToRun());
     }
 
-    public ChartNode(){
+    public ChartNode() {
         super();
     }
 

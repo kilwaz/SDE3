@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact name="SDE3:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/SDE3_jar</output-path>
+    <output-path>$PROJECT_DIR$/out/artifacts/SDE3</output-path>
     <root id="root">
       <element id="directory" name="resources">
         <element id="file-copy" path="$PROJECT_DIR$/resources/aceCodeEditor.html" />
@@ -13,6 +13,10 @@
         <element id="directory" name="data">
           <element id="dir-copy" path="$PROJECT_DIR$/resources/data" />
         </element>
+        <element id="directory" name="WebDrivers">
+          <element id="dir-copy" path="$PROJECT_DIR$/resources/WebDrivers" />
+        </element>
+        <element id="file-copy" path="$PROJECT_DIR$/resources/keystore.jks" />
       </element>
       <element id="file-copy" path="$PROJECT_DIR$/resources/SDE3 - No Console.bat" />
       <element id="directory" name="logs">

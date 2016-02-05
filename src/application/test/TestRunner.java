@@ -50,6 +50,7 @@ public class TestRunner extends SDERunnable {
             StateTracker stateTracker = new StateTracker();
 
             String remoteDriverURL = "";
+            String browser = "chrome";
             Boolean useLocalDriver = true;
 
             // Finds the functions within the script
@@ -70,9 +71,13 @@ public class TestRunner extends SDERunnable {
                     }
                 } else if (testCommand != null && "driver".equals(testCommand.getMainCommand())) { // Find the driver configuration if there is any
                     TestParameter driverRemoteURL = testCommand.getParameterByPath("location::remoteURL");
+                    TestParameter driverBrowser = testCommand.getParameterByPath("browser");
                     if (driverRemoteURL.exists()) {
                         useLocalDriver = false;
                         remoteDriverURL = driverRemoteURL.getParameterValue();
+                    }
+                    if (driverBrowser.exists()) {
+                        browser = driverBrowser.getParameterValue();
                     }
                 }
 
@@ -94,13 +99,33 @@ public class TestRunner extends SDERunnable {
                 waited += 100;
             }
 
-            log.info("Local driver is " + useLocalDriver + " at " + remoteDriverURL);
-
-            WebDriver driver;
             if (useLocalDriver) {
-                driver = BrowserHelper.getChrome();
+                log.info("Using local driver with browser " + browser);
             } else {
-                driver = BrowserHelper.getRemoteChrome("172.16.10.208:" + httpProxyServer.getRunningPort(), remoteDriverURL);
+                log.info("Using remote driver at " + remoteDriverURL + " with browser " + browser);
+            }
+
+            WebDriver driver = null;
+            if (useLocalDriver) {
+                if ("chrome".equals(browser)) {
+                    driver = BrowserHelper.getChrome();
+                } else if ("firefox".equals(browser)) {
+                    driver = BrowserHelper.getFireFox();
+                } else if ("ie".equals(browser)) {
+                    driver = BrowserHelper.getIE();
+                } else if ("opera".equals(browser)) {
+                    driver = BrowserHelper.getOpera();
+                }
+            } else {
+                if ("chrome".equals(browser)) {
+                    driver = BrowserHelper.getRemoteChrome("172.16.10.208:" + httpProxyServer.getRunningPort(), remoteDriverURL);
+                } else if ("firefox".equals(browser)) {
+                    log.info("No remote firefox has been configured");
+                } else if ("ie".equals(browser)) {
+                    log.info("No remote ie has been configured");
+                } else if ("opera".equals(browser)) {
+                    log.info("No remote operae has been configured");
+                }
             }
 
             log.info("Number of commands in test " + commands.size());
@@ -139,13 +164,18 @@ public class TestRunner extends SDERunnable {
                     // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
                     // and initialising the object and performing the required action which is then handled by the object
                     if (testCommand != null) {
-                        try {
-                            Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
-                            WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
-                            webAction.initialise(httpProxyServer, driver, testCommand, testResult, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker);
-                            webAction.performAction();
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-                            application.error.Error.TEST_NODE_ACTION.record().create(ex);
+                        if (driver != null) {
+                            try {
+                                Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
+                                WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
+                                webAction.initialise(httpProxyServer, driver, testCommand, testResult, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker);
+                                webAction.performAction();
+                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+                                application.error.Error.TEST_NODE_ACTION.record().create(ex);
+                            }
+                        } else {
+                            test.setContinueTest(false);
+                            application.error.Error.NO_BROWSER_FOUND.record().additionalInformation("Browser set to: " + browser).create();
                         }
                     }
                 }

@@ -1,6 +1,5 @@
 package application.node.implementations;
 
-import application.data.DataBank;
 import application.gui.Controller;
 import application.gui.Program;
 import application.gui.UI;
@@ -13,11 +12,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * This node displays a console that can be written to.  It also allows other nodes to run triggers on it which
@@ -41,7 +38,7 @@ public class ConsoleNode extends DrawableNode {
         this.setNextNodeToRun(consoleNode.getNextNodeToRun());
     }
 
-    public ConsoleNode(){
+    public ConsoleNode() {
         super();
     }
 
@@ -91,7 +88,7 @@ public class ConsoleNode extends DrawableNode {
                 if (consoleTextArea != null) {
                     consoleTextArea.appendText(consoleToWrite);
 
-                    List<Trigger> triggers =getProgram().getFlowController().getActiveTriggers(getContainedText(), "New line");
+                    List<Trigger> triggers = getProgram().getFlowController().getActiveTriggers(getContainedText(), "New line");
                     for (Trigger trigger : triggers) {
                         NodeRunParams nodeRunParams = new NodeRunParams();
                         nodeRunParams.setOneTimeVariable(consoleToWrite);
