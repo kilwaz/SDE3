@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
-Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8.40.10.jar
- flyway-core-3.2.1.jar fontawesomefx-8.9.jar jflex-1.6
- .0.jar jna.jar joda-time-2.4.jar jsch-0.1.51.jar jsch.agentproxy.core
+Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8
+ .40.10.jar flyway-core-3.2.1.jar fontawesomefx-8.9.jar jflex-1.6.0.ja
+ r jna.jar joda-time-2.4.jar jsch-0.1.51.jar jsch.agentproxy.core
  -0.0.6.jar jsch.agentproxy.jsch-0.0.5-sources.jar jsch.agentproxy.pag
  eant-0.0.6.jar jsch.agentproxy.sshagent-0.0.6.jar jsch.agentproxy.uso
  cket-jna-0.0.6.jar jsoup-1.8.3.jar junit-4.12.jar mail.jar maven micr

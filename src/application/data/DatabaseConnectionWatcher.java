@@ -1,19 +1,18 @@
 package application.data;
 
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.GlyphFont;
-import org.controlsfx.glyphfont.GlyphFontRegistry;
 
 public class DatabaseConnectionWatcher extends HBox {
+    private static DatabaseConnectionWatcher instance;
     private Label databaseIcon;
     private Label databaseDescription;
     private Boolean connected = false;
-
-    private static DatabaseConnectionWatcher instance;
 
     public DatabaseConnectionWatcher() {
         instance = this;
@@ -26,6 +25,10 @@ public class DatabaseConnectionWatcher extends HBox {
             new DatabaseConnectionWatcher();
         }
         return instance;
+    }
+
+    public Boolean getConnected() {
+        return connected;
     }
 
     public void setConnected(Boolean connected) {
@@ -41,13 +44,18 @@ public class DatabaseConnectionWatcher extends HBox {
             }
 
             public void run() {
-                if (connected) {
-                    GlyphFont fontAwesome = GlyphFontRegistry.font("FontAwesome");
-                    databaseIcon = new Label("", fontAwesome.create(FontAwesome.Glyph.DATABASE).color(Color.GREEN));
+                if (connected) { // Green
+                    FontAwesome fontAwesome = new FontAwesome();
+                    databaseIcon = new Label("", GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.DATABASE)
+                            .style("-fx-fill: green;")
+                            .size("1.2em")
+                            .build());
                     databaseDescription = new Label("Connected!");
-                } else {
-                    GlyphFont fontAwesome = GlyphFontRegistry.font("FontAwesome");
-                    databaseIcon = new Label("", fontAwesome.create(FontAwesome.Glyph.DATABASE).color(Color.RED));
+                } else { // Red
+                    databaseIcon = new Label("", GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.DATABASE)
+                            .style("-fx-fill: red;")
+                            .size("1.2em")
+                            .build());
                     databaseDescription = new Label("Not Connected!");
                 }
 
@@ -58,9 +66,5 @@ public class DatabaseConnectionWatcher extends HBox {
         }
 
         Platform.runLater(new GUIUpdate(connected, this));
-    }
-
-    public Boolean getConnected() {
-        return connected;
     }
 }
