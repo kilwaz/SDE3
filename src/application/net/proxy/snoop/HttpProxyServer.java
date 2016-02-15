@@ -55,6 +55,14 @@ public final class HttpProxyServer extends SDERunnable {
             ss.setReuseAddress(true);
             ds = new DatagramSocket(port);
             ds.setReuseAddress(true);
+
+            // Here we check to see if the port has already been assigned, most likely very recently to another Http Proxy that hasn't finished initialising
+            for (HttpProxyServer httpProxyServer : WebProxyManager.getInstance().getOpenProxies()) {
+                if (httpProxyServer.getRunningPort() == port) {
+                    return false;
+                }
+            }
+
             return true;
         } catch (IOException e) {
         } finally {

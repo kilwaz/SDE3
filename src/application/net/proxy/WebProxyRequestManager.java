@@ -4,6 +4,7 @@ import application.node.implementations.RequestTrackerNode;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +14,7 @@ public class WebProxyRequestManager {
     private ConcurrentHashMap<Integer, WebProxyRequest> activeRequests = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, WebProxyRequest> completedRequests = new ConcurrentHashMap<>();
     private List<RequestTrackerNode> linkedRequestTrackerNodes = new ArrayList<>();
+    private HashMap<String, String> redirectURLs = new HashMap<>();
     private Integer requestCount = 1;
 
     private RecordedProxy recordedProxy;
@@ -20,6 +22,18 @@ public class WebProxyRequestManager {
     public WebProxyRequestManager() {
         recordedProxy = RecordedProxy.create(RecordedProxy.class);
         recordedProxy.save();
+    }
+
+    public void clearAllRedirectURLs() {
+        redirectURLs.clear();
+    }
+
+    public void removeRedirectURL(String url) {
+        redirectURLs.remove(url);
+    }
+
+    public void addRedirectURL(String url, String redirect) {
+        redirectURLs.put(url, redirect);
     }
 
     public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -56,6 +70,16 @@ public class WebProxyRequestManager {
         }
     }
 
+    public String applyRedirects(String url) {
+        for (String from : redirectURLs.keySet()) {
+            if (url.contains(from)) {
+                url = url.replace(from, redirectURLs.get(from));
+            }
+        }
+
+        return url;
+    }
+
     public void completeRequest(Integer httpRequestHash) {
         WebProxyRequest webProxyRequest = getRequest(httpRequestHash);
 
@@ -67,7 +91,7 @@ public class WebProxyRequestManager {
             // Save the request to the database
             RecordedRequest recordedRequest = RecordedRequest.create(RecordedRequest.class);
             recordedRequest.setParentHttpProxy(recordedProxy);
-            recordedRequest.setURL(webProxyRequest.getRequestURL());
+            recordedRequest.setURL(applyRedirects(webProxyRequest.getRequestURL()));
             recordedRequest.setDuration(webProxyRequest.getRequestDuration().intValue());
             recordedRequest.setRequestSize(webProxyRequest.getRequestContentSize());
             recordedRequest.setResponseSize(webProxyRequest.getResponseContentSize());

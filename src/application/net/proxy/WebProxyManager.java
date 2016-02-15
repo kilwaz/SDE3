@@ -18,6 +18,10 @@ public class WebProxyManager {
         openProxies.add(webProxy);
     }
 
+    public List<HttpProxyServer> getOpenProxies() {
+        return openProxies;
+    }
+
     public void closeProxies() {
         openProxies.forEach(HttpProxyServer::close);
     }

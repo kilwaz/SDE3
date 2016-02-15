@@ -119,7 +119,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
 
         // Performs and returns the request we want to make from proxy server to outside world
         StandaloneHTTPRequest standaloneHTTPRequest = new StandaloneHTTPRequest()
-                .setUrl(uri)
+                .setUrl(webProxyRequestManager.applyRedirects(uri))
                 .setMethod(request.method().toString())
                 .setRequestHeaders(requestHeaders)
                 .setRequestParameters(requestParameters)

@@ -7,6 +7,7 @@ import application.node.design.DrawableNode;
 import application.node.objects.Test;
 import application.test.TestRunner;
 import application.utils.NodeRunParams;
+import application.utils.SDEThread;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
@@ -20,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BulkTestNode extends DrawableNode {
-    private ObservableList<TestRunner> tests = FXCollections.observableArrayList();
-
     private static Logger log = Logger.getLogger(BulkTestNode.class);
+    private ObservableList<TestRunner> tests = FXCollections.observableArrayList();
 
     // This will make a copy of the node passed to it
     public BulkTestNode(TestNode testNode) {
@@ -86,9 +86,22 @@ public class BulkTestNode extends DrawableNode {
     }
 
     public void startAllTests() {
+        getTests().forEach(TestRunner::run);
+    }
+
+    public void startAllTestsThreaded() {
+        startAllTestsThreaded(false);
+    }
+
+    public void startAllTestsThreaded(Boolean whileWaiting) {
+        List<SDEThread> threads = new ArrayList<>();
         for (TestRunner testRunner : getTests()) {
-            testRunner.run();
-            //SDEThread sdeThread = new SDEThread(testRunner, "Browser test");
+            threads.add(new SDEThread(testRunner, "Browser test"));
+        }
+
+        // If we want to wait for all the tests to complete
+        if (whileWaiting) {
+            threads.forEach(SDEThread::join);
         }
     }
 
