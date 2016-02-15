@@ -110,6 +110,8 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
             }
         } catch (IOException ex) {
             Error.HTTP_PROXY_RESPONSE.record().create(ex);
+        } catch (HttpPostRequestDecoder.ErrorDataDecoderException ex) {
+            Error.HTTP_PROXY_BAD_END_OF_LINE.record().create(ex);
         }
 
         String uri = request.uri();

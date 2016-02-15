@@ -107,7 +107,8 @@ public enum Error {
     HTTP_PROXY_RECEIVE_MESSAGE(102, "Error receiving Http Proxy message"),
     SELENIUM_SELECT_ACTION_NOT_FOUND(103, "SelectAction is failing, selenium is not responding when finding the element"),
     NO_BROWSER_FOUND(104, "Trying to run test with browser that doesn't exist"),
-    SELENIUM_JAVASCRIPT_FAILED(105, "Trying to run test with browser that doesn't exist");
+    SELENIUM_JAVASCRIPT_FAILED(105, "Trying to run test with browser that doesn't exist"),
+    HTTP_PROXY_BAD_END_OF_LINE(106, "Error writing http proxy response");
 
     private Integer code;
     private String description;
