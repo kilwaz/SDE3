@@ -40,9 +40,12 @@ public class BrowserHelper {
     }
 
     public static WebDriver getChrome(String proxyConnectionString) {
+        log.info("Setting up Chrome");
         DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 
-        System.setProperty("webdriver.chrome.driver", SDEUtils.getResourcePath() + "WebDrivers/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", SDEUtils.getResourcePath() + "/WebDrivers/chromedriver.exe");
+
+        log.info("location = " + SDEUtils.getResourcePath() + "/WebDrivers/chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("test-type");
@@ -54,8 +57,11 @@ public class BrowserHelper {
                 .setSslProxy(proxyConnectionString);
         capabilities.setCapability(CapabilityType.PROXY, proxy);
 
+        log.info("Starting new!");
+
         WebDriver driver = new ChromeDriver(capabilities);
         setupBrowser(driver);
+        log.info("Done");
         return driver;
     }
 
@@ -102,7 +108,7 @@ public class BrowserHelper {
     public static WebDriver getOpera(String proxyConnectionString) {
         DesiredCapabilities capabilities = DesiredCapabilities.operaBlink();
 
-        System.setProperty("webdriver.opera.driver", SDEUtils.getResourcePath() + "WebDrivers/operadriver.exe");
+        System.setProperty("webdriver.opera.driver", SDEUtils.getResourcePath() + "/WebDrivers/operadriver.exe");
 
         OperaOptions options = new OperaOptions();
         options.addArguments("ignore-certificate-errors");
@@ -122,13 +128,14 @@ public class BrowserHelper {
     public static WebDriver getIE(String proxyConnectionString) {
         DesiredCapabilities capabilities = DesiredCapabilities.internetExplorer();
 
-        System.setProperty("webdriver.ie.driver", SDEUtils.getResourcePath() + "WebDrivers/IEDriverServer.exe");
+        System.setProperty("webdriver.ie.driver", SDEUtils.getResourcePath() + "/WebDrivers/IEDriverServer.exe");
 
         Proxy proxy = new Proxy();
         proxy.setHttpProxy(proxyConnectionString)
                 .setFtpProxy(proxyConnectionString)
                 .setSslProxy(proxyConnectionString);
         capabilities.setCapability(CapabilityType.PROXY, proxy);
+        capabilities.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
 
         WebDriver driver = new InternetExplorerDriver(capabilities);
         setupBrowser(driver);

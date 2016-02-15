@@ -1,6 +1,5 @@
 package application.node.objects;
 
-import application.data.DataBank;
 import application.error.Error;
 import application.gui.Program;
 import application.node.implementations.LogicNode;
@@ -19,13 +18,12 @@ import java.net.URLClassLoader;
 import java.util.UUID;
 
 public class Logic {
+    private static Logger log = Logger.getLogger(Logic.class);
     private Boolean compiled = false;
     private String logic;
     private Object compiledInstance;
     private LogicNode parentLogicNode;
     private String compiledClassName = "UNKNOWN";
-
-    private static Logger log = Logger.getLogger(Logic.class);
 
     public Logic(LogicNode parentLogicNode) {
         this.parentLogicNode = parentLogicNode;
@@ -48,10 +46,6 @@ public class Logic {
         return this.logic;
     }
 
-    public String getUuidStringWithoutHyphen() {
-        return parentLogicNode.getUuidStringWithoutHyphen();
-    }
-
     public void setLogic(String logic) {
         if (!this.logic.equals(logic)) {
             this.compiled = false;
@@ -65,6 +59,10 @@ public class Logic {
                 program.getFlowController().checkConnections();
             }
         }
+    }
+
+    public String getUuidStringWithoutHyphen() {
+        return parentLogicNode.getUuidStringWithoutHyphen();
     }
 
 //    public UUID getUuid() {
@@ -121,7 +119,12 @@ public class Logic {
                     Error.RUN_LOGIC_NODE_INIT.record().additionalInformation("Class" + compiledClassName).create(ex);
                 }
 
-                new SDEThread((SDERunnable) instance, "Running logic for - " + this.getParentLogicNode().getContainedText());
+                SDEThread sdeThread = new SDEThread((SDERunnable) instance, "Running logic for - " + this.getParentLogicNode().getContainedText());
+                if (whileWaiting) {
+                    log.info("THREADING:Starting to wait for logic '" + sdeThread.getDescription() + "' to finish");
+                    sdeThread.join();
+                    log.info("THREADING:Logic '" + sdeThread.getDescription() + "' has finished");
+                }
             }
         }
     }

@@ -27,7 +27,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.apache.log4j.Logger;
-import org.xbill.DNS.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,17 +42,31 @@ import java.net.URL;
  * @author Alex Brown
  */
 public class Main extends Application {
+    private static final int SPLASH_WIDTH = 940;
+    private static final int SPLASH_HEIGHT = 360;
     private static Main instance;
-
+    private static Logger log = Logger.getLogger(Main.class);
     private Pane splashLayout;
     private ProgressBar loadProgress;
     private Label progressText;
     private Stage mainStage;
     private Stage splashStage;
-    private static final int SPLASH_WIDTH = 940;
-    private static final int SPLASH_HEIGHT = 360;
 
-    private static Logger log = Logger.getLogger(Main.class);
+    /**
+     * Main method and entry point into the application.
+     *
+     * @param args Standard args that can be passed into main method, current no args are used.
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    /**
+     * @return Returns self.
+     */
+    public static Main getInstance() {
+        return instance;
+    }
 
     /**
      * We start all managers and prep everything we need to get the application running including loading all data from the database.
@@ -292,25 +305,9 @@ public class Main extends Application {
     }
 
     /**
-     * Main method and entry point into the application.
-     *
-     * @param args Standard args that can be passed into main method, current no args are used.
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    /**
      * @return Returns main stage/window for the application.
      */
     public Stage getMainStage() {
         return mainStage;
-    }
-
-    /**
-     * @return Returns self.
-     */
-    public static Main getInstance() {
-        return instance;
     }
 }

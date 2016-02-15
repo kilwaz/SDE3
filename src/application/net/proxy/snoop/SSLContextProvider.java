@@ -21,18 +21,18 @@ public class SSLContextProvider {
     private static SSLContext sslContext = null;
     private static Logger log = Logger.getLogger(SSLContextProvider.class);
 
-    public static SSLContext get() {
+    public static synchronized SSLContext get() {
         if (sslContext == null) {
             FileInputStream fis = null;
             try {
-                CertificateFactory factory = CertificateFactory.getInstance("X.509");
-                String keyStoreFileName = SDEUtils.getResourcePath() + "keystore.jks";
-                log.info("File path " + keyStoreFileName);
+                String keyStoreFileName = SDEUtils.getResourcePath() + "/keystore.jks";
+                //log.info("File path " + keyStoreFileName);
                 File keyStore = new File(keyStoreFileName);
                 if (!keyStore.exists()) {
                     Boolean fileCreateResult = keyStore.createNewFile();
                 }
 
+                //CertificateFactory factory = CertificateFactory.getInstance("X.509");
                 //X509Certificate cert = (X509Certificate) factory.generateCertificate(new FileInputStream(keyStoreFileName));
 
                 sslContext = SSLContext.getInstance("TLS");

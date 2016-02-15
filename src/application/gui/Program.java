@@ -4,7 +4,6 @@ import application.data.DataBank;
 import application.data.User;
 import application.data.model.DatabaseObject;
 import application.data.model.dao.DrawableNodeDAO;
-import application.error.Error;
 import application.gui.dialog.ErrorDialog;
 import application.node.design.DrawableNode;
 import application.node.objects.Logic;
@@ -19,15 +18,91 @@ import java.util.List;
 import java.util.UUID;
 
 public class Program extends DatabaseObject {
+    private static Logger log = Logger.getLogger(Program.class);
     private String name;
     private FlowController flowController = new FlowController(this);
     private Boolean locked = false;
     private User parentUser;
 
-    private static Logger log = Logger.getLogger(Program.class);
-
     public Program() {
         super();
+    }
+
+    public static void runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean main, NodeRunParams nodeRunParams) {
+        class OneShotTask implements Runnable {
+            OneShotTask() {
+            }
+
+            public void run() {
+                Object node = DataBank.getInstanceObject(referenceID, name);
+                if (node instanceof Logic) {
+                    Logic logic = ((Logic) node);
+                    triggerConnections(sourceNode, ((Logic) node).getParentLogicNode().getContainedText(), referenceID);
+                    logic.run(whileWaiting, nodeRunParams);
+                } else if (node instanceof DrawableNode) {
+                    DrawableNode drawableNode = (DrawableNode) node;
+                    triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
+                    drawableNode.run(whileWaiting, nodeRunParams);
+                } else {
+                    log.info("Wasn't able to run the program '" + name + "'");
+                    if ("Start".equals(name) && "1".equals(referenceID)) {
+                        new ErrorDialog()
+                                .content("A start node needs to be selected")
+                                .title("No start node")
+                                .show();
+                    } else {
+                        new ErrorDialog()
+                                .content("Cannot find node '" + name + "'.")
+                                .title("Failed to run node")
+                                .show();
+                    }
+                }
+
+                DrawableNode drawableNode = null;
+                if (node instanceof DrawableNode) {
+                    drawableNode = ((DrawableNode) node);
+                } else if (node instanceof Logic) {
+                    drawableNode = ((Logic) node).getParentLogicNode();
+                }
+
+                if (drawableNode != null && drawableNode.getNextNodeToRun() != null && !drawableNode.getNextNodeToRun().isEmpty()) {
+                    triggerConnections(drawableNode, drawableNode.getNextNodeToRun(), referenceID);
+                    Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, drawableNode, true, main, nodeRunParams);
+                }
+            }
+        }
+
+        // Starts a new thread for each time this is called.
+        SDEThread sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()));
+
+        // If we need to wait for this thread to finish first we join to the current thread.
+        if (whileWaiting) {
+            log.info("THREADING:Starting to wait for '" + sdeThread.getDescription() + "' to finish");
+            sdeThread.join();
+            log.info("THREADING:'" + sdeThread.getDescription() + "' has finished");
+            ThreadManager.getInstance().removeInactiveThreads(); // Check to see if this thread has finished yet
+        }
+    }
+
+    // This methods takes a sourceNode where a connection is coming from and a name of a target and triggers the connection to flash on the GUI
+    private static void triggerConnections(DrawableNode sourceNode, String targetNodeName, String referenceID) {
+        Object node = DataBank.getInstanceObject(referenceID, targetNodeName);
+        DrawableNode targetNode = null;
+        if (node instanceof Logic) {
+            targetNode = ((Logic) node).getParentLogicNode();
+        } else if (node instanceof DrawableNode) {
+            targetNode = (DrawableNode) node;
+        }
+
+        if (sourceNode != null && targetNode != null) {
+            FlowController flowController = sourceNode.getProgram().getFlowController();
+            NodeConnection nodeConnection = flowController.getConnection(sourceNode, targetNode);
+            if (nodeConnection != null) {
+                nodeConnection.triggerGradient();
+                flowController.addActiveConnection(nodeConnection);
+                Controller.getInstance().updateCanvasControllerLater();
+            }
+        }
     }
 
     public String getName() {
@@ -56,17 +131,17 @@ public class Program extends DatabaseObject {
         return 0.0;
     }
 
+    public void setViewOffsetHeight(Double offset) {
+        if (flowController != null) {
+            flowController.setViewOffsetHeight(offset);
+        }
+    }
+
     public Double getViewOffsetWidth() {
         if (flowController != null) {
             return flowController.getViewOffsetWidth();
         }
         return 0.0;
-    }
-
-    public void setViewOffsetHeight(Double offset) {
-        if (flowController != null) {
-            flowController.setViewOffsetHeight(offset);
-        }
     }
 
     public void setViewOffsetWidth(Double offset) {
@@ -134,85 +209,6 @@ public class Program extends DatabaseObject {
 
         // Starts the program in a new thread separate from the GUI thread.
         new SDEThread(new RunProgram(), "Running program - " + this.getName());
-    }
-
-    public static void runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean main, NodeRunParams nodeRunParams) {
-        class OneShotTask implements Runnable {
-            OneShotTask() {
-            }
-
-            public void run() {
-                Object node = DataBank.getInstanceObject(referenceID, name);
-                if (node instanceof Logic) {
-                    Logic logic = ((Logic) node);
-                    triggerConnections(sourceNode, ((Logic) node).getParentLogicNode().getContainedText(), referenceID);
-                    logic.run(whileWaiting, nodeRunParams);
-                } else if (node instanceof DrawableNode) {
-                    DrawableNode drawableNode = (DrawableNode) node;
-                    triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
-                    drawableNode.run(whileWaiting, nodeRunParams);
-                } else {
-                    log.info("Wasn't able to run the program '" + name + "'");
-                    if ("Start".equals(name) && "1".equals(referenceID)) {
-                        new ErrorDialog()
-                                .content("A start node needs to be selected")
-                                .title("No start node")
-                                .show();
-                    } else {
-                        new ErrorDialog()
-                                .content("Cannot find node '" + name + "'.")
-                                .title("Failed to run node")
-                                .show();
-                    }
-                }
-
-                DrawableNode drawableNode = null;
-                if (node instanceof DrawableNode) {
-                    drawableNode = ((DrawableNode) node);
-                } else if (node instanceof Logic) {
-                    drawableNode = ((Logic) node).getParentLogicNode();
-                }
-
-                if (drawableNode != null && drawableNode.getNextNodeToRun() != null && !drawableNode.getNextNodeToRun().isEmpty()) {
-                    triggerConnections(drawableNode, drawableNode.getNextNodeToRun(), referenceID);
-                    Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, drawableNode, true, main, nodeRunParams);
-                }
-            }
-        }
-
-        // Starts a new thread for each time this is called.
-        SDEThread sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()));
-
-        // If we need to wait for this thread to finish first we join to the current thread.
-        if (whileWaiting) {
-            try {
-                sdeThread.getThread().join();
-                ThreadManager.getInstance().removeInactiveThreads(); // Check to see if this thread has finished yet
-            } catch (InterruptedException ex) {
-                Error.PROGRAM_JOIN_THREAD.record().create(ex);
-            }
-        }
-    }
-
-    // This methods takes a sourceNode where a connection is coming from and a name of a target and triggers the connection to flash on the GUI
-    private static void triggerConnections(DrawableNode sourceNode, String targetNodeName, String referenceID) {
-        Object node = DataBank.getInstanceObject(referenceID, targetNodeName);
-        DrawableNode targetNode = null;
-        if (node instanceof Logic) {
-            targetNode = ((Logic) node).getParentLogicNode();
-        } else if (node instanceof DrawableNode) {
-            targetNode = (DrawableNode) node;
-        }
-
-        if (sourceNode != null && targetNode != null) {
-            FlowController flowController = sourceNode.getProgram().getFlowController();
-            NodeConnection nodeConnection = flowController.getConnection(sourceNode, targetNode);
-            if (nodeConnection != null) {
-                nodeConnection.triggerGradient();
-                flowController.addActiveConnection(nodeConnection);
-                Controller.getInstance().updateCanvasControllerLater();
-            }
-        }
     }
 
     public List<DrawableNode> getNodes() {

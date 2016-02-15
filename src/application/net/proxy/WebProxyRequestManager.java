@@ -9,12 +9,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebProxyRequestManager {
+    private static Logger log = Logger.getLogger(WebProxyRequestManager.class);
     private ConcurrentHashMap<Integer, WebProxyRequest> activeRequests = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, WebProxyRequest> completedRequests = new ConcurrentHashMap<>();
     private List<RequestTrackerNode> linkedRequestTrackerNodes = new ArrayList<>();
-
-    private static Logger log = Logger.getLogger(WebProxyRequestManager.class);
-
     private Integer requestCount = 1;
 
     private RecordedProxy recordedProxy;

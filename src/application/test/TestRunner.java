@@ -8,6 +8,7 @@ import application.test.action.helpers.*;
 import application.utils.BrowserHelper;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
+import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.SessionNotFoundException;
@@ -16,18 +17,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TestRunner extends SDERunnable {
     public static Integer TEST_NOT_STARTED = 0;
     public static Integer TEST_PENDING = 1;
     public static Integer TEST_RUNNING = 2;
     public static Integer TEST_FINISHED = 3;
-
+    private static Logger log = Logger.getLogger(TestRunner.class);
     private Test test;
     private Program program;
     private Integer status = 0;
-
-    private static Logger log = Logger.getLogger(TestRunner.class);
 
     public TestRunner(Test test, Program program) {
         this.test = test;
@@ -38,7 +38,9 @@ public class TestRunner extends SDERunnable {
         status = TEST_RUNNING;
         if (test != null) {
             TestResult testResult = TestResult.create(TestResult.class);
-            testResult.save();
+            if (testResult != null) {
+                testResult.save();
+            }
 
             List<String> commands = new ArrayList<>();
             Collections.addAll(commands, test.getText().split("[\\r\\n]"));
@@ -89,15 +91,9 @@ public class TestRunner extends SDERunnable {
             // Creates the WebProxy used for this node
             HttpProxyServer httpProxyServer = new HttpProxyServer();
             new SDEThread(httpProxyServer, "Running test");
-            Integer waited = 0;
-            while (!httpProxyServer.isConnected() && waited < 60 * 1000) { // Wait for 60 seconds to connect, this could probably be done better
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                waited += 100;
-            }
+            Awaitility.await().atMost(60000, TimeUnit.MILLISECONDS).until(httpProxyServer.nowConnected());
+
+            browser = browser.toLowerCase();
 
             if (useLocalDriver) {
                 log.info("Using local driver with browser " + browser);
@@ -108,13 +104,13 @@ public class TestRunner extends SDERunnable {
             WebDriver driver = null;
             if (useLocalDriver) {
                 if ("chrome".equals(browser)) {
-                    driver = BrowserHelper.getChrome();
+                    driver = BrowserHelper.getChrome(httpProxyServer.getConnectionString());
                 } else if ("firefox".equals(browser)) {
-                    driver = BrowserHelper.getFireFox();
+                    driver = BrowserHelper.getFireFox(httpProxyServer.getConnectionString());
                 } else if ("ie".equals(browser)) {
-                    driver = BrowserHelper.getIE();
+                    driver = BrowserHelper.getIE(httpProxyServer.getConnectionString());
                 } else if ("opera".equals(browser)) {
-                    driver = BrowserHelper.getOpera();
+                    driver = BrowserHelper.getOpera(httpProxyServer.getConnectionString());
                 }
             } else {
                 if ("chrome".equals(browser)) {

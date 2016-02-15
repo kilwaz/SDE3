@@ -22,21 +22,56 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.cert.CertificateException;
+import java.util.concurrent.Callable;
 
 public final class HttpProxyServer extends SDERunnable {
     public final static boolean SSL = false;
     static int PORT = 8080;
+    private static Logger log = Logger.getLogger(HttpProxyServer.class);
     private WebProxyRequestManager webProxyRequestManager = new WebProxyRequestManager();
-
     private int runningPort = 8080;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Boolean connected = false;
 
-    private static Logger log = Logger.getLogger(HttpProxyServer.class);
-
     public HttpProxyServer() {
         WebProxyManager.getInstance().addConnection(this);
+    }
+
+    /**
+     * Checks to see if a specific port is available.
+     *
+     * @param port the port to check for availability
+     */
+    public static synchronized boolean available(int port) {
+        if (port < 8080 || port > 10000) {
+            throw new IllegalArgumentException("Invalid start port: " + port);
+        }
+
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
     }
 
     public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -109,44 +144,18 @@ public final class HttpProxyServer extends SDERunnable {
         return webProxyRequestManager;
     }
 
-    /**
-     * Checks to see if a specific port is available.
-     *
-     * @param port the port to check for availability
-     */
-    public static boolean available(int port) {
-        if (port < 8080 || port > 10000) {
-            throw new IllegalArgumentException("Invalid start port: " + port);
-        }
-
-        ServerSocket ss = null;
-        DatagramSocket ds = null;
-        try {
-            ss = new ServerSocket(port);
-            ss.setReuseAddress(true);
-            ds = new DatagramSocket(port);
-            ds.setReuseAddress(true);
-            return true;
-        } catch (IOException e) {
-        } finally {
-            if (ds != null) {
-                ds.close();
-            }
-
-            if (ss != null) {
-                try {
-                    ss.close();
-                } catch (IOException e) {
-                /* should not be thrown */
-                }
-            }
-        }
-
-        return false;
+    public String getConnectionString() {
+        return "localhost:" + runningPort;
     }
 
     public int getRunningPort() {
         return runningPort;
+    }
+
+    public Callable<Boolean> nowConnected() {
+        return () -> {
+            return connected; // The condition that must be fulfilled
+        };
     }
 
     public Boolean isConnected() {

@@ -38,6 +38,7 @@ import java.util.Map;
  */
 
 public class StandaloneHTTPRequest {
+    private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
     private String method = "GET";
     private String destinationURL = "";
     private HashMap<String, String> responseHeaders = new HashMap<>();
@@ -47,8 +48,6 @@ public class StandaloneHTTPRequest {
     private Boolean https = false;
     private Boolean hasCompleted = false;
     private WebProxyRequestManager webProxyRequestManager;
-
-    private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
 
     /**
      * Set the URL of the request.
@@ -136,8 +135,9 @@ public class StandaloneHTTPRequest {
      */
     private StandaloneHTTPRequest executeHttp() {
         ProxyConnectionWrapper connection = null;
+        WebProxyRequest webProxyRequest = null;
         try {
-            WebProxyRequest webProxyRequest = new WebProxyRequest();
+            webProxyRequest = new WebProxyRequest();
             webProxyRequest.setRequestUri(destinationURL);
             webProxyRequestManager.addNewActiveRequest(webProxyRequest.hashCode(), webProxyRequest);
 
@@ -233,10 +233,12 @@ public class StandaloneHTTPRequest {
             webProxyRequest.instantCompleteServerToProxy();
             webProxyRequest.setResponseBuffer(response);
             webProxyRequest.setResponseHeaders(responseHeaders);
-            webProxyRequestManager.completeRequest(webProxyRequest.hashCode());
         } catch (Exception ex) {
             Error.HTTP_PROXY_REQUEST.record().create(ex);
         } finally {
+            if (webProxyRequest != null) { // Mark the request as finished
+                webProxyRequestManager.completeRequest(webProxyRequest.hashCode());
+            }
             if (connection != null) {
                 connection.disconnect();
             }
