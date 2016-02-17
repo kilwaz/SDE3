@@ -4,17 +4,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class Export {
+    private static Logger log = Logger.getLogger(Export.class);
     private ExportCell[][] exportValues; // First number is row, second is col, so xy
-
     private Integer colCount;
     private Integer rowCount;
-
     private Integer nextFreeRow = 0;
-
-    private static Logger log = Logger.getLogger(Export.class);
 
     public Export(Integer rowCount, Integer colCount) {
         this.colCount = colCount;
@@ -62,21 +58,18 @@ public class Export {
         ExportCell[][] headers = Arrays.copyOfRange(exportValues, 0, headerRowCount);
         ExportCell[][] data = Arrays.copyOfRange(exportValues, headerRowCount, exportValues.length);
 
-        Arrays.sort(data, new Comparator<ExportCell[]>() {
-            @Override
-            public int compare(final ExportCell[] entry1, final ExportCell[] entry2) {
-                final ExportCell time1 = entry1[column];
-                final ExportCell time2 = entry2[column];
+        Arrays.sort(data, (entry1, entry2) -> {
+            final ExportCell time1 = entry1[column];
+            final ExportCell time2 = entry2[column];
 
-                if (time1 != null) {
-                    if (ascending) {
-                        return -time1.compareTo(time2);
-                    } else {
-                        return time1.compareTo(time2);
-                    }
+            if (time1 != null) {
+                if (ascending) {
+                    return -time1.compareTo(time2);
                 } else {
-                    return 0;
+                    return time1.compareTo(time2);
                 }
+            } else {
+                return 0;
             }
         });
 
