@@ -227,10 +227,6 @@ public class SDEUtils {
         return source;
     }
 
-//    public static Elements getElementsFromXPath(String xPath, Element element) {
-//
-//    }
-
     public static Element getElementFromXPath(String xPath, Document document) {
         List<Element> elements = getElementsFromXPath(xPath, document);
         if (elements.size() > 0) {
@@ -245,8 +241,6 @@ public class SDEUtils {
         startingId = startingId.replace("//*[@id=\"", "");  // Removes the initial id
         startingId = startingId.substring(0, startingId.indexOf("\""));
 
-        //log.info("Document is " + document);
-
         Element startingElement = document.getElementById(startingId);
 
         List<Element> returnedElement = new ArrayList<>();
@@ -260,9 +254,5 @@ public class SDEUtils {
 
     public static void zipDirectory(String directoryPath, String zipFileLocation) {
         ZipUtil.pack(new File(directoryPath), new File(zipFileLocation));
-    }
-
-    public static void disconnectTest(){
-        log.info("OMG");
     }
 }
