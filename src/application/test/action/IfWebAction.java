@@ -7,6 +7,7 @@ import application.test.action.helpers.Variable;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
+import org.openqa.selenium.WebElement;
 
 /**
  * This action is used to start and end an if statement
@@ -42,6 +43,7 @@ public class IfWebAction extends WebAction {
         TestParameter contains = getTestCommand().getParameterByPath("contains");
         TestParameter exists = getTestCommand().getParameterByPath("exists");
         TestParameter elementExists = getTestCommand().getParameterByPath("elementExists");
+        TestParameter elementVisible = getTestCommand().getParameterByPath("elementVisible");
 
         String xPath = null;
         if (elementXPath.exists()) {
@@ -51,12 +53,14 @@ public class IfWebAction extends WebAction {
         }
 
         Element testElement = null;
+        WebElement testWebElement = null;
         if (elementId.exists() || elementXPath.exists()) { // Get the element via id
             testElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
         } else if (loopElement.exists()) { // Get element via loop
             LoopedWebElement loopedWebElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
             if (loopedWebElement != null) {
                 testElement = loopedWebElement.getElement();
+                testWebElement = loopedWebElement.getWebElement(getDriver());
             }
         }
 
@@ -131,6 +135,21 @@ public class IfWebAction extends WebAction {
                         getIfTracker().setIsSkippingIf(true);
                         getIfTracker().setIfReference(startElement.getParameterValue());
                     }
+                }
+            }
+
+            if (elementVisible.exists()) { // Test to see if the element is currently visible
+                if (testElement != null && testWebElement != null && testWebElement.isDisplayed()) {  // TRUE
+                    if (elementVisible.getParameterValue().equals("false")) {
+                        getIfTracker().setIsSkippingIf(true);
+                        getIfTracker().setIfReference(startElement.getParameterValue());
+                    } else {
+                        log.info("Element is visible, lets do this!");
+                    }
+                } else {  // FALSE
+                    log.info("Element is not visible or is null!!");
+                    getIfTracker().setIsSkippingIf(true);
+                    getIfTracker().setIfReference(startElement.getParameterValue());
                 }
             }
         }

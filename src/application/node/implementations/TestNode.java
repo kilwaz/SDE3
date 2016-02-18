@@ -133,13 +133,12 @@ public class TestNode extends DrawableNode {
                 testToRun = (Test) nodeRunParams.getOneTimeVariable();
             }
         } else {
-            testToRun = test;
+            testToRun = test.cloneTest();
         }
 
         if (testToRun != null) {
             TestRunner testRunner = new TestRunner(testToRun, this.getProgram());
             testRunner.run();
-            //SDEThread sdeThread = new SDEThread(testRunner, "Browser test");
         }
     }
 

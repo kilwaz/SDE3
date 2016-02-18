@@ -82,7 +82,11 @@ public class ClickWebAction extends WebAction {
         if (webElement != null) {
             takeScreenshotOfElement(testStep, webElement);
             testStep.setTestString(getTestCommand().getRawCommand());
-            webElement.click();
+            if (webElement.isDisplayed()) {
+                webElement.click();
+            } else {
+                Error.SELENIUM_CLICK_ACTION_NOT_FOUND.record().additionalInformation(webElement.toString()).create();
+            }
         }
     }
 }
