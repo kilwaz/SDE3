@@ -5,12 +5,15 @@ import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
 import org.apache.log4j.Logger;
 
+import javax.net.ssl.SSLException;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +51,9 @@ public class StandaloneHTTPRequest {
     private Boolean https = false;
     private Boolean hasCompleted = false;
     private WebProxyRequestManager webProxyRequestManager;
+    private Integer currentRetryCount = 0;
+    private Integer maximumRetryCount = 2;
+    private static final String notFoundResponse = "HTTP/1.0 404 Not Found";
 
     /**
      * Set the URL of the request.
@@ -186,8 +192,19 @@ public class StandaloneHTTPRequest {
             InputStream is = null;
             int contentLength = 0;
             try {
-                //Get Response
-                is = connection.getInputStream();
+                // Get Response
+                try {
+                    is = connection.getInputStream();
+                } catch (ConnectException ex) { // Retry the connection if for some reason it timed out
+                    if (currentRetryCount < maximumRetryCount) {
+                        currentRetryCount++;
+                        Error.HTTP_TIMEOUT.record().additionalInformation("URL " + url).additionalInformation("Retrying..." + currentRetryCount).create(ex);
+                        executeHttp();
+                    }
+                } catch (UnknownHostException ex) {
+                    Error.HTTP_UNKNOWN_HOST.record().additionalInformation("URL " + url).create(ex);
+                }
+
                 contentLength = connection.getContentLength();
 
                 Map<String, List<String>> connectionHeaders = connection.getHeaderFields();
@@ -211,23 +228,27 @@ public class StandaloneHTTPRequest {
                 } else {
                     tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
                 }
-
-                byte[] buf = new byte[512];
-                while (true) {
-                    int len = is.read(buf);
-                    if (len == -1) {
-                        break;
+                if (is != null) {
+                    byte[] buf = new byte[512];
+                    while (true) {
+                        int len = is.read(buf);
+                        if (len == -1) {
+                            break;
+                        }
+                        tmpOut.write(buf, 0, len);
                     }
-                    tmpOut.write(buf, 0, len);
+                    is.close();
                 }
-                is.close();
+
                 tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
 
                 byte[] array = tmpOut.toByteArray();
                 response = ByteBuffer.wrap(array);
             } catch (FileNotFoundException | MalformedURLException ex) { // 404
-                String notFoundResponse = "HTTP/1.0 404 Not Found";
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
+            } catch (SSLException ex) { // SSL Exception
+                response = ByteBuffer.wrap(notFoundResponse.getBytes());
+                Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
             }
 
             webProxyRequest.instantCompleteServerToProxy();

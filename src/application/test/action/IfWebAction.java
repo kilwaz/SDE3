@@ -57,7 +57,7 @@ public class IfWebAction extends WebAction {
         if (elementId.exists() || elementXPath.exists()) { // Get the element via id
             testElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
         } else if (loopElement.exists()) { // Get element via loop
-            LoopedWebElement loopedWebElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
+            LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
             if (loopedWebElement != null) {
                 testElement = loopedWebElement.getElement();
                 testWebElement = loopedWebElement.getWebElement(getDriver());
@@ -143,11 +143,8 @@ public class IfWebAction extends WebAction {
                     if (elementVisible.getParameterValue().equals("false")) {
                         getIfTracker().setIsSkippingIf(true);
                         getIfTracker().setIfReference(startElement.getParameterValue());
-                    } else {
-                        log.info("Element is visible, lets do this!");
                     }
                 } else {  // FALSE
-                    log.info("Element is not visible or is null!!");
                     getIfTracker().setIsSkippingIf(true);
                     getIfTracker().setIfReference(startElement.getParameterValue());
                 }

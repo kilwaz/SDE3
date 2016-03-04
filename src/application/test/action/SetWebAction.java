@@ -1,11 +1,9 @@
 package application.test.action;
 
-import application.data.DataBank;
 import application.test.TestParameter;
 import application.test.TestStep;
-import application.test.action.helpers.LoopTracker;
+import application.test.action.helpers.LoopedWebElement;
 import application.test.action.helpers.Variable;
-import application.test.action.helpers.VariableTracker;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
 
@@ -27,7 +25,7 @@ public class SetWebAction extends WebAction {
      * These values are saved and can be retrieved from the {@link application.test.action.helpers.VariableTracker}.
      */
     public void performAction() {
-        TestStep testStep  =  TestStep.create(TestStep.class);
+        TestStep testStep = TestStep.create(TestStep.class);
         testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
@@ -39,7 +37,8 @@ public class SetWebAction extends WebAction {
         if (variableStringValue.exists()) {
             getVariableTracker().setVariable(new Variable(variableName.getParameterValue(), variableStringValue.getParameterValue()));
         } else if (variableLoop.exists()) {
-            Element loopedElement = getLoopTracker().getLoop(variableLoop.getParameterValue()).getCurrentLoopWebElement().getElement();
+            LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(variableLoop.getParameterValue()).getCurrentLoopObject();
+            Element loopedElement = loopedWebElement.getElement();
 
             if (variableContent.exists()) {
                 getVariableTracker().setVariable(new Variable(variableName.getParameterValue(), loopedElement.html()));

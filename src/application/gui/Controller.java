@@ -22,6 +22,8 @@ import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -51,6 +53,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -377,6 +380,7 @@ public class Controller implements Initializable {
                     program.save();
 
                     programList.getItems().add(program);
+                    reorderProgramList();
                 });
 
                 MenuItem menuItemDeleteProgram = new MenuItem("Delete Program");
@@ -454,6 +458,7 @@ public class Controller implements Initializable {
                 if (program != null) {
                     program.setName(input);
                     program.save();
+                    reorderProgramList();
                 }
 
                 return program;
@@ -838,11 +843,25 @@ public class Controller implements Initializable {
 
             ProgramDAO programDAO = new ProgramDAO();
             List<Program> programs = programDAO.getProgramsByUser(currentUser);
+
             programList.getItems().addAll(programs);
-            if (currentUser.getCurrentProgram() != null) {
-                programList.getSelectionModel().select(currentUser.getCurrentProgram());
-                programList.scrollTo(currentUser.getCurrentProgram());
-            }
+            reorderProgramList();
+        }
+    }
+
+    // Order programs by name
+    public void reorderProgramList() {
+        // Order programs by name
+        ObservableList<Program> list = programList.getItems();
+        Collections.sort(list);
+        Collections.reverse(list);
+        programList.setItems(list);
+
+        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
+
+        if (currentUser.getCurrentProgram() != null) {
+            programList.getSelectionModel().select(currentUser.getCurrentProgram());
+            programList.scrollTo(currentUser.getCurrentProgram());
         }
     }
 }

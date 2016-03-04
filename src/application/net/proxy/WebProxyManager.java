@@ -4,6 +4,7 @@ import application.net.proxy.snoop.HttpProxyServer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WebProxyManager {
     private static WebProxyManager webProxyManager;
@@ -14,6 +15,10 @@ public class WebProxyManager {
         openProxies = new ArrayList<>();
     }
 
+    public static WebProxyManager getInstance() {
+        return webProxyManager;
+    }
+
     public void addConnection(HttpProxyServer webProxy) {
         openProxies.add(webProxy);
     }
@@ -22,11 +27,12 @@ public class WebProxyManager {
         return openProxies;
     }
 
-    public void closeProxies() {
-        openProxies.forEach(HttpProxyServer::close);
+    public void removeInactiveProxies() {
+        List<HttpProxyServer> proxiesToRemove = openProxies.stream().filter(proxy -> proxy.getStatus().equals(HttpProxyServer.STATUS_CLOSED)).collect(Collectors.toList());
+        openProxies.removeAll(proxiesToRemove);
     }
 
-    public static WebProxyManager getInstance() {
-        return webProxyManager;
+    public void closeProxies() {
+        openProxies.forEach(HttpProxyServer::close);
     }
 }

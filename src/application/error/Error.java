@@ -107,14 +107,19 @@ public enum Error {
     HTTP_PROXY_RECEIVE_MESSAGE(102, "Error receiving Http Proxy message"),
     SELENIUM_SELECT_ACTION_NOT_FOUND(103, "SelectAction is failing, selenium is not responding when finding the element"),
     NO_BROWSER_FOUND(104, "Trying to run test with browser that doesn't exist"),
-    SELENIUM_JAVASCRIPT_FAILED(105, "Trying to run test with browser that doesn't exist"),
+    SELENIUM_JAVASCRIPT_FAILED(105, "Javascript exception seen within browser"),
     HTTP_PROXY_BAD_END_OF_LINE(106, "Error writing http proxy response"),
-    SELENIUM_CLICK_ELEMENT_NOT_VISIBLE(107, "Tried to click on an element that was not visible");
+    SELENIUM_CLICK_ELEMENT_NOT_VISIBLE(107, "Tried to click on an element that was not visible"),
+    SSL_EXCEPTION(108, "Unrecognized SSL message"),
+    HTTP_TIMEOUT(109, "Http connection has timed out"),
+    HTTP_UNKNOWN_HOST(110, "Unknown host for connection"),
+    SELENIUM_FAILED_TO_CLOSE_WINDOW(111, "Failed to close browser window"),
+    PARSE_DOUBLE_FAILED(112, "Failed to parse Double");
 
     private Integer code;
     private String description;
 
-    private Error(int code, String description) {
+    Error(int code, String description) {
         this.code = code;
         this.description = description;
     }

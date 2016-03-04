@@ -26,8 +26,10 @@ public class TestStep extends DatabaseObject {
     private String observedEqual = "";
     private Boolean successful = false;
     private BufferedImage screenshot = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    private Boolean hasScreenshot = false;
     private TestResult parentResult = null;
     private Integer testType = 0;
+    private TestCommand testCommand = null;
 
     public TestStep() {
 
@@ -98,6 +100,7 @@ public class TestStep extends DatabaseObject {
 
     public void setScreenshot(BufferedImage screenshot) {
         this.screenshot = screenshot;
+        this.hasScreenshot = true;
     }
 
     public String getTestString() {
@@ -139,5 +142,21 @@ public class TestStep extends DatabaseObject {
             default:
                 return "Unknown";
         }
+    }
+
+    public Boolean hasScreenshot() {
+        return hasScreenshot;
+    }
+
+    public void setHasScreenshot(Boolean hasScreenshot) {
+        this.hasScreenshot = hasScreenshot;
+    }
+
+    public TestCommand getTestCommand() {
+        return testCommand;
+    }
+
+    public void setTestCommand(TestCommand testCommand) {
+        this.testCommand = testCommand;
     }
 }

@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import java.util.List;
 import java.util.UUID;
 
-public class Program extends DatabaseObject {
+public class Program extends DatabaseObject implements Comparable<Program> {
     private static Logger log = Logger.getLogger(Program.class);
     private String name;
     private FlowController flowController = new FlowController(this);
@@ -235,5 +235,19 @@ public class Program extends DatabaseObject {
 
     public void setLocked(Boolean locked) {
         this.locked = locked;
+    }
+
+    @Override
+    public int compareTo(Program program) {
+        if (program != null) {
+            Object var1 = (program).getName();
+            Object var2 = name;
+
+            if (var1 != null && var2 != null) {
+                return ((String) var1).compareTo(var2.toString());
+            }
+        }
+
+        return 0;
     }
 }

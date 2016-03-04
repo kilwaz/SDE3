@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExpectedElements {
-    private List<ExpectedElement> expectedElements = new ArrayList<>();
-
     private static Logger log = Logger.getLogger(ExpectedElements.class);
+    private List<ExpectedElement> expectedElements = new ArrayList<>();
 
     public ExpectedElements() {
 
@@ -27,6 +26,11 @@ public class ExpectedElements {
     }
 
     public Boolean containsMatch(ChangedElement changedElement) {
+        for (ExpectedElement expectedElement : expectedElements) {
+            if (changedElement.matched(expectedElement)) {
+                return true;
+            }
+        }
         return false;
     }
 }

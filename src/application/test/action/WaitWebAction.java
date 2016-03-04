@@ -6,6 +6,7 @@ import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -69,7 +70,7 @@ public class WaitWebAction extends WebAction {
             refreshCurrentDocument();
         } catch (org.openqa.selenium.TimeoutException ex) {
             Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("10 second limit").create(ex);
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException | WebDriverException ex) {
             Error.WAIT_ACTION_INTERRUPT.record().create(ex);
         } catch (com.jayway.awaitility.core.ConditionTimeoutException ex) {
             Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("Wait for all requests timed out").create(ex);

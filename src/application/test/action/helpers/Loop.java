@@ -9,7 +9,7 @@ public class Loop {
     private Integer currentLoopCount = 0;
     private Boolean continueToLoop = true;
     private String loopType = "";
-    private List<LoopedWebElement> loopElements = new ArrayList<>();
+    private List<LoopedObject> loopElements = new ArrayList<>();
 
     public Loop(Integer startLineNumber) {
         this.startLineNumber = startLineNumber;
@@ -55,15 +55,15 @@ public class Loop {
         this.currentLoopCount = currentLoopCount;
     }
 
-    public List<LoopedWebElement> getLoopElements() {
+    public List<LoopedObject> getLoopElements() {
         return loopElements;
     }
 
-    public void setLoopElements(List<LoopedWebElement> loopElements) {
+    public void setLoopElements(List<LoopedObject> loopElements) {
         this.loopElements = loopElements;
     }
 
-    public LoopedWebElement getCurrentLoopWebElement() {
+    public LoopedObject getCurrentLoopObject() {
         if (loopElements.size() > 0) {
             return loopElements.get(currentLoopCount - 1);
         } else {

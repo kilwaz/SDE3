@@ -2,6 +2,7 @@ package application.test.action;
 
 import application.test.TestParameter;
 import application.test.TestStep;
+import application.test.action.helpers.LoopedWebElement;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -25,6 +26,7 @@ public class InputWebAction extends WebAction {
     public void performAction() {
         TestStep testStep = TestStep.create(TestStep.class);
         testStep.setParentResult(getTestResult());
+        testStep.setTestCommand(getTestCommand());
 
         getTestResult().addTestStep(testStep);
 
@@ -42,10 +44,11 @@ public class InputWebAction extends WebAction {
         if (elementId.exists()) { // Get the element via id
             testElement = getDriver().findElement(By.id(elementId.getParameterValue()));
         } else if (loopElement.exists()) { // Get element via loop
-            testElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement().getWebElement(getDriver());
+            LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
+            testElement = loopedWebElement.getWebElement(getDriver());
         }
 
-        if (testElement != null) {
+        if (testElement != null && testElement.isDisplayed()) {
             String textToEnter = "";
             Boolean clearText = false;
 
@@ -93,7 +96,10 @@ public class InputWebAction extends WebAction {
             }
             takeScreenshotOfElement(testStep, testElement);
             testStep.setTestString(getTestCommand().getRawCommand());
-        } else if (eventToTrigger.exists() && testElement != null) {
+        } else {
+            log.info("Unable to enter value, element not found or not displayed");
+        }
+        if (eventToTrigger.exists() && testElement != null) {
             JavascriptLibrary javascript = new JavascriptLibrary();
             javascript.callEmbeddedSelenium(getDriver(), "triggerEvent", testElement, eventToTrigger.getParameterValue());
         }

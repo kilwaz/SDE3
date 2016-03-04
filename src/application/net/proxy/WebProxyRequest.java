@@ -21,17 +21,14 @@ public class WebProxyRequest {
     public static final Integer REQUEST_STATUS_SERVER_TO_PROXY = 3;
     public static final Integer REQUEST_STATUS_PROXY_TO_CLIENT = 4;
     public static final Integer REQUEST_STATUS_COMPLETED = 5;
-
+    private static Logger log = Logger.getLogger(WebProxyRequest.class);
     private Integer requestStatus = REQUEST_STATUS_NOT_STARTED;
-
     private Instant instantStartProxyToServer;
     private Instant instantCompleteProxyToServer;
     private Instant instantStartServerToProxy;
     private Instant instantCompleteServerToProxy;
-
     private List<HttpObject> requestHttpObjects = new ArrayList<>();
     private List<HttpObject> responseHttpObjects = new ArrayList<>();
-
     private Integer responseContentSize = 0;
     private Integer requestID = 0;
     private String requestContent = "";
@@ -39,8 +36,6 @@ public class WebProxyRequest {
     private ByteBuffer responseBuffer;
     private HashMap<String, String> responseHeaders = new HashMap<>();
     private HashMap<String, String> requestHeaders = new HashMap<>();
-
-    private static Logger log = Logger.getLogger(WebProxyRequest.class);
 
     public WebProxyRequest() {
 
@@ -95,16 +90,20 @@ public class WebProxyRequest {
         return requestID;
     }
 
+    public void setRequestID(Integer requestID) {
+        this.requestID = requestID;
+    }
+
     public HashMap<String, String> getRequestHeaders() {
         return requestHeaders;
     }
 
-    public HashMap<String, String> getResponseHeaders() {
-        return responseHeaders;
-    }
-
     public void setRequestHeaders(HashMap<String, String> requestHeaders) {
         this.requestHeaders = requestHeaders;
+    }
+
+    public HashMap<String, String> getResponseHeaders() {
+        return responseHeaders;
     }
 
     public void setResponseHeaders(HashMap<String, String> responseHeaders) {
@@ -141,7 +140,11 @@ public class WebProxyRequest {
 
     public void setResponseBuffer(ByteBuffer responseBuffer) {
         this.responseBuffer = responseBuffer;
-        this.responseContentSize = responseBuffer.limit();
+        if (responseBuffer != null) {
+            this.responseContentSize = responseBuffer.limit();
+        } else {
+            this.responseContentSize = 0;
+        }
     }
 
     public DateTime getResponseDateTimeFromHeaders() {
@@ -151,10 +154,6 @@ public class WebProxyRequest {
         }
 
         return null;
-    }
-
-    public void setRequestID(Integer requestID) {
-        this.requestID = requestID;
     }
 
     public void setRequestUri(String requestUri) {

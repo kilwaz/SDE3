@@ -8,13 +8,19 @@ import application.test.TestParameter;
 import application.test.TestResult;
 import application.test.TestStep;
 import application.test.action.helpers.*;
+import application.utils.AppParams;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -22,21 +28,8 @@ import java.util.HashMap;
  */
 
 public abstract class WebAction implements Action {
-    private WebDriver driver = null;
-    private TestCommand testCommand = null;
-    private TestResult testResult = null;
-    private HttpProxyServer httpProxyServer = null;
-    private Program program = null;
-    private Test runningTest = null;
-    private IfTracker ifTracker = null;
-    private LoopTracker loopTracker = null;
-    private VariableTracker variableTracker = null;
-    private FunctionTracker functionTracker = null;
-    private StateTracker stateTracker = null;
     private static Document currentDocument = null;
-
     private static Logger log = Logger.getLogger(WebAction.class);
-
     // This is used as a reference to match up action names used within the TestNode to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
 
@@ -64,9 +57,32 @@ public abstract class WebAction implements Action {
         actionClasses.put("javascript", JavascriptWebAction.class);
         actionClasses.put("driver", DriverWebAction.class);
         actionClasses.put("state", StateWebAction.class);
+        actionClasses.put("window", WindowWebAction.class);
     }
 
+    private WebDriver driver = null;
+    private TestCommand testCommand = null;
+    private TestResult testResult = null;
+    private HttpProxyServer httpProxyServer = null;
+    private Program program = null;
+    private Test runningTest = null;
+    private IfTracker ifTracker = null;
+    private LoopTracker loopTracker = null;
+    private VariableTracker variableTracker = null;
+    private FunctionTracker functionTracker = null;
+    private StateTracker stateTracker = null;
+
     public WebAction() {
+    }
+
+    /**
+     * Gets the class mapping of action name to Class which manages that action.
+     *
+     * @param actionName Name of the action in the script being called.
+     * @return Class object of the class which handles that action.
+     */
+    public static Class getClassMapping(String actionName) {
+        return actionClasses.get(actionName);
     }
 
     /**
@@ -100,21 +116,23 @@ public abstract class WebAction implements Action {
      * @param testElement The {@link org.openqa.selenium.WebElement} we are taking the screenshot of.
      */
     public void takeScreenshotOfElement(TestStep testStep, WebElement testElement) {
-//        Dimension elementDimension = testElement.getSize();
-//        Point elementLocation = testElement.getLocation();
-//
-//        File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-//
-//        try {
-//            BufferedImage bufferedImage = ImageIO.read(scrFile);
-//            Graphics2D g = bufferedImage.createGraphics();
-//            g.setColor(java.awt.Color.RED);
-//            g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
-//
-//            testStep.setScreenshot(bufferedImage);
-//        } catch (IOException ex) {
-//            log.error(ex);
-//        }
+        if (AppParams.getRecordScreenshots()) {
+            Dimension elementDimension = testElement.getSize();
+            Point elementLocation = testElement.getLocation();
+
+            File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+
+            try {
+                BufferedImage bufferedImage = ImageIO.read(scrFile);
+                Graphics2D g = bufferedImage.createGraphics();
+                g.setColor(java.awt.Color.RED);
+                g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
+
+                testStep.setScreenshot(bufferedImage);
+            } catch (IOException ex) {
+                log.error(ex);
+            }
+        }
     }
 
     /**
@@ -158,6 +176,13 @@ public abstract class WebAction implements Action {
     }
 
     /**
+     * @param driver The {@link org.openqa.selenium.WebDriver} that will be used for this action.
+     */
+    public void setDriver(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /**
      * @return Gets the current {@link application.net.proxy.snoop.HttpProxyServer} that is handling these actions.
      */
     public HttpProxyServer getHttpProxyServer() {
@@ -174,6 +199,13 @@ public abstract class WebAction implements Action {
     }
 
     /**
+     * @param testCommand The {@link application.test.TestCommand} that will be used for this action.
+     */
+    public void setTestCommand(TestCommand testCommand) {
+        this.testCommand = testCommand;
+    }
+
+    /**
      * This exists for use by actions which extend this class.
      *
      * @return Gets {@link application.test.TestResult} for this action.
@@ -183,41 +215,17 @@ public abstract class WebAction implements Action {
     }
 
     /**
-     * @return Gets the program that is running this action.
-     */
-    public Program getProgram() {
-        return program;
-    }
-
-    /**
-     * Gets the class mapping of action name to Class which manages that action.
-     *
-     * @param actionName Name of the action in the script being called.
-     * @return Class object of the class which handles that action.
-     */
-    public static Class getClassMapping(String actionName) {
-        return actionClasses.get(actionName);
-    }
-
-    /**
-     * @param driver The {@link org.openqa.selenium.WebDriver} that will be used for this action.
-     */
-    public void setDriver(WebDriver driver) {
-        this.driver = driver;
-    }
-
-    /**
-     * @param testCommand The {@link application.test.TestCommand} that will be used for this action.
-     */
-    public void setTestCommand(TestCommand testCommand) {
-        this.testCommand = testCommand;
-    }
-
-    /**
      * @param testResult The {@link application.test.TestResult} that will hold the outcome of this action.
      */
     public void setTestResult(TestResult testResult) {
         this.testResult = testResult;
+    }
+
+    /**
+     * @return Gets the program that is running this action.
+     */
+    public Program getProgram() {
+        return program;
     }
 
     /**

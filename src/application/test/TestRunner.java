@@ -5,14 +5,24 @@ import application.net.proxy.snoop.HttpProxyServer;
 import application.node.objects.Test;
 import application.test.action.WebAction;
 import application.test.action.helpers.*;
+import application.utils.AppParams;
 import application.utils.BrowserHelper;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.SessionNotFoundException;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -191,15 +201,56 @@ public class TestRunner extends SDERunnable {
             httpProxyServer.close();
 
             // Doing something with the screenshots
-//            Integer counter = 1;
-//            for (TestStep testStep : testResultReloaded.getTestSteps()) {
-//                try {
-//                    ImageIO.write(testStep.getScreenshot(), "png", new File("C:\\Users\\alex\\Desktop\\TestStep" + testResultReloaded.getId() + "-" + counter + ".png"));
-//                } catch (IOException ex) {
-//                    log.error(ex);
-//                }
-//                counter++;
-//            }
+            if (testResult != null && AppParams.getCreateTestDocument()) {
+                try {
+                    XWPFDocument document = new XWPFDocument();
+                    //Write the Document in file system
+                    FileOutputStream out = new FileOutputStream(new File("C:\\Users\\alex\\Downloads\\" + testResult.getUuidString() + ".docx"));
+                    XWPFParagraph paragraph = document.createParagraph();
+                    XWPFRun run = paragraph.createRun();
+                    run.setText("Test begins");
+                    run.addBreak();
+                    for (TestStep testStep : testResult.getTestSteps()) {
+                        try {
+                            if (testStep.hasScreenshot()) {
+                                InputStream screenshotInputStream = testStep.getScreenshotInputStream();
+
+                                TestCommand stepCommand = testStep.getTestCommand();
+                                if (stepCommand != null) {
+                                    if ("click".equals(stepCommand.getMainCommand())) {
+                                        if (stepCommand.getParameterByName("id").exists()) {
+                                            run.setText("Click on " + stepCommand.getParameterByName("id").getParameterValue());
+                                        } else if (stepCommand.getParameterByName("xPath").exists()) {
+                                            run.setText("Click on " + stepCommand.getParameterByName("xPath").getParameterValue());
+                                        }
+                                    } else if ("input".equals(stepCommand.getMainCommand())) {
+                                        if (stepCommand.getParameterByName("value").exists()) {
+                                            run.setText("Input value '" + stepCommand.getParameterByName("value").getParameterValue() + "' into " + stepCommand.getParameterByName("id").getParameterValue());
+                                        } else if (stepCommand.getParameterByName("increaseBy").exists()) {
+                                            run.setText("Increase " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("increaseBy").getParameterValue() + "'");
+                                        } else if (stepCommand.getParameterByName("decreaseBy").exists()) {
+                                            run.setText("Decrease " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("decreaseBy").getParameterValue() + "'");
+                                        }
+                                    }
+                                }
+
+                                run.addPicture(screenshotInputStream, XWPFDocument.PICTURE_TYPE_PNG, null, Units.toEMU(16 * 30), Units.toEMU(10 * 30));
+                                run.addBreak();
+                                screenshotInputStream.close();
+                            }
+                        } catch (IOException ex) {
+                            log.error(ex);
+                        }
+                    }
+
+                    document.write(out);
+                    out.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                } catch (InvalidFormatException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
         status = TEST_FINISHED;
     }

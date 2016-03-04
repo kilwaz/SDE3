@@ -4,6 +4,7 @@ import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.UI;
 import application.gui.window.RequestInspectWindow;
+import application.net.proxy.GroupedRequests;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
 import javafx.application.Platform;
@@ -21,8 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RequestTrackerNode extends DrawableNode {
-    private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
     private static Logger log = Logger.getLogger(RequestTrackerNode.class);
+    private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
 
     // This will make a copy of the node passed to it
     public RequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -198,5 +199,11 @@ public class RequestTrackerNode extends DrawableNode {
 
     public ObservableList<RecordedRequest> getResultList() {
         return requestList;
+    }
+
+    public GroupedRequests getGroupedRequests() {
+        GroupedRequests recordedRequests = new GroupedRequests();
+        recordedRequests.addAll(requestList);
+        return recordedRequests;
     }
 }

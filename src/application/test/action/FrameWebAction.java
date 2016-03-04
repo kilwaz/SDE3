@@ -4,6 +4,7 @@ import application.error.Error;
 import application.test.TestParameter;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -34,18 +35,22 @@ public class FrameWebAction extends WebAction {
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.id(frameToSelectById.getParameterValue())));
             } catch (org.openqa.selenium.TimeoutException ex) {
-                Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id" + frameToSelectById.getParameterValue() + " element could not be located in time").create(ex);
+                Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id '" + frameToSelectById.getParameterValue() + "' element could not be located in time").create(ex);
             }
 
-            WebElement frameElement = getDriver().findElement(By.id(frameToSelectById.getParameterValue()));
-            if (frameElement != null) {
-                try {
-                    getDriver().switchTo().frame(frameElement);
-                } catch (NoSuchFrameException ex) {
-                    Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element is not a frame").create();
+            try {
+                WebElement frameElement = getDriver().findElement(By.id(frameToSelectById.getParameterValue()));
+                if (frameElement != null) {
+                    try {
+                        getDriver().switchTo().frame(frameElement);
+                    } catch (NoSuchFrameException ex) {
+                        Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element is not a frame").create();
+                    }
+                } else {
+                    Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element was null").create();
                 }
-            } else {
-                Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element was null").create();
+            } catch (NoSuchElementException ex) {
+                Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id '" + frameToSelectById.getParameterValue() + "' element could not be located").create(ex);
             }
         }
 

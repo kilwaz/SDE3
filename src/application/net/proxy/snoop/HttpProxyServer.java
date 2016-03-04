@@ -6,6 +6,7 @@ import application.net.proxy.WebProxyRequestManager;
 import application.node.implementations.RequestTrackerNode;
 import application.utils.SDERunnable;
 import application.utils.managers.ThreadManager;
+import com.sun.org.apache.xerces.internal.impl.PropertyManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -26,13 +27,17 @@ import java.util.concurrent.Callable;
 
 public final class HttpProxyServer extends SDERunnable {
     public final static boolean SSL = false;
+    public static final Integer STATUS_INACTIVE = -1;
+    public static final Integer STATUS_STARTING = 0;
+    public static final Integer STATUS_CONNECTED = 1;
+    public static final Integer STATUS_CLOSED = 2;
     static int PORT = 8080;
     private static Logger log = Logger.getLogger(HttpProxyServer.class);
+    private Integer status = STATUS_INACTIVE;
     private WebProxyRequestManager webProxyRequestManager = new WebProxyRequestManager();
     private int runningPort = 8080;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private Boolean connected = false;
 
     public HttpProxyServer() {
         WebProxyManager.getInstance().addConnection(this);
@@ -87,7 +92,7 @@ public final class HttpProxyServer extends SDERunnable {
     }
 
     public void threadRun() {
-        // Configure SSL.
+        status = STATUS_STARTING;
 
         // Configure the server
         bossGroup = new NioEventLoopGroup(1);
@@ -126,7 +131,7 @@ public final class HttpProxyServer extends SDERunnable {
             Channel ch = b.bind(runningPort).sync().channel();
             webProxyRequestManager.getRecordedProxy().setConnectionString("localhost:" + runningPort);
             webProxyRequestManager.getRecordedProxy().save();
-            connected = true;
+            status = STATUS_CONNECTED;
             ch.closeFuture().sync();
         } catch (InterruptedException | CertificateException | SSLException ex) {
             Error.START_HTTP_PROXY.record().create(ex);
@@ -137,7 +142,7 @@ public final class HttpProxyServer extends SDERunnable {
     }
 
     public void close() {
-        connected = false;
+        status = STATUS_CLOSED;
 
         if (bossGroup != null) {
             bossGroup.shutdownGracefully();
@@ -145,7 +150,9 @@ public final class HttpProxyServer extends SDERunnable {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
+
         ThreadManager.getInstance().removeInactiveThreads(); // Check to see if the thread has been removed
+        WebProxyManager.getInstance().removeInactiveProxies(); // Check to see if the proxy can be removed
     }
 
     public WebProxyRequestManager getWebProxyRequestManager() {
@@ -161,12 +168,14 @@ public final class HttpProxyServer extends SDERunnable {
     }
 
     public Callable<Boolean> nowConnected() {
-        return () -> {
-            return connected; // The condition that must be fulfilled
-        };
+        return this::isConnected;
     }
 
     public Boolean isConnected() {
-        return connected;
+        return status.equals(STATUS_CONNECTED);
+    }
+
+    public Integer getStatus() {
+        return status;
     }
 }

@@ -59,7 +59,7 @@ public class SelectWebAction extends WebAction {
                 }
             } else if (loopElement.exists()) {
                 WebElement loopedElement = null;
-                LoopedWebElement loopedWebElement = getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopWebElement();
+                LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
                 if (loopedWebElement != null) {
                     loopedElement = loopedWebElement.getWebElement(getDriver());
                 }

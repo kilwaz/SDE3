@@ -1,11 +1,11 @@
 package application.test.action;
 
-import application.data.DataBank;
 import application.test.TestParameter;
 import application.test.TestStep;
 import application.test.action.helpers.Loop;
-import application.test.action.helpers.LoopTracker;
+import application.test.action.helpers.LoopedObject;
 import application.test.action.helpers.LoopedWebElement;
+import application.test.action.helpers.LoopedWindowHandle;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 /**
  * This action starts and stops a loop section.
- *
+ * <p>
  * A loop will take a list and interate over it allowing each element to be accessed via the loop variable to be used
  * for other actions.
  */
@@ -30,7 +30,7 @@ public class LoopWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep  =  TestStep.create(TestStep.class);
+        TestStep testStep = TestStep.create(TestStep.class);
         testStep.setParentResult(getTestResult());
         getTestResult().addTestStep(testStep);
 
@@ -51,60 +51,74 @@ public class LoopWebAction extends WebAction {
                     newLoop.setLoopType("LoopCount");
                 } else if (loopList.exists()) {
                     TestParameter listTag = getTestCommand().getParameterByPath("list::tag");
+                    TestParameter listWindow = getTestCommand().getParameterByPath("list::window");
                     TestParameter listRootElementId = getTestCommand().getParameterByPath("id");
                     TestParameter listRootElementXPath = getTestCommand().getParameterByPath("xPath");
                     TestParameter loopElement = getTestCommand().getParameterByName("loop");
                     TestParameter directChildren = getTestCommand().getParameterByName("direct");
 
                     List<Element> elements = new ArrayList<>();
-                    if (listRootElementId.exists() || listRootElementXPath.exists() || loopElement.exists()) {
-                        String xPath = null;
+                    List<LoopedObject> loopedObjects = new ArrayList<>();
+                    if (listTag.exists()) {
+                        if (listRootElementId.exists() || listRootElementXPath.exists() || loopElement.exists()) {
+                            String xPath = null;
 
-                        if (listRootElementXPath.exists()) {
-                            xPath = listRootElementXPath.getParameterValue();
-                        } else if (listRootElementId.exists()) {
-                            xPath = "//*[@id=\"" + listRootElementId.getParameterValue() + "\"]";
-                        }
-
-                        Element listElement = null;
-                        if (loopElement.exists()) {
-                            Loop loop = getLoopTracker().getLoop(loopElement.getParameterValue());
-                            if (loop != null) {
-                                LoopedWebElement loopedWebElement = loop.getCurrentLoopWebElement();
-                                if (loopedWebElement != null) {
-                                    listElement = loopedWebElement.getElement();
-                                }
+                            if (listRootElementXPath.exists()) {
+                                xPath = listRootElementXPath.getParameterValue();
+                            } else if (listRootElementId.exists()) {
+                                xPath = "//*[@id=\"" + listRootElementId.getParameterValue() + "\"]";
                             }
-                            //log.info("Found elements via loop of " + listElement);
-                        } else {
-                            listElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
-                        }
 
-                        if (listElement != null) {
-                            if (directChildren.exists()) {
-                                // We only want direct children from this
-                                for (Element childElement : listElement.children()) {
-                                    if (childElement.tagName().equals(listTag.getParameterValue())) {
-                                        elements.add(childElement);
+                            Element listElement = null;
+                            if (loopElement.exists()) {
+                                Loop loop = getLoopTracker().getLoop(loopElement.getParameterValue());
+                                if (loop != null) {
+                                    LoopedWebElement loopedWebElement = (LoopedWebElement) loop.getCurrentLoopObject();
+                                    if (loopedWebElement != null) {
+                                        listElement = loopedWebElement.getElement();
                                     }
                                 }
+                                //log.info("Found elements via loop of " + listElement);
                             } else {
-                                elements = listElement.getElementsByTag(listTag.getParameterValue());
+                                listElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
                             }
 
-                            //elements = listElement.getElementsByTag(listTag.getParameterValue());
-                            //log.info("Found elements inside " + elements);
+                            if (listElement != null) {
+                                if (directChildren.exists()) {
+                                    // We only want direct children from this
+                                    for (Element childElement : listElement.children()) {
+                                        if (childElement.tagName().equals(listTag.getParameterValue())) {
+                                            elements.add(childElement);
+                                        }
+                                    }
+                                } else {
+                                    elements = listElement.getElementsByTag(listTag.getParameterValue());
+                                }
+
+                                //elements = listElement.getElementsByTag(listTag.getParameterValue());
+                                //log.info("Found elements inside " + elements);
+                            }
+
+                            // Add the looped elements to a handling wrapper
+                            loopedObjects = elements.stream().map(LoopedWebElement::new).collect(Collectors.toList());
+                        } else {
+                            elements = getCurrentDocument().getElementsByTag(listTag.getParameterValue());
+
+                            // Add the looped elements to a handling wrapper
+                            loopedObjects = elements.stream().map(LoopedWebElement::new).collect(Collectors.toList());
                         }
-                    } else {
-                        elements = getCurrentDocument().getElementsByTag(listTag.getParameterValue());
                     }
 
-                    // Add the looped elements to a handling wrapper
-                    List<LoopedWebElement> loopedElements = elements.stream().map(LoopedWebElement::new).collect(Collectors.toList());
+                    // Get all current windows handles, to loop through them
+                    if (listWindow.exists()) {
+                        for (String handle : getDriver().getWindowHandles()) {
+                            loopedObjects.add(new LoopedWindowHandle(handle));
+                        }
+                    }
 
-                    newLoop.setLoopElements(loopedElements);
-                    newLoop.setLoopUntil(elements.size());
-                    if (elements.size() == 0) {
+                    newLoop.setLoopElements(loopedObjects);
+                    newLoop.setLoopUntil(loopedObjects.size());
+                    if (loopedObjects.size() == 0) {
                         newLoop.setCurrentLoopCount(0);
                     } else {
                         newLoop.setCurrentLoopCount(1);

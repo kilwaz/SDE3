@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class RecordedRequest extends DatabaseObject {
+    private static Logger log = Logger.getLogger(RecordedRequest.class);
     private String URL = "";
     private Integer duration = -1;
     private Integer requestSize = -1;
@@ -23,8 +24,6 @@ public class RecordedRequest extends DatabaseObject {
     private HashMap<String, RecordedHeader> requestHeaders = new HashMap<>();
     private HashMap<String, RecordedHeader> responseHeaders = new HashMap<>();
 
-    private static Logger log = Logger.getLogger(RecordedRequest.class);
-
     public RecordedRequest() {
         super();
     }
@@ -33,16 +32,40 @@ public class RecordedRequest extends DatabaseObject {
         return URL;
     }
 
+    public void setURL(String URL) {
+        this.URL = URL;
+    }
+
+    public String getBaseURL() {
+        if (URL.contains("?")) {
+            return URL.substring(0, URL.indexOf("?"));
+        } else {
+            return URL;
+        }
+    }
+
     public Integer getDuration() {
         return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
     }
 
     public Integer getRequestSize() {
         return requestSize;
     }
 
+    public void setRequestSize(Integer requestSize) {
+        this.requestSize = requestSize;
+    }
+
     public Integer getResponseSize() {
         return responseSize;
+    }
+
+    public void setResponseSize(Integer responseSize) {
+        this.responseSize = responseSize;
     }
 
     public String getRequest() {
@@ -50,6 +73,18 @@ public class RecordedRequest extends DatabaseObject {
             DataBank.loadLazyRequest(this);
         }
         return request;
+    }
+
+    public void setRequest(InputStream inputStream) {
+
+    }
+
+    public void setRequest(String request) {
+        if (request == null) {
+            this.request = "";
+        } else {
+            this.request = request;
+        }
     }
 
     public void addRecordedHeader(RecordedHeader recordedHeader) {
@@ -80,10 +115,6 @@ public class RecordedRequest extends DatabaseObject {
         responseHeaders.put(responseHeader.getName(), responseHeader);
     }
 
-    public void setRequest(InputStream inputStream) {
-
-    }
-
     public void setResponse(InputStream inputStream) {
 
     }
@@ -98,6 +129,10 @@ public class RecordedRequest extends DatabaseObject {
         }
 
         return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
     }
 
     public DateTime getResponseDateTimeFromHeaders() {
@@ -121,36 +156,12 @@ public class RecordedRequest extends DatabaseObject {
         return null;
     }
 
-    public void setURL(String URL) {
-        this.URL = URL;
-    }
-
-    public void setDuration(Integer duration) {
-        this.duration = duration;
-    }
-
-    public void setRequestSize(Integer requestSize) {
-        this.requestSize = requestSize;
-    }
-
-    public void setResponseSize(Integer responseSize) {
-        this.responseSize = responseSize;
-    }
-
     public RecordedProxy getParentHttpProxy() {
         return parentHttpProxy;
     }
 
-    public void setResponse(String response) {
-        this.response = response;
-    }
-
-    public void setRequest(String request) {
-        if (request == null) {
-            this.request = "";
-        } else {
-            this.request = request;
-        }
+    public void setParentHttpProxy(RecordedProxy parentHttpProxy) {
+        this.parentHttpProxy = parentHttpProxy;
     }
 
     public HashMap<String, RecordedHeader> getRequestHeaders() {
@@ -159,10 +170,6 @@ public class RecordedRequest extends DatabaseObject {
 
     public HashMap<String, RecordedHeader> getResponseHeaders() {
         return responseHeaders;
-    }
-
-    public void setParentHttpProxy(RecordedProxy parentHttpProxy) {
-        this.parentHttpProxy = parentHttpProxy;
     }
 
     public String getProxyConnectionString() {

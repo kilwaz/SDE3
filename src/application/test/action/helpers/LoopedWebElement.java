@@ -7,7 +7,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public class LoopedWebElement {
+public class LoopedWebElement extends LoopedObject {
     private Element element = null;
     private String xPath = "";
 

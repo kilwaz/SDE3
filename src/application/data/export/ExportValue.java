@@ -3,9 +3,8 @@ package application.data.export;
 import org.apache.log4j.Logger;
 
 public class ExportValue extends ExportCell {
-    private Object dataValue;
-
     private static Logger log = Logger.getLogger(ExportValue.class);
+    private Object dataValue;
 
     public ExportValue(Object dataValue, Integer rowPosition, Integer columnPosition) {
         super(rowPosition, columnPosition);
