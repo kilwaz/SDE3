@@ -148,7 +148,7 @@ public class ImportNodes extends SDERunnable {
                         }
                     } else if ("IsStartNode".equals(nodeTopElements.getTagName())) {
                         program.setStartNode(importedNode);
-                    } else if ("Inputs".equals(nodeTopElements.getTagName())) {
+                    } else if ("TestInputs".equals(nodeTopElements.getTagName())) {
                         NodeList inputNodesList = nodeTopElements.getChildNodes();
                         InputNode inputNode = (InputNode) importedNode;
                         for (Integer inputsCount = 0; inputsCount < inputNodesList.getLength(); inputsCount++) {

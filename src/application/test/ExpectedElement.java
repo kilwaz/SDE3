@@ -11,6 +11,8 @@ public class ExpectedElement {
     private String before = "";
     private String after = "";
     private Double increasedBy = null;
+    private Boolean matched = false;
+    private ChangedElement matchedElement = null;
 
     public static ExpectedElement define() {
         return new ExpectedElement();
@@ -51,15 +53,25 @@ public class ExpectedElement {
         return this;
     }
 
-    public ExpectedElement increasedBy(String increasedBy){
+    public ExpectedElement increasedBy(String increasedBy) {
         try {
             this.increasedBy = Double.parseDouble(increasedBy.replaceAll("[^\\d.]", ""));
-        } catch (NumberFormatException ex){
+        } catch (NumberFormatException ex) {
             //  Guess we don't really care about this
             Error.PARSE_DOUBLE_FAILED.record().create(ex);
             this.increasedBy = 0d;
         }
 
+        return this;
+    }
+
+    public ExpectedElement matched(Boolean result) {
+        this.matched = result;
+        return this;
+    }
+
+    public ExpectedElement changedElement(ChangedElement matchedElement) {
+        this.matchedElement = matchedElement;
         return this;
     }
 
@@ -85,5 +97,13 @@ public class ExpectedElement {
 
     public Double getIncreasedBy() {
         return increasedBy;
+    }
+
+    public Boolean getMatched() {
+        return matched;
+    }
+
+    public ChangedElement getMatchedElement() {
+        return matchedElement;
     }
 }

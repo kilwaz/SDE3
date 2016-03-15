@@ -24,71 +24,12 @@ public class CompileCode {
         counter++;
         String flowControllerReferenceId = "[Unloaded FlowController]";
         try {
-            flowControllerReferenceId = logic.getParentLogicNode().getProgram().getFlowController().getReferenceID();
-            String logicReferenceUuid = logic.getParentLogicNode().getUuidString();
-            String logicString = "package programs;" +
-                    "import application.utils.*;" +
-                    "import application.utils.managers.*;" +
-                    "import application.data.*;" +
-                    "import application.data.export.*;" +
-                    "import application.data.chart.*;" +
-                    "import java.util.*;" +
-                    "import org.openqa.selenium.*;" +
-                    "import org.openqa.selenium.support.ui.*;" +
-                    "import application.gui.*;" +
-                    "import application.test.*;" +
-                    "import application.net.ssh.*;" +
-                    "import application.error.Error;" +
-                    "import application.net.proxy.*;" +
-                    "import application.node.implementations.*;" +
-                    "import application.node.design.*;" +
-                    "import application.node.objects.*;" +
-                    "import application.node.objects.datatable.*;" +
-                    "import application.net.proxy.*;" +
-                    "import org.apache.log4j.Logger;" +
-                    "public class " + className + " extends SDERunnable {" +
-                    "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
-                    "   private String logicReferenceUuid = \"" + logicReferenceUuid + "\";" +
-                    "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
-                    "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getUuidStringWithoutHyphen() + ")\");" +
-                    "   " + logic.getLogic() + "" +
-                    "   public void threadRun() {" +
-                    "      try {" +
-                    "           FlowController.sourceStarted(this.logicReferenceUuid);" +
-                    "           function();" +
-                    "           FlowController.sourceFinished(this.logicReferenceUuid);" +
-                    "      } catch (Exception ex) {" +
-                    "           Error.COMPILED_LOGIC_NODE.record().additionalInformation(\"Node - " + logic.getParentLogicNode().getContainedText() + " (" + className + ")\").create(ex);" +
-                    "      }" +
-                    "   }" +
-                    "   public void init(NodeRunParams nodeRunParams) {" +
-                    "      this.nodeRunParams = new NodeRunParams(nodeRunParams);" +
-                    "   }" +
-                    "   private void save(String name, Object object) {" +
-                    "      DataBank.saveVariable(name, object, this.flowControllerReferenceId);" +
-                    "   }" +
-                    "   private Object load(String name) {" +
-                    "      return DataBank.loadVariable(name, this.flowControllerReferenceId);" +
-                    "   }" +
-                    "   private void run(String name) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams());" +
-                    "   }" +
-                    "   private SSHManager ssh(String connection, String username, String password, String consoleName) {" +
-                    "      return SDEUtils.openSSHSession(connection,username,password,consoleName,this.flowControllerReferenceId);" +
-                    "   }" +
-                    "   private void run(String name, NodeRunParams nodeRunParams) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams(nodeRunParams));" +
-                    "   }" +
-                    "   private void runAndWait(String name) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams());" +
-                    "   }" +
-                    "   private void runAndWait(String name, NodeRunParams nodeRunParams) {" +
-                    "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams(nodeRunParams));" +
-                    "   }" +
-                    "   private DrawableNode getNode(String name) {" +
-                    "      return FlowController.getFlowControllerFromReference(this.flowControllerReferenceId).getNodeThisControllerFromContainedText(name);" +
-                    "   }" +
-                    "}";
+            String logicString = "";
+            if (logic.getType().equals(Logic.TEST_NODE_LOGIC)) {
+                logicString = getLogicNodeCode(logic, className);
+            } else if (logic.getType().equals(Logic.TEST_CASE_NODE_LOGIC)) {
+                logicString = getTestCaseNodeCode(logic, className);
+            }
 
             String userHome = System.getProperty("user.home");
 
@@ -156,5 +97,135 @@ public class CompileCode {
 
         // Returning null classname means that the compile did not succeed.
         return className;
+    }
+
+    private static String getTestCaseNodeCode(Logic logic, String className) {
+        String flowControllerReferenceId = logic.getParentLogicNode().getProgram().getFlowController().getReferenceID();
+        String logicReferenceUuid = logic.getParentLogicNode().getUuidString();
+        String logicSource = logic.getLogic();
+
+        if (!logicSource.contains("// METHOD ANNOTATIONS")) {
+            Error.TEST_CASE_METHOD_ANNOTATIONS_NOT_FOUND.record().create();
+            return "";
+        }
+
+        String classAnnotations = logicSource.substring(0, logicSource.indexOf("// METHOD ANNOTATIONS"));
+        String methodAnnotations = logicSource.substring(logicSource.indexOf("// METHOD ANNOTATIONS"));
+        return "package programs;" +
+                "import application.utils.*;" +
+                "import application.utils.managers.*;" +
+                "import application.data.*;" +
+                "import application.data.export.*;" +
+                "import application.data.chart.*;" +
+                "import java.util.*;" +
+                "import application.gui.*;" +
+                "import application.test.*;" +
+                "import application.test.core.*;" +
+                "import application.test.annotation.*;" +
+                "import application.error.Error;" +
+                "import application.net.proxy.*;" +
+                "import application.node.implementations.*;" +
+                "import application.node.design.*;" +
+                "import application.node.objects.*;" +
+                "import application.node.objects.datatable.*;" +
+                "import application.net.proxy.*;" +
+                "import org.jsoup.Jsoup;" +
+                "import org.jsoup.nodes.*;" +
+                "import org.apache.log4j.Logger;" +
+                "@SuppressWarnings(\"unchecked\")" +
+                classAnnotations + "\r\n" +
+                "public class " + className + " extends TestCase {" +
+                "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
+                "   private String logicReferenceUuid = \"" + logicReferenceUuid + "\";" +
+                "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
+                "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getUuidStringWithoutHyphen() + ")\");" +
+                "   @SuppressWarnings({\"unchecked\",\"deprecation\"})" +
+                "   public " + className + "() {" +
+                "        super(" + className + ".class);" +
+                "    }" +
+                "   " + methodAnnotations + "\r\n" +
+                "   private void run(String name) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams());" +
+                "   }" +
+                "   private void run(String name, NodeRunParams nodeRunParams) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams(nodeRunParams));" +
+                "   }" +
+                "   private void runAndWait(String name) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams());" +
+                "   }" +
+                "   private void runAndWait(String name, NodeRunParams nodeRunParams) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams(nodeRunParams));" +
+                "   }" +
+                "   private DrawableNode getNode(String name) {" +
+                "      return FlowController.getFlowControllerFromReference(this.flowControllerReferenceId).getNodeThisControllerFromContainedText(name);" +
+                "   }" +
+                "}";
+    }
+
+    private static String getLogicNodeCode(Logic logic, String className) {
+        String flowControllerReferenceId = logic.getParentLogicNode().getProgram().getFlowController().getReferenceID();
+        String logicReferenceUuid = logic.getParentLogicNode().getUuidString();
+        return "package programs;" +
+                "import application.utils.*;" +
+                "import application.utils.managers.*;" +
+                "import application.data.*;" +
+                "import application.data.export.*;" +
+                "import application.data.chart.*;" +
+                "import java.util.*;" +
+                "import org.openqa.selenium.*;" +
+                "import org.openqa.selenium.support.ui.*;" +
+                "import application.gui.*;" +
+                "import application.test.*;" +
+                "import application.test.core.*;" +
+                "import application.test.annotation.*;" +
+                "import application.error.Error;" +
+                "import application.net.proxy.*;" +
+                "import application.node.implementations.*;" +
+                "import application.node.design.*;" +
+                "import application.node.objects.*;" +
+                "import application.node.objects.datatable.*;" +
+                "import application.net.proxy.*;" +
+                "import org.apache.log4j.Logger;" +
+                "@SuppressWarnings(\"unchecked\")" +
+                "public class " + className + " extends SDERunnable {" +
+                "   private String flowControllerReferenceId = \"" + flowControllerReferenceId + "\";" +
+                "   private String logicReferenceUuid = \"" + logicReferenceUuid + "\";" +
+                "   private NodeRunParams nodeRunParams = new NodeRunParams();" +
+                "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getUuidStringWithoutHyphen() + ")\");" +
+                "   " + logic.getLogic() + "\r\n" +
+                "   public void threadRun() {" +
+                "      try {" +
+                "           FlowController.sourceStarted(this.logicReferenceUuid);" +
+                "           function();" +
+                "           FlowController.sourceFinished(this.logicReferenceUuid);" +
+                "      } catch (Exception ex) {" +
+                "           Error.COMPILED_LOGIC_NODE.record().additionalInformation(\"Node - " + logic.getParentLogicNode().getContainedText() + " (" + className + ")\").create(ex);" +
+                "      }" +
+                "   }" +
+                "   public void init(NodeRunParams nodeRunParams) {" +
+                "      this.nodeRunParams = new NodeRunParams(nodeRunParams);" +
+                "   }" +
+                "   private void save(String name, Object object) {" +
+                "      DataBank.saveVariable(name, object, this.flowControllerReferenceId);" +
+                "   }" +
+                "   private Object load(String name) {" +
+                "      return DataBank.loadVariable(name, this.flowControllerReferenceId);" +
+                "   }" +
+                "   private void run(String name) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams());" +
+                "   }" +
+                "   private void run(String name, NodeRunParams nodeRunParams) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, false, false, new NodeRunParams(nodeRunParams));" +
+                "   }" +
+                "   private void runAndWait(String name) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams());" +
+                "   }" +
+                "   private void runAndWait(String name, NodeRunParams nodeRunParams) {" +
+                "      Program.runHelper(name, this.flowControllerReferenceId, null, true, false, new NodeRunParams(nodeRunParams));" +
+                "   }" +
+                "   private DrawableNode getNode(String name) {" +
+                "      return FlowController.getFlowControllerFromReference(this.flowControllerReferenceId).getNodeThisControllerFromContainedText(name);" +
+                "   }" +
+                "}";
     }
 }

@@ -99,7 +99,7 @@ public class DrawableNodeXML implements XML {
                 }
             } else if (drawableNode instanceof InputNode) {
                 InputNode inputNode = (InputNode) drawableNode;
-                Element inputElement = document.createElement("Inputs");
+                Element inputElement = document.createElement("TestInputs");
                 for (Input input : inputNode.getInputs()) {
                     InputXML inputXML = new InputXML(input);
                     inputElement.appendChild(inputXML.getXMLRepresentation(document));

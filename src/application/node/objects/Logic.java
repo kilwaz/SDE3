@@ -2,6 +2,7 @@ package application.node.objects;
 
 import application.error.Error;
 import application.gui.Program;
+import application.node.design.DrawableNode;
 import application.node.implementations.LogicNode;
 import application.utils.CompileCode;
 import application.utils.NodeRunParams;
@@ -15,30 +16,38 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.UUID;
 
 public class Logic {
+    public static final Integer UNKNOWN_LOGIC = -1;
+    public static final Integer TEST_NODE_LOGIC = 0;
+    public static final Integer TEST_CASE_NODE_LOGIC = 1;
     private static Logger log = Logger.getLogger(Logic.class);
     private Boolean compiled = false;
     private String logic;
     private Object compiledInstance;
-    private LogicNode parentLogicNode;
+    private DrawableNode parentLogicNode;
     private String compiledClassName = "UNKNOWN";
+    private Integer type = UNKNOWN_LOGIC;
 
-    public Logic(LogicNode parentLogicNode) {
+    public Logic(DrawableNode parentLogicNode) {
         this.parentLogicNode = parentLogicNode;
-        this.logic = "public void function() {\n" +
-                "   log.info(\"Sample code\");\n" +
-                "}";
+        if (parentLogicNode instanceof LogicNode) {
+            this.logic = "public void function() {\n" +
+                    "   log.info(\"Sample code\");\n" +
+                    "}";
+            this.type = TEST_NODE_LOGIC;
+        } else {
+            this.logic = "Other stuff in here i guess";
+            this.type = TEST_CASE_NODE_LOGIC;
+        }
     }
 
-    public Logic(LogicNode parentLogicNode, String logic, UUID uuid) {
+    public Logic(DrawableNode parentLogicNode, String logic) {
         this.parentLogicNode = parentLogicNode;
         this.logic = logic;
-        //this.uuid = uuid;
     }
 
-    public LogicNode getParentLogicNode() {
+    public DrawableNode getParentLogicNode() {
         return this.parentLogicNode;
     }
 
@@ -65,14 +74,6 @@ public class Logic {
         return parentLogicNode.getUuidStringWithoutHyphen();
     }
 
-//    public UUID getUuid() {
-//        return uuid;
-//    }
-//
-//    public void setUuid(UUID uuid) {
-//        this.uuid = uuid;
-//    }
-
     public Boolean isCompiled() {
         return this.compiled;
     }
@@ -94,23 +95,9 @@ public class Logic {
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        if (!this.compiled) {
-            compile();
-        }
-        if (this.compiled) {
-            Object instance = null;
-            try {
-                String userHome = System.getProperty("user.home");
-                File root = new File(userHome, "/SDE");
-
-                URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{root.toURI().toURL()});
-                Class<?> cls = Class.forName("programs." + compiledClassName, true, classLoader);
-                instance = cls.newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | MalformedURLException ex) {
-                Error.RUN_LOGIC_NODE_NEW_INSTANCE.record().additionalInformation("Class" + compiledClassName).create(ex);
-            }
-
-            if (instance != null) {
+        Object instance = getObjectInstance();
+        if (instance != null) {
+            if (type.equals(TEST_NODE_LOGIC)) {
                 Method method;
                 try {
                     method = instance.getClass().getMethod("init", NodeRunParams.class);
@@ -125,7 +112,31 @@ public class Logic {
                     sdeThread.join();
                     log.info("THREADING:Logic '" + sdeThread.getDescription() + "' has finished");
                 }
+            } else if (type.equals(TEST_CASE_NODE_LOGIC)) {
+
             }
         }
+    }
+
+    public Object getObjectInstance() {
+        if (!this.compiled) {
+            compile();
+        }
+        Object instance = null;
+        try {
+            String userHome = System.getProperty("user.home");
+            File root = new File(userHome, "/SDE");
+
+            URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{root.toURI().toURL()});
+            Class<?> cls = Class.forName("programs." + compiledClassName, true, classLoader);
+            instance = cls.newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | MalformedURLException ex) {
+            Error.RUN_LOGIC_NODE_NEW_INSTANCE.record().additionalInformation("Class" + compiledClassName).create(ex);
+        }
+        return instance;
+    }
+
+    public Integer getType() {
+        return type;
     }
 }

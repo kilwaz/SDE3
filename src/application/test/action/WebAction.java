@@ -30,7 +30,7 @@ import java.util.HashMap;
 public abstract class WebAction implements Action {
     private static Document currentDocument = null;
     private static Logger log = Logger.getLogger(WebAction.class);
-    // This is used as a reference to match up action names used within the TestNode to the class name which will handle the action
+    // This is used as a reference to match up action names used within the TestNodes to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
 
     /**

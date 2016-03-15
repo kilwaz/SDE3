@@ -19,7 +19,7 @@ public class SwitchXML implements XML {
 
     @Override
     public Element getXMLRepresentation(Document document) {
-        Element switchElement = document.createElement("Input");
+        Element switchElement = document.createElement("TestInput");
 
         Element targetElement = document.createElement("Target");
         targetElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(aSwitch.getTarget())));

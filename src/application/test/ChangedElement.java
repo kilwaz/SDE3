@@ -1,10 +1,10 @@
 package application.test;
 
+import application.error.Error;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
-import application.error.Error;
 
 import java.util.Optional;
 
@@ -120,43 +120,45 @@ public class ChangedElement {
         Boolean matchedIncreasedBy = false;
 
         if (getInitialRef().equals(expectedElement.getElementReference())) {
-            log.info("Reference Matched: " + getInitialRef() + " matched " + expectedElement.getElementReference());
+            //log.info("Reference Matched: " + getInitialRef() + " matched " + expectedElement.getElementReference());
             matchedReference = true;
         }
         if (getInitialValue().equals(expectedElement.getBefore())) {
-            log.info("Initial value Matched: " + getInitialValue() + " matched " + expectedElement.getBefore());
+            //log.info("Initial value Matched: " + getInitialValue() + " matched " + expectedElement.getBefore());
             matchedBefore = true;
         }
         if (getFinalValue().equals(expectedElement.getAfter())) {
-            log.info("Final value Matched: " + getFinalValue() + " matched " + expectedElement.getAfter());
+            //log.info("Final value Matched: " + getFinalValue() + " matched " + expectedElement.getAfter());
             matchedAfter = true;
         }
         if (getChangeType().equals(expectedElement.getChangeType())) {
-            log.info("Change type Matched: " + getChangeType() + " matched " + expectedElement.getChangeType());
+            //log.info("Change type Matched: " + getChangeType() + " matched " + expectedElement.getChangeType());
             matchedType = true;
         }
-        if (getAttributeName().equals(expectedElement.getAttribute())) {
-            log.info("Attribute name Matched: " + getAttributeName() + " matched " + expectedElement.getAttribute());
+        if (getAttributeName() != null && getAttributeName().equals(expectedElement.getAttribute())) {
+            //log.info("Attribute name Matched: " + getAttributeName() + " matched " + expectedElement.getAttribute());
             matchedAttribute = true;
         }
-        if(expectedElement.getIncreasedBy() != null){
+        if (expectedElement.getIncreasedBy() != null) {
             try {
                 String beforeStr = getInitialValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
                 String afterStr = getFinalValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
-                Double beforeDouble = Double.parseDouble(beforeStr);
-                Double afterDouble = Double.parseDouble(afterStr);
+                Double beforeDouble = beforeStr.isEmpty() ? 0d : Double.parseDouble(beforeStr);
+                Double afterDouble = afterStr.isEmpty() ? 0d : Double.parseDouble(afterStr);
                 //log.info("Comparing numbers " + beforeDouble + " to " + afterDouble);
-                if(afterDouble - beforeDouble == expectedElement.getIncreasedBy()){
-                    log.info("Increased by Matched: " + getAttributeName() + " matched " + expectedElement.getIncreasedBy());
+                if (afterDouble - beforeDouble == expectedElement.getIncreasedBy()) {
+                    //log.info("Increased by Matched: " + getAttributeName() + " matched " + expectedElement.getIncreasedBy());
                     matchedIncreasedBy = true;
                 }
-            } catch (NumberFormatException ex){
-                Error.PARSE_DOUBLE_FAILED.record().create(ex);
+            } catch (NumberFormatException ex) {
+                Error.PARSE_DOUBLE_FAILED.record().additionalInformation(getInitialValue() + " / " + getFinalValue()).create(ex);
                 //log.info("Can't parse '" + getInitialValue() + "' or '" + getFinalValue() + "'");
             }
         }
 
-        return matchedReference && ((matchedBefore && matchedAfter) || matchedIncreasedBy) && matchedType && matchedAttribute;
+        Boolean result = matchedReference && ((matchedBefore && matchedAfter) || matchedIncreasedBy) && matchedType && matchedAttribute;
+        expectedElement.matched(result);
+        return result;
     }
 
     public String getAttributeName() {

@@ -17,12 +17,15 @@ import org.openqa.selenium.WebElement;
 import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SDEUtils {
     private static Logger log = Logger.getLogger(SDEUtils.class);
+    private static String knownHosts;
 
     static {
         try {
@@ -31,8 +34,6 @@ public class SDEUtils {
             Error.KNOWN_HOSTS.record().create(ex);
         }
     }
-
-    private static String knownHosts;
 
     // This is called from LogicNode code when creating a new SSH connection.
     public static SSHManager openSSHSession(String connection, String username, String password, String nodeName, String flowControllerReferenceId) {
@@ -254,5 +255,13 @@ public class SDEUtils {
 
     public static void zipDirectory(String directoryPath, String zipFileLocation) {
         ZipUtil.pack(new File(directoryPath), new File(zipFileLocation));
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }

@@ -6,7 +6,7 @@ public class AppParams {
     public final static String CHROME_DIRECTORY = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe";
     public final static String IE_DIRECTORY = "C:\\Program Files\\Internet Explorer\\iexplore.exe\"";
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "V0.4.4.11";
+    public final static String APP_VERSION = "V0.4.4.13";
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";
     // Database for application - Defaults are displayed here and are overridden by the SDE.xml file

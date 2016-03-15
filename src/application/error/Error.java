@@ -114,7 +114,15 @@ public enum Error {
     HTTP_TIMEOUT(109, "Http connection has timed out"),
     HTTP_UNKNOWN_HOST(110, "Unknown host for connection"),
     SELENIUM_FAILED_TO_CLOSE_WINDOW(111, "Failed to close browser window"),
-    PARSE_DOUBLE_FAILED(112, "Failed to parse Double");
+    PARSE_DOUBLE_FAILED(112, "Failed to parse Double"),
+    PROXY_INTERNAL_SERVER_ERROR(113, "500 returned from request"),
+    PROXY_REQUEST_NOT_FOUND(114, "404 returned from request"),
+    TEST_ANNOTATION_MISSING(115, "Annotation is missing"),
+    TEST_CASE_NO_PROGRAM_SET(116, "The test case is not yet assigned to a program and needs a parent node set before it can be built"),
+    TEST_CASE_NODE_TYPE_MISMATCH(117, "A named node is not the type expected"),
+    TEST_CASE_CAN_FIND_NODE(118, "A named node cannot be found within the program"),
+    TEST_CASE_METHOD_ANNOTATIONS_NOT_FOUND(119, "Method annotations cannot be found, make sure '// METHOD ANNOTATIONS' is in the correct place and present"),
+    WEB_DRIVER_EXCEPTION(120, "Web Driver experiences an unexpected problem");
 
     private Integer code;
     private String description;

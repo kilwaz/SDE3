@@ -20,10 +20,10 @@ import java.util.List;
 public class PageStateCapture {
     private String elementFrame;
     private String rawSource;
-    private HashMap<String, String> selectValues = new HashMap<String, String>();
+    private HashMap<String, String> selectValues = new HashMap<>();
     private Document doc;
     private Elements allElements;
-    private HashMap<String, Element> allElementsMap = new HashMap<String, Element>();
+    private HashMap<String, Element> allElementsMap = new HashMap<>();
     private String stateName = "";
 
     public PageStateCapture(String elementFrame, String stateName) {
@@ -81,10 +81,10 @@ public class PageStateCapture {
     public ChangedElements compare(PageStateCapture pageStateCapture) {
         ChangedElements changedElements = new ChangedElements();
 
-        List<Element> textElementChanges = new ArrayList<Element>();
-        List<Element> textElementChanges2 = new ArrayList<Element>();
-        List<Element> textElementChangesFinal = new ArrayList<Element>();
-        List<Element> textElementChangesFinal2 = new ArrayList<Element>();
+        List<Element> textElementChanges = new ArrayList<>();
+        List<Element> textElementChanges2 = new ArrayList<>();
+        List<Element> textElementChangesFinal = new ArrayList<>();
+        List<Element> textElementChangesFinal2 = new ArrayList<>();
 
         HashMap<String, Element> compareAllElementsMap = pageStateCapture.getAllElementsMap();
         HashMap<String, String> compareSelectValues = pageStateCapture.getSelectValues();
@@ -170,5 +170,9 @@ public class PageStateCapture {
 
     public String getStateName() {
         return stateName;
+    }
+
+    public Document getDocument() {
+        return doc;
     }
 }

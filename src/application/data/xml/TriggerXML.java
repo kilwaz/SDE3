@@ -20,7 +20,7 @@ public class TriggerXML implements XML {
     @Override
     public Element getXMLRepresentation(Document document) {
         // Create a new element to save all inputs inside
-        Element triggerElement = document.createElement("Input");
+        Element triggerElement = document.createElement("TestInput");
 
         Element watchElement = document.createElement("Watch");
         watchElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(trigger.getWatch())));

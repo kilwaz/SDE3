@@ -6,10 +6,7 @@ import application.net.proxy.WebProxyRequestManager;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,6 +51,7 @@ public class StandaloneHTTPRequest {
     private Integer currentRetryCount = 0;
     private Integer maximumRetryCount = 2;
     private static final String notFoundResponse = "HTTP/1.0 404 Not Found";
+    private static final String internalErrorResponse = "HTTP/1.0 500 Internal Server Error";
 
     /**
      * Set the URL of the request.
@@ -240,15 +238,19 @@ public class StandaloneHTTPRequest {
                     is.close();
                 }
 
-                tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
+                tmpOut.close();
 
                 byte[] array = tmpOut.toByteArray();
                 response = ByteBuffer.wrap(array);
             } catch (FileNotFoundException | MalformedURLException ex) { // 404
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
+                Error.PROXY_REQUEST_NOT_FOUND.record().additionalInformation("URL: " + url).create(ex);
             } catch (SSLException ex) { // SSL Exception
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
                 Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
+            } catch (IOException ex) { // 500
+                response = ByteBuffer.wrap(internalErrorResponse.getBytes());
+                Error.PROXY_INTERNAL_SERVER_ERROR.record().additionalInformation("URL: " + url).create(ex);
             }
 
             webProxyRequest.instantCompleteServerToProxy();

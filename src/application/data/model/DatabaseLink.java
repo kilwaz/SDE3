@@ -69,6 +69,7 @@ public class DatabaseLink {
         linkClasses.put(LogicNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(RequestTrackerNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(SwitchNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(TestCaseNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TestNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TestResultNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TimerNode.class, DrawableNodeDatabaseLink.class);

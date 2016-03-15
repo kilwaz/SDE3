@@ -17,6 +17,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.SessionNotFoundException;
 
 import java.io.File;
@@ -178,6 +179,8 @@ public class TestRunner extends SDERunnable {
                                 webAction.performAction();
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                                 application.error.Error.TEST_NODE_ACTION.record().create(ex);
+                            } catch (WebDriverException ex) {
+                                application.error.Error.WEB_DRIVER_EXCEPTION.record().create(ex);
                             }
                         } else {
                             test.setContinueTest(false);
@@ -201,56 +204,56 @@ public class TestRunner extends SDERunnable {
             httpProxyServer.close();
 
             // Doing something with the screenshots
-            if (testResult != null && AppParams.getCreateTestDocument()) {
-                try {
-                    XWPFDocument document = new XWPFDocument();
-                    //Write the Document in file system
-                    FileOutputStream out = new FileOutputStream(new File("C:\\Users\\alex\\Downloads\\" + testResult.getUuidString() + ".docx"));
-                    XWPFParagraph paragraph = document.createParagraph();
-                    XWPFRun run = paragraph.createRun();
-                    run.setText("Test begins");
-                    run.addBreak();
-                    for (TestStep testStep : testResult.getTestSteps()) {
-                        try {
-                            if (testStep.hasScreenshot()) {
-                                InputStream screenshotInputStream = testStep.getScreenshotInputStream();
-
-                                TestCommand stepCommand = testStep.getTestCommand();
-                                if (stepCommand != null) {
-                                    if ("click".equals(stepCommand.getMainCommand())) {
-                                        if (stepCommand.getParameterByName("id").exists()) {
-                                            run.setText("Click on " + stepCommand.getParameterByName("id").getParameterValue());
-                                        } else if (stepCommand.getParameterByName("xPath").exists()) {
-                                            run.setText("Click on " + stepCommand.getParameterByName("xPath").getParameterValue());
-                                        }
-                                    } else if ("input".equals(stepCommand.getMainCommand())) {
-                                        if (stepCommand.getParameterByName("value").exists()) {
-                                            run.setText("Input value '" + stepCommand.getParameterByName("value").getParameterValue() + "' into " + stepCommand.getParameterByName("id").getParameterValue());
-                                        } else if (stepCommand.getParameterByName("increaseBy").exists()) {
-                                            run.setText("Increase " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("increaseBy").getParameterValue() + "'");
-                                        } else if (stepCommand.getParameterByName("decreaseBy").exists()) {
-                                            run.setText("Decrease " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("decreaseBy").getParameterValue() + "'");
-                                        }
-                                    }
-                                }
-
-                                run.addPicture(screenshotInputStream, XWPFDocument.PICTURE_TYPE_PNG, null, Units.toEMU(16 * 30), Units.toEMU(10 * 30));
-                                run.addBreak();
-                                screenshotInputStream.close();
-                            }
-                        } catch (IOException ex) {
-                            log.error(ex);
-                        }
-                    }
-
-                    document.write(out);
-                    out.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } catch (InvalidFormatException ex) {
-                    ex.printStackTrace();
-                }
-            }
+//            if (testResult != null && AppParams.getCreateTestDocument()) {
+//                try {
+//                    XWPFDocument document = new XWPFDocument();
+//                    //Write the Document in file system
+//                    FileOutputStream out = new FileOutputStream(new File("C:\\Users\\alex\\Downloads\\" + testResult.getUuidString() + ".docx"));
+//                    XWPFParagraph paragraph = document.createParagraph();
+//                    XWPFRun run = paragraph.createRun();
+//                    run.setText("Test begins");
+//                    run.addBreak();
+//                    for (TestStep testStep : testResult.getTestSteps()) {
+//                        try {
+//                            if (testStep.hasScreenshot()) {
+//                                InputStream screenshotInputStream = testStep.getScreenshotInputStream();
+//
+//                                TestCommand stepCommand = testStep.getTestCommand();
+//                                if (stepCommand != null) {
+//                                    if ("click".equals(stepCommand.getMainCommand())) {
+//                                        if (stepCommand.getParameterByName("id").exists()) {
+//                                            run.setText("Click on " + stepCommand.getParameterByName("id").getParameterValue());
+//                                        } else if (stepCommand.getParameterByName("xPath").exists()) {
+//                                            run.setText("Click on " + stepCommand.getParameterByName("xPath").getParameterValue());
+//                                        }
+//                                    } else if ("input".equals(stepCommand.getMainCommand())) {
+//                                        if (stepCommand.getParameterByName("value").exists()) {
+//                                            run.setText("TestInput value '" + stepCommand.getParameterByName("value").getParameterValue() + "' into " + stepCommand.getParameterByName("id").getParameterValue());
+//                                        } else if (stepCommand.getParameterByName("increaseBy").exists()) {
+//                                            run.setText("Increase " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("increaseBy").getParameterValue() + "'");
+//                                        } else if (stepCommand.getParameterByName("decreaseBy").exists()) {
+//                                            run.setText("Decrease " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("decreaseBy").getParameterValue() + "'");
+//                                        }
+//                                    }
+//                                }
+//
+//                                run.addPicture(screenshotInputStream, XWPFDocument.PICTURE_TYPE_PNG, null, Units.toEMU(16 * 30), Units.toEMU(10 * 30));
+//                                run.addBreak();
+//                                screenshotInputStream.close();
+//                            }
+//                        } catch (IOException ex) {
+//                            log.error(ex);
+//                        }
+//                    }
+//
+//                    document.write(out);
+//                    out.close();
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                } catch (InvalidFormatException ex) {
+//                    ex.printStackTrace();
+//                }
+//            }
         }
         status = TEST_FINISHED;
     }

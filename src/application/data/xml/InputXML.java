@@ -19,7 +19,7 @@ public class InputXML implements XML {
 
     @Override
     public Element getXMLRepresentation(Document document) {
-        Element inputElement = document.createElement("Input");
+        Element inputElement = document.createElement("TestInput");
 
         Element variableNameElement = document.createElement("VariableName");
         variableNameElement.appendChild(document.createTextNode(SDEUtils.escapeXMLCData(input.getVariableName())));

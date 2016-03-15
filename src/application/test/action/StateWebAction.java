@@ -5,6 +5,7 @@ import application.test.TestParameter;
 import application.test.TestStep;
 import application.test.action.helpers.PageStateCapture;
 import application.test.action.helpers.Variable;
+import application.test.core.TestCase;
 import org.apache.log4j.Logger;
 
 public class StateWebAction extends WebAction {
@@ -35,6 +36,10 @@ public class StateWebAction extends WebAction {
                 ChangedElements changedElements = compareState.compare(withState);
                 if (resultVar.exists()) {
                     getVariableTracker().setVariable(new Variable(resultVar.getParameterValue(), changedElements));
+                }
+                TestCase testCase = getRunningTest().getTestCase();
+                if (testCase != null) {
+                    testCase.setPageCaptures(compareState, withState);
                 }
             }
         }
