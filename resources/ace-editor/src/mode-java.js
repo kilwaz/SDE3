@@ -1025,7 +1025,11 @@ define("ace/mode/java_highlight_rules", ["require", "exports", "module", "ace/li
             "ArrayStoreException|ClassCastException|LinkageError|" +
             "NoClassDefFoundError|ClassNotFoundException|RuntimeException|" +
             "Exception|ThreadDeath|Error|Throwable|System|ClassLoader|" +
-            "Cloneable|Class|CharSequence|Comparable|String|Object"
+            "Cloneable|Class|CharSequence|Comparable|String|Object" +
+            // Custom Annotations for SDE
+            "|AssertChange|TestInput|TestNodes|OnComplete" +
+            // Custom Classes for SDE
+            "|ExpectedElement"
             );
 
         var keywordMapper = this.createKeywordMapper({

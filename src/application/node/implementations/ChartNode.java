@@ -61,7 +61,7 @@ public class ChartNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         chartSwingNode = new SwingNode();
         ChartPanel cpanel = new ChartPanel(jFreeChart);

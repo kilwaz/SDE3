@@ -39,6 +39,16 @@ public class ImportNodes extends SDERunnable {
         this.importWindow = importWindow;
     }
 
+    private static String getTextValue(String def, Element element, String tag) {
+        String value = def;
+        NodeList nl;
+        nl = element.getElementsByTagName(tag);
+        if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
+            value = nl.item(0).getFirstChild().getNodeValue();
+        }
+        return SDEUtils.unescapeXMLCData(value);
+    }
+
     public void threadRun() {
         Element element = document.getDocumentElement();
         if (importWindow != null) {
@@ -56,7 +66,6 @@ public class ImportNodes extends SDERunnable {
             Program newProgram = Program.create(Program.class);
             newProgram.setName(programName);
             newProgram.setLocked("Y".equals(lockedStatus));
-            Controller.getInstance().addNewProgram(newProgram);
 
             NodeList programChildNodes = element.getChildNodes();
             for (int i = 0; i < programChildNodes.getLength(); i++) {
@@ -91,9 +100,11 @@ public class ImportNodes extends SDERunnable {
 
             newProgram.setParentUser(SessionManager.getInstance().getCurrentSession().getUser());
             newProgram.save();
-
             Controller.getInstance().updateCanvasControllerLater();
-            newProgram.getFlowController().checkConnections();
+
+            // We need to reload the program in order to correctly set it up to be used straight away
+            Program reloadedProgram = Program.load(newProgram.getUuid(),Program.class);
+            Controller.getInstance().addNewProgram(reloadedProgram);
         }
 
         // Closes the import window and update the display to show the new node, also check all connections
@@ -246,15 +257,5 @@ public class ImportNodes extends SDERunnable {
         }
 
         DatabaseTransactionManager.getInstance().finaliseTransactions();
-    }
-
-    private static String getTextValue(String def, Element element, String tag) {
-        String value = def;
-        NodeList nl;
-        nl = element.getElementsByTagName(tag);
-        if (nl.getLength() > 0 && nl.item(0).hasChildNodes()) {
-            value = nl.item(0).getFirstChild().getNodeValue();
-        }
-        return SDEUtils.unescapeXMLCData(value);
     }
 }

@@ -53,10 +53,7 @@ public class EmailNode extends DrawableNode {
 
         // The ordering here is Tab < ScrollPane < AnchorPane
         Tab tab = controller.createDefaultNodeTab(this);
-        ScrollPane scrollPane = new ScrollPane();
-        AnchorPane anchorPane = (AnchorPane) tab.getContent(); // We get the Anchor pane from the default Tab and change it to a ScrollPane
-
-        scrollPane.setContent(anchorPane);
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         VBox rows = new VBox(5);
         rows.setLayoutY(55);
@@ -70,7 +67,6 @@ public class EmailNode extends DrawableNode {
         rows.getChildren().add(hbox);
 
         anchorPane.getChildren().add(rows);
-        tab.setContent(scrollPane);
 
         // Go back to the beginning and run the code to show the tab, it should now exist
         return tab;

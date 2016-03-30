@@ -128,7 +128,7 @@ public class DataTableNode extends DrawableNode {
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         dataTableTabPane = new TabPane();
 

@@ -122,7 +122,8 @@ public enum Error {
     TEST_CASE_NODE_TYPE_MISMATCH(117, "A named node is not the type expected"),
     TEST_CASE_CAN_FIND_NODE(118, "A named node cannot be found within the program"),
     TEST_CASE_METHOD_ANNOTATIONS_NOT_FOUND(119, "Method annotations cannot be found, make sure '// METHOD ANNOTATIONS' is in the correct place and present"),
-    WEB_DRIVER_EXCEPTION(120, "Web Driver experiences an unexpected problem");
+    WEB_DRIVER_EXCEPTION(120, "Web Driver experiences an unexpected problem"),
+    NOT_SERIALIZABLE_OBJECT(121, "The current object does not support serialization");
 
     private Integer code;
     private String description;

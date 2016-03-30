@@ -7,6 +7,7 @@ import application.node.design.DrawableNode;
 import application.utils.CustomObject;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
+import javafx.scene.layout.AnchorPane;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +88,7 @@ public class CustomObjectNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
-        tab.getContent();
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         return tab;
     }

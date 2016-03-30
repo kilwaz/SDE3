@@ -117,7 +117,7 @@ public class ConsoleNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         UI.setAnchorMargins(consoleTextArea, 50.0, 11.0, 11.0, 11.0);
 

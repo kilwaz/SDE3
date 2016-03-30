@@ -128,12 +128,8 @@ public class SwitchNode extends DrawableNode {
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
-        // The ordering here is Tab < ScrollPane < AnchorPane
         Tab tab = controller.createDefaultNodeTab(this);
-        ScrollPane scrollPane = new ScrollPane();
-        AnchorPane anchorPane = (AnchorPane) tab.getContent(); // We get the Anchor pane from the default Tab and change it to a ScrollPane
-
-        scrollPane.setContent(anchorPane);
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         switchRows = new VBox(5);
         switchRows.setLayoutY(55);
@@ -144,9 +140,7 @@ public class SwitchNode extends DrawableNode {
         }
 
         switchRows.getChildren().add(createAddSwitchNodeRow());
-
         anchorPane.getChildren().add(switchRows);
-        tab.setContent(scrollPane);
 
         // Go back to the beginning and run the code to show the tab, it should now exist
         return tab;

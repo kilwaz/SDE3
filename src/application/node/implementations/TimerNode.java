@@ -107,7 +107,7 @@ public class TimerNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent(); // We get the Anchor pane from the default Tab and change it to a ScrollPane
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         VBox vBox = new VBox(5);
         vBox.setLayoutY(55);
@@ -494,49 +494,47 @@ public class TimerNode extends DrawableNode {
 
         SimpleScheduleBuilder simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
 
-        if ("Every".equals(frequency)) {
-            if ("Milliseconds".equals(frequencyDuration)) {
-                simpleScheduleBuilder.withIntervalInMilliseconds(Integer.parseInt(frequencyDurationCount));
-            } else if ("Seconds".equals(frequencyDuration)) {
-                simpleScheduleBuilder.withIntervalInSeconds(Integer.parseInt(frequencyDurationCount));
-            } else if ("Minutes".equals(frequencyDuration)) {
-                simpleScheduleBuilder.withIntervalInMinutes(Integer.parseInt(frequencyDurationCount));
-            } else if ("Hours".equals(frequencyDuration)) {
-                simpleScheduleBuilder.withIntervalInHours(Integer.parseInt(frequencyDurationCount));
-            } else if ("Days".equals(frequencyDuration)) {
-                simpleScheduleBuilder.withIntervalInHours(Integer.parseInt(frequencyDurationCount) * 24);
-            }
+        if ("Milliseconds".equals(frequencyDuration)) {
+            simpleScheduleBuilder.withIntervalInMilliseconds(Integer.parseInt(frequencyDurationCount));
+        } else if ("Seconds".equals(frequencyDuration)) {
+            simpleScheduleBuilder.withIntervalInSeconds(Integer.parseInt(frequencyDurationCount));
+        } else if ("Minutes".equals(frequencyDuration)) {
+            simpleScheduleBuilder.withIntervalInMinutes(Integer.parseInt(frequencyDurationCount));
+        } else if ("Hours".equals(frequencyDuration)) {
+            simpleScheduleBuilder.withIntervalInHours(Integer.parseInt(frequencyDurationCount));
+        } else if ("Days".equals(frequencyDuration)) {
+            simpleScheduleBuilder.withIntervalInHours(Integer.parseInt(frequencyDurationCount) * 24);
+        }
 
-            if ("Until Repeated".equals(repetition)) {
-                simpleScheduleBuilder.withRepeatCount(Integer.parseInt(repetitionCount));
-            } else if ("Until Date/Time".equals(repetition)) {
-                String[] endTimeSplit = endTime.split(":");
+        if ("Until Repeated".equals(repetition)) {
+            simpleScheduleBuilder.withRepeatCount(Integer.parseInt(repetitionCount));
+        } else if ("Until Date/Time".equals(repetition)) {
+            String[] endTimeSplit = endTime.split(":");
 
-                DateTime endDate = new DateTime(
-                        endDateYear,
-                        endDateMonth,
-                        endDateDay, Integer.parseInt(endTimeSplit[0]),   // Hours
-                        Integer.parseInt(endTimeSplit[1]),               // Minutes
-                        Integer.parseInt(endTimeSplit[2]));              // Seconds
+            DateTime endDate = new DateTime(
+                    endDateYear,
+                    endDateMonth,
+                    endDateDay, Integer.parseInt(endTimeSplit[0]),   // Hours
+                    Integer.parseInt(endTimeSplit[1]),               // Minutes
+                    Integer.parseInt(endTimeSplit[2]));              // Seconds
 
-                simpleScheduleBuilder.repeatForever();
-                triggerBuilder.endAt(endDate.toDate());
-            }
+            simpleScheduleBuilder.repeatForever();
+            triggerBuilder.endAt(endDate.toDate());
+        }
 
-            if ("At".equals(startChoice)) {
-                String[] startTimeSplit = startTime.split(":");
+        if ("At".equals(startChoice)) {
+            String[] startTimeSplit = startTime.split(":");
 
-                DateTime startDate = new DateTime(
-                        startDateYear,
-                        startDateMonth,
-                        startDateDay, Integer.parseInt(startTimeSplit[0]),   // Hours
-                        Integer.parseInt(startTimeSplit[1]),                 // Minutes
-                        Integer.parseInt(startTimeSplit[2]));                // Seconds
+            DateTime startDate = new DateTime(
+                    startDateYear,
+                    startDateMonth,
+                    startDateDay, Integer.parseInt(startTimeSplit[0]),   // Hours
+                    Integer.parseInt(startTimeSplit[1]),                 // Minutes
+                    Integer.parseInt(startTimeSplit[2]));                // Seconds
 
-                triggerBuilder.startAt(startDate.toDate());
-            } else if ("Instantly".equals(startChoice)) {
-                triggerBuilder.startNow();
-            }
+            triggerBuilder.startAt(startDate.toDate());
+        } else if ("Instantly".equals(startChoice)) {
+            triggerBuilder.startNow();
         }
 
         JobManager.getInstance().scheduleJob(timerJob, triggerBuilder.withSchedule(simpleScheduleBuilder).build());

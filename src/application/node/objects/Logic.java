@@ -37,7 +37,23 @@ public class Logic {
                     "}";
             this.type = TEST_NODE_LOGIC;
         } else {
-            this.logic = "Other stuff in here i guess";
+            this.logic = "// CLASS ANNOTATIONS\n" +
+                    "@TestNodes(testList = {\"Test1\"})\n" +
+                    "\n" +
+                    "@TestInput(name=\"name\", val=\"value\")\n" +
+                    "\n" +
+                    "// METHOD ANNOTATIONS\n" +
+                    "// Values\n" +
+                    "@AssertChange(id=\"id\",type=\"type\",attribute=\"attribute\")\n" +
+                    "public void method(ExpectedElement expectedElement){\n" +
+                    "    \n" +
+                    "}\n" +
+                    "\n" +
+                    "@OnComplete\n" +
+                    "public void onComplete() {\n" +
+                    "    nodeRunParams.setOneTimeVariable(this);\n" +
+                    "    runAndWait(\"Do Something\",nodeRunParams);\n" +
+                    "}";
             this.type = TEST_CASE_NODE_LOGIC;
         }
     }

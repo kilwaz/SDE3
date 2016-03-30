@@ -23,6 +23,7 @@ public class RecordedError {
     private String className = "Unknown";
     private List<String> additionalInformation = new ArrayList<>();
     private String name;
+    private Boolean printStackTrace = true;
 
     protected RecordedError(int code, String description, String name) {
         this.code = code;
@@ -59,7 +60,7 @@ public class RecordedError {
             log = Logger.getLogger(Error.class);
         }
 
-        if (exception != null) {
+        if (exception != null && printStackTrace) {
             log.log(Error.class.getCanonicalName(), Level.ERROR, this.toString(), exception);
         } else {
             log.log(Error.class.getCanonicalName(), Level.ERROR, this.toString(), null);
@@ -70,6 +71,11 @@ public class RecordedError {
 
     public RecordedError additionalInformation(String additionalInformation) {
         this.additionalInformation.add(additionalInformation);
+        return this;
+    }
+
+    public RecordedError hideStackInLog() {
+        this.printStackTrace = false;
         return this;
     }
 

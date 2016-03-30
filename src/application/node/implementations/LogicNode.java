@@ -55,8 +55,8 @@ public class LogicNode extends DrawableNode {
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
 
-        Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        Tab tab = controller.createDefaultNodeTab(this, false);
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         AceTextArea aceTextArea = new AceTextArea(this, "ace/mode/java");
 

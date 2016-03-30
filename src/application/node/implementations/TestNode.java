@@ -60,8 +60,8 @@ public class TestNode extends DrawableNode {
 
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
-        Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane nodeAnchorPane = (AnchorPane) tab.getContent();
+        Tab tab = controller.createDefaultNodeTab(this, false);
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         // Setup main tab pane
         testNodeTabPane = new TabPane();
@@ -105,7 +105,7 @@ public class TestNode extends DrawableNode {
         // Add created tabs to main tab pane
         testNodeTabPane.getTabs().addAll(testEditTab);
         testNodeTabPane.getTabs().addAll(runningTabs);
-        nodeAnchorPane.getChildren().addAll(testNodeTabPane);
+        anchorPane.getChildren().addAll(testNodeTabPane);
 
         return tab;
     }

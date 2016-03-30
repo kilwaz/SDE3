@@ -28,9 +28,10 @@ public class LogWebAction extends WebAction {
 
         TestParameter idElement = getTestCommand().getParameterByName("id");
         TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
-        TestParameter message = getTestCommand().getParameterByName("message");
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
         TestParameter variable = getTestCommand().getParameterByName("var");
+
+        TestParameter message = getTestCommand().getParameterByName("message");
 
         if (message.exists()) {
             log.info(message.getParameterValue());

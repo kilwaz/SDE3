@@ -21,13 +21,11 @@ import java.util.stream.Collectors;
 public class FlowController {
     private static Logger log = Logger.getLogger(FlowController.class);
     private DrawableNode startNode;
-    //    private DrawableNode selectedNode;
     private List<DrawableNode> selectedNodes = new ArrayList<>();
     private List<DrawableNode> nodes = new ArrayList<>();
     private List<NodeConnection> connections = new ArrayList<>();
     private List<NodeConnection> activeConnections = Collections.synchronizedList(new ArrayList<>());
     private List<Trigger> activeTriggers = new ArrayList<>();
-    private String referenceID;
     private Program parentProgram;
     private ActiveRefreshTimer activeRefreshTimer = null;
     private Timer currentTimer;
@@ -41,8 +39,6 @@ public class FlowController {
         startNode.setX(30.0);
         startNode.setY(30.0);
         startNode.setContainedText("Start");
-
-        referenceID = parentProgram.getUuidString();
     }
 
     public static void sourceStarted(String uuid) {
@@ -195,7 +191,10 @@ public class FlowController {
     }
 
     public String getReferenceID() {
-        return this.referenceID;
+        if (parentProgram != null) {
+            return parentProgram.getUuidString();
+        }
+        return null;
     }
 
     public Boolean checkIfTreeIsCompiled() {
@@ -244,9 +243,9 @@ public class FlowController {
         for (DrawableNode node : nodes) {
             // This adds the runnable node objects
             if (node instanceof LogicNode) {
-                DataBank.saveInstanceObject(referenceID, node.getContainedText(), ((LogicNode) node).getLogic());
+                DataBank.saveInstanceObject(getReferenceID(), node.getContainedText(), ((LogicNode) node).getLogic());
             } else if (node != null) {
-                DataBank.saveInstanceObject(referenceID, node.getContainedText(), node);
+                DataBank.saveInstanceObject(getReferenceID(), node.getContainedText(), node);
             }
 
             // Adds the triggers being used

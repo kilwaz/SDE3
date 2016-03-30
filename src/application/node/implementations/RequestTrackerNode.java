@@ -78,7 +78,7 @@ public class RequestTrackerNode extends DrawableNode {
         DecimalFormat formatter = new DecimalFormat("###,###");
 
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         TableView<RecordedRequest> requestTableView = new TableView<>();
         requestTableView.setId("requestTable-" + getUuidStringWithoutHyphen());

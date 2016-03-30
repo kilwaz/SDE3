@@ -176,7 +176,7 @@ public class ExportNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = (AnchorPane) tab.getContent();
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         // DIRECTORY ROW
         Label directoryLabel = new Label();

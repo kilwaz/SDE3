@@ -23,7 +23,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -31,6 +30,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldListCell;
@@ -115,6 +115,7 @@ public class Controller implements Initializable {
     private ContextMenu canvasFlowContextMenu;
     private ContextMenu programListContextMenu;
     private PopOver canvasPopOver;
+    private PopOver nodeInformation;
     private Boolean skipCanvasClick = false;
     private Scene scene;
     private Double lastCanvasContextMenuX = 0d;
@@ -149,6 +150,7 @@ public class Controller implements Initializable {
         stackPane.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> splitPanePageCentral.setPrefHeight(newSceneHeight.intValue()));
 
         canvasPopOver = new PopOver();
+        nodeInformation = new PopOver();
 
         canvasController = new CanvasController(canvasFlow);
 
@@ -248,111 +250,108 @@ public class Controller implements Initializable {
             }
         });
 
-        canvasFlow.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
-            @Override
-            public void handle(ContextMenuEvent event) {
-                Program program = SessionManager.getInstance().getCurrentSession().getUser().getCurrentProgram();
-                if (program != null) {
-                    if (canvasFlowContextMenu != null) {
-                        canvasFlowContextMenu.hide();
-                    }
+        canvasFlow.setOnContextMenuRequested(event -> {
+            Program program = SessionManager.getInstance().getCurrentSession().getUser().getCurrentProgram();
+            if (program != null) {
+                if (canvasFlowContextMenu != null) {
+                    canvasFlowContextMenu.hide();
+                }
 
-                    lastCanvasContextMenuX = event.getX();
-                    lastCanvasContextMenuY = event.getY();
+                lastCanvasContextMenuX = event.getX();
+                lastCanvasContextMenuY = event.getY();
 
-                    List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
+                List<DrawableNode> clickNodes = program.getFlowController().getClickedNodes(event.getX() - canvasController.getOffsetWidth(), event.getY() - canvasController.getOffsetHeight());
 
-                    // This is when right clicking on a specific node, you get the edit node menu
-                    if (clickNodes.size() > 0) {
-                        DrawableNode drawableNode = clickNodes.get(0);
+                // This is when right clicking on a specific node, you get the edit node menu
+                if (clickNodes.size() > 0) {
+                    DrawableNode drawableNode = clickNodes.get(0);
 
-                        Button copyButton = new Button("Copy");
-                        copyButton.setOnAction(actionEvent -> {
-                            DrawableNode copyNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) actionEvent.getSource()).getId().replace("CopyNode-", ""));
+                    Button copyButton = new Button("Copy");
+                    copyButton.setOnAction(actionEvent -> {
+                        DrawableNode copyNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) actionEvent.getSource()).getId().replace("CopyNode-", ""));
 
-                            try {
-                                Class<?> clazz = Class.forName("application.node.implementations." + copyNode.getClass().getSimpleName());
-                                Constructor<?> ctor = clazz.getConstructor(copyNode.getClass());
-                                DrawableNode newNode = (DrawableNode) ctor.newInstance(copyNode);
+                        try {
+                            Class<?> clazz = Class.forName("application.node.implementations." + copyNode.getClass().getSimpleName());
+                            Constructor<?> ctor = clazz.getConstructor(copyNode.getClass());
+                            DrawableNode newNode = (DrawableNode) ctor.newInstance(copyNode);
 
-                                program.getFlowController().addNode(newNode);
-                                newNode.save(); // We need to save the node after creating it to assign the ID correctly
-                                canvasController.drawProgram();
-                            } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
-                                Error.COPY_NODE.record().create(ex);
-                            }
-                            canvasPopOver.hide();
-                        });
-                        copyButton.setId("CopyNode-" + drawableNode.getUuidStringWithoutHyphen());
-
-                        Button startNodeButton = new Button("Start Node");
-                        startNodeButton.setOnAction(event1 -> {
-                            DrawableNode startNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) event1.getSource()).getId().replace("StartNode-", ""));
-                            program.getFlowController().setStartNode(startNode);
+                            program.getFlowController().addNode(newNode);
+                            newNode.save(); // We need to save the node after creating it to assign the ID correctly
                             canvasController.drawProgram();
-                            program.save();
-                            canvasPopOver.hide();
-                        });
-                        startNodeButton.setId("StartNode-" + drawableNode.getUuidStringWithoutHyphen());
-
-                        Button removeNodeButton = new Button("Remove Node");
-                        removeNodeButton.setOnAction(actionEvent -> {
-                            DrawableNode removedNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) actionEvent.getSource()).getId().replace("RemoveNode-", ""));
-
-                            program.getFlowController().removeNode(removedNode);
-                            removedNode.delete();
-
-                            canvasController.drawProgram();
-
-                            closeDeleteNodeTabs(removedNode);
-                            canvasPopOver.hide();
-                        });
-                        removeNodeButton.setId("RemoveNode-" + drawableNode.getUuidStringWithoutHyphen());
-
-
-                        VBox node = new VBox(5);
-                        HBox header = new HBox(5);
-                        header.setAlignment(Pos.CENTER);
-
-                        // Text showing title of node
-                        Text nodeText = new Text(drawableNode.getContainedText());
-                        nodeText.setFill(drawableNode.getFillColour());
-                        nodeText.setFont(AppParams.getFont(14));
-
-                        // Color picker for node preset to current color
-                        ColorPicker colorPicker = new ColorPicker();
-                        colorPicker.setValue(drawableNode.getFillColour());
-                        colorPicker.setStyle("-fx-background-color: null; -fx-color-label-visible: false;");
-
-                        colorPicker.setOnAction(t -> {
-                            NodeColour nodeColour = new NodeColour(colorPicker.getValue(), drawableNode.getNodeType());
-                            DataBank.getNodeColours().addNodeColour(nodeColour);
-                            nodeColour.save();
-
-                            canvasController.drawProgram();
-                        });
-
-                        header.getChildren().add(nodeText);
-                        header.getChildren().add(colorPicker);
-
-                        node.setPadding(new Insets(10, 6, 10, 6));
-
-                        node.getChildren().add(header);
-                        node.getChildren().add(copyButton);
-                        node.getChildren().add(startNodeButton);
-                        node.getChildren().add(removeNodeButton);
-
-                        canvasPopOver.show(canvasFlow, event.getScreenX(), event.getScreenY());
-                        canvasPopOver.setContentNode(node);
-                    } else { // This is when not right clicking on a node, you get the create node menu
+                        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException ex) {
+                            Error.COPY_NODE.record().create(ex);
+                        }
                         canvasPopOver.hide();
+                    });
+                    copyButton.setId("CopyNode-" + drawableNode.getUuidStringWithoutHyphen());
 
-                        List<MenuItem> nodeMenuItems = DrawableNode.getNodeNames().stream().map(Controller.this::createNodeMenuItem).collect(Collectors.toList());
+                    Button startNodeButton = new Button("Start Node");
+                    startNodeButton.setOnAction(event1 -> {
+                        DrawableNode startNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) event1.getSource()).getId().replace("StartNode-", ""));
+                        program.getFlowController().setStartNode(startNode);
+                        canvasController.drawProgram();
+                        program.save();
+                        canvasPopOver.hide();
+                    });
+                    startNodeButton.setId("StartNode-" + drawableNode.getUuidStringWithoutHyphen());
 
-                        canvasFlowContextMenu = new ContextMenu();
-                        canvasFlowContextMenu.getItems().addAll(nodeMenuItems);
-                        canvasFlowContextMenu.show(canvasFlow, event.getScreenX(), event.getScreenY());
-                    }
+                    Button removeNodeButton = new Button("Remove Node");
+                    removeNodeButton.setOnAction(actionEvent -> {
+                        DrawableNode removedNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) actionEvent.getSource()).getId().replace("RemoveNode-", ""));
+
+                        program.getFlowController().removeNode(removedNode);
+                        removedNode.delete();
+
+                        canvasController.drawProgram();
+
+                        closeDeleteNodeTabs(removedNode);
+                        canvasPopOver.hide();
+                    });
+                    removeNodeButton.setId("RemoveNode-" + drawableNode.getUuidStringWithoutHyphen());
+
+
+                    VBox vBox = new VBox(5);
+                    HBox hBox = new HBox(5);
+                    hBox.setAlignment(Pos.CENTER);
+
+                    // Text showing title of node
+                    Text nodeText = new Text(drawableNode.getContainedText());
+                    nodeText.setFill(drawableNode.getFillColour());
+                    nodeText.setFont(AppParams.getFont(14));
+
+                    // Color picker for node preset to current color
+                    ColorPicker colorPicker = new ColorPicker();
+                    colorPicker.setValue(drawableNode.getFillColour());
+                    colorPicker.setStyle("-fx-background-color: null; -fx-color-label-visible: false;");
+
+                    colorPicker.setOnAction(t -> {
+                        NodeColour nodeColour = new NodeColour(colorPicker.getValue(), drawableNode.getNodeType());
+                        DataBank.getNodeColours().addNodeColour(nodeColour);
+                        nodeColour.save();
+
+                        canvasController.drawProgram();
+                    });
+
+                    hBox.getChildren().add(nodeText);
+                    hBox.getChildren().add(colorPicker);
+
+                    vBox.setPadding(new Insets(10, 6, 10, 6));
+
+                    vBox.getChildren().add(hBox);
+                    vBox.getChildren().add(copyButton);
+                    vBox.getChildren().add(startNodeButton);
+                    vBox.getChildren().add(removeNodeButton);
+
+                    canvasPopOver.show(canvasFlow, event.getScreenX(), event.getScreenY());
+                    canvasPopOver.setContentNode(vBox);
+                } else { // This is when not right clicking on a node, you get the create node menu
+                    canvasPopOver.hide();
+
+                    List<MenuItem> nodeMenuItems = DrawableNode.getNodeNames().stream().map(Controller.this::createNodeMenuItem).collect(Collectors.toList());
+
+                    canvasFlowContextMenu = new ContextMenu();
+                    canvasFlowContextMenu.getItems().addAll(nodeMenuItems);
+                    canvasFlowContextMenu.show(canvasFlow, event.getScreenX(), event.getScreenY());
                 }
             }
         });
@@ -653,12 +652,51 @@ public class Controller implements Initializable {
 
     public Label createNodeInfoLabel(DrawableNode node) {
         Label nameFieldLabel = new Label();
-        nameFieldLabel.setText(node.getNodeType() + " (#" + node.getUuidString() + ")");
+
+        nameFieldLabel.setOnMouseClicked(event -> {
+            VBox vBox = new VBox(5);
+            vBox.setPadding(new Insets(10, 6, 10, 6));
+            vBox.setAlignment(Pos.CENTER);
+            vBox.getChildren().add(new Label("Type: " + node.getNodeType()));
+            vBox.getChildren().add(new Label("Name: " + node.getContainedText()));
+            vBox.getChildren().add(makeSelectable(new Label("ID: " + node.getUuidString())));
+
+            nodeInformation.show(nameFieldLabel, event.getScreenX(), event.getScreenY());
+            nodeInformation.setContentNode(vBox);
+        });
+
+        nameFieldLabel.setOnMouseEntered(event -> {
+            nameFieldLabel.setUnderline(true);
+            setCursor(Cursor.HAND);
+        });
+
+        nameFieldLabel.setOnMouseExited(event -> {
+            nameFieldLabel.setUnderline(false);
+            setCursor(Cursor.DEFAULT);
+        });
+
+        nameFieldLabel.setText(node.getNodeType());
         nameFieldLabel.setTextFill(Color.GRAY);
         return nameFieldLabel;
     }
 
+    public AnchorPane getContentAnchorPaneOfTab(Tab tab) {
+        Node content = tab.getContent();
+        if (content instanceof ScrollPane) {
+            return (AnchorPane) ((ScrollPane) content).getContent();
+        } else if (content instanceof AnchorPane) {
+            return (AnchorPane) content;
+        }
+
+        // Something odd happened, return null so we can debug
+        return null;
+    }
+
     public Tab createDefaultNodeTab(DrawableNode node) {
+        return createDefaultNodeTab(node, true);
+    }
+
+    public Tab createDefaultNodeTab(DrawableNode node, Boolean scrollable) {
         Tab tab = new Tab();
         tab.setText(node.getContainedText());
         tab.setId(node.getUuidStringWithoutHyphen().toString());
@@ -692,7 +730,18 @@ public class Controller implements Initializable {
 
         UI.setAnchorMargins(tabAnchorPane, 0.0, 0.0, 0.0, 0.0);
 
-        tab.setContent(tabAnchorPane);
+        // Makes it possible to scroll up and down
+        if (scrollable) {
+            // The ordering here is Tab < ScrollPane < AnchorPane
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setFitToHeight(true);
+            scrollPane.setFitToWidth(true);
+            UI.setAnchorMargins(scrollPane, 0.0, 0.0, 0.0, 0.0);
+            scrollPane.setContent(tabAnchorPane);
+            tab.setContent(scrollPane);
+        } else {
+            tab.setContent(tabAnchorPane);
+        }
 
         return tab;
     }
@@ -863,5 +912,25 @@ public class Controller implements Initializable {
             programList.getSelectionModel().select(currentUser.getCurrentProgram());
             programList.scrollTo(currentUser.getCurrentProgram());
         }
+    }
+
+    private Label makeSelectable(Label label) {
+        StackPane textStack = new StackPane();
+        TextField textField = new TextField(label.getText());
+        textField.setEditable(false);
+        textField.setStyle(
+                "-fx-background-color: transparent; -fx-background-insets: 0; -fx-background-radius: 0; -fx-padding: 0;"
+        );
+
+        // The invisible label is a hack to get the textField to size like a label.
+        Label invisibleLabel = new Label();
+        invisibleLabel.textProperty().bind(label.textProperty());
+        invisibleLabel.setVisible(false);
+        textStack.getChildren().addAll(invisibleLabel, textField);
+        label.textProperty().bindBidirectional(textField.textProperty());
+        label.setGraphic(textStack);
+        label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+        return label;
     }
 }

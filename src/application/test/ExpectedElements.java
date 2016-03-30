@@ -26,11 +26,15 @@ public class ExpectedElements {
     }
 
     public Boolean containsMatch(ChangedElement changedElement) {
+        return getMatch(changedElement) != null;
+    }
+
+    public ExpectedElement getMatch(ChangedElement changedElement) {
         for (ExpectedElement expectedElement : expectedElements) {
             if (changedElement.matched(expectedElement)) {
-                return true;
+                return expectedElement;
             }
         }
-        return false;
+        return null;
     }
 }

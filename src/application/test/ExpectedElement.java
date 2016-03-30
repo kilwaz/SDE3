@@ -58,7 +58,7 @@ public class ExpectedElement {
             this.increasedBy = Double.parseDouble(increasedBy.replaceAll("[^\\d.]", ""));
         } catch (NumberFormatException ex) {
             //  Guess we don't really care about this
-            Error.PARSE_DOUBLE_FAILED.record().create(ex);
+            Error.PARSE_DOUBLE_FAILED.record().hideStackInLog().create(ex);
             this.increasedBy = 0d;
         }
 
@@ -105,5 +105,9 @@ public class ExpectedElement {
 
     public ChangedElement getMatchedElement() {
         return matchedElement;
+    }
+
+    public String toString() {
+        return "type: " + changeType + " attribute: " + attribute + " reference: " + elementReference + " before: " + before + " after: " + after + " increasedBy: " + increasedBy;
     }
 }

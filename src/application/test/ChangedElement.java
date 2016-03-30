@@ -119,45 +119,60 @@ public class ChangedElement {
         Boolean matchedAttribute = false;
         Boolean matchedIncreasedBy = false;
 
+//        log.info("****");
+//        log.info("Changed: " + this);
+//        log.info("Expected: " + expectedElement);
+//        log.info("****");
+
+//        if (getInitialValue() == null) {
+//            log.info("INIT VALUE IS NULL!");
+//        } else {
+//            log.info("INIT VALUE IS '" + getInitialValue() + "'");
+//        }
+
         if (getInitialRef().equals(expectedElement.getElementReference())) {
-            //log.info("Reference Matched: " + getInitialRef() + " matched " + expectedElement.getElementReference());
+//            log.info("Reference Matched: " + getInitialRef() + " matched " + expectedElement.getElementReference());
             matchedReference = true;
         }
         if (getInitialValue().equals(expectedElement.getBefore())) {
-            //log.info("Initial value Matched: " + getInitialValue() + " matched " + expectedElement.getBefore());
+//            log.info("Initial value Matched: " + getInitialValue() + " matched " + expectedElement.getBefore());
             matchedBefore = true;
         }
         if (getFinalValue().equals(expectedElement.getAfter())) {
-            //log.info("Final value Matched: " + getFinalValue() + " matched " + expectedElement.getAfter());
+//            log.info("Final value Matched: " + getFinalValue() + " matched " + expectedElement.getAfter());
             matchedAfter = true;
         }
         if (getChangeType().equals(expectedElement.getChangeType())) {
-            //log.info("Change type Matched: " + getChangeType() + " matched " + expectedElement.getChangeType());
+//            log.info("Change type Matched: " + getChangeType() + " matched " + expectedElement.getChangeType());
             matchedType = true;
         }
         if (getAttributeName() != null && getAttributeName().equals(expectedElement.getAttribute())) {
-            //log.info("Attribute name Matched: " + getAttributeName() + " matched " + expectedElement.getAttribute());
+//            log.info("Attribute name Matched: " + getAttributeName() + " matched " + expectedElement.getAttribute());
             matchedAttribute = true;
         }
         if (expectedElement.getIncreasedBy() != null) {
+            String beforeStr = "";
+            String afterStr = "";
             try {
-                String beforeStr = getInitialValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
-                String afterStr = getFinalValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
+                beforeStr = getInitialValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
+                afterStr = getFinalValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
                 Double beforeDouble = beforeStr.isEmpty() ? 0d : Double.parseDouble(beforeStr);
                 Double afterDouble = afterStr.isEmpty() ? 0d : Double.parseDouble(afterStr);
-                //log.info("Comparing numbers " + beforeDouble + " to " + afterDouble);
+//                log.info("Comparing numbers " + beforeDouble + " to " + afterDouble);
                 if (afterDouble - beforeDouble == expectedElement.getIncreasedBy()) {
-                    //log.info("Increased by Matched: " + getAttributeName() + " matched " + expectedElement.getIncreasedBy());
+//                    log.info("Increased by Matched: " + getAttributeName() + " matched " + expectedElement.getIncreasedBy());
                     matchedIncreasedBy = true;
                 }
             } catch (NumberFormatException ex) {
-                Error.PARSE_DOUBLE_FAILED.record().additionalInformation(getInitialValue() + " / " + getFinalValue()).create(ex);
-                //log.info("Can't parse '" + getInitialValue() + "' or '" + getFinalValue() + "'");
+                Error.PARSE_DOUBLE_FAILED.record().additionalInformation(beforeStr).additionalInformation(afterStr).hideStackInLog().create(ex);
             }
         }
 
         Boolean result = matchedReference && ((matchedBefore && matchedAfter) || matchedIncreasedBy) && matchedType && matchedAttribute;
-        expectedElement.matched(result);
+        // If something is matched from a previous test, we don't want to undo that
+        if (!expectedElement.getMatched()) {
+            expectedElement.matched(result);
+        }
         return result;
     }
 
@@ -167,5 +182,9 @@ public class ChangedElement {
         } else {
             return attributeName;
         }
+    }
+
+    public String toString() {
+        return "type: " + changeType + " attribute: " + attributeName + " initVal: " + getInitialValue() + " finalVal: " + getFinalValue();
     }
 }

@@ -1,6 +1,5 @@
 package application.utils;
 
-import application.error.*;
 import application.error.Error;
 import org.apache.log4j.Logger;
 
@@ -20,6 +19,8 @@ public class Serializer {
             inputStream = new ByteArrayInputStream(baos.toByteArray());
             baos.close();
             oos.close();
+        } catch (NotSerializableException ex) {
+            Error.NOT_SERIALIZABLE_OBJECT.record().additionalInformation(object.toString()).hideStackInLog().create(ex);
         } catch (IOException ex) {
             Error.SERIALIZE_OBJECT.record().create(ex);
         }

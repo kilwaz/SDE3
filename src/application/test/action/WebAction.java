@@ -58,6 +58,7 @@ public abstract class WebAction implements Action {
         actionClasses.put("driver", DriverWebAction.class);
         actionClasses.put("state", StateWebAction.class);
         actionClasses.put("window", WindowWebAction.class);
+        actionClasses.put("keyboard", KeyboardWebAction.class);
     }
 
     private WebDriver driver = null;

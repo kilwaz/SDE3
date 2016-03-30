@@ -31,16 +31,13 @@ import java.net.URL;
 
 public class ImportWindow extends Stage {
 
+    private static Logger log = Logger.getLogger(ImportWindow.class);
     private AceTextArea importTextArea;
-
+    private HBox headerButtons;
+    private ProgressIndicator progressIndicator;
     public ImportWindow() {
         init();
     }
-
-    private static Logger log = Logger.getLogger(ImportWindow.class);
-
-    private HBox headerButtons;
-    private ProgressIndicator progressIndicator;
 
     private void init() {
         try {
@@ -83,11 +80,13 @@ public class ImportWindow extends Stage {
             Button importButton = new Button();
             importButton.setText("Run Import");
             importButton.setOnAction(event -> {
-                Document document = XMLTransform.writeStringToXML(importTextArea.getText());
-                if (document.getDocumentElement().getTagName().contains("NodeColours")) { // Check for node colours first as the second check checks for anything contain 'node'.
-                    new SDEThread(new ImportNodeColours(document, this), "Importing Node Colours");
-                } else if (document.getDocumentElement().getTagName().contains("Program") || document.getDocumentElement().getTagName().contains("Node")) {
-                    new SDEThread(new ImportNodes(document, this), "Importing Node");
+                if(importTextArea.getText() != null && !importTextArea.getText().isEmpty()){
+                    Document document = XMLTransform.writeStringToXML(importTextArea.getText());
+                    if (document.getDocumentElement().getTagName().contains("NodeColours")) { // Check for node colours first as the second check checks for anything contain 'node'.
+                        new SDEThread(new ImportNodeColours(document, this), "Importing Node Colours");
+                    } else if (document.getDocumentElement().getTagName().contains("Program") || document.getDocumentElement().getTagName().contains("Node")) {
+                        new SDEThread(new ImportNodes(document, this), "Importing Node");
+                    }
                 }
             });
 

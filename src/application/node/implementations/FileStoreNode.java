@@ -7,6 +7,7 @@ import application.node.design.DrawableNode;
 import application.node.objects.SDEFile;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
+import javafx.scene.layout.AnchorPane;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ public class FileStoreNode extends DrawableNode {
         Controller controller = Controller.getInstance();
 
         Tab tab = controller.createDefaultNodeTab(this);
-        tab.getContent();
+        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         return tab;
     }

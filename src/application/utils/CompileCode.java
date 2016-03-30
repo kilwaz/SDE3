@@ -129,6 +129,7 @@ public class CompileCode {
                 "import application.node.objects.*;" +
                 "import application.node.objects.datatable.*;" +
                 "import application.net.proxy.*;" +
+                "import application.test.action.helpers.*;" +
                 "import org.jsoup.Jsoup;" +
                 "import org.jsoup.nodes.*;" +
                 "import org.apache.log4j.Logger;" +
@@ -185,6 +186,7 @@ public class CompileCode {
                 "import application.node.objects.*;" +
                 "import application.node.objects.datatable.*;" +
                 "import application.net.proxy.*;" +
+                "import application.test.action.helpers.*;" +
                 "import org.apache.log4j.Logger;" +
                 "@SuppressWarnings(\"unchecked\")" +
                 "public class " + className + " extends SDERunnable {" +
