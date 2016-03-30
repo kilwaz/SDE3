@@ -13,19 +13,24 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.file.Path;
 
 public class LogManager {
     private static Logger log = Logger.getLogger(LogManager.class);
-
-    private ObservableList<LogClass> logClasses = FXCollections.observableArrayList();
-
     private static LogManager instance;
+    private ObservableList<LogClass> logClasses = FXCollections.observableArrayList();
     private String logOutputFilePath = null;
 
     public LogManager() {
         instance = this;
+
+        File logDirectory = new File(getLogOutputDirectoryPath());
+        if (!logDirectory.exists()) {
+            logDirectory.mkdir();
+        }
     }
 
     public static LogManager getInstance() {
@@ -39,18 +44,23 @@ public class LogManager {
         return logClasses;
     }
 
+    public String getLogOutputDirectoryPath() {
+        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        try {
+            path = URLDecoder.decode(path + "../../../logs/", "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Error.LOG_OUTPUT.record().create(ex);
+        }
+
+        return path;
+    }
+
     public String getLogOutputFilePath() {
         if (logOutputFilePath == null) {
             DateTime dt = new DateTime();
             DateTimeFormatter fmt = DateTimeFormat.forPattern("ddMMMyyyy HHmmss");
             String str = fmt.print(dt);
-
-            String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            try {
-                logOutputFilePath = URLDecoder.decode(path + "../../../logs/", "UTF-8") + "SDE3 - Started " + str + ".log";
-            } catch (UnsupportedEncodingException ex) {
-                Error.LOG_OUTPUT.record().create(ex);
-            }
+            logOutputFilePath = getLogOutputDirectoryPath() + "SDE3 - Started " + str + ".log";
         }
 
         return logOutputFilePath;
