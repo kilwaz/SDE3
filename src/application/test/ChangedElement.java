@@ -6,6 +6,8 @@ import org.apache.log4j.Logger;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ChangedElement {
@@ -112,12 +114,11 @@ public class ChangedElement {
     }
 
     public Boolean matched(ExpectedElement expectedElement) {
-        Boolean matchedReference = false;
-        Boolean matchedBefore = false;
-        Boolean matchedAfter = false;
-        Boolean matchedType = false;
-        Boolean matchedAttribute = false;
-        Boolean matchedIncreasedBy = false;
+        List<Boolean> results = new ArrayList<>();
+        // Create the correct size array of nulls
+        for (int i = 0; i < 5; i++) {
+            results.add(i, null);
+        }
 
 //        log.info("****");
 //        log.info("Changed: " + this);
@@ -132,23 +133,23 @@ public class ChangedElement {
 
         if (getInitialRef().equals(expectedElement.getElementReference())) {
 //            log.info("Reference Matched: " + getInitialRef() + " matched " + expectedElement.getElementReference());
-            matchedReference = true;
+            results.add(0, true); // 0
         }
         if (getInitialValue().equals(expectedElement.getBefore())) {
 //            log.info("Initial value Matched: " + getInitialValue() + " matched " + expectedElement.getBefore());
-            matchedBefore = true;
+            results.add(1, true); // 1
         }
         if (getFinalValue().equals(expectedElement.getAfter())) {
 //            log.info("Final value Matched: " + getFinalValue() + " matched " + expectedElement.getAfter());
-            matchedAfter = true;
+            results.add(2, true); // 2
         }
         if (getChangeType().equals(expectedElement.getChangeType())) {
 //            log.info("Change type Matched: " + getChangeType() + " matched " + expectedElement.getChangeType());
-            matchedType = true;
+            results.add(3, true); // 3
         }
         if (getAttributeName() != null && getAttributeName().equals(expectedElement.getAttribute())) {
 //            log.info("Attribute name Matched: " + getAttributeName() + " matched " + expectedElement.getAttribute());
-            matchedAttribute = true;
+            results.add(4, true); // 4
         }
         if (expectedElement.getIncreasedBy() != null) {
             String beforeStr = "";
@@ -161,14 +162,30 @@ public class ChangedElement {
 //                log.info("Comparing numbers " + beforeDouble + " to " + afterDouble);
                 if (afterDouble - beforeDouble == expectedElement.getIncreasedBy()) {
 //                    log.info("Increased by Matched: " + getAttributeName() + " matched " + expectedElement.getIncreasedBy());
-                    matchedIncreasedBy = true;
+                    results.add(5, true); // 5
                 }
             } catch (NumberFormatException ex) {
                 Error.PARSE_DOUBLE_FAILED.record().additionalInformation(beforeStr).additionalInformation(afterStr).hideStackInLog().create(ex);
             }
         }
 
-        Boolean result = matchedReference && ((matchedBefore && matchedAfter) || matchedIncreasedBy) && matchedType && matchedAttribute;
+        // Here we check the matched results of only the criteria which was specified, this lets us match any number of criteria that is supplied
+        // criteria tells us what has been specified as part of the match
+        // results tells us what has been matched
+        List<Boolean> criteria = expectedElement.getOrderedCriteriaExists();
+        Boolean result = true;
+        for (int i = 0; i < criteria.size() - 1; i++) {
+            if (criteria.get(i) != null && criteria.get(i)) {
+                if (results.get(i) == null) {
+                    result = false;
+                    break;
+                } else if (!results.get(i)) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+
         // If something is matched from a previous test, we don't want to undo that
         if (!expectedElement.getMatched()) {
             expectedElement.matched(result);

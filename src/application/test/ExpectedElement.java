@@ -3,6 +3,9 @@ package application.test;
 import application.error.Error;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ExpectedElement {
     private static Logger log = Logger.getLogger(ExpectedElement.class);
     private String elementReference = "";
@@ -109,5 +112,22 @@ public class ExpectedElement {
 
     public String toString() {
         return "type: " + changeType + " attribute: " + attribute + " reference: " + elementReference + " before: " + before + " after: " + after + " increasedBy: " + increasedBy;
+    }
+
+    public List<Boolean> getOrderedCriteriaExists() {
+        List<Boolean> criteria = new ArrayList<>();
+        // Create the correct size array of nulls
+        for (int i = 0; i < 5; i++) {
+            criteria.add(i, null);
+        }
+
+        criteria.add(0, !elementReference.isEmpty()); // 0
+        criteria.add(1, !before.isEmpty()); // 1
+        criteria.add(2, !after.isEmpty()); // 2
+        criteria.add(3, !changeType.isEmpty()); // 3
+        criteria.add(4, !attribute.isEmpty()); // 4
+        criteria.add(5, increasedBy != null); // 5
+
+        return criteria;
     }
 }
