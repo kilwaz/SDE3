@@ -5,9 +5,6 @@ import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
 import application.gui.Controller;
 import application.net.proxy.WebProxyManager;
-import application.test.core.Example;
-import application.test.core.TestCase;
-import application.test.core.TestCaseFactory;
 import application.utils.AppParams;
 import application.utils.AppProperties;
 import application.utils.managers.*;
@@ -34,6 +31,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Set;
 
 /**
  * Main handling class of the application.
@@ -85,6 +83,13 @@ public class Main extends Application {
         new LogManager();
 
         log.info(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+
+        Set<String> systemProperties = System.getProperties().stringPropertyNames();
+        log.info("***** START JVM Properties *****");
+        for (String name : systemProperties) {
+            log.info(name + ": " + System.getProperty(name));
+        }
+        log.info("***** END JVM Properties *****");
 
         instance = this;
         this.splashStage = stage;
