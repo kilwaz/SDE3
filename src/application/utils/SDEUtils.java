@@ -200,6 +200,10 @@ public class SDEUtils {
             return "//*[@id=\"" + element.attr("id") + "\"]";
         } else { // If not we put the tag and go up
             Element parent = element.parent();
+            // If there is no parent there is nothing to add, we are at the top of the tree
+            if (parent == null) {
+                return "";
+            }
             // We only only direct children for xPath
             List<Element> parentTagList = new ArrayList<>();
             for (Element childElement : parent.children()) {
