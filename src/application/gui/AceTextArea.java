@@ -24,21 +24,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class AceTextArea extends VBox {
+    private static final String EDITOR_HTML = "/aceCodeEditor.html";
+    private static final String ACE_JS = "/ace-editor/src/ace.js";
+    private static final String LANGUAGE_TOOL_JS = "/ace-editor/src/ext-language_tools.js";
+    private static Logger log = Logger.getLogger(AceTextArea.class);
     private DrawableNode node;
     private WebView browser;
     private WebEngine webEngine;
     private VBox instance = this;
     private JSObject jsObject;
     private String textMode;
-
     private Boolean initialised = false;
-
     private String textToBeSet;
-    private static Logger log = Logger.getLogger(AceTextArea.class);
-
-    private static final String EDITOR_HTML = "/aceCodeEditor.html";
-    private static final String ACE_JS = "/ace-editor/src/ace.js";
-    private static final String LANGUAGE_TOOL_JS = "/ace-editor/src/ext-language_tools.js";
 
     public AceTextArea(String textMode) {
         this.textMode = textMode;
@@ -127,12 +124,6 @@ public class AceTextArea extends VBox {
             }
         });
 
-        browser.setPrefHeight(Integer.MAX_VALUE);
-        browser.setPrefWidth(Integer.MAX_VALUE);
-
-        browser.setMaxHeight(Integer.MAX_VALUE);
-        browser.setMaxWidth(Integer.MAX_VALUE);
-
         this.setOnKeyReleased(event -> {
             if (event.isControlDown()) {
                 if (event.getCode() == KeyCode.C) {
@@ -152,11 +143,20 @@ public class AceTextArea extends VBox {
             }
         });
 
-//        browser.setOnScroll(event -> {
-//            log.info("This is us scrolling on something...");
-//        });
+        webEngine.setOnAlert(event -> {
+            log.info("Alert from webview = " + event.getData());
+        });
 
         initialised = true;
+    }
+
+    public String getText() {
+        String text = "";
+        if (jsObject != null) {
+            text = (String) jsObject.call("getText");
+        }
+
+        return text;
     }
 
     // We need to have a delay here as it is possible when setting the text straight after creating the text area
@@ -170,15 +170,6 @@ public class AceTextArea extends VBox {
                 jsObject.call("setText", text);
             }
         }
-    }
-
-    public String getText() {
-        String text = "";
-        if (jsObject != null) {
-            text = (String) jsObject.call("getText");
-        }
-
-        return text;
     }
 
     public void goToLine(Integer lineNumber) {
@@ -195,6 +186,16 @@ public class AceTextArea extends VBox {
         }
 
         Platform.runLater(new OneShotTask(lineNumber));
+
+
+    }
+
+    public Boolean isInitialised() {
+        return initialised;
+    }
+
+    private AceTextArea getThisTextArea() {
+        return this;
     }
 
     // These methods are callable from within javascript using java.methodName
@@ -204,13 +205,5 @@ public class AceTextArea extends VBox {
                 node.setAceTextAreaText(value);
             }
         }
-    }
-
-    public Boolean isInitialised() {
-        return initialised;
-    }
-
-    private AceTextArea getThisTextArea() {
-        return this;
     }
 }

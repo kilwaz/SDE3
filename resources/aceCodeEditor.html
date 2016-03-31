@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style type="text/css" media="screen">
+    <style type="text/css">
         #editor {
             position: absolute;
             top: 0;
@@ -52,6 +52,8 @@
     function goToLine(lineNumber) {
         editor.gotoLine(lineNumber, 0, true);
     }
+
+    editor.setScrollSpeed(0.03);
 </script>
 </body>
 </html>
