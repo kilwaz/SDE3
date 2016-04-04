@@ -9,4 +9,6 @@ public @interface TestInput {
     String name() default "";
 
     String val() default "";
+
+    String[] list() default "";
 }

@@ -46,6 +46,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.apache.log4j.Logger;
+import org.controlsfx.control.Notifications;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.StatusBar;
 
@@ -932,5 +933,18 @@ public class Controller implements Initializable {
         label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
         return label;
+    }
+
+    public void createNotification(String title, String text) {
+        class GUIUpdate implements Runnable {
+            GUIUpdate() {
+            }
+
+            public void run() {
+                Notifications.create().title(title).text(text).showInformation();
+            }
+        }
+
+        Platform.runLater(new GUIUpdate());
     }
 }

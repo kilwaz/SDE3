@@ -14,57 +14,54 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.quartz.*;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class TimerNode extends DrawableNode {
+    private static Logger log = Logger.getLogger(TimerNode.class);
     private Integer milliSecsWait = 0;
     private Integer startDateYear = 0;
     private Integer startDateMonth = 0;
     private Integer startDateDay = 0;
     private String startTime = "";
-
     private Integer endDateYear = 0;
     private Integer endDateMonth = 0;
     private Integer endDateDay = 0;
     private String endTime = "";
     private String repetitionCount = "";
-
     private String frequency = "";
     private String frequencyDurationCount = "";
     private String frequencyDuration = "";
     private String repetition = "";
     private String startChoice = "";
-
     private Label repeatFieldLabel;
     private ChoiceBox frequencyChoice;
     private ChoiceBox startWhenChoice;
-
     private ChoiceBox frequencyDurationChoice;
     private ChoiceBox repetitionChoice;
     private TextField frequencyDurationCountField;
-
     private DatePicker dateUntilPicker;
     private TextField endTimeField;
     private Label endTimeHelpLabel;
-
     private TextField repetitionField;
     private Label timesHelpLabel;
-
     private Label jobStartLabel;
     private DatePicker datePicker;
     private TextField startTimeField;
     private Label startTimeHelpLabel;
-
     private HBox repeatHBox;
     private HBox startChoiceHBox;
-
     private TimerNode instance;
+    private String targetNode = "";
 
     // This will make a copy of the node passed to it
     public TimerNode(TimerNode timerNode) {
@@ -95,6 +92,8 @@ public class TimerNode extends DrawableNode {
         this.setFrequencyDuration(timerNode.getFrequencyDuration());
         this.setRepetition(timerNode.getRepetition());
         this.setStartChoice(timerNode.getStartChoice());
+
+        this.setTargetNode(timerNode.getTargetNode());
     }
 
     public TimerNode() {
@@ -147,9 +146,15 @@ public class TimerNode extends DrawableNode {
         datePicker.setOnAction(event -> {
             LocalDate date = datePicker.getValue();
 
-            startDateYear = date.getYear();
-            startDateMonth = date.getMonthValue();
-            startDateDay = date.getDayOfMonth();
+            if (date != null) {
+                startDateYear = date.getYear();
+                startDateMonth = date.getMonthValue();
+                startDateDay = date.getDayOfMonth();
+            } else {
+                startDateYear = 0;
+                startDateMonth = 0;
+                startDateDay = 0;
+            }
 
             instance.save();
         });
@@ -288,6 +293,29 @@ public class TimerNode extends DrawableNode {
         timesHelpLabel.setText("times");
         timesHelpLabel.setMinWidth(100);
 
+        // TARGET ROW
+        HBox targetHBox = new HBox(5);
+        targetHBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label targetFieldLabel = new Label();
+        targetFieldLabel.setText("Target: ");
+        targetFieldLabel.setMinWidth(100);
+
+        TextField targetField = new TextField();
+        targetField.setId("fieldTargetField-" + getUuidStringWithoutHyphen());
+        targetField.setText(targetNode);
+        targetField.setPrefWidth(150);
+
+        targetField.setOnAction(event -> {
+            TextField textField = (TextField) event.getSource();
+
+            targetNode = textField.getText();
+            instance.save();
+        });
+
+        targetHBox.getChildren().add(targetFieldLabel);
+        targetHBox.getChildren().add(targetField);
+
         // DELAY ROW
         HBox delayHBox = new HBox(5);
         delayHBox.setAlignment(Pos.CENTER_LEFT);
@@ -320,6 +348,7 @@ public class TimerNode extends DrawableNode {
 
         vBox.getChildren().add(startChoiceHBox);
         vBox.getChildren().add(repeatHBox);
+        vBox.getChildren().add(targetHBox);
         vBox.getChildren().add(new Separator());
         vBox.getChildren().add(delayHBox);
 
@@ -476,6 +505,11 @@ public class TimerNode extends DrawableNode {
         startChoiceAttribute.init("StartChoice", startChoice.getClass().getName(), startChoice, this);
         savableAttributes.add(startChoiceAttribute);
 
+        // TargetNode
+        SavableAttribute targetNodeAttribute = SavableAttribute.create(SavableAttribute.class);
+        targetNodeAttribute.init("TargetNode", targetNode.getClass().getName(), targetNode, this);
+        savableAttributes.add(targetNodeAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
@@ -520,19 +554,55 @@ public class TimerNode extends DrawableNode {
 
             simpleScheduleBuilder.repeatForever();
             triggerBuilder.endAt(endDate.toDate());
+        } else if("Forever".equals(repetition)){
+            simpleScheduleBuilder.repeatForever();
         }
 
         if ("At".equals(startChoice)) {
             String[] startTimeSplit = startTime.split(":");
 
-            DateTime startDate = new DateTime(
-                    startDateYear,
-                    startDateMonth,
-                    startDateDay, Integer.parseInt(startTimeSplit[0]),   // Hours
-                    Integer.parseInt(startTimeSplit[1]),                 // Minutes
-                    Integer.parseInt(startTimeSplit[2]));                // Seconds
+            Integer startYear = startDateYear;
+            Integer startMonth = startDateMonth;
+            Integer startDay = startDateDay;
+
+            // If start date is zero set to current date
+            if (startDateYear == 0) {
+                startYear = ZonedDateTime.now().getYear();
+            }
+            if (startDateMonth == 0) {
+                startMonth = ZonedDateTime.now().getMonthValue();
+            }
+            if (startDateDay == 0) {
+                startDay = ZonedDateTime.now().getDayOfMonth();
+            }
+
+            DateTime startDate = generateDateTime(startYear, startMonth, startDay,
+                    Integer.parseInt(startTimeSplit[0]),  // Hours
+                    Integer.parseInt(startTimeSplit[1]),  // Minutes
+                    Integer.parseInt(startTimeSplit[2])); // Seconds
+
+            // If the time set for today as already gone then set it to start tomorrow
+            if (startDate.isBeforeNow()) {
+                // If start date is zero set to current date
+                if (startDateYear == 0) {
+                    startYear = ZonedDateTime.now().plusDays(1).getYear();
+                }
+                if (startDateMonth == 0) {
+                    startMonth = ZonedDateTime.now().plusDays(1).getMonthValue();
+                }
+                if (startDateDay == 0) {
+                    startDay = ZonedDateTime.now().plusDays(1).getDayOfMonth();
+                }
+
+                startDate = generateDateTime(startYear, startMonth, startDay,
+                        Integer.parseInt(startTimeSplit[0]),  // Hours
+                        Integer.parseInt(startTimeSplit[1]),  // Minutes
+                        Integer.parseInt(startTimeSplit[2])); // Seconds
+            }
 
             triggerBuilder.startAt(startDate.toDate());
+            DateTimeFormatter dtf = DateTimeFormat.forPattern("EEEE dd MMMM yyyy HH:mm:ss");
+            Controller.getInstance().createNotification("Job Scheduled", "Due to start: " + dtf.print(startDate));
         } else if ("Instantly".equals(startChoice)) {
             triggerBuilder.startNow();
         }
@@ -540,11 +610,21 @@ public class TimerNode extends DrawableNode {
         JobManager.getInstance().scheduleJob(timerJob, triggerBuilder.withSchedule(simpleScheduleBuilder).build());
     }
 
+    private DateTime generateDateTime(Integer year, Integer month, Integer day, Integer hour, Integer minute, Integer second) {
+        return new DateTime(year, month, day, hour, minute, second);
+    }
+
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         try {
             TimeUnit.MILLISECONDS.sleep(milliSecsWait);
         } catch (InterruptedException e) {
             // Time to resume..
+        }
+        if (targetNode != null && !targetNode.isEmpty()) {
+            DrawableNode jobNode = getProgram().getFlowController().getNodeThisControllerFromContainedText(targetNode);
+            if (jobNode != null) {
+                createJob(jobNode);
+            }
         }
     }
 
@@ -666,5 +746,13 @@ public class TimerNode extends DrawableNode {
 
     public void setStartChoice(String startChoice) {
         this.startChoice = startChoice;
+    }
+
+    public String getTargetNode() {
+        return targetNode;
+    }
+
+    public void setTargetNode(String targetNode) {
+        this.targetNode = targetNode;
     }
 }

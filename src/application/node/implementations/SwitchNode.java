@@ -278,4 +278,16 @@ public class SwitchNode extends DrawableNode {
 
         return addSwitchRow;
     }
+
+    public Switch getSwitchByValue(String value) {
+        if (value != null) {
+            for (Switch aSwitch : getSwitches()) {
+                if (value.equals(aSwitch.getTarget())) {
+                    return aSwitch;
+                }
+            }
+        }
+
+        return null;
+    }
 }

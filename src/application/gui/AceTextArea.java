@@ -143,6 +143,12 @@ public class AceTextArea extends VBox {
             }
         });
 
+        browser.setPrefHeight(Integer.MAX_VALUE);
+        browser.setPrefWidth(Integer.MAX_VALUE);
+
+        browser.setMaxHeight(Integer.MAX_VALUE);
+        browser.setMaxWidth(Integer.MAX_VALUE);
+
         webEngine.setOnAlert(event -> {
             log.info("Alert from webview = " + event.getData());
         });
