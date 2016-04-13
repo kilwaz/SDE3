@@ -140,7 +140,7 @@ public class CopyNode extends DrawableNode {
                 List<Trigger> triggers = getProgram().getFlowController().getActiveTriggers(getContainedText(), "Copy complete");
                 for (Trigger trigger : triggers) {
                     NodeRunParams nodeRunParams = new NodeRunParams();
-                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
+                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false,true, null, nodeRunParams);
                 }
             }
         }

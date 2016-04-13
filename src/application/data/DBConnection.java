@@ -50,7 +50,7 @@ public class DBConnection {
             // If the database connection is using sqlite then we need to start the sqlite.exe
             if (connectionString.contains("sqlite")) {
                 try {
-                    Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/sqlite3.exe", "sde.db").start();
+                    Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/sqlite-3.12.0.exe", "sde.db").start();
                     BufferedReader input = new BufferedReader(new InputStreamReader(sqlite.getInputStream()));
                 } catch (IOException ex) {
                     Error.SQLITE_START_EXE.record().create(ex);

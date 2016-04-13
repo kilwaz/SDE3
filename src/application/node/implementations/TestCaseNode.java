@@ -7,6 +7,8 @@ import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.node.objects.Logic;
 import application.test.core.TestCase;
+import application.test.core.TestSet;
+import application.test.core.TestTemplate;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
@@ -89,8 +91,9 @@ public class TestCaseNode extends DrawableNode {
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
-        TestCase testCase = (TestCase) this.getLogic().getObjectInstance();
-        testCase.setParentNode(this);
-        testCase.init();
+        TestTemplate testTemplate = (TestTemplate) this.getLogic().getObjectInstance();
+        TestSet testSet = new TestSet(testTemplate);
+        testSet.setParentNode(this);
+        testSet.init();
     }
 }

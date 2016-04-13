@@ -11,91 +11,115 @@ import application.test.ExpectedElement;
 import application.test.ExpectedElements;
 import application.test.TestRunner;
 import application.test.action.helpers.PageStateCapture;
-import application.test.annotation.*;
+import application.test.annotation.AssertChange;
 import application.utils.SDEThread;
-import org.apache.log4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class TestCase<TestClass extends TestCase> {
-    private static Logger log = Logger.getLogger(TestCase.class);
+public class TestCase<TemplateCase extends TestTemplate> {
+    private String testIterationID = "";
+    private TestSet testSet;
+    private Test test = null;
+    private List<Input> inputs = new ArrayList<>();
 
     private List<String> testNodeList = new ArrayList<>();
     private List<String> inputNodeList = new ArrayList<>();
-    private Class<TestClass> testClass;
-    private DrawableNode parentNode = null;
-    private List<Input> inputs = new ArrayList<>();
+
     private ExpectedElements expectedElements = new ExpectedElements();
     private ChangedElements changedElements = new ChangedElements();
+
+    private Method buildMethod = null;
+    private Method inputMethod = null;
+    private Method runMethod = null;
+    private Method onCompleteMethod = null;
 
     private PageStateCapture captureBefore = null;
     private PageStateCapture captureAfter = null;
 
-    public TestCase(Class<TestClass> testClass) {
-        this.testClass = testClass;
+    private Class<TemplateCase> templateCaseClass;
+    private TestTemplate templateObject;
+
+    public TestCase() {
+
+    }
+
+    public TestCase(Class<TemplateCase> testClass) {
+        this.templateCaseClass = testClass;
+    }
+
+    public TestCase templateObject(TestTemplate templateObject) {
+        this.templateObject = templateObject;
+        return this;
+    }
+
+    public TestCase testIterationID(String testIterationID) {
+        this.testIterationID = testIterationID;
+        return this;
+    }
+
+    public TestCase input(Input input) {
+        List<Input> inputList = new ArrayList<>();
+        inputList.add(input);
+        return inputs(inputList);
+    }
+
+    public TestCase inputs(List<Input> inputs) {
+        this.inputs.addAll(inputs);
+        return this;
+    }
+
+    public TestCase templateCaseClass(Class<TemplateCase> templateCaseClass) {
+        this.templateCaseClass = templateCaseClass;
+        return this;
+    }
+
+    public TestCase buildMethod(Method buildMethod) {
+        this.buildMethod = buildMethod;
+        return this;
     }
 
     public TestCase init() {
-        Method buildMethod = null;
-        Method inputMethod = null;
-        Method runMethod = null;
-        Method onCompleteMethod = null;
+        buildTest();
+        runTest();
+        compareTest();
+        completeTest();
+        return this;
+    }
 
-        // Find any test nodes assigned to the test
-        if (testClass.isAnnotationPresent(TestNodes.class)) {
-            Annotation annotation = testClass.getAnnotation(TestNodes.class);
-            String[] testList = ((TestNodes) annotation).testList();
-            Collections.addAll(testNodeList, testList);
-        }
-        // Find any input nodes assigned to the test
-        if (testClass.isAnnotationPresent(InputNodes.class)) {
-            Annotation annotation = testClass.getAnnotation(InputNodes.class);
-            String[] inputList = ((InputNodes) annotation).inputList();
-            Collections.addAll(inputNodeList, inputList);
-        }
+    public TestCase testNodes(List<String> testNodeList) {
+        this.testNodeList.addAll(testNodeList);
+        return this;
+    }
 
-        Annotation[] testInputAnnotations = testClass.getAnnotationsByType(TestInput.class);
-        for (Annotation annotation : testInputAnnotations) {
-            TestInput testInputAnnotation = (TestInput) annotation;
-            Input input = Input.create(Input.class);
-            input.setVariableName(testInputAnnotation.name());
-            input.setVariableValue(testInputAnnotation.val());
-            inputs.add(input);
-        }
+    public TestCase inputNodes(List<String> inputNodeList) {
+        this.inputNodeList.addAll(inputNodeList);
+        return this;
+    }
 
-        // Annotations against methods
-        for (Method method : testClass.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(BuildTest.class)) { // During construction of the test commands to control the browser
-                buildMethod = method;
-            } else if (method.isAnnotationPresent(ApplyInputs.class)) { // Applying any inputs to the test script
-                inputMethod = method;
-            } else if (method.isAnnotationPresent(RunTest.class)) { // Running the test within selenium
-                runMethod = method;
-            } else if (method.isAnnotationPresent(OnComplete.class)) { // Once all tests have been completed
-                onCompleteMethod = method;
-            }
-        }
+    public TestCase parent(TestSet parentCase) {
+        this.testSet = parentCase;
+        return this;
+    }
 
-        Test test = null;
+    private void buildTest() {
         try {
             // Parent cannot be null
-            if (parentNode == null) {
+            if (testSet.getParentNode() == null) {
                 // Cannot continue with test if no program is assigned to this test case
                 Error.TEST_CASE_NO_PROGRAM_SET.record().create();
-                return this;
+                return;
             }
 
             // Build the tests first
             if (buildMethod != null) {
-                buildMethod.invoke(this);
+                buildMethod.invoke(templateObject, this);
             }
             for (String nodeName : testNodeList) {
-                DrawableNode node = parentNode.getProgram().getFlowController().getNodeThisControllerFromContainedText(nodeName);
+                DrawableNode node = testSet.getParentNode().getProgram().getFlowController().getNodeThisControllerFromContainedText(nodeName);
                 if (node == null) { // Check that the node exists first
                     Error.TEST_CASE_CAN_FIND_NODE.record().additionalInformation("Node name " + nodeName).create();
                 } else {
@@ -114,11 +138,11 @@ public class TestCase<TestClass extends TestCase> {
 
             // Add any inputs to the tests
             if (inputMethod != null) {
-                inputMethod.invoke(this);
+                inputMethod.invoke(templateObject);
             }
             if (test != null) {
                 for (String nodeName : inputNodeList) {
-                    DrawableNode node = parentNode.getProgram().getFlowController().getNodeThisControllerFromContainedText(nodeName);
+                    DrawableNode node = testSet.getParentNode().getProgram().getFlowController().getNodeThisControllerFromContainedText(nodeName);
                     if (node == null) { // Check that the node exists first
                         Error.TEST_CASE_CAN_FIND_NODE.record().additionalInformation("Node name " + nodeName).create();
                     } else {
@@ -135,97 +159,118 @@ public class TestCase<TestClass extends TestCase> {
                     test.applyInput(input);
                 }
             }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            Error.TEST_ANNOTATION_MISSING.record().create(ex);
+        }
+    }
 
-            // Run the test
+    private void runTest() {
+        // Run the test
+        try {
             if (runMethod != null) {
-                runMethod.invoke(this);
+                runMethod.invoke(templateObject);
             }
             if (test != null) {
                 test.testCase(this);
-                TestRunner testRunner = new TestRunner(test, parentNode.getProgram());
-                SDEThread sdeThread = new SDEThread(testRunner, "Test case for " + parentNode.getUuidString());
+                TestRunner testRunner = new TestRunner(test, testSet.getParentNode().getProgram());
+                SDEThread sdeThread = new SDEThread(testRunner, "Test case for " + testSet.getParentNode().getUuidString(), null, true);
                 sdeThread.join();
             }
 
-            // Compare and process the results
-            if (test != null) {
-                // This needs to be done after the test has completed as some of the assertions require knowledge of elements from the test results
-                for (Method method : testClass.getDeclaredMethods()) {
-                    if (method.isAnnotationPresent(AssertChange.class)) {
-                        Annotation annotation = method.getAnnotation(AssertChange.class);
-                        AssertChange assertChange = (AssertChange) annotation;
-                        ExpectedElement expectedElement = ExpectedElement.define();
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            Error.TEST_ANNOTATION_MISSING.record().create(ex);
+        }
+    }
 
-                        // id
-                        if (!assertChange.id().isEmpty()) {
-                            expectedElement.id(assertChange.id());
-                        }
+    private void compareTest() {
+        if (test != null) {
+            // This needs to be done after the test has completed as some of the assertions require knowledge of elements from the test results
+            for (Method method : templateCaseClass.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(AssertChange.class)) {
+                    Annotation annotation = method.getAnnotation(AssertChange.class);
+                    AssertChange assertChange = (AssertChange) annotation;
+                    ExpectedElement expectedElement = ExpectedElement.define();
 
-                        // type
-                        if (!assertChange.type().isEmpty()) {
-                            expectedElement.type(assertChange.type());
-                        }
-
-                        // attribute
-                        if (!assertChange.attribute().isEmpty()) {
-                            expectedElement.attribute(assertChange.attribute());
-                        }
-
-                        // before
-                        if (!assertChange.before().isEmpty()) {
-                            expectedElement.before(assertChange.before());
-                        }
-
-                        // after
-                        if (!assertChange.after().isEmpty()) {
-                            expectedElement.after(assertChange.after());
-                        }
-
-                        // increasedBy
-                        if (!assertChange.increasedBy().isEmpty()) {
-                            expectedElement.increasedBy(assertChange.increasedBy());
-                        }
-
-                        try {
-                            method.invoke(this, expectedElement);
-                        } catch (IllegalAccessException | InvocationTargetException ex) {
-                            Error.TEST_ANNOTATION_MISSING.record().create(ex);
-                        }
-
-                        expectedElements.add(expectedElement);
+                    // id
+                    if (!assertChange.id().isEmpty()) {
+                        expectedElement.id(assertChange.id());
                     }
-                }
 
-                // Finally compare the results
-                changedElements = captureBefore.compare(captureAfter);
+                    // type
+                    if (!assertChange.type().isEmpty()) {
+                        expectedElement.type(assertChange.type());
+                    }
+
+                    // attribute
+                    if (!assertChange.attribute().isEmpty()) {
+                        expectedElement.attribute(assertChange.attribute());
+                    }
+
+                    // before
+                    if (!assertChange.before().isEmpty()) {
+                        expectedElement.before(assertChange.before());
+                    }
+
+                    // after
+                    if (!assertChange.after().isEmpty()) {
+                        expectedElement.after(assertChange.after());
+                    }
+
+                    // increasedBy
+                    if (!assertChange.increasedBy().isEmpty()) {
+                        expectedElement.increasedBy(assertChange.increasedBy());
+                    }
+
+                    AssertData assertData = new AssertData();
+                    assertData.expectedElement(expectedElement).inputs(inputs);
+                    assertData.before(captureBefore).after(captureAfter);
+
+                    try {
+                        method.invoke(templateObject, assertData);
+                    } catch (IllegalAccessException | InvocationTargetException ex) {
+                        Error.TEST_ANNOTATION_MISSING.record().create(ex);
+                    }
+
+                    expectedElements.add(expectedElement);
+                }
             }
 
+            // Finally compare the results
+            changedElements = captureBefore.compare(captureAfter);
+        }
+    }
+
+    private void completeTest() {
+        try {
             // Once Test is complete
             if (onCompleteMethod != null) {
-                onCompleteMethod.invoke(this);
+                OnCompleteData onCompleteData = new OnCompleteData();
+                onCompleteData.testCase(this);
+                onCompleteMethod.invoke(templateObject, onCompleteData);
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
             Error.TEST_ANNOTATION_MISSING.record().create(ex);
         }
+    }
 
+    public TestCase inputMethod(Method inputMethod) {
+        this.inputMethod = inputMethod;
         return this;
     }
 
-    public DrawableNode getParentNode() {
-        return parentNode;
-    }
-
-    public TestCase setParentNode(DrawableNode parentNode) {
-        this.parentNode = parentNode;
+    public TestCase runMethod(Method runMethod) {
+        this.runMethod = runMethod;
         return this;
     }
 
-    public List<String> getTestNodeList() {
-        return testNodeList;
+    public TestCase onCompleteMethod(Method onCompleteMethod) {
+        this.onCompleteMethod = onCompleteMethod;
+        return this;
     }
 
-    public List<String> getInputNodeList() {
-        return inputNodeList;
+    public void setPageCaptures(PageStateCapture captureBefore, PageStateCapture captureAfter) {
+        this.captureAfter = captureAfter;
+        this.captureBefore = captureBefore;
     }
 
     public ExpectedElements getExpectedElements() {
@@ -236,34 +281,44 @@ public class TestCase<TestClass extends TestCase> {
         return changedElements;
     }
 
-    public String testInput(String name) {
-        for (Input input : inputs) {
-            if (input.getVariableName().equals(name)) {
-                return input.getVariableValue();
-            }
-        }
-
-        return null;
-    }
-
     public PageStateCapture getCaptureAfter() {
         return captureAfter;
-    }
-
-    public PageStateCapture getCaptureBefore() {
-        return captureBefore;
     }
 
     public void setCaptureAfter(PageStateCapture captureAfter) {
         this.captureAfter = captureAfter;
     }
 
-    public void setPageCaptures(PageStateCapture captureBefore, PageStateCapture captureAfter) {
-        this.captureAfter = captureAfter;
-        this.captureBefore = captureBefore;
+    public PageStateCapture getCaptureBefore() {
+        return captureBefore;
     }
 
     public void setCaptureBefore(PageStateCapture captureBefore) {
         this.captureBefore = captureBefore;
+    }
+
+    public List<Input> getInputs() {
+        return inputs;
+    }
+
+    public Input getInput(String name) {
+        if (name != null) {
+            for (Input input : inputs) {
+                if (name.equals(input.getVariableName())) {
+                    return input;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // This is called from within the application test case template
+    public TestSet getTestSet() {
+        return testSet;
+    }
+
+    public String getTestIterationID() {
+        return testIterationID;
     }
 }

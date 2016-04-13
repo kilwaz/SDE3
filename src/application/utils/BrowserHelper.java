@@ -21,6 +21,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class BrowserHelper {
+    private static final String CHROME_DRIVER = "chromedriver-2.21.exe";
+    private static final String IE_DRIVER = "IEDriverServer-2.53.0.exe";
+    private static final String OPREA_DRIVER = "operadriver-0.1.0.exe";
+
     private static Logger log = Logger.getLogger(BrowserHelper.class);
 
     public static WebDriver getChrome() {
@@ -40,12 +44,9 @@ public class BrowserHelper {
     }
 
     public static WebDriver getChrome(String proxyConnectionString) {
-        log.info("Setting up Chrome");
         DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 
-        System.setProperty("webdriver.chrome.driver", SDEUtils.getResourcePath() + "/WebDrivers/chromedriver.exe");
-
-        log.info("location = " + SDEUtils.getResourcePath() + "/WebDrivers/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", SDEUtils.getResourcePath() + "/WebDrivers/" + CHROME_DRIVER);
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("test-type");
@@ -57,11 +58,8 @@ public class BrowserHelper {
                 .setSslProxy(proxyConnectionString);
         capabilities.setCapability(CapabilityType.PROXY, proxy);
 
-        log.info("Starting new!");
-
         WebDriver driver = new ChromeDriver(capabilities);
         setupBrowser(driver);
-        log.info("Done");
         return driver;
     }
 
@@ -108,7 +106,7 @@ public class BrowserHelper {
     public static WebDriver getOpera(String proxyConnectionString) {
         DesiredCapabilities capabilities = DesiredCapabilities.operaBlink();
 
-        System.setProperty("webdriver.opera.driver", SDEUtils.getResourcePath() + "/WebDrivers/operadriver.exe");
+        System.setProperty("webdriver.opera.driver", SDEUtils.getResourcePath() + "/WebDrivers/" + OPREA_DRIVER);
 
         OperaOptions options = new OperaOptions();
         options.addArguments("ignore-certificate-errors");
@@ -128,7 +126,7 @@ public class BrowserHelper {
     public static WebDriver getIE(String proxyConnectionString) {
         DesiredCapabilities capabilities = DesiredCapabilities.internetExplorer();
 
-        System.setProperty("webdriver.ie.driver", SDEUtils.getResourcePath() + "/WebDrivers/IEDriverServer.exe");
+        System.setProperty("webdriver.ie.driver", SDEUtils.getResourcePath() + "/WebDrivers/" + IE_DRIVER);
 
         Proxy proxy = new Proxy();
         proxy.setHttpProxy(proxyConnectionString)

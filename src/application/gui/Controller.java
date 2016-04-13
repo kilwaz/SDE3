@@ -524,7 +524,7 @@ public class Controller implements Initializable {
         settingsButtonToolBar.setOnMousePressed(event -> settingsButtonToolBar.setStyle("-fx-background-color: darkgray;"));
         settingsButtonToolBar.setOnMouseReleased(event -> settingsButtonToolBar.setStyle("-fx-background-color: lightgray;"));
         settingsButtonToolBar.setOnMouseExited(event -> settingsButtonToolBar.setStyle("-fx-background-color: null;"));
-        settingsButtonToolBar.setOnAction(event -> new SettingsWindow());
+        settingsButtonToolBar.setOnAction(event -> new SettingsPickerWindow());
 
         // Setup tool bar  here
         toolBar.getItems().add(runButtonToolBar);

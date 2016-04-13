@@ -51,6 +51,9 @@ public class AppProperties {
             AppParams.setRemoteDatabaseUsername(getTextValue(AppParams.getRemoteDatabaseUsername(), documentElement, "DBUsername"));
             AppParams.setLocalDatabase(Boolean.parseBoolean(getTextValue(AppParams.isLocalDatabase().toString(), documentElement, "LocalDatabase")));
             AppParams.setLocalDatabaseName(getTextValue(AppParams.getRemoteDatabaseUsername(), documentElement, "LocalDatabaseName"));
+            AppParams.setTestDocOutputDir(getTextValue(AppParams.getTestDocOutputDir(), documentElement, "TestDocOutputDir"));
+            AppParams.setCreateTestDocument(Boolean.parseBoolean(getTextValue(AppParams.getCreateTestDocument().toString(), documentElement, "CreateTestDoc")));
+            AppParams.setRecordScreenshots(Boolean.parseBoolean(getTextValue(AppParams.getRecordScreenshots().toString(), documentElement, "RecordScreenshots")));
             return true;
 
         } catch (ParserConfigurationException | SAXException | IOException ex) {
@@ -104,6 +107,18 @@ public class AppProperties {
 
             e = document.createElement("LocalDatabaseName");
             e.appendChild(document.createTextNode(AppParams.getLocalDatabaseName()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("TestDocOutputDir");
+            e.appendChild(document.createTextNode(AppParams.getTestDocOutputDir()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("CreateTestDoc");
+            e.appendChild(document.createTextNode(AppParams.getCreateTestDocument().toString()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("RecordScreenshots");
+            e.appendChild(document.createTextNode(AppParams.getRecordScreenshots().toString()));
             rootEle.appendChild(e);
 
             document.appendChild(rootEle);

@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class DataBank {
+    private static Logger log = Logger.getLogger(DataBank.class);
+
     private static HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
     private static HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
     private static HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
     private static NodeColours nodeColours = new NodeColours();
-
-    private static Logger log = Logger.getLogger(DataBank.class);
 
     public static void saveVariable(String name, Object object, String referenceID) {
         HashMap<String, Object> programVariable = programVariables.get(referenceID);

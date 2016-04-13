@@ -6,6 +6,7 @@ import application.data.model.DatabaseObject;
 import application.data.model.dao.DrawableNodeDAO;
 import application.gui.dialog.ErrorDialog;
 import application.node.design.DrawableNode;
+import application.node.implementations.LogicNode;
 import application.node.objects.Logic;
 import application.utils.NodeRunParams;
 import application.utils.SDERunnable;
@@ -28,7 +29,7 @@ public class Program extends DatabaseObject implements Comparable<Program> {
         super();
     }
 
-    public static void runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean main, NodeRunParams nodeRunParams) {
+    public static SDEThread runHelper(String name, String referenceID, DrawableNode sourceNode, Boolean whileWaiting, Boolean startImmediately, String threadReference, NodeRunParams nodeRunParams) {
         class OneShotTask implements Runnable {
             OneShotTask() {
             }
@@ -38,7 +39,7 @@ public class Program extends DatabaseObject implements Comparable<Program> {
                 if (node instanceof Logic) {
                     Logic logic = ((Logic) node);
                     triggerConnections(sourceNode, ((Logic) node).getParentLogicNode().getContainedText(), referenceID);
-                    logic.run(whileWaiting, nodeRunParams);
+                    logic.run(whileWaiting, nodeRunParams, threadReference);
                 } else if (node instanceof DrawableNode) {
                     DrawableNode drawableNode = (DrawableNode) node;
                     triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
@@ -65,23 +66,31 @@ public class Program extends DatabaseObject implements Comparable<Program> {
                     drawableNode = ((Logic) node).getParentLogicNode();
                 }
 
+                // Running any nodes in the next node
                 if (drawableNode != null && drawableNode.getNextNodeToRun() != null && !drawableNode.getNextNodeToRun().isEmpty()) {
                     triggerConnections(drawableNode, drawableNode.getNextNodeToRun(), referenceID);
-                    Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, drawableNode, true, main, nodeRunParams);
+                    Program.runHelper(drawableNode.getNextNodeToRun(), referenceID, drawableNode, true, true, null, nodeRunParams);
                 }
             }
         }
 
         // Starts a new thread for each time this is called.
-        SDEThread sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()));
+        SDEThread sdeThread;
+        if (sourceNode instanceof LogicNode) { // If this is a logic node
+            sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()), null, startImmediately);
+        } else { // If something else then add reference if it is there
+            sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()), threadReference, startImmediately);
+        }
 
-        // If we need to wait for this thread to finish first we join to the current thread.
+        // If we need to wait for this thread to finish first we join to the current thread, this is used for runAndWait
         if (whileWaiting) {
-            log.info("THREADING:Starting to wait for '" + sdeThread.getDescription() + "' to finish");
+//            log.info("THREADING:Starting to wait for '" + sdeThread + "' to finish");
             sdeThread.join();
-            log.info("THREADING:'" + sdeThread.getDescription() + "' has finished");
+//            log.info("THREADING:'" + sdeThread + "' has finished");
             ThreadManager.getInstance().removeInactiveThreads(); // Check to see if this thread has finished yet
         }
+
+        return sdeThread;
     }
 
     // This methods takes a sourceNode where a connection is coming from and a name of a target and triggers the connection to flash on the GUI
@@ -179,7 +188,7 @@ public class Program extends DatabaseObject implements Comparable<Program> {
             }
         }
 
-        new SDEThread(new CompileRunnable(), "Compile Thread for program - " + this.getName());
+        new SDEThread(new CompileRunnable(), "Compile Thread for program - " + this.getName(), null, true);
 
         // err this should return what the threaded compile returns but not sure how to do that yet..
         return true;
@@ -196,7 +205,7 @@ public class Program extends DatabaseObject implements Comparable<Program> {
             public void run() {
                 if (getFlowController().getStartNode() != null) {
                     getFlowController().compile();
-                    Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), null, false, true, new NodeRunParams());
+                    Program.runHelper(getFlowController().getStartNode().getContainedText(), getFlowController().getReferenceID(), null, false, true, null, new NodeRunParams());
                 } else {
                     log.info("No start node found");
                     new ErrorDialog()
@@ -208,7 +217,7 @@ public class Program extends DatabaseObject implements Comparable<Program> {
         }
 
         // Starts the program in a new thread separate from the GUI thread.
-        new SDEThread(new RunProgram(), "Running program - " + this.getName());
+        new SDEThread(new RunProgram(), "Running program - " + this.getName(), null, true);
     }
 
     public List<DrawableNode> getNodes() {

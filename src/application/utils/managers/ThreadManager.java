@@ -2,9 +2,11 @@ package application.utils.managers;
 
 import application.gui.Controller;
 import application.utils.SDEThread;
+import application.utils.SDEThreadCollection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,10 +14,19 @@ public class ThreadManager {
     private static ThreadManager threadManager;
     private ObservableList<SDEThread> runningThreads;
     private Integer activeThreads = 0;
+    private HashMap<String, SDEThreadCollection> threadCollections = new HashMap<>();
 
     public ThreadManager() {
         threadManager = this;
         runningThreads = FXCollections.observableArrayList();
+    }
+
+    public synchronized static ThreadManager getInstance() {
+        if (threadManager == null) {
+            threadManager = new ThreadManager();
+        }
+
+        return threadManager;
     }
 
     // Synchronized method as we are accessing runningThreads list
@@ -26,8 +37,24 @@ public class ThreadManager {
     // Synchronized method as we are accessing runningThreads list
     public synchronized void removeInactiveThreads() {
         List<SDEThread> threadsToRemove = runningThreads.stream().filter(thread -> !thread.getThread().isAlive()).collect(Collectors.toList());
+        threadCollections.values().forEach(SDEThreadCollection::removeInactiveThreads);
 
         runningThreads.removeAll(threadsToRemove);
+    }
+
+    public synchronized void addThreadToCollection(String threadReference, SDEThread sdeThread) {
+        if (threadCollections.get(threadReference) == null) {
+            SDEThreadCollection sdeThreadCollection = new SDEThreadCollection(threadReference);
+            sdeThreadCollection.addThread(sdeThread);
+            threadCollections.put(threadReference, sdeThreadCollection);
+        } else {
+            SDEThreadCollection sdeThreadCollection = threadCollections.get(threadReference);
+            sdeThreadCollection.addThread(sdeThread);
+        }
+    }
+
+    public synchronized SDEThreadCollection getThreadCollection(String threadReference) {
+        return threadCollections.get(threadReference);
     }
 
     public synchronized void threadStarted() {
@@ -47,14 +74,6 @@ public class ThreadManager {
 
     public ObservableList<SDEThread> getRunningThreads() {
         return runningThreads;
-    }
-
-    public synchronized static ThreadManager getInstance() {
-        if (threadManager == null) {
-            threadManager = new ThreadManager();
-        }
-
-        return threadManager;
     }
 
     public synchronized Integer getActiveThreads() {

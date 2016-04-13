@@ -1,27 +1,37 @@
 package application.utils;
 
-import application.error.*;
 import application.error.Error;
 import application.utils.managers.ThreadManager;
 import org.apache.log4j.Logger;
 
 public class SDEThread {
+    private static Integer threadCounter = 0;
+    private static Logger log = Logger.getLogger(SDEThread.class);
     private Thread thread;
     private Runnable runnable;
     private Integer id = -1;
-    private static Integer threadCounter = 0;
     private String description = "";
+    private String threadReference = null;
 
-    private static Logger log = Logger.getLogger(SDEThread.class);
-
-    public SDEThread(Runnable runnable, String description) {
+    public SDEThread(Runnable runnable, String description, String threadReference, Boolean doNotStart) {
         threadCounter++;
         this.id = threadCounter;
         this.description = description;
         this.runnable = runnable;
+        this.threadReference = threadReference;
 
         thread = new Thread(runnable);
+        if (doNotStart) {
+            start();
+        }
+    }
+
+    public void start() {
+        threadCounter++;
         ThreadManager.getInstance().addThread(this);
+        if (threadReference != null) {
+            ThreadManager.getInstance().addThreadToCollection(threadReference, this);
+        }
         thread.start();
     }
 
@@ -37,6 +47,10 @@ public class SDEThread {
         return thread.isAlive();
     }
 
+    public String getState() {
+        return thread.getState().name();
+    }
+
     public String getString() {
         return this.toString();
     }
@@ -47,6 +61,14 @@ public class SDEThread {
 
     public Runnable getRunnable() {
         return runnable;
+    }
+
+    public String getThreadReference() {
+        return threadReference;
+    }
+
+    public void setThreadReference(String threadReference) {
+        this.threadReference = threadReference;
     }
 
     public void join() {

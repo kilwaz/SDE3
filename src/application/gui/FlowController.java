@@ -227,7 +227,7 @@ public class FlowController {
         List<SDEThread> compileThreads = new ArrayList<>();
         for (DrawableNode node : nodes) {
             if (node instanceof LogicNode || node instanceof TestCaseNode) {
-                compileThreads.add(new SDEThread(new CompileTaskRunnable(node), "Compile Task for for program - " + node.getContainedText()));
+                compileThreads.add(new SDEThread(new CompileTaskRunnable(node), "Compile Task for for program - " + node.getContainedText(), null, true));
             }
         }
 
@@ -320,7 +320,8 @@ public class FlowController {
 
                     // Here we are checked to see if any connections are linked from this LogicNode
                     if (src.contains("run(\"" + endNode.getContainedText() + "\"") ||
-                            src.contains("runAndWait(\"" + endNode.getContainedText() + "\"")) {
+                            src.contains("runAndWait(\"" + endNode.getContainedText() + "\"") ||
+                            src.contains("runAndJoin(\"" + endNode.getContainedText() + "\"")) {
                         nodeConnectionType = NodeConnection.DYNAMIC_CONNECTION;
                     } else if (src.contains("getNode(\"" + endNode.getContainedText() + "\"")) {
                         nodeConnectionType = NodeConnection.GET_NODE_CONNECTION;
@@ -341,7 +342,8 @@ public class FlowController {
 
                     // Here we are checked to see if any connections are linked from this TestCaseNode
                     if (src.contains("run(\"" + endNode.getContainedText() + "\"") ||
-                            src.contains("runAndWait(\"" + endNode.getContainedText() + "\"")) {
+                            src.contains("runAndWait(\"" + endNode.getContainedText() + "\"") ||
+                            src.contains("runAndJoin(\"" + endNode.getContainedText() + "\"")) {
                         nodeConnectionType = NodeConnection.DYNAMIC_CONNECTION;
                     } else if (src.contains("getNode(\"" + endNode.getContainedText() + "\"")) {
                         nodeConnectionType = NodeConnection.GET_NODE_CONNECTION;
@@ -426,18 +428,22 @@ public class FlowController {
                 if (nodeConnection.getConnectionStart() instanceof LogicNode) {
                     if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
                         if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("runAndWait(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
-                            if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("getNode(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
-                                listToRemove.add(nodeConnection);
-                                updateCanvas = true;
+                            if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("runAndJoin(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                                if (!((LogicNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("getNode(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                                    listToRemove.add(nodeConnection);
+                                    updateCanvas = true;
+                                }
                             }
                         }
                     }
                 } else if (nodeConnection.getConnectionStart() instanceof TestCaseNode) {
                     if (!((TestCaseNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("run(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
                         if (!((TestCaseNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("runAndWait(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
-                            if (!((TestCaseNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("getNode(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
-                                listToRemove.add(nodeConnection);
-                                updateCanvas = true;
+                            if (!((TestCaseNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("runAndJoin(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                                if (!((TestCaseNode) nodeConnection.getConnectionStart()).getLogic().getLogic().contains("getNode(\"" + nodeConnection.getConnectionEnd().getContainedText() + "\"")) {
+                                    listToRemove.add(nodeConnection);
+                                    updateCanvas = true;
+                                }
                             }
                         }
                     }

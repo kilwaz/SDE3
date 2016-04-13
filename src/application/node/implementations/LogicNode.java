@@ -15,9 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LogicNode extends DrawableNode {
-    private Logic logic = null;
-
     private static Logger log = Logger.getLogger(LogicNode.class);
+    private Logic logic = null;
 
     public LogicNode(LogicNode logicNode) {
         this.logic = new Logic(this);
@@ -67,18 +66,18 @@ public class LogicNode extends DrawableNode {
         return tab;
     }
 
-    public void setLogic(String logicString) {
-        if (logic == null) {
-            logic = new Logic(this);
-        }
-        logic.setLogic(logicString);
-    }
-
     public Logic getLogic() {
         if (this.logic == null) {
             this.logic = new Logic(this);
         }
         return this.logic;
+    }
+
+    public void setLogic(String logicString) {
+        if (logic == null) {
+            logic = new Logic(this);
+        }
+        logic.setLogic(logicString);
     }
 
     public String getAceTextAreaText() {
@@ -90,6 +89,6 @@ public class LogicNode extends DrawableNode {
     }
 
     public void run() {
-        this.getLogic().run(true, new NodeRunParams());
+        this.getLogic().run(true, new NodeRunParams(), null);
     }
 }

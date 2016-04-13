@@ -83,9 +83,9 @@ public class ImportWindow extends Stage {
                 if(importTextArea.getText() != null && !importTextArea.getText().isEmpty()){
                     Document document = XMLTransform.writeStringToXML(importTextArea.getText());
                     if (document.getDocumentElement().getTagName().contains("NodeColours")) { // Check for node colours first as the second check checks for anything contain 'node'.
-                        new SDEThread(new ImportNodeColours(document, this), "Importing Node Colours");
+                        new SDEThread(new ImportNodeColours(document, this), "Importing Node Colours", null, true);
                     } else if (document.getDocumentElement().getTagName().contains("Program") || document.getDocumentElement().getTagName().contains("Node")) {
-                        new SDEThread(new ImportNodes(document, this), "Importing Node");
+                        new SDEThread(new ImportNodes(document, this), "Importing Node", null, true);
                     }
                 }
             });

@@ -31,6 +31,8 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -154,10 +156,6 @@ public class Main extends Application {
                 }
             }
         }
-
-        // System specific
-        System.setProperty("webdriver.chrome.driver", AppParams.CHROME_DIRECTORY);
-        System.setProperty("webdriver.ie.driver", AppParams.IE_DIRECTORY);
 
         loadProgress.setProgress(1.0);
         showMainStage();

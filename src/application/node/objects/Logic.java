@@ -45,13 +45,13 @@ public class Logic {
                     "// METHOD ANNOTATIONS\n" +
                     "// Values\n" +
                     "@AssertChange(id=\"id\",type=\"type\",attribute=\"attribute\")\n" +
-                    "public void method(ExpectedElement expectedElement){\n" +
+                    "public void method(AssertData assertData){\n" +
                     "    \n" +
                     "}\n" +
                     "\n" +
                     "@OnComplete\n" +
-                    "public void onComplete() {\n" +
-                    "    nodeRunParams.setOneTimeVariable(this);\n" +
+                    "public void onComplete(OnCompleteData onCompleteData) {\n" +
+                    "    nodeRunParams.setOneTimeVariable(onCompleteData.testCase());\n" +
                     "    runAndWait(\"Do Something\",nodeRunParams);\n" +
                     "}";
             this.type = TEST_CASE_NODE_LOGIC;
@@ -110,7 +110,7 @@ public class Logic {
         return false;
     }
 
-    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
+    public void run(Boolean whileWaiting, NodeRunParams nodeRunParams, String threadReference) {
         Object instance = getObjectInstance();
         if (instance != null) {
             if (type.equals(TEST_NODE_LOGIC)) {
@@ -122,14 +122,12 @@ public class Logic {
                     Error.RUN_LOGIC_NODE_INIT.record().additionalInformation("Class" + compiledClassName).create(ex);
                 }
 
-                SDEThread sdeThread = new SDEThread((SDERunnable) instance, "Running logic for - " + this.getParentLogicNode().getContainedText());
+                SDEThread sdeThread = new SDEThread((SDERunnable) instance, "Running logic for - " + this.getParentLogicNode().getContainedText(), threadReference, true);
                 if (whileWaiting) {
-                    log.info("THREADING:Starting to wait for logic '" + sdeThread.getDescription() + "' to finish");
+//                    log.info("THREADING:Starting to wait for logic '" + sdeThread.getDescription() + "' to finish");
                     sdeThread.join();
-                    log.info("THREADING:Logic '" + sdeThread.getDescription() + "' has finished");
+//                    log.info("THREADING:Logic '" + sdeThread.getDescription() + "' has finished");
                 }
-            } else if (type.equals(TEST_CASE_NODE_LOGIC)) {
-
             }
         }
     }

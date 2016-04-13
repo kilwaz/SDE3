@@ -49,11 +49,6 @@ public class WebProxyRequestManager {
         requestCount++;
 
         activeRequests.put(httpRequestHash, webProxyRequest);
-
-        // Add the result to linked request tracker nodes
-        for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
-            //requestTrackerNode.addResult(recordedRequest);
-        }
     }
 
     public void setRequestStatus(Integer httpRequestHash, Integer status) {
@@ -84,7 +79,6 @@ public class WebProxyRequestManager {
         WebProxyRequest webProxyRequest = getRequest(httpRequestHash);
 
         if (webProxyRequest != null) {
-            //completedRequests.put(httpRequestHash, webProxyRequest);
             activeRequests.remove(httpRequestHash);
             webProxyRequest.instantCompleteServerToProxy();
 
@@ -110,6 +104,7 @@ public class WebProxyRequestManager {
 
             recordedRequest.save();
 
+            // Apply the completed request to any linked tracker nodes
             for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
                 requestTrackerNode.addResult(recordedRequest);
             }

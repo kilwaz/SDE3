@@ -96,7 +96,7 @@ public class BulkTestNode extends DrawableNode {
     public void startAllTestsThreaded(Boolean whileWaiting) {
         List<SDEThread> threads = new ArrayList<>();
         for (TestRunner testRunner : getTests()) {
-            threads.add(new SDEThread(testRunner, "Browser test"));
+            threads.add(new SDEThread(testRunner, "Browser test", null, true));
         }
 
         // If we want to wait for all the tests to complete

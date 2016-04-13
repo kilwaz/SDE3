@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class EmailMessage {
+    private static Logger log = Logger.getLogger(EmailMessage.class);
     private String from = "";
     private String subject = "";
     private String content = "";
@@ -25,10 +26,9 @@ public class EmailMessage {
     private String username = "";
     private String password = "";
     private String port = "";
+    private Boolean isHTML = false;
     private List<String> recipients = new ArrayList<>();
     private List<String> attachFileNames = new ArrayList<>();
-
-    private static Logger log = Logger.getLogger(EmailMessage.class);
 
     public EmailMessage() {
 
@@ -84,8 +84,13 @@ public class EmailMessage {
         return this;
     }
 
+    public EmailMessage isHTML(Boolean isHTML) {
+        this.isHTML = isHTML;
+        return this;
+    }
+
     public EmailMessage send() {
-        new SDEThread(new SendEmailMessage(), "Sending emails");
+        new SDEThread(new SendEmailMessage(), "Sending emails", null, true);
         return this;
     }
 
@@ -138,9 +143,17 @@ public class EmailMessage {
                         }
                     }
 
-                    message.setContent(multipart);
+                    if (isHTML) {
+                        message.setContent(multipart, "text/html; charset=utf-8");
+                    } else {
+                        message.setContent(multipart);
+                    }
                 } else {
-                    message.setText(content);
+                    if (isHTML) {
+                        message.setContent(content, "text/html; charset=utf-8");
+                    } else {
+                        message.setText(content);
+                    }
                 }
 
                 // Send message

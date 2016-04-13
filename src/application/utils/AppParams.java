@@ -3,15 +3,14 @@ package application.utils;
 import javafx.scene.text.Font;
 
 public class AppParams {
-    public final static String CHROME_DIRECTORY = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe";
-    public final static String IE_DIRECTORY = "C:\\Program Files\\Internet Explorer\\iexplore.exe\"";
-    public final static String TEST_DOC_OUTPUT_DIR = "C:\\Users\\alex\\Downloads\\";
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "V0.4.4.14";
+    public final static String APP_VERSION = "V0.4.4.15";
+
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";
     // Database for application - Defaults are displayed here and are overridden by the SDE.xml file
     private static String REMOTE_DATABASE_CONNECTION = "jdbc:mysql://172.16.10.234/sde";
+    private static String TEST_DOC_OUTPUT_DIR = "C:\\Users\\alex\\Downloads\\";
     private static String LOCAL_DATABASE_NAME = "sde";
     private static String REMOTE_DATABASE_USERNAME = "spiralinks";
     private static String REMOTE_DATABASE_PASSWORD = "spiralinks";
@@ -78,5 +77,21 @@ public class AppParams {
 
     public static Boolean getCreateTestDocument() {
         return CREATE_TEST_DOCUMENT;
+    }
+
+    public static String getTestDocOutputDir() {
+        return TEST_DOC_OUTPUT_DIR;
+    }
+
+    public static void setTestDocOutputDir(String testDocOutputDir) {
+        TEST_DOC_OUTPUT_DIR = testDocOutputDir;
+    }
+
+    public static void setCreateTestDocument(Boolean createTestDocument) {
+        CREATE_TEST_DOCUMENT = createTestDocument;
+    }
+
+    public static void setRecordScreenshots(Boolean recordScreenshots) {
+        RECORD_SCREENSHOTS = recordScreenshots;
     }
 }

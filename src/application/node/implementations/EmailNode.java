@@ -95,7 +95,7 @@ public class EmailNode extends DrawableNode {
                 for (Trigger trigger : triggers) {
                     NodeRunParams nodeRunParams = new NodeRunParams();
                     nodeRunParams.setOneTimeVariable("Hello");
-                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, false, nodeRunParams);
+                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false,true, null, nodeRunParams);
                 }
             }
         }

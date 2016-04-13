@@ -120,7 +120,7 @@ public class SwitchNode extends DrawableNode {
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         for (Switch aSwitch : getSwitches()) {
             if (aSwitch.isEnabled()) {
-                Program.runHelper(aSwitch.getTarget(), getProgram().getFlowController().getReferenceID(), this, whileWaiting, false, nodeRunParams);
+                Program.runHelper(aSwitch.getTarget(), getProgram().getFlowController().getReferenceID(), this, whileWaiting,true, null, nodeRunParams);
             }
         }
     }

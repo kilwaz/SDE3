@@ -34,7 +34,6 @@ public class RequestTrackerNode extends DrawableNode {
         this.setColor(requestTrackerNode.getColor());
         this.setScale(requestTrackerNode.getScale());
         this.setContainedText(requestTrackerNode.getContainedText());
-//        this.setProgramUuid(requestTrackerNode.getProgramUuid());
         this.setNextNodeToRun(requestTrackerNode.getNextNodeToRun());
     }
 
@@ -46,7 +45,7 @@ public class RequestTrackerNode extends DrawableNode {
         class OneShotTask implements Runnable {
             private RecordedRequest recordedRequest;
 
-            OneShotTask(RecordedRequest recordedRequest) {
+            private OneShotTask(RecordedRequest recordedRequest) {
                 this.recordedRequest = recordedRequest;
             }
 

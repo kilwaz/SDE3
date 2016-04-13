@@ -47,7 +47,7 @@ public class RunWebAction extends WebAction {
             }
         }
 
-        Program.runHelper(nodeToRun.getParameterValue(), getProgram().getFlowController().getReferenceID(), null, true, false, nodeRunParams);
+        Program.runHelper(nodeToRun.getParameterValue(), getProgram().getFlowController().getReferenceID(), null, true,true, null, nodeRunParams);
 
         testStep.save();
     }

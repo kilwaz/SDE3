@@ -21,7 +21,7 @@ public class NetworkBuilder {
             Error.NETWORK_ADDRESS.record().create(ex);
         }
         for (Integer i = 1; i < 254; i++) {
-            new SDEThread(new BuildNetwork(networkAddress, i.toString()), "Network Builder for ip " + i.toString());
+            new SDEThread(new BuildNetwork(networkAddress, i.toString()), "Network Builder for ip " + i.toString(), null, true);
         }
     }
 

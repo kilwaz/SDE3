@@ -6,6 +6,7 @@ import application.test.TestStep;
 import application.test.action.helpers.PageStateCapture;
 import application.test.action.helpers.Variable;
 import application.test.core.TestCase;
+import application.test.core.TestSet;
 import org.apache.log4j.Logger;
 
 public class StateWebAction extends WebAction {

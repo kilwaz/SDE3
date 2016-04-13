@@ -406,7 +406,7 @@ public class SSHManager {
                         Error.OPEN_SSH_CONNECTION.record().create(ex);
                     }
                 }
-            }, "SSH Shell");
+            }, "SSH Shell", null, true);
 
             channel.setInputStream(pip);
             channel.setOutputStream(source);

@@ -104,7 +104,7 @@ public class TestRunner extends SDERunnable {
 
             // Creates the WebProxy used for this node
             HttpProxyServer httpProxyServer = new HttpProxyServer();
-            new SDEThread(httpProxyServer, "Running test");
+            new SDEThread(httpProxyServer, "Running test", null, true);
             Awaitility.await().atMost(60000, TimeUnit.MILLISECONDS).until(httpProxyServer.nowConnected());
 
             browser = browser.toLowerCase();
@@ -134,7 +134,7 @@ public class TestRunner extends SDERunnable {
                 } else if ("ie".equals(browser)) {
                     log.info("No remote ie has been configured");
                 } else if ("opera".equals(browser)) {
-                    log.info("No remote operae has been configured");
+                    log.info("No remote opera has been configured");
                 }
             }
 
@@ -215,10 +215,10 @@ public class TestRunner extends SDERunnable {
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
                     Date date = new Date();
                     String fileDate = dateFormat.format(date);
-                    if (test.getTestCase() != null) {
-                        fileName = AppParams.TEST_DOC_OUTPUT_DIR + test.getTestCase().getParentNode().getContainedText() + "-" + fileDate + ".docx";
+                    if (test != null && test.getTestCase() != null && test.getTestCase().getTestSet() != null) {
+                        fileName = AppParams.getTestDocOutputDir() + test.getTestCase().getTestSet().getParentNode().getContainedText() + " - Iteration " + test.getTestCase().getTestIterationID() + " - " + fileDate + ".docx";
                     } else {
-                        fileName = AppParams.TEST_DOC_OUTPUT_DIR + testResult.getUuidString() + "-" + fileDate + ".docx";
+                        fileName = AppParams.getTestDocOutputDir() + testResult.getUuidString() + "-" + fileDate + ".docx";
                     }
                     FileOutputStream out = new FileOutputStream(new File(fileName));
                     XWPFParagraph paragraph = document.createParagraph();
