@@ -201,15 +201,12 @@ public class SwitchNode extends DrawableNode {
 
         // Text field
         TextField switchField = TextFields.createClearableTextField();
-        //ValidationSupport validationSupport = new ValidationSupport();
-        //validationSupport.registerValidator(switchField, Validator.createEqualsValidator("Node name does not exist", "test");
-        //validationSupport.registerValidator(switchField, Validator.createEmptyValidator("SHOULD NOT BE EMPTY"));
 
         switchField.setText(aSwitch.getTarget()); // The text of the field should be set before linking it to auto complete to avoid jittery UI
         TextFields.bindAutoCompletion(switchField, getProgram().getFlowController().getNodes());
 
         switchField.setId("switchField-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
-        switchField.setOnAction(event -> {
+        switchField.setOnKeyReleased(event -> {
             TextField textField = (TextField) event.getSource();
             String[] fieldId = textField.getId().split("-");
             SwitchNode switchNode = (SwitchNode) getProgram().getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
@@ -219,8 +216,6 @@ public class SwitchNode extends DrawableNode {
                 getProgram().getFlowController().checkConnections(); // Renaming a node might make or break connections
 
                 switchNode.save();
-            } else {
-                deleteSwitch(switchNode, fieldId[1]);
             }
 
             Controller.getInstance().updateCanvasControllerNow();

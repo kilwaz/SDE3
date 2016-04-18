@@ -137,7 +137,7 @@ public class RecordedRequest extends DatabaseObject {
 
     public DateTime getResponseDateTimeFromHeaders() {
         if (responseHeaders.get("Date") != null) {
-            DateTimeFormatter dateStringFormat = DateTimeFormat.forPattern(" EEE, dd MMM yyyy HH:mm:ss zzz");
+            DateTimeFormatter dateStringFormat = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss zzz");
             return dateStringFormat.parseDateTime(responseHeaders.get("Date").getValue());
         }
 

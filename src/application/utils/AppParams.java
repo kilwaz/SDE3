@@ -1,10 +1,14 @@
 package application.utils;
 
+import application.error.Error;
 import javafx.scene.text.Font;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class AppParams {
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "V0.4.4.15";
+    public final static String APP_VERSION = "V0.4.4.16";
 
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";
@@ -75,8 +79,16 @@ public class AppParams {
         return RECORD_SCREENSHOTS;
     }
 
+    public static void setRecordScreenshots(Boolean recordScreenshots) {
+        RECORD_SCREENSHOTS = recordScreenshots;
+    }
+
     public static Boolean getCreateTestDocument() {
         return CREATE_TEST_DOCUMENT;
+    }
+
+    public static void setCreateTestDocument(Boolean createTestDocument) {
+        CREATE_TEST_DOCUMENT = createTestDocument;
     }
 
     public static String getTestDocOutputDir() {
@@ -87,11 +99,20 @@ public class AppParams {
         TEST_DOC_OUTPUT_DIR = testDocOutputDir;
     }
 
-    public static void setCreateTestDocument(Boolean createTestDocument) {
-        CREATE_TEST_DOCUMENT = createTestDocument;
+    public static String getJVMProperty(String key) {
+        return System.getProperties().getProperty(key);
     }
 
-    public static void setRecordScreenshots(Boolean recordScreenshots) {
-        RECORD_SCREENSHOTS = recordScreenshots;
+    public static String getMachineName() {
+        String hostname = "Unknown Machine";
+
+        try {
+            InetAddress address = InetAddress.getLocalHost();
+            hostname = address.getHostName();
+        } catch (UnknownHostException ex) {
+            Error.CANNOT_RESOLVE_HOST_THIS_MACHINE.record().create(ex);
+        }
+
+        return hostname;
     }
 }
