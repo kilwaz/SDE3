@@ -6,7 +6,6 @@ import application.test.TestStep;
 import application.test.action.helpers.PageStateCapture;
 import application.test.action.helpers.Variable;
 import application.test.core.TestCase;
-import application.test.core.TestSet;
 import org.apache.log4j.Logger;
 
 public class StateWebAction extends WebAction {
@@ -29,6 +28,10 @@ public class StateWebAction extends WebAction {
             PageStateCapture pageStateCapture = new PageStateCapture("default", saveStateName.getParameterValue());
             pageStateCapture.capturePage(getDriver());
             getStateTracker().setState(pageStateCapture);
+            TestCase testCase = getRunningTest().getTestCase();
+            if (testCase != null) {
+                testCase.storePageState(saveStateName.getParameterValue(), pageStateCapture);
+            }
         } else if (compareStateName.exists() && withStateName.exists()) {
             PageStateCapture compareState = getStateTracker().getState(compareStateName.getParameterValue());
             PageStateCapture withState = getStateTracker().getState(withStateName.getParameterValue());

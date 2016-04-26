@@ -59,6 +59,7 @@ public abstract class WebAction implements Action {
         actionClasses.put("state", StateWebAction.class);
         actionClasses.put("window", WindowWebAction.class);
         actionClasses.put("keyboard", KeyboardWebAction.class);
+        actionClasses.put("screenshot", ScreenshotWebAction.class);
     }
 
     private WebDriver driver = null;
@@ -109,6 +110,10 @@ public abstract class WebAction implements Action {
         this.variableTracker = variableTracker;
     }
 
+    public void takeScreenshotOfPage(TestStep testStep) {
+        takeScreenshotOfElement(testStep, null);
+    }
+
     /**
      * Takes a screenshot of the current Selenium {@link org.openqa.selenium.WebElement}.  A red box will be drawn
      * around the element to show where it is on the page.
@@ -118,17 +123,22 @@ public abstract class WebAction implements Action {
      */
     public void takeScreenshotOfElement(TestStep testStep, WebElement testElement) {
         if (AppParams.getRecordScreenshots()) {
-            Dimension elementDimension = testElement.getSize();
-            Point elementLocation = testElement.getLocation();
+            Dimension elementDimension = null;
+            Point elementLocation = null;
+            if (testElement != null) {
+                elementDimension = testElement.getSize();
+                elementLocation = testElement.getLocation();
+            }
 
             File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 
             try {
                 BufferedImage bufferedImage = ImageIO.read(scrFile);
-                Graphics2D g = bufferedImage.createGraphics();
-                g.setColor(java.awt.Color.RED);
-                g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
-
+                if (testElement != null) {
+                    Graphics2D g = bufferedImage.createGraphics();
+                    g.setColor(java.awt.Color.RED);
+                    g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
+                }
                 testStep.setScreenshot(bufferedImage);
             } catch (IOException ex) {
                 log.error(ex);

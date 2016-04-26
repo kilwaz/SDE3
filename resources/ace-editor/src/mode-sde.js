@@ -18,7 +18,7 @@ define("ace/mode/sde_highlight_rules", ["require", "exports", "module", "ace/lib
                 },
                 {
                     token: "variable",
-                    regex: /(if|url|wait|frame|loop|exit|click|input|track|run|set|log|call|function|end|select|javascript|driver|state|window|keyboard)>/
+                    regex: /(if|url|wait|frame|loop|exit|click|input|track|run|set|log|call|function|end|select|javascript|driver|state|window|keyboard|screenshot)>/
                 }
             ]
         };

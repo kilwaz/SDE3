@@ -227,6 +227,10 @@ public class PageStateCapture {
         return new SDEElement(doc.getElementById(id));
     }
 
+    public SDEElements select(String selection) {
+        return new SDEElements(doc.select(selection));
+    }
+
     public Document getDocument() {
         return doc;
     }

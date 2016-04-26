@@ -40,15 +40,13 @@ import java.util.Date;
 import java.util.List;
 
 public class ExportNode extends DrawableNode {
+    private static Logger log = Logger.getLogger(ExportNode.class);
     private String fileOutputDirectory = "";
     private String fileOutputName = "";
     private String constructedFileName = "";
     private String constructedDirectory = "";
-
     private TextField directoryField;
     private Label constructedFileNameLabel;
-
-    private static Logger log = Logger.getLogger(ExportNode.class);
 
     // This will make a copy of the node passed to it
     public ExportNode(ExportNode exportNode) {
@@ -125,6 +123,8 @@ public class ExportNode extends DrawableNode {
                                 currentCell.setCellValue(Double.valueOf(df2.format(exportValue.getDataValue())));
                             } else if (exportValue.getDataValue() instanceof Integer) { // Integer
                                 currentCell.setCellValue((Integer) exportValue.getDataValue());
+                            } else { // If something else we haven't found call toString
+                                currentCell.setCellValue(exportValue.getDataValue().toString());
                             }
                         } else if (exportCell instanceof ExportFormula) {
                             ExportFormula exportFormula = (ExportFormula) exportCell;

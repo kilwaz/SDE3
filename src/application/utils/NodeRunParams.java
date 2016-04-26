@@ -38,4 +38,8 @@ public class NodeRunParams {
     public void setOneTimeVariable(Object oneTimeVariable) {
         this.oneTimeVariable = oneTimeVariable;
     }
+
+    public Object getVariable(String name) {
+        return params.get(name);
+    }
 }

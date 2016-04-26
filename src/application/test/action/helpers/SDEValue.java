@@ -1,6 +1,9 @@
 package application.test.action.helpers;
 
 import application.error.Error;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,6 +12,8 @@ public class SDEValue {
     private String stringValue = null;
     private Integer decimalPlaces = null;
     private Boolean isNumber = false;
+    private Boolean isDate = false;
+    private Boolean negativesHaveBrackets = false;
 
     public SDEValue(String stringValue) {
         this.stringValue = stringValue;
@@ -30,16 +35,35 @@ public class SDEValue {
         return this;
     }
 
+    public SDEValue isDate() {
+        this.isDate = true;
+        return this;
+    }
+
     public String asString() {
         return stringValue;
+    }
+
+    public SDEValue hasNegativesBrackets() {
+        this.negativesHaveBrackets = true;
+        return this;
     }
 
     public Double asDouble() {
         Double doubleValue = 0d;
         if (isNumber) {
             try {
+                Boolean isNegative = false; // Decide if the value is negative but with brackets
+                if (negativesHaveBrackets) {
+                    if (stringValue.startsWith("(") && stringValue.endsWith(")")) {
+                        isNegative = true;
+                    }
+                }
                 String numericOnly = stringValue.replaceAll("[^\\d.]", ""); // Alpha-numeric characters only
                 doubleValue = Double.parseDouble(numericOnly);
+                if (isNegative && negativesHaveBrackets) { // If it was a negative value with brackets, deal with it here
+                    doubleValue = -doubleValue;
+                }
             } catch (NumberFormatException ex) {
                 Error.PARSE_DOUBLE_FAILED.record().hideStackInLog().create(ex);
                 return 0d;
@@ -51,6 +75,17 @@ public class SDEValue {
         } else {
             return doubleValue;
         }
+    }
+
+    public DateTime asDate(String pattern) {
+        try {
+            DateTimeFormatter dateStringFormat = DateTimeFormat.forPattern(pattern);
+            return dateStringFormat.parseDateTime(stringValue);
+        } catch (IllegalArgumentException ex) {
+            Error.PARSE_DATE_FAILED.record().additionalInformation("Pattern = " + pattern).additionalInformation("Value = '" + stringValue + "'").create(ex);
+        }
+
+        return null;
     }
 
     private double round(double value, int places) {

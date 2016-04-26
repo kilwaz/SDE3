@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * This action starts and stops a loop section.
  * <p>
- * A loop will take a list and interate over it allowing each element to be accessed via the loop variable to be used
+ * A loop will take a list and iterate over it allowing each element to be accessed via the loop variable to be used
  * for other actions.
  */
 public class LoopWebAction extends WebAction {

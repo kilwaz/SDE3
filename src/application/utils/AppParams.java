@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 
 public class AppParams {
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "V0.4.4.16";
+    public final static String APP_VERSION = "V0.4.4.17";
 
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";

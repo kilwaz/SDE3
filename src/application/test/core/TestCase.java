@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TestCase<TemplateCase extends TestTemplate> {
@@ -39,6 +40,8 @@ public class TestCase<TemplateCase extends TestTemplate> {
 
     private PageStateCapture captureBefore = null;
     private PageStateCapture captureAfter = null;
+
+    private HashMap<String, PageStateCapture> pageCaptures = new HashMap<>();
 
     private Class<TemplateCase> templateCaseClass;
     private TestTemplate templateObject;
@@ -183,7 +186,7 @@ public class TestCase<TemplateCase extends TestTemplate> {
     }
 
     private void compareTest() {
-        if (test != null) {
+        if (test != null && captureBefore != null && captureAfter != null) {
             // This needs to be done after the test has completed as some of the assertions require knowledge of elements from the test results
             for (Method method : templateCaseClass.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(AssertChange.class)) {
@@ -320,5 +323,13 @@ public class TestCase<TemplateCase extends TestTemplate> {
 
     public String getTestIterationID() {
         return testIterationID;
+    }
+
+    public PageStateCapture getStoredPageState(String stateName) {
+        return pageCaptures.get(stateName);
+    }
+
+    public void storePageState(String stateName, PageStateCapture capture) {
+        pageCaptures.put(stateName, capture);
     }
 }

@@ -125,7 +125,8 @@ public enum Error {
     WEB_DRIVER_EXCEPTION(120, "Web Driver experiences an unexpected problem"),
     NOT_SERIALIZABLE_OBJECT(121, "The current object does not support serialization"),
     CANNOT_RESOLVE_HOST_THIS_MACHINE(122, "Unable to get the named host for the current machine"),
-    FAILED_TO_DECODE_GZIP_RESPONSE(123, "Failed to decode a gzip encoded response");
+    FAILED_TO_DECODE_GZIP_RESPONSE(123, "Failed to decode a gzip encoded response"),
+    PARSE_DATE_FAILED(124, "Failed to parse Date");
 
     private Integer code;
     private String description;

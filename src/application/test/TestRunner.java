@@ -246,6 +246,8 @@ public class TestRunner extends SDERunnable {
                                         } else if (stepCommand.getParameterByName("decreaseBy").exists()) {
                                             run.setText("Decrease " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("decreaseBy").getParameterValue() + "'");
                                         }
+                                    } else if ("screenshot".equals(stepCommand.getMainCommand())) {
+                                        run.setText("Here is a screenshot...");
                                     }
                                 }
 
