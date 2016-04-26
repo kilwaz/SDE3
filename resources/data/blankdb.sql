@@ -3,7 +3,7 @@
 drop table if exists data_table_values;
 drop table if exists http_headers;
 drop table if exists input;
-drop table if exists node_col\our;
+drop table if exists node_colour;
 drop table if exists node_details;
 drop table if exists program;
 drop table if exists recorded_requests;
