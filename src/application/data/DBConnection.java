@@ -1,6 +1,7 @@
 package application.data;
 
 import application.error.Error;
+import application.utils.AppParams;
 import application.utils.SDEUtils;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import org.apache.log4j.Logger;
@@ -19,14 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DBConnection {
+    private static Logger log = Logger.getLogger(DBConnection.class);
     private String username = "";
     private String password = "";
     private String connectionString = "";
     private Boolean isApplicationConnection = false;
-
     private Connection connection = null;
-
-    private static Logger log = Logger.getLogger(DBConnection.class);
 
     public DBConnection(String connectionString) {
         this.connectionString = connectionString;
@@ -50,7 +49,7 @@ public class DBConnection {
             // If the database connection is using sqlite then we need to start the sqlite.exe
             if (connectionString.contains("sqlite")) {
                 try {
-                    Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/sqlite-3.12.0.exe", "sde.db").start();
+                    Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/" + AppParams.getSqlLiteFileName(), "sde.db").start();
                     BufferedReader input = new BufferedReader(new InputStreamReader(sqlite.getInputStream()));
                 } catch (IOException ex) {
                     Error.SQLITE_START_EXE.record().create(ex);

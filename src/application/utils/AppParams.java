@@ -7,18 +7,23 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class AppParams {
+    // Application information
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "V0.4.4.17";
+    public final static String APP_VERSION = "V0.4.4.18";
 
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";
-    // Database for application - Defaults are displayed here and are overridden by the SDE.xml file
+
+    // Database information - Defaults are displayed here and can be overridden by the SDE.xml file
     private static String REMOTE_DATABASE_CONNECTION = "jdbc:mysql://172.16.10.234/sde";
-    private static String TEST_DOC_OUTPUT_DIR = "C:\\Users\\alex\\Downloads\\";
+    private static String SQL_LITE_FILE_NAME = "sqlite-3.12.2.exe";
     private static String LOCAL_DATABASE_NAME = "sde";
     private static String REMOTE_DATABASE_USERNAME = "spiralinks";
     private static String REMOTE_DATABASE_PASSWORD = "spiralinks";
     private static Boolean LOCAL_DATABASE = true;
+
+    // Document recording
+    private static String TEST_DOC_OUTPUT_DIR = "C:\\Users\\alex\\Downloads\\";
     private static Boolean CREATE_TEST_DOCUMENT = true;
     private static Boolean RECORD_SCREENSHOTS = true;
 
@@ -101,6 +106,10 @@ public class AppParams {
 
     public static String getJVMProperty(String key) {
         return System.getProperties().getProperty(key);
+    }
+
+    public static String getSqlLiteFileName() {
+        return SQL_LITE_FILE_NAME;
     }
 
     public static String getMachineName() {
