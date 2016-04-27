@@ -4,7 +4,7 @@ Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8
  r jna.jar joda-time-2.4.jar jsch-0.1.51.jar jsch.agentproxy.core
  -0.0.6.jar jsch.agentproxy.jsch-0.0.5-sources.jar jsch.agentproxy.pag
  eant-0.0.6.jar jsch.agentproxy.sshagent-0.0.6.jar jsch.agentproxy.uso
- cket-jna-0.0.6.jar jsoup-1.8.3.jar junit-4.12.jar mail.jar maven micr
+ cket-jna-0.0.6.jar jsoup-1.9.1.jar junit-4.12.jar mail.jar maven micr
  oemu-midp-2.0.1.jar mysql-connector-java-5.1.34-bin.jar netty-all-5.0
  .0.Alpha2.jar ojdbc6.jar rsyntaxtextarea.jar selenium selenium-java-2
  .53.0.jar tools.jar zt-zip-1.8.jar poi-3.12-20150511.jar poi-examples
