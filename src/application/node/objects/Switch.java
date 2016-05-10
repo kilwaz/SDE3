@@ -2,12 +2,16 @@ package application.node.objects;
 
 import application.data.model.DatabaseObject;
 import application.node.implementations.SwitchNode;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 import java.util.UUID;
 
 public class Switch extends DatabaseObject {
-    private Boolean enabled = false;
-    private String target;
+    private BooleanProperty enabled = new SimpleBooleanProperty(false);
+    private StringProperty target = new SimpleStringProperty("");
     private SwitchNode parent;
 
     public Switch() {
@@ -15,36 +19,48 @@ public class Switch extends DatabaseObject {
     }
 
     public Switch(Switch copySwitch, SwitchNode parent) {
-        this.enabled = copySwitch.isEnabled();
-        this.target = copySwitch.getTarget();
+        this.enabled.set(copySwitch.isEnabled());
+        this.target.set(copySwitch.getTarget());
         this.parent = parent;
     }
 
     public Switch(UUID uuid, SwitchNode parent, String target, Boolean enabled) {
         super(uuid);
-        this.target = target;
+        this.target.set(target);
         this.parent = parent;
-        this.enabled = enabled;
+        this.enabled.set(enabled);
     }
 
-    public Boolean isEnabled() {
+    public BooleanProperty isEnabledProp() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public Boolean isEnabled() {
+        return enabled.get();
     }
 
-    public String getTarget() {
+    public void setEnabled(Boolean enabled) {
+        this.enabled.set(enabled);
+    }
+
+    public StringProperty getTargetProp() {
         return target;
     }
 
+    public String getTarget() {
+        return target.get();
+    }
+
     public void setTarget(String target) {
-        this.target = target;
+        this.target.set(target);
     }
 
     public SwitchNode getParent() {
         return parent;
+    }
+
+    public void setParent(SwitchNode parent) {
+        this.parent = parent;
     }
 
     public String getParentUuid() {
@@ -52,9 +68,5 @@ public class Switch extends DatabaseObject {
             return parent.getUuidString();
         }
         return null;
-    }
-
-    public void setParent(SwitchNode parent) {
-        this.parent = parent;
     }
 }

@@ -126,7 +126,9 @@ public enum Error {
     NOT_SERIALIZABLE_OBJECT(121, "The current object does not support serialization"),
     CANNOT_RESOLVE_HOST_THIS_MACHINE(122, "Unable to get the named host for the current machine"),
     FAILED_TO_DECODE_GZIP_RESPONSE(123, "Failed to decode a gzip encoded response"),
-    PARSE_DATE_FAILED(124, "Failed to parse Date");
+    PARSE_DATE_FAILED(124, "Failed to parse Date"),
+    TEST_CASE_THREAD_WAIT_METHOD_NOT_FOUND(125, "While working with Test Case, thread wait method could not be found"),
+    DOCUMENT_CREATION_ISSUE(126, "Unable to complete creating document from test");
 
     private Integer code;
     private String description;

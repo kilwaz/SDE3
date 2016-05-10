@@ -12,9 +12,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 public class SelectResultRow {
-    HashMap<String, Object> rowValues = new HashMap<>();
-
     private static Logger log = Logger.getLogger(SelectResultRow.class);
+    HashMap<String, Object> rowValues = new HashMap<>();
 
     public SelectResultRow() {
     }
@@ -28,7 +27,22 @@ public class SelectResultRow {
     }
 
     public Integer getInt(String colName) {
-        return (Integer) rowValues.get(colName);
+        // null = 0
+        // false = 0
+        // true = 1
+        // int = int
+
+        // Handled for both boolean and integer return types
+        if (rowValues.get(colName) != null) {
+            Object value = rowValues.get(colName);
+            if (value instanceof Boolean) {
+                return (Boolean) value ? 1 : 0;
+            } else if (value instanceof Integer) {
+                return (Integer) value;
+            }
+        }
+
+        return 0;
     }
 
     public String getString(String colName) {
@@ -43,7 +57,17 @@ public class SelectResultRow {
         // null = false
         // 1 = true
         // 0 = false
-        return rowValues.get(colName) != null && (Integer) rowValues.get(colName) == 1;
+
+        // Handled for both boolean and integer return types
+        if (rowValues.get(colName) != null) {
+            Object value = rowValues.get(colName);
+            if (value instanceof Boolean) {
+                return (Boolean) value;
+            } else if (value instanceof Integer) {
+                return (Integer) value == 1;
+            }
+        }
+        return false;
     }
 
     public InputStream getBlobInputStream(String colName) {

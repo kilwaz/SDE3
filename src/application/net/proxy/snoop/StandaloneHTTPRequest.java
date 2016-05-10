@@ -7,10 +7,7 @@ import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
 import java.io.*;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +35,8 @@ import java.util.Map;
  */
 
 public class StandaloneHTTPRequest {
+    private static final String notFoundResponse = "HTTP/1.0 404 Not Found";
+    private static final String internalErrorResponse = "HTTP/1.0 500 Internal Server Error";
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
     private String method = "GET";
     private String destinationURL = "";
@@ -50,8 +49,6 @@ public class StandaloneHTTPRequest {
     private WebProxyRequestManager webProxyRequestManager;
     private Integer currentRetryCount = 0;
     private Integer maximumRetryCount = 2;
-    private static final String notFoundResponse = "HTTP/1.0 404 Not Found";
-    private static final String internalErrorResponse = "HTTP/1.0 500 Internal Server Error";
 
     /**
      * Set the URL of the request.
@@ -148,6 +145,9 @@ public class StandaloneHTTPRequest {
             //Create connection
             URL url = new URL(destinationURL);
 
+//            System.setProperty("http.proxyHost", "127.0.0.1");
+//            System.setProperty("http.proxyPort", "8080");
+
             connection = new ProxyConnectionWrapper(url, https);
             connection.setRequestMethod(method);
             if ("POST".equals(method) || "PUT".equals(method)) {
@@ -164,7 +164,15 @@ public class StandaloneHTTPRequest {
                 }
             }
 
-            // Sets the headers for the outgoing request
+//            if (requestHeaders.containsKey("Cookie")) {
+//                log.info(requestHeaders.get("Cookie") + " for " + destinationURL);
+//            } else if (requestHeaders.containsKey("cookie")) {
+//                log.info("SMALL " + requestHeaders.get("cookie") + " for " + destinationURL);
+//            } else {
+//                log.info("NO COOKIE for " + destinationURL);
+//            }
+
+            // Sets the parameters for the outgoing request
             String urlParameters = "";
             for (String parameter : requestParameters.keySet()) {
                 if (urlParameters.equals("")) {
@@ -176,6 +184,17 @@ public class StandaloneHTTPRequest {
 
             webProxyRequest.setRequestHeaders(requestHeaders);
             webProxyRequest.setRequestContent(urlParameters);
+
+//            if (destinationURL.contains("/Login")) {
+//                log.info("HEADERS FOR SPECIAL REQUEST");
+//                for (String headerName : requestHeaders.keySet()) {
+//                    log.info(headerName + " - " + requestHeaders.get(headerName));
+//                }
+//                log.info("PARAMS");
+//                for (String paramName : requestParameters.keySet()) {
+//                    log.info(paramName + " - " + requestParameters.get(paramName));
+//                }
+//            }
 
             // Write request body, only if we are doing post or put
             if ("POST".equals(method) || "PUT".equals(method)) {
@@ -218,6 +237,10 @@ public class StandaloneHTTPRequest {
                     if (header != null && !header.equals("Transfer-Encoding") && !header.equals("Content-Length")) {
                         responseHeaders.put(header, concatHeader.trim());
                     }
+
+//                    if (header != null && header.equals("Set-Cookie")) {
+//                        log.info("SET COOKIE - " + concatHeader.trim());
+//                    }
                 }
 
                 ByteArrayOutputStream tmpOut;

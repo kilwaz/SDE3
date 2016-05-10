@@ -115,7 +115,7 @@ public class DataBaseSettingWindow extends SettingsPage {
         dbUsernameTextField = new TextField();
         dbUsernameTextField.setPrefWidth(200.0);
         dbUsernameTextField.setText(AppParams.getRemoteDatabaseUsername());
-        dbUsernameTextField.setOnKeyReleased(event -> AppParams.setRemoteDatabasePassword(((TextField) event.getSource()).getText()));
+        dbUsernameTextField.setOnKeyReleased(event -> AppParams.setRemoteDatabaseUsername(((TextField) event.getSource()).getText()));
 
         dbUsernameRow.getChildren().add(dbUsernameLabel);
         dbUsernameRow.getChildren().add(dbUsernameTextField);

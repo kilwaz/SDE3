@@ -2,6 +2,9 @@ package application.net.proxy;
 
 import application.net.proxy.snoop.HttpProxyServer;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +14,7 @@ public class WebProxyManager {
     private List<HttpProxyServer> openProxies;
 
     public WebProxyManager() {
+        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_NONE));
         webProxyManager = this;
         openProxies = new ArrayList<>();
     }

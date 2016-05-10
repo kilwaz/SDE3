@@ -295,26 +295,6 @@ public class DataBank {
 //        }
     }
 
-    public static void loadLazyRequest(RecordedRequest recordedRequest) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select request_content from recorded_requests where id = ?")
-//                .addParameter(recordedRequest.getId())
-//                .execute();
-//
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            recordedRequest.setRequest(resultRow.getString("request_content"));
-//        }
-    }
-
-    public static void loadLazyResponse(RecordedRequest recordedRequest) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select response_content from recorded_requests where id = ?")
-//                .addParameter(recordedRequest.getId())
-//                .execute();
-//
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            recordedRequest.setResponse(resultRow.getString("response_content"));
-//        }
-    }
-
     public static NodeColours getNodeColours() {
         return nodeColours;
     }

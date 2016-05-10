@@ -5,8 +5,8 @@ import application.gui.AceTextArea;
 import application.gui.Controller;
 import application.gui.UI;
 import application.node.design.DrawableNode;
+import application.node.objects.Input;
 import application.node.objects.Logic;
-import application.test.core.TestCase;
 import application.test.core.TestSet;
 import application.test.core.TestTemplate;
 import application.utils.NodeRunParams;
@@ -93,6 +93,20 @@ public class TestCaseNode extends DrawableNode {
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         TestTemplate testTemplate = (TestTemplate) this.getLogic().getObjectInstance();
         TestSet testSet = new TestSet(testTemplate);
+
+        if (nodeRunParams.getVariable("[[testID]]") != null && nodeRunParams.getVariable("[[testID]]") instanceof String) {
+            log.info("ID Set to " + nodeRunParams.getVariable("[[testID]]"));
+            testSet.testID((String) nodeRunParams.getVariable("[[testID]]"));
+        } else {
+            log.info("NO ID SET");
+        }
+
+        for (Object obj : nodeRunParams.getParams().values()) {
+            if (obj instanceof Input) {
+                testSet.additionalInput((Input) obj);
+            }
+        }
+
         testSet.setParentNode(this);
         testSet.init();
     }

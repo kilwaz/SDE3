@@ -54,11 +54,13 @@ public class LoopWebAction extends WebAction {
                     TestParameter listWindow = getTestCommand().getParameterByPath("list::window");
                     TestParameter listRootElementId = getTestCommand().getParameterByPath("id");
                     TestParameter listRootElementXPath = getTestCommand().getParameterByPath("xPath");
+                    TestParameter filteredHasClass = getTestCommand().getParameterByPath("filter::hasClass");
+
                     TestParameter loopElement = getTestCommand().getParameterByName("loop");
                     TestParameter directChildren = getTestCommand().getParameterByName("direct");
 
                     List<Element> elements = new ArrayList<>();
-                    List<LoopedObject> loopedObjects = new ArrayList<>();
+                    List<LoopedObject> loopedObjects;
                     if (listTag.exists()) {
                         if (listRootElementId.exists() || listRootElementXPath.exists() || loopElement.exists()) {
                             String xPath = null;
@@ -94,20 +96,25 @@ public class LoopWebAction extends WebAction {
                                 } else {
                                     elements = listElement.getElementsByTag(listTag.getParameterValue());
                                 }
-
-                                //elements = listElement.getElementsByTag(listTag.getParameterValue());
-                                //log.info("Found elements inside " + elements);
                             }
-
-                            // Add the looped elements to a handling wrapper
-                            loopedObjects = elements.stream().map(LoopedWebElement::new).collect(Collectors.toList());
                         } else {
                             elements = getCurrentDocument().getElementsByTag(listTag.getParameterValue());
-
-                            // Add the looped elements to a handling wrapper
-                            loopedObjects = elements.stream().map(LoopedWebElement::new).collect(Collectors.toList());
                         }
                     }
+
+                    // Apply any filters to the loop
+                    if (filteredHasClass.exists()) {
+                        List<Element> elementsToRemove = new ArrayList<>();
+                        for (Element element : elements) { // Remove the element if it does not have this class
+                            if (!element.hasClass(filteredHasClass.getParameterValue())) {
+                                elementsToRemove.add(element);
+                            }
+                        }
+                        elements.removeAll(elementsToRemove);
+                    }
+
+                    // Add the looped elements to a handling wrapper
+                    loopedObjects = elements.stream().map(LoopedWebElement::new).collect(Collectors.toList());
 
                     // Get all current windows handles, to loop through them
                     if (listWindow.exists()) {

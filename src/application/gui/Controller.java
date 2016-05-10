@@ -205,6 +205,7 @@ public class Controller implements Initializable {
                         // If the tab does not already exist we create it
                         if (nodeTab == null) {
                             nodeTab = drawableNode.createInterface();
+                            drawableNode.setIsVisible(true);
 
 
                             // Add context menu to close all tabs

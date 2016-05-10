@@ -13,6 +13,7 @@ import application.test.TestRunner;
 import application.test.action.helpers.PageStateCapture;
 import application.test.annotation.AssertChange;
 import application.utils.SDEThread;
+import org.apache.log4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -22,27 +23,23 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TestCase<TemplateCase extends TestTemplate> {
+    private static Logger log = Logger.getLogger(TestCase.class);
     private String testIterationID = "";
     private TestSet testSet;
     private Test test = null;
     private List<Input> inputs = new ArrayList<>();
-
     private List<String> testNodeList = new ArrayList<>();
     private List<String> inputNodeList = new ArrayList<>();
-
     private ExpectedElements expectedElements = new ExpectedElements();
     private ChangedElements changedElements = new ChangedElements();
-
     private Method buildMethod = null;
     private Method inputMethod = null;
     private Method runMethod = null;
     private Method onCompleteMethod = null;
-
+    private Method threadWaitMethod = null;
     private PageStateCapture captureBefore = null;
     private PageStateCapture captureAfter = null;
-
     private HashMap<String, PageStateCapture> pageCaptures = new HashMap<>();
-
     private Class<TemplateCase> templateCaseClass;
     private TestTemplate templateObject;
 
@@ -90,6 +87,7 @@ public class TestCase<TemplateCase extends TestTemplate> {
         runTest();
         compareTest();
         completeTest();
+        threadWait();
         return this;
     }
 
@@ -106,6 +104,16 @@ public class TestCase<TemplateCase extends TestTemplate> {
     public TestCase parent(TestSet parentCase) {
         this.testSet = parentCase;
         return this;
+    }
+
+    private void threadWait() {
+        try {
+            if (threadWaitMethod != null) {
+                threadWaitMethod.invoke(templateObject);
+            }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            Error.TEST_CASE_THREAD_WAIT_METHOD_NOT_FOUND.record().create(ex);
+        }
     }
 
     private void buildTest() {
@@ -268,6 +276,11 @@ public class TestCase<TemplateCase extends TestTemplate> {
 
     public TestCase onCompleteMethod(Method onCompleteMethod) {
         this.onCompleteMethod = onCompleteMethod;
+        return this;
+    }
+
+    public TestCase threadWaitMethod(Method threadWaitMethod) {
+        this.threadWaitMethod = threadWaitMethod;
         return this;
     }
 

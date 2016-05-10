@@ -1,14 +1,18 @@
 package application.net.proxy;
 
-import application.data.DataBank;
 import application.data.model.DatabaseObject;
+import application.data.model.dao.RecordedRequestDAO;
+import application.error.Error;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
@@ -70,13 +74,19 @@ public class RecordedRequest extends DatabaseObject {
 
     public String getRequest() {
         if ("".equals(request)) {
-            DataBank.loadLazyRequest(this);
+            RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
+            request = recordedRequestDAO.getLazyRequest(this);
         }
         return request;
     }
 
+    // Required
     public void setRequest(InputStream inputStream) {
-
+        try {
+            request = IOUtils.toString(inputStream, Charset.forName("UTF-8"));
+        } catch (IOException ex) {
+            Error.FAILED_TO_DECODE_GZIP_RESPONSE.record().create(ex);
+        }
     }
 
     public void setRequest(String request) {
@@ -116,16 +126,27 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public void setResponse(InputStream inputStream) {
-
+        try {
+            response = IOUtils.toString(inputStream, Charset.forName("UTF-8"));
+        } catch (IOException ex) {
+            Error.FAILED_TO_DECODE_GZIP_RESPONSE.record().create(ex);
+        }
     }
 
     public InputStream getRequestInputStream() {
         return new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8));
     }
 
+    // This removes the request/response string to free memory and are lazy loaded when needed
+    public void lighten() {
+        response = "";
+        request = "";
+    }
+
     public String getResponse() {
         if ("".equals(response)) {
-            DataBank.loadLazyResponse(this);
+            RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
+            response = recordedRequestDAO.getLazyResponse(this);
         }
 
         return response;

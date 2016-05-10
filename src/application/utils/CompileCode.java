@@ -148,6 +148,16 @@ public class CompileCode {
                 "   private void run(String name) {" +
                 "      Program.runHelper(name, this.flowControllerReferenceId, null, false, true, \"" + className + "\", new NodeRunParams());" +
                 "   }" +
+                "   public void threadWait() {" +
+                "      try {" +
+                "           SDEThreadCollection sdeThreadCollection = ThreadManager.getInstance().getThreadCollection(\"" + className + "\");" +
+                "           if(sdeThreadCollection != null) {" +
+                "               sdeThreadCollection.join();" +
+                "           }" +
+                "      } catch (Exception ex) {" +
+                "           Error.COMPILED_LOGIC_NODE.record().additionalInformation(\"Node - " + logic.getParentLogicNode().getContainedText() + " (" + className + ")\").create(ex);" +
+                "      }" +
+                "   }" +
                 "   private void run(String name, NodeRunParams nodeRunParams) {" +
                 "      Program.runHelper(name, this.flowControllerReferenceId, null, false, true, \"" + className + "\", new NodeRunParams(nodeRunParams));" +
                 "   }" +
@@ -156,6 +166,12 @@ public class CompileCode {
                 "   }" +
                 "   private void runAndWait(String name, NodeRunParams nodeRunParams) {" +
                 "      Program.runHelper(name, this.flowControllerReferenceId, null, true, true, \"" + className + "\", new NodeRunParams(nodeRunParams));" +
+                "   }" +
+                "   private void runAndJoin(String name) {" +
+                "      SDEThread sdeThread = Program.runHelper(name, this.flowControllerReferenceId, null, false, true, \"" + className + "\", new NodeRunParams());" +
+                "   }" +
+                "   private void runAndJoin(String name, NodeRunParams nodeRunParams) {" +
+                "      SDEThread sdeThread = Program.runHelper(name, this.flowControllerReferenceId, null, false, true, \"" + className + "\", new NodeRunParams(nodeRunParams));" +
                 "   }" +
                 "   private DrawableNode getNode(String name) {" +
                 "      return FlowController.getFlowControllerFromReference(this.flowControllerReferenceId).getNodeThisControllerFromContainedText(name);" +

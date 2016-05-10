@@ -7,6 +7,7 @@ import application.gui.window.RequestInspectWindow;
 import application.net.proxy.GroupedRequests;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
+import application.utils.Format;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -14,7 +15,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -24,6 +28,8 @@ import java.util.stream.Collectors;
 public class RequestTrackerNode extends DrawableNode {
     private static Logger log = Logger.getLogger(RequestTrackerNode.class);
     private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
+
+    private Label totalRequestsNumber = null;
 
     // This will make a copy of the node passed to it
     public RequestTrackerNode(RequestTrackerNode requestTrackerNode) {
@@ -51,10 +57,12 @@ public class RequestTrackerNode extends DrawableNode {
 
             public void run() {
                 requestList.add(recordedRequest);
+                updateTotalRequests();
             }
         }
 
         Platform.runLater(new OneShotTask(recordedRequest));
+        recordedRequest.lighten(); // Sets response to "" which will be reloaded from database if needed, to save memory
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -66,9 +74,7 @@ public class RequestTrackerNode extends DrawableNode {
     }
 
     public List<RecordedRequest> getRequestsByURL(String url) {
-        List<RecordedRequest> recordedRequests = requestList.stream().filter(recordedRequest -> recordedRequest.getURL().equals(url)).collect(Collectors.toList());
-
-        return recordedRequests;
+        return requestList.stream().filter(recordedRequest -> recordedRequest.getURL().equals(url)).collect(Collectors.toList());
     }
 
     public Tab createInterface() {
@@ -82,9 +88,9 @@ public class RequestTrackerNode extends DrawableNode {
         TableView<RecordedRequest> requestTableView = new TableView<>();
         requestTableView.setId("requestTable-" + getUuidStringWithoutHyphen());
 
-        TableColumn requestID = new TableColumn("ID");
-        requestID.setMinWidth(30);
-        requestID.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("Uuid"));
+        TableColumn requestTimeStamp = new TableColumn("Timestamp");
+        requestTimeStamp.setMinWidth(30);
+        requestTimeStamp.setCellValueFactory(new PropertyValueFactory<RecordedRequest, DateTime>("ResponseDateTimeFromHeaders"));
 
         TableColumn url = new TableColumn("URL");
         url.setMinWidth(30);
@@ -146,19 +152,17 @@ public class RequestTrackerNode extends DrawableNode {
         proxy.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("ProxyConnectionString"));
 
         requestTableView.setItems(getResultList());
-        requestTableView.getColumns().addAll(requestID);
+        requestTableView.getColumns().addAll(requestTimeStamp);
         requestTableView.getColumns().addAll(url);
         requestTableView.getColumns().addAll(duration);
         requestTableView.getColumns().addAll(requestSize);
         requestTableView.getColumns().addAll(responseSize);
         requestTableView.getColumns().addAll(proxy);
-        requestTableView.setLayoutX(11);
-        requestTableView.setLayoutY(50);
 
         requestTableView.setMaxHeight(Integer.MAX_VALUE);
         requestTableView.setMaxWidth(Integer.MAX_VALUE);
 
-        UI.setAnchorMargins(requestTableView, 50.0, 0.0, 11.0, 0.0);
+        UI.setAnchorMargins(requestTableView, 0.0, 0.0, 0.0, 0.0);
 
         requestTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -187,13 +191,36 @@ public class RequestTrackerNode extends DrawableNode {
             return row;
         });
 
-        anchorPane.getChildren().add(requestTableView);
+        // Number of requests
+        VBox vBox = new VBox(5);
+        UI.setAnchorMargins(vBox, 50.0, 0.0, 11.0, 0.0);
+
+        vBox.setMaxHeight(Integer.MAX_VALUE);
+        vBox.setMaxWidth(Integer.MAX_VALUE);
+
+        HBox hbox = new HBox(5);
+        Label totalRequests = new Label("Total Requests:");
+        totalRequestsNumber = new Label("0");
+
+        hbox.getChildren().add(totalRequests);
+        hbox.getChildren().add(totalRequestsNumber);
+
+        vBox.getChildren().add(hbox);
+        vBox.getChildren().add(requestTableView);
+
+        anchorPane.getChildren().add(vBox);
+        anchorPane.setMaxHeight(Integer.MAX_VALUE);
+        anchorPane.setMaxWidth(Integer.MAX_VALUE);
+        UI.setAnchorMargins(anchorPane, 0.0, 0.0, 0.0, 0.0);
+
+        updateTotalRequests();
 
         return tab;
     }
 
     public void clearAllRequests() {
         requestList.clear();
+        updateTotalRequests();
     }
 
     public ObservableList<RecordedRequest> getResultList() {
@@ -204,5 +231,20 @@ public class RequestTrackerNode extends DrawableNode {
         GroupedRequests recordedRequests = new GroupedRequests();
         recordedRequests.addAll(requestList);
         return recordedRequests;
+    }
+
+    private void updateTotalRequests() {
+        class GUIUpdate implements Runnable {
+            private GUIUpdate() {
+            }
+
+            public void run() {
+                if (totalRequestsNumber != null) {
+                    totalRequestsNumber.setText(Format.get().value(requestList.size()).withCommaSeparator().asString());
+                }
+            }
+        }
+
+        Platform.runLater(new GUIUpdate());
     }
 }

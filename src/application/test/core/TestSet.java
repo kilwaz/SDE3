@@ -20,10 +20,21 @@ public class TestSet<Template extends TestTemplate> {
     private Class templateTestClass;
     private TestTemplate templateObject;
     private List<TestCase> testCases = new ArrayList<>();
+    private List<Input> additionalInputs = new ArrayList<>();
 
     public TestSet(TestTemplate templateObject) {
         this.templateObject = templateObject;
         templateTestClass = templateObject.getClass();
+    }
+
+    public TestSet additionalInput(Input input) {
+        additionalInputs.add(input);
+        return this;
+    }
+
+    public TestSet testID(String testID) {
+        this.testID = testID;
+        return this;
     }
 
     public TestSet init() {
@@ -66,6 +77,8 @@ public class TestSet<Template extends TestTemplate> {
                 testCase.runMethod(method);
             } else if (method.isAnnotationPresent(OnComplete.class)) { // Once all tests have been completed
                 testCase.onCompleteMethod(method);
+            } else if ("threadWait".equals(method.getName())) {
+                testCase.threadWaitMethod(method);
             }
         }
 
@@ -85,6 +98,11 @@ public class TestSet<Template extends TestTemplate> {
                 testInputList = new TestInputList(testInputAnnotation.name(), testInputAnnotation.val());
             }
             inputCombiner.addTestInput(testInputList);
+        }
+
+        // Any additional inputs which have been injected with node run params are handled here and added before being combined
+        for (Input input : additionalInputs) {
+            inputCombiner.addTestInput(new TestInputList(input.getVariableName(), input.getVariableValue()));
         }
 
         return inputCombiner.combine();
@@ -131,6 +149,11 @@ public class TestSet<Template extends TestTemplate> {
             testIDInput = Input.create(Input.class);
             testIDInput.setVariableName(testIDAnnotation.name());
             testIDInput.setVariableValue(testIDAnnotation.val());
+        } else if (testID != null) { // This can be set via nodeRunParams or if it is already set elsewhere
+            log.info("TEST ID already set = " + testID);
+            testIDInput = Input.create(Input.class);
+            testIDInput.setVariableName("[[testID]]");
+            testIDInput.setVariableValue(testID);
         }
         return testIDInput;
     }

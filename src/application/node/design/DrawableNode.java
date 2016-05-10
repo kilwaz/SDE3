@@ -37,24 +37,8 @@ import java.util.zip.ZipInputStream;
  */
 
 public class DrawableNode extends DatabaseObject {
-    private Double x = 0.0;
-    private Double y = 0.0;
-    private Double width = 40.0;
-    private Double height = 40.0;
-    private Color color = Color.BLACK;
-    private Double scale = 1.0;
-    private String containedText = "Unnamed";
-    private Program program;
-    private String nextNodeToRun = "";
-    private Boolean initialising = false;
-    private List<Trigger> listeners = new ArrayList<>();
-
     private static final List<String> NODE_NAMES = new ArrayList<>();
     private static Logger log = Logger.getLogger(DrawableNode.class);
-
-    public static List<String> getNodeNames() {
-        return NODE_NAMES;
-    }
 
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
@@ -103,6 +87,19 @@ public class DrawableNode extends DatabaseObject {
         }
     }
 
+    private Double x = 0.0;
+    private Double y = 0.0;
+    private Double width = 40.0;
+    private Double height = 40.0;
+    private Color color = Color.BLACK;
+    private Double scale = 1.0;
+    private String containedText = "Unnamed";
+    private Program program;
+    private String nextNodeToRun = "";
+    private Boolean initialising = false;
+    private Boolean isVisible = false;
+    private List<Trigger> listeners = new ArrayList<>();
+
     public DrawableNode() {
     }
 
@@ -111,7 +108,6 @@ public class DrawableNode extends DatabaseObject {
 
     public DrawableNode(UUID uuid, UUID programUuid) {
         super(uuid);
-        //this.programUuid = programUuid;
     }
 
     public DrawableNode(Double x, Double y, Double width, Double height, Color color, String containedText, UUID programUuid, UUID uuid) {
@@ -122,7 +118,10 @@ public class DrawableNode extends DatabaseObject {
         this.width = width;
         this.color = color;
         this.containedText = containedText;
-        //this.programUuid = programUuid;
+    }
+
+    public static List<String> getNodeNames() {
+        return NODE_NAMES;
     }
 
     public void save() {
@@ -262,6 +261,10 @@ public class DrawableNode extends DatabaseObject {
         return containedText;
     }
 
+    public void setContainedText(String containedText) {
+        this.containedText = containedText;
+    }
+
     public Double getScale() {
         return this.scale;
     }
@@ -270,20 +273,12 @@ public class DrawableNode extends DatabaseObject {
         this.scale = scale;
     }
 
-    public void setContainedText(String containedText) {
-        this.containedText = containedText;
-    }
-
     public Tab createInterface() {
         return new Tab();
     }
 
     public String getProgramUuid() {
         return this.program.getUuidString();
-    }
-
-    public void setProgram(Program program) {
-        this.program = program;
     }
 
     public Color getFillColour() {
@@ -369,5 +364,17 @@ public class DrawableNode extends DatabaseObject {
 
     public Program getProgram() {
         return program;
+    }
+
+    public void setProgram(Program program) {
+        this.program = program;
+    }
+
+    public void setIsVisible(Boolean isVisible) {
+        this.isVisible = isVisible;
+    }
+
+    public Boolean isVisible() {
+        return isVisible;
     }
 }

@@ -3,14 +3,17 @@ package application.node.implementations;
 import application.data.SavableAttribute;
 import application.data.model.dao.SwitchDAO;
 import application.gui.Controller;
+import application.gui.GUIUpdate;
 import application.gui.Program;
+import application.gui.update.switchnode.AddSwitchRow;
+import application.gui.update.switchnode.RemoveSwitchRow;
+import application.gui.update.switchnode.ToggleButtonImage;
 import application.node.design.DrawableNode;
 import application.node.objects.Switch;
 import application.utils.NodeRunParams;
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -19,12 +22,14 @@ import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SwitchNode extends DrawableNode {
     private static Logger log = Logger.getLogger(SwitchNode.class);
     private List<Switch> aSwitches = null;
+    private HashMap<Switch, HBox> switchUI = new HashMap<>();
     private VBox switchRows;
 
     // This will make a copy of the node passed to it
@@ -36,7 +41,6 @@ public class SwitchNode extends DrawableNode {
         this.setColor(switchNode.getColor());
         this.setScale(switchNode.getScale());
         this.setContainedText(switchNode.getContainedText());
-//        this.setProgramUuid(switchNode.getProgramUuid());
         this.setNextNodeToRun(switchNode.getNextNodeToRun());
 
         // This copies all of the switches and creates new object for each one using the copy constructor
@@ -90,21 +94,6 @@ public class SwitchNode extends DrawableNode {
         return null;
     }
 
-    public void removeSwitch(Switch switchObj) {
-        Switch switchToRemove = null;
-        for (Switch aSwitch : getSwitches()) {
-            if (aSwitch.getUuidString().equals(switchObj.getUuidString())) {
-                switchToRemove = aSwitch;
-            }
-        }
-
-        if (switchToRemove != null) {
-            getSwitches().remove(switchToRemove);
-        } else {
-            log.info("Cannot find switch to remove with id " + switchObj.getUuidString());
-        }
-    }
-
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
@@ -115,32 +104,43 @@ public class SwitchNode extends DrawableNode {
 
     public void addSwitch(Switch aSwitch) {
         getSwitches().add(aSwitch);
+        aSwitch.setParent(this);
+        if (isVisible()) {
+            createHBoxUI(aSwitch);
+        }
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         for (Switch aSwitch : getSwitches()) {
             if (aSwitch.isEnabled()) {
-                Program.runHelper(aSwitch.getTarget(), getProgram().getFlowController().getReferenceID(), this, whileWaiting,true, null, nodeRunParams);
+                Program.runHelper(aSwitch.getTarget(), getProgram().getFlowController().getReferenceID(), this, whileWaiting, true, null, nodeRunParams);
             }
         }
     }
 
+    private void createHBoxUI(Switch aSwitch) {
+        HBox hbox = createSwitchNodeRow(aSwitch);
+        GUIUpdate.update(new AddSwitchRow(switchRows, hbox));
+        switchUI.put(aSwitch, hbox);
+    }
+
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
+        switchUI.clear(); // Remove any previous UI elements
 
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         switchRows = new VBox(5);
-        switchRows.setLayoutY(55);
-        switchRows.setLayoutX(11);
+        VBox rows = new VBox(5);
+        rows.setLayoutY(55);
+        rows.setLayoutX(11);
 
-        for (Switch aSwitch : getSwitches()) {
-            switchRows.getChildren().add(createSwitchNodeRow(aSwitch));
-        }
+        getSwitches().forEach(this::createHBoxUI);
 
-        switchRows.getChildren().add(createAddSwitchNodeRow());
-        anchorPane.getChildren().add(switchRows);
+        rows.getChildren().add(switchRows);
+        rows.getChildren().add(createAddSwitchNodeRow());
+        anchorPane.getChildren().add(rows);
 
         // Go back to the beginning and run the code to show the tab, it should now exist
         return tab;
@@ -162,22 +162,19 @@ public class SwitchNode extends DrawableNode {
             SwitchNode switchNode = (SwitchNode) getProgram().getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
 
             // Remove the switch
-            deleteSwitch(switchNode, fieldId[1]);
+            deleteSwitch(switchNode.getSwitch(fieldId[1]));
         });
         switchRow.getChildren().add(deleteSwitch);
 
         // Tick / Cross button
         ToggleButton firstSwitchButton = new ToggleButton();
+        firstSwitchButton.selectedProperty().bindBidirectional(aSwitch.isEnabledProp());
+        firstSwitchButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            GUIUpdate.update(new ToggleButtonImage(firstSwitchButton));
+        });
 
-        firstSwitchButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CLOSE).build());
+        GUIUpdate.update(new ToggleButtonImage(firstSwitchButton));
 
-        if (aSwitch.isEnabled()) {
-            firstSwitchButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CHECK).build());
-            firstSwitchButton.setSelected(true);
-        } else {
-            firstSwitchButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CLOSE).build());
-            firstSwitchButton.setSelected(false);
-        }
         firstSwitchButton.setPrefWidth(35);
         firstSwitchButton.setId("switchButton-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
         firstSwitchButton.setOnAction(event -> {
@@ -186,12 +183,8 @@ public class SwitchNode extends DrawableNode {
             SwitchNode switchNode = (SwitchNode) getProgram().getFlowController().getNodeByUuidWithoutHyphen(fieldId[2]);
 
             if (toggleButton.isSelected()) {
-                toggleButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CHECK).build());
-                toggleButton.setSelected(true);
                 switchNode.updateSwitchEnabled(fieldId[1], true);
             } else {
-                toggleButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.CLOSE).build());
-                toggleButton.setSelected(false);
                 switchNode.updateSwitchEnabled(fieldId[1], false);
             }
 
@@ -201,9 +194,8 @@ public class SwitchNode extends DrawableNode {
 
         // Text field
         TextField switchField = TextFields.createClearableTextField();
-
-        switchField.setText(aSwitch.getTarget()); // The text of the field should be set before linking it to auto complete to avoid jittery UI
-        TextFields.bindAutoCompletion(switchField, getProgram().getFlowController().getNodes());
+        switchField.textProperty().bindBidirectional(aSwitch.getTargetProp());
+        //TextFields.bindAutoCompletion(switchField, getProgram().getFlowController().getNodes());
 
         switchField.setId("switchField-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
         switchField.setOnKeyReleased(event -> {
@@ -226,22 +218,11 @@ public class SwitchNode extends DrawableNode {
         return switchRow;
     }
 
-    private void deleteSwitch(SwitchNode switchNode, String switchId) {
-        Switch switchToRemove = switchNode.getSwitch(switchId);
-
-        switchToRemove.delete();
-        removeSwitch(switchToRemove);
-
-        // Removes the row off of the UI
-        Node rowToRemove = null;
-        for (Node node : switchRows.getChildren()) {
-            if (node.getId().equals("switchRow-" + switchToRemove.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen())) {
-                rowToRemove = node;
-            }
-        }
-
-        if (rowToRemove != null) {
-            switchRows.getChildren().remove(rowToRemove);
+    public void deleteSwitch(Switch switchToRemove) {
+        if (switchToRemove != null) {
+            GUIUpdate.update(new RemoveSwitchRow(switchRows, switchToRemove));
+            getSwitches().remove(switchToRemove);
+            switchToRemove.delete();
         }
 
         getProgram().getFlowController().checkConnections();
@@ -264,9 +245,6 @@ public class SwitchNode extends DrawableNode {
             newSwitch.save();
 
             addSwitch(newSwitch);
-
-            // Add the new switch just above the plus button
-            switchRows.getChildren().add(switchRows.getChildren().size() - 1, createSwitchNodeRow(newSwitch));
         });
 
         addSwitchRow.getChildren().add(addButton);

@@ -135,12 +135,21 @@ public class WebProxyRequest {
         if (responseBuffer != null) {
             if ("gzip".equals(getResponseHeader("Content-Encoding"))) { // If the response is encoded as a gzip, decompress into a string
                 ByteBufferBackedInputStream in = new ByteBufferBackedInputStream(responseBuffer);
-
+                InputStream zin = null;
                 try {
-                    InputStream zin = new GZIPInputStream(in);
+                    zin = new GZIPInputStream(in);
                     return IOUtils.toString(zin, Charset.forName("UTF-8"));
                 } catch (IOException ex) {
                     Error.FAILED_TO_DECODE_GZIP_RESPONSE.record().create(ex);
+                } finally {
+                    try {
+                        if (zin != null) {
+                            zin.close();
+                        }
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             } else {
                 return new String(responseBuffer.array(), Charset.forName("UTF-8"));
@@ -171,7 +180,7 @@ public class WebProxyRequest {
         }
     }
 
-    public DateTime getResponseDateTimeFromHeaders() {
+    public DateTime getResponseDateTimeFromHeers() {
         if (responseHeaders.get("Date") != null) {
             DateTimeFormatter dateStringFormat = DateTimeFormat.forPattern(" EEE, dd MMM yyyy HH:mm:ss zzz");
             return dateStringFormat.parseDateTime(responseHeaders.get("Date"));

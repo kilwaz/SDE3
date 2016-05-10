@@ -1,5 +1,6 @@
 package application.test;
 
+import application.error.Error;
 import application.gui.Program;
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.objects.Test;
@@ -16,9 +17,9 @@ import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.remote.SessionNotFoundException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -199,7 +200,7 @@ public class TestRunner extends SDERunnable {
                     driver.close();
                     driver.quit();
                 }
-            } catch (SessionNotFoundException ex) {
+            } catch (NoSuchSessionException ex) {
                 // If this throws an exception that is fine, we don't need to do anything with it
                 // It just means that the driver has already closed
             }
@@ -216,7 +217,7 @@ public class TestRunner extends SDERunnable {
                     Date date = new Date();
                     String fileDate = dateFormat.format(date);
                     if (test != null && test.getTestCase() != null && test.getTestCase().getTestSet() != null) {
-                        fileName = AppParams.getTestDocOutputDir() + test.getTestCase().getTestSet().getParentNode().getContainedText() + " - Iteration " + test.getTestCase().getTestIterationID() + " - " + fileDate + ".docx";
+                        fileName = AppParams.getTestDocOutputDir() + test.getTestCase().getTestSet().getParentNode().getContainedText() + " - Test " + test.getTestCase().getTestSet().getTestID() + "-" + test.getTestCase().getTestIterationID() + " - " + fileDate + ".docx";
                     } else {
                         fileName = AppParams.getTestDocOutputDir() + testResult.getUuidString() + "-" + fileDate + ".docx";
                     }
@@ -256,14 +257,14 @@ public class TestRunner extends SDERunnable {
                                 screenshotInputStream.close();
                             }
                         } catch (IOException ex) {
-                            log.error(ex);
+                            Error.DOCUMENT_CREATION_ISSUE.record().create(ex);
                         }
                     }
 
                     document.write(out);
                     out.close();
                 } catch (IOException | InvalidFormatException ex) {
-                    ex.printStackTrace();
+                    Error.DOCUMENT_CREATION_ISSUE.record().create(ex);
                 }
             }
         }
