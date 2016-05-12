@@ -3,7 +3,6 @@ package application.data.imports;
 import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
-import application.gui.window.ImportWindow;
 import application.node.design.DrawableNode;
 import application.node.implementations.DataTableNode;
 import application.node.implementations.InputNode;
@@ -32,11 +31,11 @@ import java.util.List;
 public class ImportNodes extends SDERunnable {
     private static Logger log = Logger.getLogger(ImportNodes.class);
     private Document document;
-    private ImportWindow importWindow;
+    private ImportTask importTask = null;
 
-    public ImportNodes(Document document, ImportWindow importWindow) {
+    public ImportNodes(Document document, ImportTask importTask) {
         this.document = document;
-        this.importWindow = importWindow;
+        this.importTask = importTask;
     }
 
     private static String getTextValue(String def, Element element, String tag) {
@@ -51,15 +50,10 @@ public class ImportNodes extends SDERunnable {
 
     public void threadRun() {
         Element element = document.getDocumentElement();
-        if (importWindow != null) {
-            importWindow.startImportProgress();
-        }
         if (element.getTagName().contains("Node")) {
             importNode(SessionManager.getInstance().getCurrentSession().getSelectedProgram(), element);
-            if (importWindow != null) {
-                importWindow.updateImportProgress(0.5);
-            }
         } else if (element.getTagName().equals("Program")) {
+            importTask.started();
             String programName = ImportNodes.getTextValue("", element, "ProgramName");
             String lockedStatus = ImportNodes.getTextValue("", element, "Locked");
 
@@ -68,6 +62,7 @@ public class ImportNodes extends SDERunnable {
             newProgram.setLocked("Y".equals(lockedStatus));
 
             NodeList programChildNodes = element.getChildNodes();
+            List<Element> nodesToProcess = new ArrayList<>();
             for (int i = 0; i < programChildNodes.getLength(); i++) {
                 if (programChildNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
                     Element programTopElements = (Element) programChildNodes.item(i);
@@ -75,7 +70,6 @@ public class ImportNodes extends SDERunnable {
                     if (programTopElements.getTagName().equals("Nodes")) {
                         NodeList childNodeList = programTopElements.getChildNodes();
 
-                        List<Element> nodesToProcess = new ArrayList<>();
                         for (int n = 0; n < childNodeList.getLength(); n++) {
                             if (childNodeList.item(n).getNodeType() == Node.ELEMENT_NODE) {
                                 Element nodeElement = (Element) childNodeList.item(n);
@@ -85,17 +79,17 @@ public class ImportNodes extends SDERunnable {
                                 }
                             }
                         }
-
-                        Double importedCount = 0.0;
-                        for (Element nodeElement : nodesToProcess) {
-                            if (importWindow != null) {
-                                importWindow.updateImportProgress(importedCount / nodesToProcess.size());
-                            }
-                            importNode(newProgram, nodeElement);
-                            importedCount++;
-                        }
                     }
                 }
+            }
+
+            // Start the actual import
+            Integer importedCount = 0;
+            importTask.setMaximum(nodesToProcess.size());
+            for (Element nodeElement : nodesToProcess) {
+                importTask.updateProgress(importedCount);
+                importNode(newProgram, nodeElement);
+                importedCount++;
             }
 
             newProgram.setParentUser(SessionManager.getInstance().getCurrentSession().getUser());
@@ -103,14 +97,10 @@ public class ImportNodes extends SDERunnable {
             Controller.getInstance().updateCanvasControllerLater();
 
             // We need to reload the program in order to correctly set it up to be used straight away
-            Program reloadedProgram = Program.load(newProgram.getUuid(),Program.class);
+            Program reloadedProgram = Program.load(newProgram.getUuid(), Program.class);
             Controller.getInstance().addNewProgram(reloadedProgram);
-        }
 
-        // Closes the import window and update the display to show the new node, also check all connections
-        if (importWindow != null) {
-            importWindow.endImportProgress();
-            importWindow.closeWindow();
+            importTask.setIsFinished(true);
         }
     }
 

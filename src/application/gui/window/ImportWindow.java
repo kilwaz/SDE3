@@ -2,16 +2,14 @@ package application.gui.window;
 
 import application.data.imports.ImportNodeColours;
 import application.data.imports.ImportNodes;
+import application.data.imports.ImportTask;
 import application.error.Error;
-import application.gui.AceTextArea;
 import application.gui.UI;
 import application.utils.SDEThread;
 import application.utils.XMLTransform;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -19,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
+import org.controlsfx.control.TaskProgressView;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -28,24 +27,22 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class ImportWindow extends Stage {
-
     private static Logger log = Logger.getLogger(ImportWindow.class);
-    private AceTextArea importTextArea;
     private HBox headerButtons;
-    private ProgressIndicator progressIndicator;
+    private TaskProgressView<ImportTask> taskTaskProgressView = null;
+
     public ImportWindow() {
         init();
     }
 
     private void init() {
         try {
-            importTextArea = new AceTextArea("ace/mode/xml");
-
-            UI.setAnchorMargins(importTextArea, 0.0, 0.0, 0.0, 0.0);
-
-            importTextArea.setPrefHeight(900);
+            taskTaskProgressView = new TaskProgressView<>();
+            taskTaskProgressView.setGraphicFactory(ImportTask::getStatusImage);
+            taskTaskProgressView.setPrefHeight(Integer.MAX_VALUE);
 
             headerButtons = new HBox(5);
 
@@ -56,23 +53,32 @@ public class ImportWindow extends Stage {
                 fileChooser.setTitle("Choose Import File");
 
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
-                File file = fileChooser.showOpenDialog(this);
+                List<File> fileList = fileChooser.showOpenMultipleDialog(this);
 
-                if (file != null && file.exists()) {
-                    try {
-                        Document dom;
-                        // Make an  instance of the DocumentBuilderFactory
-                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                if (fileList != null) {
+                    for (File file : fileList) {
+                        if (file != null && file.exists()) {
+                            try {
+                                Document dom;
+                                // Make an  instance of the DocumentBuilderFactory
+                                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-                        // use the factory to take an instance of the document builder
-                        DocumentBuilder db = dbf.newDocumentBuilder();
-                        // parse using the builder to get the DOM mapping of the
-                        // XML file
-                        dom = db.parse(file);
+                                // use the factory to take an instance of the document builder
+                                DocumentBuilder db = dbf.newDocumentBuilder();
+                                // parse using the builder to get the DOM mapping of the
+                                // XML file
+                                dom = db.parse(file);
 
-                        importTextArea.setText(XMLTransform.writeXMLToString(dom));
-                    } catch (ParserConfigurationException | SAXException | IOException ex) {
-                        Error.IMPORT_PARSE.record().create(ex);
+                                // Create and start the UI task to track this import
+                                ImportTask importTask = new ImportTask(XMLTransform.writeXMLToString(dom), file.getName());
+                                taskTaskProgressView.getTasks().add(importTask);
+                                Thread th = new Thread(importTask);
+                                th.setDaemon(true);
+                                th.start();
+                            } catch (ParserConfigurationException | SAXException | IOException ex) {
+                                Error.IMPORT_PARSE.record().create(ex);
+                            }
+                        }
                     }
                 }
             });
@@ -80,12 +86,15 @@ public class ImportWindow extends Stage {
             Button importButton = new Button();
             importButton.setText("Run Import");
             importButton.setOnAction(event -> {
-                if(importTextArea.getText() != null && !importTextArea.getText().isEmpty()){
-                    Document document = XMLTransform.writeStringToXML(importTextArea.getText());
-                    if (document.getDocumentElement().getTagName().contains("NodeColours")) { // Check for node colours first as the second check checks for anything contain 'node'.
-                        new SDEThread(new ImportNodeColours(document, this), "Importing Node Colours", null, true);
-                    } else if (document.getDocumentElement().getTagName().contains("Program") || document.getDocumentElement().getTagName().contains("Node")) {
-                        new SDEThread(new ImportNodes(document, this), "Importing Node", null, true);
+                for (ImportTask importTask : taskTaskProgressView.getTasks()) {
+                    String xml = importTask.getXml();
+                    if (!xml.isEmpty()) {
+                        Document document = XMLTransform.writeStringToXML(xml);
+                        if (document.getDocumentElement().getTagName().contains("NodeColours")) { // Check for node colours first as the second check checks for anything contain 'node'.
+                            new SDEThread(new ImportNodeColours(document, importTask), "Importing Node Colours", null, true);
+                        } else if (document.getDocumentElement().getTagName().contains("Program") || document.getDocumentElement().getTagName().contains("Node")) {
+                            new SDEThread(new ImportNodes(document, importTask), "Importing Node", null, true);
+                        }
                     }
                 }
             });
@@ -96,7 +105,7 @@ public class ImportWindow extends Stage {
             VBox rows = new VBox(5);
             rows.setPadding(new Insets(7, 11, 7, 11));
             rows.getChildren().add(headerButtons);
-            rows.getChildren().add(importTextArea);
+            rows.getChildren().add(taskTaskProgressView);
 
             AnchorPane exportOutputAnchor = new AnchorPane();
 
@@ -105,7 +114,7 @@ public class ImportWindow extends Stage {
 
             exportOutputAnchor.getChildren().add(rows);
 
-            Scene newScene = new Scene(exportOutputAnchor, 900, 800);
+            Scene newScene = new Scene(exportOutputAnchor, 700, 400);
             this.setScene(newScene);
             this.setTitle("Import");
 
@@ -116,65 +125,5 @@ public class ImportWindow extends Stage {
         } catch (Exception ex) {
             Error.CREATE_IMPORT_WINDOW.record().create(ex);
         }
-    }
-
-    public void startImportProgress() {
-        class GUIUpdate implements Runnable {
-            GUIUpdate() {
-            }
-
-            public void run() {
-                progressIndicator = new ProgressIndicator();
-                headerButtons.getChildren().add(progressIndicator);
-            }
-        }
-
-        Platform.runLater(new GUIUpdate());
-    }
-
-    public void updateImportProgress(Double progressValue) {
-        class GUIUpdate implements Runnable {
-            Double progressValue;
-
-            GUIUpdate(Double progressValue) {
-                this.progressValue = progressValue;
-            }
-
-            public void run() {
-                progressIndicator.setProgress(progressValue);
-            }
-        }
-
-        Platform.runLater(new GUIUpdate(progressValue));
-    }
-
-    public void endImportProgress() {
-        class GUIUpdate implements Runnable {
-            GUIUpdate() {
-            }
-
-            public void run() {
-                headerButtons.getChildren().remove(progressIndicator);
-                progressIndicator = null;
-            }
-        }
-
-        Platform.runLater(new GUIUpdate());
-    }
-
-    public void closeWindow() {
-        class GUIUpdate implements Runnable {
-            private Stage stage;
-
-            GUIUpdate(Stage stage) {
-                this.stage = stage;
-            }
-
-            public void run() {
-                stage.close();
-            }
-        }
-
-        Platform.runLater(new GUIUpdate(this));
     }
 }
