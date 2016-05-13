@@ -128,7 +128,8 @@ public enum Error {
     FAILED_TO_DECODE_GZIP_RESPONSE(123, "Failed to decode a gzip encoded response"),
     PARSE_DATE_FAILED(124, "Failed to parse Date"),
     TEST_CASE_THREAD_WAIT_METHOD_NOT_FOUND(125, "While working with Test Case, thread wait method could not be found"),
-    DOCUMENT_CREATION_ISSUE(126, "Unable to complete creating document from test");
+    DOCUMENT_CREATION_ISSUE(126, "Unable to complete creating document from test"),
+    XPATH_GENERATION(127, "Unable to generate xPath of element");
 
     private Integer code;
     private String description;

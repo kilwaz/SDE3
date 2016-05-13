@@ -1,5 +1,6 @@
 package application.test.action;
 
+import application.error.Error;
 import application.gui.Program;
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.objects.Test;
@@ -9,15 +10,13 @@ import application.test.TestResult;
 import application.test.TestStep;
 import application.test.action.helpers.*;
 import application.utils.AppParams;
+import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.*;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -123,23 +122,48 @@ public abstract class WebAction implements Action {
      */
     public void takeScreenshotOfElement(TestStep testStep, WebElement testElement) {
         if (AppParams.getRecordScreenshots()) {
-            Dimension elementDimension = null;
-            Point elementLocation = null;
+            String elementXPath, scriptToRun, highlightId = "";
             if (testElement != null) {
-                elementDimension = testElement.getSize();
-                elementLocation = testElement.getLocation();
+                elementXPath = SDEUtils.generateXPath(testElement).replace("\"", "'");
+                highlightId = "selenium-highlight@" + testStep.getUuidString();
+                scriptToRun = "var elem = document.evaluate(\"" + elementXPath + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n" +
+                        "if(elem != null){\n" +
+                        "var box = elem.getBoundingClientRect();\n" +
+                        "var div = document.createElement('div');\n" +
+                        "div.id = '" + highlightId + "';\n" +
+                        "div.style.position = 'absolute';\n" +
+                        "div.style.top = (box.top - 4) + \"px\";\n" +
+                        "div.style.left = (box.left - 4) + \"px\";\n" +
+                        "div.style.width = elem.offsetWidth + \"px\";\n" +
+                        "div.style.height = elem.offsetHeight + \"px\";\n" +
+                        "div.style.zIndex = 99999;\n" +
+                        "div.style.border = \"4px solid #FF0000\";\n" +
+                        "document.getElementsByTagName('body')[0].appendChild(div);" +
+                        "}";
+                try {
+                    ((JavascriptExecutor) getDriver()).executeScript(scriptToRun);
+                } catch (WebDriverException ex) {
+                    Error.SELENIUM_JAVASCRIPT_FAILED.record().additionalInformation("Script:- " + scriptToRun).create(ex);
+                }
             }
 
             File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 
             try {
                 BufferedImage bufferedImage = ImageIO.read(scrFile);
-                if (testElement != null) {
-                    Graphics2D g = bufferedImage.createGraphics();
-                    g.setColor(java.awt.Color.RED);
-                    g.drawRect(elementLocation.getX(), elementLocation.getY(), elementDimension.getWidth(), elementDimension.getHeight());
-                }
                 testStep.setScreenshot(bufferedImage);
+                if (testElement != null) {
+                    // Remove the highlighting
+                    scriptToRun = "var elem = document.getElementById(\"" + highlightId + "\");\n" +
+                            "if(elem != null){\n" +
+                            "elem.parentNode.removeChild(elem);" +
+                            "}";
+                    try {
+                        ((JavascriptExecutor) getDriver()).executeScript(scriptToRun);
+                    } catch (WebDriverException ex) {
+                        Error.SELENIUM_JAVASCRIPT_FAILED.record().additionalInformation("Script:- " + scriptToRun).create(ex);
+                    }
+                }
             } catch (IOException ex) {
                 log.error(ex);
             }
@@ -147,14 +171,14 @@ public abstract class WebAction implements Action {
     }
 
     /**
-     * This methods converts the page source returned by Selenium and converts it into a Jsoup Document.
+     * This methods converts the page source returned by Selenium and converts it into a JSoup Document.
      * <p>
      * The reason for this is the overhead that is incurred when interacting with Selenium.  A large amount of
      * actions against Selenium can cause the WebDriver to run close and get overloaded.  Previously it was causing
      * issues with the number of ports on the local machine.  Selenium uses local ports to connect to the WebDriver
-     * browser and requesting too much too fast exhuasts the current ports that are available.
+     * browser and requesting too much too fast exhausts the current ports that are available.
      * <p>
-     * Using Jsoup for all lookups and checking the page speeds up the code and drastically and reduces the amount of work
+     * Using JSoup for all lookups and checking the page speeds up the code and drastically and reduces the amount of work
      * we are doing in Selenium.
      */
     public void refreshCurrentDocument() {

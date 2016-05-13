@@ -60,7 +60,7 @@ public class ImportWindow extends Stage {
                         if (file != null && file.exists()) {
                             try {
                                 Document dom;
-                                // Make an  instance of the DocumentBuilderFactory
+                                // Make an instance of the DocumentBuilderFactory
                                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
                                 // use the factory to take an instance of the document builder

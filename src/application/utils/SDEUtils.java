@@ -180,23 +180,40 @@ public class SDEUtils {
         return resourcesPath;
     }
 
+    public static Element getJSoupElementFromWebElement(WebElement webElement, Document document) {
+        return getElementFromXPath(generateXPath(webElement), document);
+    }
+
     public static String generateXPath(WebElement webElement) {
-        if (!webElement.getAttribute("id").equals("")) { // If the element has an ID we just use that as we found an anchor
+        return generateXPath(webElement, true);
+    }
+
+    public static String generateXPath(WebElement webElement, Boolean withId) {
+        if (!webElement.getAttribute("id").equals("") && withId) { // If the element has an ID we just use that as we found an anchor
             return "//*[@id=\"" + webElement.getAttribute("id") + "\"]";
         } else { // If not we put the tag and go up
-            WebElement parent = webElement.findElement(By.xpath(".."));
-            List<WebElement> parentTagList = parent.findElements(By.tagName(webElement.getTagName()));
+//            try {
+            if ("body".equals(webElement.getTagName())) {
+                return "/html/body";
+            } else {
+                WebElement parent = webElement.findElement(By.xpath(".."));
+                List<WebElement> parentTagList = parent.findElements(By.tagName(webElement.getTagName()));
 
-            if (parentTagList.size() == 1) { // If the tag was the only one of its kind we don't need to specify index
-                return generateXPath(parent) + "/" + webElement.getTagName();
-            } else { // We need to specify index here
-                return generateXPath(parent) + "/" + webElement.getTagName() + "[" + (parentTagList.indexOf(webElement) + 1) + "]";
+                if (parentTagList.size() == 1) { // If the tag was the only one of its kind we don't need to specify index
+                    return generateXPath(parent, withId) + "/" + webElement.getTagName();
+                } else { // We need to specify index here
+                    return generateXPath(parent, withId) + "/" + webElement.getTagName() + "[" + (parentTagList.indexOf(webElement) + 1) + "]";
+                }
             }
         }
     }
 
     public static String generateXPath(Element element) {
-        if (!element.attr("id").equals("")) { // If the element has an ID we just use that as we found an anchor
+        return generateXPath(element, true);
+    }
+
+    public static String generateXPath(Element element, Boolean withId) {
+        if (!element.attr("id").equals("") && withId) { // If the element has an ID we just use that as we found an anchor
             return "//*[@id=\"" + element.attr("id") + "\"]";
         } else { // If not we put the tag and go up
             Element parent = element.parent();
@@ -213,9 +230,9 @@ public class SDEUtils {
             }
 
             if (parentTagList.size() == 1) { // If the tag was the only one of its kind we don't need to specify index
-                return generateXPath(parent) + "/" + element.tagName();
+                return generateXPath(parent, withId) + "/" + element.tagName();
             } else { // We need to specify index here
-                return generateXPath(parent) + "/" + element.tagName() + "[" + (parentTagList.indexOf(element) + 1) + "]";
+                return generateXPath(parent, withId) + "/" + element.tagName() + "[" + (parentTagList.indexOf(element) + 1) + "]";
             }
         }
     }
