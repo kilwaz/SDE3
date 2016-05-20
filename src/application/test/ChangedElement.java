@@ -155,8 +155,8 @@ public class ChangedElement {
             String beforeStr = "";
             String afterStr = "";
             try {
-                beforeStr = getInitialValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
-                afterStr = getFinalValue().replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
+                beforeStr = getInitialValue().replaceAll("[^\\+-d.]", ""); // Removes all non-numeric characters
+                afterStr = getFinalValue().replaceAll("[^\\+-d.]", ""); // Removes all non-numeric characters
                 Double beforeDouble = beforeStr.isEmpty() ? 0d : Double.parseDouble(beforeStr);
                 Double afterDouble = afterStr.isEmpty() ? 0d : Double.parseDouble(afterStr);
 //                log.info("Comparing numbers " + beforeDouble + " to " + afterDouble);

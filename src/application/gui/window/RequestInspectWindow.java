@@ -85,7 +85,7 @@ public class RequestInspectWindow extends Stage {
             root.getChildren().add(tabPane);
 
             this.setScene(new Scene(root, 900, 800));
-            this.setTitle(recordedRequest.getURL());
+            this.setTitle(recordedRequest.getUrl());
 
             URL url = getClass().getResource("/icon.png");
             this.getIcons().add(new Image(url.toExternalForm()));

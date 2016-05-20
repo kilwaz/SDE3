@@ -57,7 +57,7 @@ public class InputWebAction extends WebAction {
                 textToEnter = valueToEnter.getParameterValue();
             } else if (increaseBy.exists() || decreaseBy.exists()) {
                 String currentText = testElement.getAttribute("value");
-                currentText = currentText.replaceAll("[^\\d.]", ""); // Removes all non-numeric characters
+                currentText = currentText.replaceAll("[^\\d+-.]", ""); // Removes all non-numeric characters
                 Double textValue = Double.parseDouble(currentText);
 
                 if (increaseBy.exists()) {

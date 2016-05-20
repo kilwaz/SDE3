@@ -45,9 +45,7 @@ public class WebProxyRequestManager {
     }
 
     public void addNewActiveRequest(Integer httpRequestHash, WebProxyRequest webProxyRequest) {
-        webProxyRequest.setRequestID(requestCount);
-        requestCount++;
-
+        numberCompletedRequest(webProxyRequest);
         activeRequests.put(httpRequestHash, webProxyRequest);
     }
 
@@ -75,6 +73,12 @@ public class WebProxyRequestManager {
         return url;
     }
 
+    // Assigns a request number once the request has been completed
+    private synchronized void numberCompletedRequest(WebProxyRequest webProxyRequest) {
+        webProxyRequest.setRequestID(requestCount);
+        requestCount++;
+    }
+
     public void completeRequest(Integer httpRequestHash) {
         WebProxyRequest webProxyRequest = getRequest(httpRequestHash);
 
@@ -85,12 +89,17 @@ public class WebProxyRequestManager {
             // Save the request to the database
             RecordedRequest recordedRequest = RecordedRequest.create(RecordedRequest.class);
             recordedRequest.setParentHttpProxy(recordedProxy);
-            recordedRequest.setURL(applyRedirects(webProxyRequest.getRequestURL()));
+            recordedRequest.setUrl(applyRedirects(webProxyRequest.getRequestURL()));
             recordedRequest.setDuration(webProxyRequest.getRequestDuration().intValue());
             recordedRequest.setRequestSize(webProxyRequest.getRequestContentSize());
             recordedRequest.setResponseSize(webProxyRequest.getResponseContentSize());
             recordedRequest.setRequest(webProxyRequest.getRequestContent());
             recordedRequest.setResponse(webProxyRequest.getResponseContent());
+            recordedRequest.setRequestNumber(webProxyRequest.getRequestID());
+            recordedRequest.setHttps(webProxyRequest.getHttps());
+            recordedRequest.setMethod(webProxyRequest.getMethod());
+            recordedRequest.setStatus(webProxyRequest.getStatus());
+            recordedRequest.setRedirectUrl(webProxyRequest.getRedirectUrl());
 
             // Save the request headers
             for (String name : webProxyRequest.getRequestHeaders().keySet()) {
@@ -103,6 +112,7 @@ public class WebProxyRequestManager {
             }
 
             recordedRequest.save();
+            //recordedRequest.lighten(); // Sets response to "" which will be reloaded from database if needed, to save memory
 
             // Apply the completed request to any linked tracker nodes
             for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {

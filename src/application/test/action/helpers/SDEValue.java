@@ -59,7 +59,7 @@ public class SDEValue {
                         isNegative = true;
                     }
                 }
-                String numericOnly = stringValue.replaceAll("[^\\d.]", ""); // Alpha-numeric characters only
+                String numericOnly = stringValue.replaceAll("[^\\d+-.]", ""); // Alpha-numeric and dash characters only
                 doubleValue = Double.parseDouble(numericOnly);
                 if (isNegative && negativesHaveBrackets) { // If it was a negative value with brackets, deal with it here
                     doubleValue = -doubleValue;

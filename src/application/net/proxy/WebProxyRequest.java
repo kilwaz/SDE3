@@ -39,6 +39,10 @@ public class WebProxyRequest {
     private String requestContent = "";
     private String requestUri = "";
     private ByteBuffer responseBuffer;
+    private Boolean isHttps = false;
+    private String method = "";
+    private Integer status = -1;
+    private String redirectUrl = "";
     private HashMap<String, String> responseHeaders = new HashMap<>();
     private HashMap<String, String> requestHeaders = new HashMap<>();
 
@@ -52,6 +56,14 @@ public class WebProxyRequest {
 
     public void instantStartProxyToServer() {
         instantStartProxyToServer = new Instant();
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 
     public void instantCompleteProxyToServer() {
@@ -80,6 +92,30 @@ public class WebProxyRequest {
 
     public String getRequestURL() {
         return requestUri;
+    }
+
+    public Boolean getHttps() {
+        return isHttps;
+    }
+
+    public void setHttps(Boolean https) {
+        isHttps = https;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
     }
 
     public Long getRequestDuration() {

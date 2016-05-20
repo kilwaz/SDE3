@@ -2,23 +2,22 @@ package application.net.proxy;
 
 import application.data.model.DatabaseObject;
 import application.data.model.dao.RecordedRequestDAO;
-import application.error.Error;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.jsoup.Jsoup;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class RecordedRequest extends DatabaseObject {
     private static Logger log = Logger.getLogger(RecordedRequest.class);
-    private String URL = "";
+    private String url = "";
     private Integer duration = -1;
     private Integer requestSize = -1;
     private Integer responseSize = -1;
@@ -27,25 +26,143 @@ public class RecordedRequest extends DatabaseObject {
     private RecordedProxy parentHttpProxy;
     private HashMap<String, RecordedHeader> requestHeaders = new HashMap<>();
     private HashMap<String, RecordedHeader> responseHeaders = new HashMap<>();
+    private Integer requestNumber = 0;
+    private String host = "";
+    private String redirectUrl = "";
+    private Boolean isHttps = false;
+    private String method = "";
+    private Integer status = -1;
 
     public RecordedRequest() {
         super();
     }
 
-    public String getURL() {
-        return URL;
+    public String getUrl() {
+        return url;
     }
 
-    public void setURL(String URL) {
-        this.URL = URL;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public String getBaseURL() {
-        if (URL.contains("?")) {
-            return URL.substring(0, URL.indexOf("?"));
-        } else {
-            return URL;
+    public String getLocalUrl() {
+        if (url.contains(":")) {
+            String localUrl = url.substring(url.indexOf(":") + 3);
+            if (localUrl.contains("/")) {
+                return localUrl.substring(localUrl.indexOf("/"));
+            }
         }
+        return "";
+    }
+
+    public String getMediaType() {
+        if (responseHeaders.get("Content-Type") != null) {
+            String content = responseHeaders.get("Content-Type").getValue();
+            if (content.contains(";")) {
+                content = content.substring(0, content.indexOf(";"));
+            }
+            if (content.contains("/")) {
+                content = content.substring(content.indexOf("/") + 1);
+                if (content.contains("-")) {
+                    return content.substring(content.indexOf("-") + 1);
+                } else {
+                    return content;
+                }
+            }
+            return content;
+        }
+
+        return "";
+    }
+
+    public String getExtension() {
+        String baseUrl = getBaseUrl();
+        if (baseUrl.contains("/")) {
+            String page = baseUrl.substring(baseUrl.lastIndexOf("/"));
+            if (page.contains(".")) {
+                return page.substring(page.lastIndexOf(".") + 1);
+            }
+        }
+        return "";
+    }
+
+    public String getTitle() {
+        if ("html".equals(getMediaType())) {
+            return Jsoup.parse(response).title();
+        } else {
+            return "";
+        }
+    }
+
+    public String getRedirectHost() {
+        return parseHost(redirectUrl);
+    }
+
+    public String getCookies() {
+        if (responseHeaders.get("Set-Cookie") != null) {
+            return responseHeaders.get("Set-Cookie").getValue();
+        } else {
+            return "";
+        }
+    }
+
+    public String getIP() {
+        if (!getHost().isEmpty()) {
+            try {
+                String host = getHost().substring(getHost().indexOf("//") + 2);
+                InetAddress address = InetAddress.getByName(host);
+                return address.getHostAddress();
+            } catch (UnknownHostException e) {
+                return "";
+            }
+        }
+        return "";
+    }
+
+    public Integer getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Boolean getHasParameters() {
+        return url.contains("?") || "POST".equals(getMethod());
+    }
+
+    public String getBaseUrl() {
+        if (url.contains("?")) {
+            return url.substring(0, url.indexOf("?"));
+        } else {
+            return url;
+        }
+    }
+
+    public String getHost() {
+        return parseHost(url);
+    }
+
+    private String parseHost(String url) {
+        if (url != null) {
+            String host = url.substring(url.indexOf("//") + 2);
+            if (host.contains("/")) {
+                host = host.substring(0, host.indexOf("/"));
+            }
+            if (host.contains(":")) {
+                host = host.substring(0, host.indexOf(":"));
+            }
+            return (isHttps ? "https://" : "http://") + host;
+        }
+        return "";
+    }
+
+    public Boolean getHttps() {
+        return isHttps;
+    }
+
+    public void setHttps(Boolean https) {
+        isHttps = https;
     }
 
     public Integer getDuration() {
@@ -72,21 +189,28 @@ public class RecordedRequest extends DatabaseObject {
         this.responseSize = responseSize;
     }
 
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
+    }
+
     public String getRequest() {
-        if ("".equals(request)) {
+        if ("".equals(request) || request == null) {
             RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
             request = recordedRequestDAO.getLazyRequest(this);
         }
         return request;
-    }
-
-    // Required
-    public void setRequest(InputStream inputStream) {
-        try {
-            request = IOUtils.toString(inputStream, Charset.forName("UTF-8"));
-        } catch (IOException ex) {
-            Error.FAILED_TO_DECODE_GZIP_RESPONSE.record().create(ex);
-        }
     }
 
     public void setRequest(String request) {
@@ -95,6 +219,20 @@ public class RecordedRequest extends DatabaseObject {
         } else {
             this.request = request;
         }
+    }
+
+    // Required to be an empty method
+    // When loading the object we don't want to initially set this due to the memory foot print
+    public void setRequest(InputStream inputStream) {
+
+    }
+
+    public Integer getRequestNumber() {
+        return requestNumber;
+    }
+
+    public void setRequestNumber(Integer requestNumber) {
+        this.requestNumber = requestNumber;
     }
 
     public void addRecordedHeader(RecordedHeader recordedHeader) {
@@ -125,12 +263,10 @@ public class RecordedRequest extends DatabaseObject {
         responseHeaders.put(responseHeader.getName(), responseHeader);
     }
 
+    // Required to be an empty method
+    // When loading the object we don't want to initially set this due to the memory foot print
     public void setResponse(InputStream inputStream) {
-        try {
-            response = IOUtils.toString(inputStream, Charset.forName("UTF-8"));
-        } catch (IOException ex) {
-            Error.FAILED_TO_DECODE_GZIP_RESPONSE.record().create(ex);
-        }
+
     }
 
     public InputStream getRequestInputStream() {
@@ -144,7 +280,7 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public String getResponse() {
-        if ("".equals(response)) {
+        if ("".equals(response) || response == null) {
             RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
             response = recordedRequestDAO.getLazyResponse(this);
         }

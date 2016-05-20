@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class ProxyConnectionWrapper {
     private Boolean https;
-
     private HttpURLConnection httpConnection;
     private HttpsURLConnection httpsConnection;
 
@@ -79,6 +78,14 @@ public class ProxyConnectionWrapper {
             return httpsConnection.getHeaderFields();
         } else {
             return httpConnection.getHeaderFields();
+        }
+    }
+
+    public int getResponseStatus() throws IOException {
+        if (https) {
+            return httpsConnection.getResponseCode();
+        } else {
+            return httpConnection.getResponseCode();
         }
     }
 

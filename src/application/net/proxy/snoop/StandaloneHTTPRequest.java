@@ -7,7 +7,10 @@ import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
 import java.io.*;
-import java.net.*;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +42,8 @@ public class StandaloneHTTPRequest {
     private static final String internalErrorResponse = "HTTP/1.0 500 Internal Server Error";
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
     private String method = "GET";
-    private String destinationURL = "";
+    private String destinationUrl = "";
+    private String redirectUrl = "";
     private HashMap<String, String> responseHeaders = new HashMap<>();
     private HashMap<String, String> requestHeaders = new HashMap<>();
     private HashMap<String, String> requestParameters = new HashMap<>();
@@ -51,13 +55,18 @@ public class StandaloneHTTPRequest {
     private Integer maximumRetryCount = 2;
 
     /**
-     * Set the URL of the request.
+     * Set the URL of the request.  Any redirects will be applied here
      *
-     * @param destinationURL The URL we want the request to go to.
+     * @param redirectUrl The URL we want the request to go to.
      * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
      */
-    public StandaloneHTTPRequest setUrl(String destinationURL) {
-        this.destinationURL = destinationURL;
+    public StandaloneHTTPRequest setUrl(String redirectUrl) {
+        if (webProxyRequestManager != null) {
+            this.destinationUrl = webProxyRequestManager.applyRedirects(redirectUrl);
+            this.redirectUrl = redirectUrl;
+        } else {
+            this.destinationUrl = redirectUrl;
+        }
         return this;
     }
 
@@ -139,12 +148,14 @@ public class StandaloneHTTPRequest {
         WebProxyRequest webProxyRequest = null;
         try {
             webProxyRequest = new WebProxyRequest();
-            webProxyRequest.setRequestUri(destinationURL);
+            webProxyRequest.setRequestUri(destinationUrl);
+            webProxyRequest.setRedirectUrl(redirectUrl);
+            webProxyRequest.setHttps(https);
+            webProxyRequest.setMethod(method);
             webProxyRequestManager.addNewActiveRequest(webProxyRequest.hashCode(), webProxyRequest);
 
             //Create connection
-            URL url = new URL(destinationURL);
-
+            URL url = new URL(destinationUrl);
 //            System.setProperty("http.proxyHost", "127.0.0.1");
 //            System.setProperty("http.proxyPort", "8080");
 
@@ -165,11 +176,11 @@ public class StandaloneHTTPRequest {
             }
 
 //            if (requestHeaders.containsKey("Cookie")) {
-//                log.info(requestHeaders.get("Cookie") + " for " + destinationURL);
+//                log.info(requestHeaders.get("Cookie") + " for " + destinationUrl);
 //            } else if (requestHeaders.containsKey("cookie")) {
-//                log.info("SMALL " + requestHeaders.get("cookie") + " for " + destinationURL);
+//                log.info("SMALL " + requestHeaders.get("cookie") + " for " + destinationUrl);
 //            } else {
-//                log.info("NO COOKIE for " + destinationURL);
+//                log.info("NO COOKIE for " + destinationUrl);
 //            }
 
             // Sets the parameters for the outgoing request
@@ -185,7 +196,7 @@ public class StandaloneHTTPRequest {
             webProxyRequest.setRequestHeaders(requestHeaders);
             webProxyRequest.setRequestContent(urlParameters);
 
-//            if (destinationURL.contains("/Login")) {
+//            if (destinationUrl.contains("/Login")) {
 //                log.info("HEADERS FOR SPECIAL REQUEST");
 //                for (String headerName : requestHeaders.keySet()) {
 //                    log.info(headerName + " - " + requestHeaders.get(headerName));
@@ -267,17 +278,18 @@ public class StandaloneHTTPRequest {
                 response = ByteBuffer.wrap(array);
             } catch (FileNotFoundException | MalformedURLException ex) { // 404
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
-                Error.PROXY_REQUEST_NOT_FOUND.record().additionalInformation("URL: " + url).create(ex);
+                Error.PROXY_REQUEST_NOT_FOUND.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
             } catch (SSLException ex) { // SSL Exception
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
                 Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
             } catch (IOException ex) { // 500
                 response = ByteBuffer.wrap(internalErrorResponse.getBytes());
-                Error.PROXY_INTERNAL_SERVER_ERROR.record().additionalInformation("URL: " + url).create(ex);
+                Error.PROXY_INTERNAL_SERVER_ERROR.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
             }
 
             webProxyRequest.instantCompleteServerToProxy();
             webProxyRequest.setResponseBuffer(response);
+            webProxyRequest.setStatus(connection.getResponseStatus());
             webProxyRequest.setResponseHeaders(responseHeaders);
         } catch (Exception ex) {
             Error.HTTP_PROXY_REQUEST.record().create(ex);

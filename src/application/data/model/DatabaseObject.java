@@ -7,9 +7,8 @@ import org.apache.log4j.Logger;
 import java.util.UUID;
 
 public class DatabaseObject {
-    private UUID uuid = UUID.randomUUID();
-
     private static Logger log = Logger.getLogger(DatabaseObject.class);
+    private UUID uuid = UUID.randomUUID();
 
     public DatabaseObject() {
         // Here the UUID is generated for us
@@ -18,26 +17,6 @@ public class DatabaseObject {
     public DatabaseObject(UUID uuid) {
         this.uuid = uuid;
         this.load();
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-    public void setUuidFromString(String uuidStr) {
-        uuid = UUID.fromString(uuidStr);
-    }
-
-    public String getUuidStringWithoutHyphen() {
-        return uuid.toString().replace("-", "");
-    }
-
-    public String getUuidString() {
-        return uuid.toString();
     }
 
     public static <DBObject extends DatabaseObject> DBObject load(UUID uuid, Class<DBObject> clazz) {
@@ -63,6 +42,30 @@ public class DatabaseObject {
         }
 
         return null;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setUuidFromString(String uuidStr) {
+        uuid = UUID.fromString(uuidStr);
+    }
+
+    public String getUuidStringWithoutHyphen() {
+        return uuid.toString().replace("-", "");
+    }
+
+    public String getUuidString() {
+        return uuid.toString();
+    }
+
+    public void scheduleToSave() {
+
     }
 
     public void save() {

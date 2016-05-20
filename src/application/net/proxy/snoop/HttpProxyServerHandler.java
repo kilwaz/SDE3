@@ -27,18 +27,21 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> {
+    private static Logger log = Logger.getLogger(HttpProxyServerHandler.class);
     private ChannelPipeline pipeline;
     private Boolean SSL = false;
     private WebProxyRequestManager webProxyRequestManager;
-
-    private static Logger log = Logger.getLogger(HttpProxyServerHandler.class);
+    private HttpRequest request;
 
     public HttpProxyServerHandler(ChannelPipeline pipeline, WebProxyRequestManager webProxyRequestManager) {
         this.pipeline = pipeline;
         this.webProxyRequestManager = webProxyRequestManager;
     }
 
-    private HttpRequest request;
+    private static void send100Continue(ChannelHandlerContext ctx) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
+        ctx.write(response);
+    }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -121,12 +124,12 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
 
         // Performs and returns the request we want to make from proxy server to outside world
         StandaloneHTTPRequest standaloneHTTPRequest = new StandaloneHTTPRequest()
-                .setUrl(webProxyRequestManager.applyRedirects(uri))
+                .setRequestManager(webProxyRequestManager)
+                .setUrl(uri)
                 .setMethod(request.method().toString())
                 .setRequestHeaders(requestHeaders)
                 .setRequestParameters(requestParameters)
                 .setHttps(SSL)
-                .setRequestManager(webProxyRequestManager)
                 .execute();
 
         // This can happen if we get an exception when executing the request, for example a bad URL
@@ -156,11 +159,6 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
         }
 
         return keepAlive;
-    }
-
-    private static void send100Continue(ChannelHandlerContext ctx) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, CONTINUE);
-        ctx.write(response);
     }
 
     @Override

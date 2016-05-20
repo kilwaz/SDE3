@@ -7,20 +7,18 @@ import application.gui.window.RequestInspectWindow;
 import application.net.proxy.GroupedRequests;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
+import application.node.objects.trackercolumn.*;
 import application.utils.Format;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,7 +60,6 @@ public class RequestTrackerNode extends DrawableNode {
         }
 
         Platform.runLater(new OneShotTask(recordedRequest));
-        recordedRequest.lighten(); // Sets response to "" which will be reloaded from database if needed, to save memory
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -74,13 +71,11 @@ public class RequestTrackerNode extends DrawableNode {
     }
 
     public List<RecordedRequest> getRequestsByURL(String url) {
-        return requestList.stream().filter(recordedRequest -> recordedRequest.getURL().equals(url)).collect(Collectors.toList());
+        return requestList.stream().filter(recordedRequest -> recordedRequest.getUrl().equals(url)).collect(Collectors.toList());
     }
 
     public Tab createInterface() {
         Controller controller = Controller.getInstance();
-
-        DecimalFormat formatter = new DecimalFormat("###,###");
 
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
@@ -88,83 +83,31 @@ public class RequestTrackerNode extends DrawableNode {
         TableView<RecordedRequest> requestTableView = new TableView<>();
         requestTableView.setId("requestTable-" + getUuidStringWithoutHyphen());
 
-        TableColumn requestTimeStamp = new TableColumn("Timestamp");
-        requestTimeStamp.setMinWidth(30);
-        requestTimeStamp.setCellValueFactory(new PropertyValueFactory<RecordedRequest, DateTime>("ResponseDateTimeFromHeaders"));
-
-        TableColumn url = new TableColumn("URL");
-        url.setMinWidth(30);
-        url.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("URL"));
-
-        TableColumn duration = new TableColumn("Duration");
-        duration.setMinWidth(30);
-        duration.setMaxWidth(120);
-        duration.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("Duration"));
-        duration.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (!empty && item != null && item > 0) {
-                    String formattedItemStr = formatter.format(item);
-                    setText(formattedItemStr + " ms");
-                } else {
-                    setText("Processing...");
-                }
-            }
-        });
-
-        TableColumn requestSize = new TableColumn("Request Size");
-        requestSize.setMinWidth(30);
-        requestSize.setMaxWidth(120);
-        requestSize.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("RequestSize"));
-        requestSize.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (!empty && item != null) {
-                    String formattedItemStr = formatter.format(item);
-                    setText(formattedItemStr + " bytes");
-                } else {
-                    setText("Processing...");
-                }
-            }
-        });
-
-        TableColumn responseSize = new TableColumn("Response Size");
-        responseSize.setMinWidth(30);
-        responseSize.setMaxWidth(120);
-        responseSize.setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("ResponseSize"));
-        responseSize.setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (!empty && item != null) {
-                    String formattedItemStr = formatter.format(item);
-                    setText(formattedItemStr + " bytes");
-                } else {
-                    setText("Processing...");
-                }
-            }
-        });
-
-        TableColumn proxy = new TableColumn("Proxy");
-        proxy.setMinWidth(30);
-        proxy.setCellValueFactory(new PropertyValueFactory<RecordedRequest, String>("ProxyConnectionString"));
-
         requestTableView.setItems(getResultList());
-        requestTableView.getColumns().addAll(requestTimeStamp);
-        requestTableView.getColumns().addAll(url);
-        requestTableView.getColumns().addAll(duration);
-        requestTableView.getColumns().addAll(requestSize);
-        requestTableView.getColumns().addAll(responseSize);
-        requestTableView.getColumns().addAll(proxy);
+        requestTableView.getColumns().addAll(new RequestNumberColumn());
+        requestTableView.getColumns().addAll(new HostColumn());
+        requestTableView.getColumns().addAll(new MethodColumn());
+        requestTableView.getColumns().addAll(new URLColumn());
+        requestTableView.getColumns().addAll(new HasParametersColumn());
+        requestTableView.getColumns().addAll(new StatusColumn());
+        requestTableView.getColumns().addAll(new RequestLengthColumn());
+        requestTableView.getColumns().addAll(new MediaTypeColumn());
+        requestTableView.getColumns().addAll(new ExtensionColumn());
+        requestTableView.getColumns().addAll(new TitleColumn());
+        requestTableView.getColumns().addAll(new SSLColumn());
+        requestTableView.getColumns().addAll(new IPColumn());
+        requestTableView.getColumns().addAll(new CookieColumn());
+        requestTableView.getColumns().addAll(new RequestTimeColumn());
+        requestTableView.getColumns().addAll(new DurationColumn());
+        requestTableView.getColumns().addAll(new ResponseLengthColumn());
+        requestTableView.getColumns().addAll(new RedirectColumn());
+        requestTableView.getColumns().addAll(new ProxyColumn());
 
-        requestTableView.setMaxHeight(Integer.MAX_VALUE);
-        requestTableView.setMaxWidth(Integer.MAX_VALUE);
+        requestTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         UI.setAnchorMargins(requestTableView, 0.0, 0.0, 0.0, 0.0);
 
-        requestTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        requestTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         // Right click context menu
         requestTableView.setRowFactory(tableView -> {
@@ -194,9 +137,7 @@ public class RequestTrackerNode extends DrawableNode {
         // Number of requests
         VBox vBox = new VBox(5);
         UI.setAnchorMargins(vBox, 50.0, 0.0, 11.0, 0.0);
-
-        vBox.setMaxHeight(Integer.MAX_VALUE);
-        vBox.setMaxWidth(Integer.MAX_VALUE);
+        vBox.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         HBox hbox = new HBox(5);
         Label totalRequests = new Label("Total Requests:");
@@ -209,8 +150,7 @@ public class RequestTrackerNode extends DrawableNode {
         vBox.getChildren().add(requestTableView);
 
         anchorPane.getChildren().add(vBox);
-        anchorPane.setMaxHeight(Integer.MAX_VALUE);
-        anchorPane.setMaxWidth(Integer.MAX_VALUE);
+        anchorPane.setPrefSize(Integer.MAX_VALUE,Integer.MAX_VALUE);
         UI.setAnchorMargins(anchorPane, 0.0, 0.0, 0.0, 0.0);
 
         updateTotalRequests();

@@ -123,6 +123,8 @@ public class ExportNode extends DrawableNode {
                                 currentCell.setCellValue(Double.valueOf(df2.format(exportValue.getDataValue())));
                             } else if (exportValue.getDataValue() instanceof Integer) { // Integer
                                 currentCell.setCellValue((Integer) exportValue.getDataValue());
+                            } else if (exportValue.getDataValue() == null) { // If the value passed in is null then we don't do anything
+                                currentCell.setCellValue("");
                             } else { // If something else we haven't found call toString
                                 currentCell.setCellValue(exportValue.getDataValue().toString());
                             }

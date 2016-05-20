@@ -26,7 +26,7 @@ public class GroupedRequests extends ArrayList<RecordedRequest> {
         GroupedRequests recordedRequests = new GroupedRequests();
 
         for (RecordedRequest request : this) {
-            String url = request.getURL();
+            String url = request.getUrl();
             String cleanedURL = url;
             if (url.contains("?")) {
                 cleanedURL = url.substring(0, url.indexOf("?"));

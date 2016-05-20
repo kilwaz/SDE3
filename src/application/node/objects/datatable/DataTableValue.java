@@ -1,8 +1,10 @@
 package application.node.objects.datatable;
 
 import application.data.model.DatabaseObject;
+import org.apache.log4j.Logger;
 
 public class DataTableValue extends DatabaseObject implements Comparable<DataTableValue> {
+    private static Logger log = Logger.getLogger(DataTableValue.class);
     private DataTableRow parentRow = null;
     private String dataKey = "";
     private String dataValue = "";
@@ -16,16 +18,16 @@ public class DataTableValue extends DatabaseObject implements Comparable<DataTab
         return dataKey;
     }
 
+    public void setDataKey(String dataKey) {
+        this.dataKey = dataKey;
+    }
+
     public String getDataValue() {
         if (dataValue == null) {
             return "";
         } else {
             return dataValue;
         }
-    }
-
-    public void setDataKey(String dataKey) {
-        this.dataKey = dataKey;
     }
 
     public void setDataValue(String dataValue) {
@@ -39,12 +41,12 @@ public class DataTableValue extends DatabaseObject implements Comparable<DataTab
         return null;
     }
 
-    public void setParentRow(DataTableRow parentRow) {
-        this.parentRow = parentRow;
-    }
-
     public DataTableRow getParentRow() {
         return parentRow;
+    }
+
+    public void setParentRow(DataTableRow parentRow) {
+        this.parentRow = parentRow;
     }
 
     public Integer getOrder() {
