@@ -34,6 +34,14 @@ public class SDEElement {
         return new SDEValue("");
     }
 
+    public SDEValue getContent() {
+        if (elementJSoup != null) {
+            return new SDEValue(elementJSoup.html());
+        }
+
+        return new SDEValue("");
+    }
+
     public SDEValue getAttribute(String attribute) {
         if (elementJSoup != null) {
             return new SDEValue(elementJSoup.attr(attribute));

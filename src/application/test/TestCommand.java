@@ -1,25 +1,149 @@
 package application.test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import application.data.model.DatabaseObject;
+import application.error.Error;
+import application.node.objects.Test;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import org.joda.time.DateTime;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * The test command holds a parsed version of the script commend to that it can be handled easily.
  * <p>
  * The parameters are parsed and kept available to be queried in this object.
  */
-public class TestCommand {
-    String mainCommand = "";
-    String rawCommand = "";
-    HashMap<String, TestParameter> parameters = new HashMap<>();
+public class TestCommand extends DatabaseObject {
+    private SimpleStringProperty mainCommand = new SimpleStringProperty();
+    private String rawCommand = "";
+    private HashMap<String, TestParameter> parameters = new HashMap<>();
+    private Integer commandPosition = -1;
+    private Test parentTest = null;
+    private BufferedImage screenshot = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    private Boolean hasScreenshot = false;
+    private DateTime commandDate = null;
+
+    public TestCommand() {
+        super();
+    }
+
+    public TestCommand(UUID uuid, Test parentTest, String mainCommand, String rawCommand) {
+        super(uuid);
+        this.rawCommand = rawCommand;
+        this.parentTest = parentTest;
+        this.mainCommand.set(mainCommand);
+    }
 
     /**
-     * @param mainCommand The parsed main command.
+     * This method converts the command written in the test script into usable objects.
+     *
+     * @param command The full command as written in the script.
+     * @return A new TestCommand containing the parsed command and any parameters.
      */
-    public TestCommand(String mainCommand) {
-        this.mainCommand = mainCommand;
+    public static TestCommand parseCommand(String command) {
+        if (command.contains(">")) { // If the command does not have '>' then it is not a valid command, we skip this
+            TestCommand newCommand = TestCommand.create(TestCommand.class);
+            newCommand.setMainCommand(command.substring(0, command.indexOf(">")));
+            newCommand.setRawCommand(command);
+            newCommand.setCommandDate(new DateTime());
+
+            List<String> parameters = new ArrayList<>();
+
+            StringBuilder currentCommand = new StringBuilder();
+            Boolean escapedData = false;
+            for (Character currentLetter : command.toCharArray()) {
+                if (currentCommand.toString().endsWith("[[!")) {
+                    escapedData = true;
+                } else if (currentCommand.toString().endsWith("!]]")) {
+                    escapedData = false;
+                }
+
+                if (new Character('>').equals(currentLetter) && !escapedData) {
+                    parameters.add(currentCommand.toString());
+                    currentCommand = new StringBuilder();
+                    continue;
+                }
+                currentCommand.append(currentLetter);
+            }
+
+            parameters.add(currentCommand.toString());
+
+            for (String parameter : parameters) {
+                TestParameter newTestParameter = TestParameter.parseParameter(parameter);
+                if (newTestParameter != null) { // Null if parameter does not contain ::
+                    newCommand.addParameter(newTestParameter);
+                }
+            }
+
+            return newCommand;
+        } else {
+            return null;
+        }
+    }
+
+    public DateTime getCommandDate() {
+        return commandDate;
+    }
+
+    public void setCommandDate(DateTime commandDate) {
+        this.commandDate = commandDate;
+    }
+
+    public Boolean getHasScreenshot() {
+        return hasScreenshot;
+    }
+
+    public void setHasScreenshot(Boolean hasScreenshot) {
+        this.hasScreenshot = hasScreenshot;
+    }
+
+    public BufferedImage getScreenshot() {
+        return screenshot;
+    }
+
+    public void setScreenshot(BufferedImage screenshot) {
+        this.screenshot = screenshot;
+        this.hasScreenshot = true;
+    }
+
+    // Returns an input stream from the current screenshot
+    public InputStream getScreenshotInputStream() {
+        InputStream inputStream = null;
+        if (screenshot != null) {
+            try {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(screenshot, "png", os);
+                inputStream = new ByteArrayInputStream(os.toByteArray());
+            } catch (IOException ex) {
+                Error.RETRIEVE_SCREENSHOT.record().create(ex);
+            }
+        }
+
+        return inputStream;
+    }
+
+    public Integer getCommandPosition() {
+        return this.commandPosition;
+    }
+
+    public void setCommandPosition(Integer commandPosition) {
+        this.commandPosition = commandPosition;
+    }
+
+    public Test getParentTest() {
+        return parentTest;
+    }
+
+    public void setParentTest(Test parentTest) {
+        this.parentTest = parentTest;
     }
 
     /**
@@ -35,6 +159,14 @@ public class TestCommand {
      * @return Main command.
      */
     public String getMainCommand() {
+        return mainCommand.get();
+    }
+
+    public void setMainCommand(String mainCommand) {
+        this.mainCommand.set(mainCommand);
+    }
+
+    public SimpleStringProperty mainCommandProperty() {
         return mainCommand;
     }
 
@@ -111,48 +243,22 @@ public class TestCommand {
         return currentParameter;
     }
 
-    /**
-     * This method converts the command written in the test script into usable objects.
-     *
-     * @param command The full command as written in the script.
-     * @return A new TestCommand containing the parsed command and any parameters.
-     */
-    public static TestCommand parseCommand(String command) {
-        if (command.contains(">")) { // If the command does not have '>' then it is not a valid command, we skip this
-            TestCommand newCommand = new TestCommand(command.substring(0, command.indexOf(">")));
-            newCommand.setRawCommand(command);
-
-            List<String> parameters = new ArrayList<>();
-
-            StringBuilder currentCommand = new StringBuilder();
-            Boolean escapedData = false;
-            for (Character currentLetter : command.toCharArray()) {
-                if (currentCommand.toString().endsWith("[[!")) {
-                    escapedData = true;
-                } else if (currentCommand.toString().endsWith("!]]")) {
-                    escapedData = false;
-                }
-
-                if (new Character('>').equals(currentLetter) && !escapedData) {
-                    parameters.add(currentCommand.toString());
-                    currentCommand = new StringBuilder();
-                    continue;
-                }
-                currentCommand.append(currentLetter);
+    public ObservableList<TestParameter> getTestParameters() {
+        ObservableList<TestParameter> list = FXCollections.observableArrayList();
+        for (TestParameter testParameter : parameters.values()) {
+            list.add(testParameter);
+            while (testParameter.getChildParameter() != null) {
+                testParameter = testParameter.getChildParameter();
+                list.add(testParameter);
             }
-
-            parameters.add(currentCommand.toString());
-
-            for (String parameter : parameters) {
-                TestParameter newTestParameter = TestParameter.parseParameter(parameter);
-                if (newTestParameter != null) { // Null if parameter does not contain ::
-                    newCommand.addParameter(newTestParameter);
-                }
-            }
-
-            return newCommand;
-        } else {
-            return null;
         }
+        return list;
+    }
+
+    public String getParentUuid() {
+        if (parentTest != null) {
+            return parentTest.getUuidString();
+        }
+        return null;
     }
 }

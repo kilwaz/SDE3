@@ -21,6 +21,7 @@ public class TestSet<Template extends TestTemplate> {
     private TestTemplate templateObject;
     private List<TestCase> testCases = new ArrayList<>();
     private List<Input> additionalInputs = new ArrayList<>();
+    private TestSetBatch testSetBatch;
 
     public TestSet(TestTemplate templateObject) {
         this.templateObject = templateObject;
@@ -34,6 +35,11 @@ public class TestSet<Template extends TestTemplate> {
 
     public TestSet testID(String testID) {
         this.testID = testID;
+        return this;
+    }
+
+    public TestSet testSetBatch(TestSetBatch testSetBatch) {
+        this.testSetBatch = testSetBatch;
         return this;
     }
 
@@ -52,9 +58,19 @@ public class TestSet<Template extends TestTemplate> {
             testIteration++;
         }
 
+        if (testSetBatch != null) {
+            for (TestCase testCase : testCases) {
+                testSetBatch.addTestCase(testCase);
+            }
+        }
+
         testCases.forEach(TestCase::init);
 
         return this;
+    }
+
+    public List<TestCase> getTestCases() {
+        return testCases;
     }
 
     private TestCase createTestCaseWithInputCombination(List<Input> inputs) {

@@ -285,4 +285,18 @@ public class SDEUtils {
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
+
+    public static String removeNonNumericCharacters(String str) {
+        return str.replaceAll("[^\\d+\\.+-]", "");
+    }
+
+    public static Double parseDouble(String doubleValue) {
+        try {
+            return Double.parseDouble(doubleValue);
+        } catch (NumberFormatException ex) {
+            Error.PARSE_DOUBLE_FAILED.record().additionalInformation(doubleValue).hideStackInLog().create(ex);
+        }
+
+        return 0d;
+    }
 }

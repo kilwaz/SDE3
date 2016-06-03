@@ -8,6 +8,7 @@ import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.node.objects.Logic;
 import application.test.core.TestSet;
+import application.test.core.TestSetBatch;
 import application.test.core.TestTemplate;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
@@ -94,11 +95,14 @@ public class TestCaseNode extends DrawableNode {
         TestTemplate testTemplate = (TestTemplate) this.getLogic().getObjectInstance();
         TestSet testSet = new TestSet(testTemplate);
 
+        if (nodeRunParams.getOneTimeVariable() instanceof TestSetBatch) {
+            TestSetBatch testSetBatch = (TestSetBatch) nodeRunParams.getOneTimeVariable();
+            testSetBatch.addTestSet(testSet);
+            testSet.testSetBatch(testSetBatch);
+        }
+
         if (nodeRunParams.getVariable("[[testID]]") != null && nodeRunParams.getVariable("[[testID]]") instanceof String) {
-            log.info("ID Set to " + nodeRunParams.getVariable("[[testID]]"));
             testSet.testID((String) nodeRunParams.getVariable("[[testID]]"));
-        } else {
-            log.info("NO ID SET");
         }
 
         for (Object obj : nodeRunParams.getParams().values()) {

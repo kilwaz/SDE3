@@ -6,13 +6,12 @@ import application.node.implementations.InputNode;
 import application.node.implementations.TestNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
-import application.test.ChangedElements;
-import application.test.ExpectedElement;
-import application.test.ExpectedElements;
-import application.test.TestRunner;
+import application.test.*;
 import application.test.action.helpers.PageStateCapture;
 import application.test.annotation.AssertChange;
 import application.utils.SDEThread;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
 
 import java.lang.annotation.Annotation;
@@ -42,13 +41,21 @@ public class TestCase<TemplateCase extends TestTemplate> {
     private HashMap<String, PageStateCapture> pageCaptures = new HashMap<>();
     private Class<TemplateCase> templateCaseClass;
     private TestTemplate templateObject;
+    private ObservableList<TestCommand> testCommands = FXCollections.observableArrayList();
 
     public TestCase() {
-
     }
 
     public TestCase(Class<TemplateCase> testClass) {
         this.templateCaseClass = testClass;
+    }
+
+    public void addTestCommand(TestCommand testCommand) {
+        testCommands.add(testCommand);
+    }
+
+    public ObservableList<TestCommand> getTestCommands() {
+        return testCommands;
     }
 
     public TestCase templateObject(TestTemplate templateObject) {
@@ -104,6 +111,10 @@ public class TestCase<TemplateCase extends TestTemplate> {
     public TestCase parent(TestSet parentCase) {
         this.testSet = parentCase;
         return this;
+    }
+
+    public Test getTest() {
+        return test;
     }
 
     private void threadWait() {
@@ -235,6 +246,7 @@ public class TestCase<TemplateCase extends TestTemplate> {
                     AssertData assertData = new AssertData();
                     assertData.expectedElement(expectedElement).inputs(inputs);
                     assertData.before(captureBefore).after(captureAfter);
+                    assertData.states(pageCaptures);
 
                     try {
                         method.invoke(templateObject, assertData);

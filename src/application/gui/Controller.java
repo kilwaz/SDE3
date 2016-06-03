@@ -15,6 +15,7 @@ import application.gui.dialog.ConfirmDialog;
 import application.gui.window.*;
 import application.node.design.DrawableNode;
 import application.node.implementations.BatchNode;
+import application.node.implementations.TestManagerNode;
 import application.utils.AppParams;
 import application.utils.managers.SessionManager;
 import application.utils.managers.ThreadManager;
@@ -121,6 +122,9 @@ public class Controller implements Initializable {
     private Scene scene;
     private Double lastCanvasContextMenuX = 0d;
     private Double lastCanvasContextMenuY = 0d;
+
+    private Boolean isSelectingTestNode = false;
+    private TestManagerNode testManagerSelectNode = null;
 
     public static Controller getInstance() {
         return Controller.controller;
@@ -947,5 +951,26 @@ public class Controller implements Initializable {
         }
 
         Platform.runLater(new GUIUpdate());
+    }
+
+    public Boolean isSelectingTestNode() {
+        return isSelectingTestNode;
+    }
+
+    public void endTestManagerNodeSelect() {
+        endTestManagerNodeSelect(null);
+    }
+
+    public void endTestManagerNodeSelect(List<DrawableNode> selectedNodeList) {
+        this.isSelectingTestNode = false;
+        testManagerSelectNode.endNodeSelectIcon();
+        testManagerSelectNode.addTestCaseNodes(selectedNodeList);
+        testManagerSelectNode = null;
+    }
+
+    public void startTestManagerNodeSelect(TestManagerNode testManagerSelectNode) {
+        this.testManagerSelectNode = testManagerSelectNode;
+        this.isSelectingTestNode = true;
+        testManagerSelectNode.startNodeSelectIcon();
     }
 }

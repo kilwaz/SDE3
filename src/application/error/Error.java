@@ -129,7 +129,8 @@ public enum Error {
     PARSE_DATE_FAILED(124, "Failed to parse Date"),
     TEST_CASE_THREAD_WAIT_METHOD_NOT_FOUND(125, "While working with Test Case, thread wait method could not be found"),
     DOCUMENT_CREATION_ISSUE(126, "Unable to complete creating document from test"),
-    XPATH_GENERATION(127, "Unable to generate xPath of element");
+    XPATH_GENERATION(127, "Unable to generate xPath of element"),
+    SELENIUM_INPUT_ACTION_NOT_FOUND(128, "InputAction is failing, selenium is not responding when finding the element");
 
     private Integer code;
     private String description;

@@ -5,6 +5,7 @@ import application.test.ExpectedElement;
 import application.test.action.helpers.PageStateCapture;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class AssertData {
@@ -13,6 +14,8 @@ public class AssertData {
 
     private PageStateCapture captureBefore = null;
     private PageStateCapture captureAfter = null;
+
+    private HashMap<String, PageStateCapture> states = new HashMap<>();
 
     public AssertData() {
 
@@ -40,6 +43,15 @@ public class AssertData {
     public AssertData expectedElement(ExpectedElement expectedElement) {
         this.expectedElement = expectedElement;
         return this;
+    }
+
+    public AssertData states(HashMap<String, PageStateCapture> states) {
+        this.states = states;
+        return this;
+    }
+
+    public PageStateCapture state(String name) {
+        return states.get(name);
     }
 
     public PageStateCapture before() {

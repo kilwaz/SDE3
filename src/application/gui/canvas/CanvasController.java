@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CanvasController {
+    private static Logger log = Logger.getLogger(CanvasController.class);
     private Canvas canvasFlow;
     private GraphicsContext gc;
-
     private Boolean isDraggingNode = false;
     private Boolean isDraggingCanvas = false;
     private Boolean isGroupSelect = false;
@@ -36,22 +36,17 @@ public class CanvasController {
     private Integer nodeCornerPadding = 5; // This is the padding space the path network will give around nodes
     private Double offsetHeight = 0.0;
     private Double offsetWidth = 0.0;
-
     private Double initialOffsetHeight = 0.0;
     private Double initialOffsetWidth = 0.0;
     private Double initialMouseX = 0.0;
     private Double initialMouseY = 0.0;
-
     private Double groupSelectInitialX = 0.0;
     private Double groupSelectInitialY = 0.0;
     private Double groupSelectCurrentX = 0.0;
     private Double groupSelectCurrentY = 0.0;
-
     private HashMap<NodeConnection, List<AStarPoint>> solvedPathsCache = new HashMap<>();
     private HashMap<NodeConnection, AStarPoint> startPointsCache = new HashMap<>();
     private AStarNetwork network = null;
-
-    private static Logger log = Logger.getLogger(CanvasController.class);
 
     public CanvasController(Canvas canvasFlow) {
         this.canvasFlow = canvasFlow;
@@ -110,7 +105,12 @@ public class CanvasController {
                     List<DrawableNode> selectedNodes = selectedProgram.getFlowController().getSelectedNodes();
                     if (selectedNodes.size() == 0 || selectedNodes.size() == 1) {
                         selectedNodes = selectedProgram.getFlowController().getClickedNodes(event.getX() - offsetWidth, event.getY() - offsetHeight);
-                        selectedProgram.getFlowController().setSelectedNodes(selectedNodes);
+
+                        if (Controller.getInstance().isSelectingTestNode()) {
+                            Controller.getInstance().endTestManagerNodeSelect(selectedNodes);
+                        } else {
+                            selectedProgram.getFlowController().setSelectedNodes(selectedNodes);
+                        }
                     }
                     draggedNodes = selectedNodes;
 
@@ -158,8 +158,12 @@ public class CanvasController {
             isGroupSelect = false;
             if (selectedProgram != null) {
                 List<DrawableNode> selectedNodes = selectedProgram.getFlowController().getGroupSelectedNodes(groupSelectInitialX - offsetWidth, groupSelectInitialY - offsetHeight, event.getX() - offsetWidth, event.getY() - offsetHeight);
-                selectedProgram.getFlowController().setSelectedNodes(selectedNodes);
-                updateAStarNetwork();
+                if (Controller.getInstance().isSelectingTestNode()) {
+                    Controller.getInstance().endTestManagerNodeSelect(selectedNodes);
+                } else {
+                    selectedProgram.getFlowController().setSelectedNodes(selectedNodes);
+                    updateAStarNetwork();
+                }
             }
             drawProgram();
             return true;

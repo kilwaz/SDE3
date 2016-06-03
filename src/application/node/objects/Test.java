@@ -1,12 +1,13 @@
 package application.node.objects;
 
+import application.data.model.DatabaseObject;
 import application.node.implementations.InputNode;
 import application.node.implementations.TestNode;
 import application.test.core.TestCase;
 
 import java.util.regex.Pattern;
 
-public class Test {
+public class Test extends DatabaseObject {
     private TestNode parentTestNode;
     private String text = "";
     private Integer currentLine = 0;
@@ -14,14 +15,18 @@ public class Test {
     private Boolean clone = false;
     private TestCase testCase = null;
 
+
+    public Test() {
+        super();
+    }
+
     public Test(TestNode testNode) {
         this.parentTestNode = testNode;
         this.text = "";
     }
 
-    public Test() {
-        this.text = "";
-        clone = true;
+    public void setClone(Boolean clone) {
+        this.clone = clone;
     }
 
     public String getText() {
@@ -36,7 +41,7 @@ public class Test {
         } else {
             if (!this.text.equals(text)) {
                 this.text = text;
-                if (!parentTestNode.isInitialising()) {
+                if (parentTestNode != null && !parentTestNode.isInitialising()) {
                     parentTestNode.save();
                 }
             }
@@ -74,8 +79,11 @@ public class Test {
     }
 
     public Test cloneTest() {
-        Test cloneTest = new Test();
+        Test cloneTest = Test.create(Test.class);
+        cloneTest.setParentTestNode(parentTestNode);
         cloneTest.setText(text);
+        cloneTest.setClone(true);
+        cloneTest.save();
         return cloneTest;
     }
 
@@ -104,5 +112,16 @@ public class Test {
 
     public TestCase getTestCase() {
         return testCase;
+    }
+
+    public void setParentTestNode(TestNode parentTestNode) {
+        this.parentTestNode = parentTestNode;
+    }
+
+    public String getParentUuid() {
+        if (parentTestNode != null) {
+            return parentTestNode.getUuidString();
+        }
+        return null;
     }
 }

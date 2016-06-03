@@ -17,6 +17,8 @@ drop table if exists user;
 drop table if exists data_table_rows;
 drop table if exists node;
 drop table if exists schema_version;
+drop table if exists test;
+drop table if exists test_command;
 
 create table node(
     uuid char(36) NOT NULL,
@@ -133,4 +135,18 @@ create table http_headers(
     header_name VARCHAR(1000),
     header_value VARCHAR(1000),
     header_type VARCHAR(100),
+    PRIMARY KEY (uuid));
+
+create table test(
+    uuid char(36) NOT NULL,
+    node_id char(36),
+    text VARCHAR(10000),
+    PRIMARY KEY (uuid));
+
+create table test_command(
+    uuid char(36) NOT NULL,
+    test_id char(36),
+    main_command VARCHAR(1000),
+    raw_command VARCHAR(1000),
+    command_position INT,
     PRIMARY KEY (uuid));

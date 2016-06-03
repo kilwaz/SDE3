@@ -1,12 +1,15 @@
 package application.test.action.helpers;
 
 import application.error.Error;
+import application.utils.SDEUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 public class SDEValue {
     private String stringValue = null;
@@ -41,7 +44,17 @@ public class SDEValue {
     }
 
     public String asString() {
-        return stringValue;
+        if (isNumber) {
+            // Format the string to be the correct number of decimal places if it has been specified
+            if (decimalPlaces != null) {
+                DecimalFormat df = new DecimalFormat("#." + StringUtils.repeat("0", decimalPlaces));
+                return df.format(asDouble());
+            } else {
+                return asDouble().toString();
+            }
+        } else {
+            return stringValue;
+        }
     }
 
     public SDEValue hasNegativesBrackets() {
@@ -59,8 +72,8 @@ public class SDEValue {
                         isNegative = true;
                     }
                 }
-                String numericOnly = stringValue.replaceAll("[^\\d+-.]", ""); // Alpha-numeric and dash characters only
-                doubleValue = Double.parseDouble(numericOnly);
+                String numericOnly = SDEUtils.removeNonNumericCharacters(stringValue); // Alpha-numeric and dash characters only
+                doubleValue = SDEUtils.parseDouble(numericOnly);
                 if (isNegative && negativesHaveBrackets) { // If it was a negative value with brackets, deal with it here
                     doubleValue = -doubleValue;
                 }

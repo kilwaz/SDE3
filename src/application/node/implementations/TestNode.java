@@ -157,8 +157,11 @@ public class TestNode extends DrawableNode {
     }
 
     public Test cloneTest() {
-        Test cloneTest = new Test();
+        Test cloneTest = Test.create(Test.class);
+        cloneTest.setParentTestNode(this);
         cloneTest.setText(test.getText());
+        cloneTest.setClone(true);
+        cloneTest.save();
         return cloneTest;
     }
 

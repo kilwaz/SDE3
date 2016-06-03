@@ -151,6 +151,7 @@ public abstract class WebAction implements Action {
 
             try {
                 BufferedImage bufferedImage = ImageIO.read(scrFile);
+                testCommand.setScreenshot(bufferedImage);
                 testStep.setScreenshot(bufferedImage);
                 if (testElement != null) {
                     // Remove the highlighting

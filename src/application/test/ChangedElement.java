@@ -1,6 +1,5 @@
 package application.test;
 
-import application.error.Error;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Attribute;
@@ -152,20 +151,14 @@ public class ChangedElement {
             results.add(4, true); // 4
         }
         if (expectedElement.getIncreasedBy() != null) {
-            String beforeStr = "";
-            String afterStr = "";
-            try {
-                beforeStr = getInitialValue().replaceAll("[^\\+-d.]", ""); // Removes all non-numeric characters
-                afterStr = getFinalValue().replaceAll("[^\\+-d.]", ""); // Removes all non-numeric characters
-                Double beforeDouble = beforeStr.isEmpty() ? 0d : Double.parseDouble(beforeStr);
-                Double afterDouble = afterStr.isEmpty() ? 0d : Double.parseDouble(afterStr);
+            String beforeStr = SDEUtils.removeNonNumericCharacters(getInitialValue());
+            String afterStr = SDEUtils.removeNonNumericCharacters(getFinalValue());
+            Double beforeDouble = beforeStr.isEmpty() ? 0d : SDEUtils.parseDouble(beforeStr);
+            Double afterDouble = afterStr.isEmpty() ? 0d : SDEUtils.parseDouble(afterStr);
 //                log.info("Comparing numbers " + beforeDouble + " to " + afterDouble);
-                if (afterDouble - beforeDouble == expectedElement.getIncreasedBy()) {
+            if (afterDouble - beforeDouble == expectedElement.getIncreasedBy()) {
 //                    log.info("Increased by Matched: " + getAttributeName() + " matched " + expectedElement.getIncreasedBy());
-                    results.add(5, true); // 5
-                }
-            } catch (NumberFormatException ex) {
-                Error.PARSE_DOUBLE_FAILED.record().additionalInformation(beforeStr).additionalInformation(afterStr).hideStackInLog().create(ex);
+                results.add(5, true); // 5
             }
         }
 

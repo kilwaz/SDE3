@@ -12,9 +12,11 @@ import application.node.design.DrawableNode;
 import application.node.implementations.*;
 import application.node.objects.Input;
 import application.node.objects.Switch;
+import application.node.objects.Test;
 import application.node.objects.Trigger;
 import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
+import application.test.TestCommand;
 import application.test.TestResult;
 import application.test.TestStep;
 import application.utils.CustomObject;
@@ -50,6 +52,8 @@ public class DatabaseLink {
         linkClasses.put(DrawableNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(SavableAttribute.class, SavableAttributeDatabaseLink.class);
         linkClasses.put(CustomObject.class, CustomObjectDatabaseLink.class);
+        linkClasses.put(TestCommand.class, TestCommandDatabaseLink.class);
+        linkClasses.put(Test.class, TestDatabaseLink.class);
 
         // Drawable Node Classes - Better way to do this?
         linkClasses.put(BashNode.class, DrawableNodeDatabaseLink.class);
@@ -71,6 +75,7 @@ public class DatabaseLink {
         linkClasses.put(SwitchNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TestCaseNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TestNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(TestManagerNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TestResultNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TimerNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TriggerNode.class, DrawableNodeDatabaseLink.class);

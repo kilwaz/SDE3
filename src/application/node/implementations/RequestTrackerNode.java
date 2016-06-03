@@ -7,7 +7,7 @@ import application.gui.window.RequestInspectWindow;
 import application.net.proxy.GroupedRequests;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
-import application.node.objects.trackercolumn.*;
+import application.gui.columns.requesttracker.*;
 import application.utils.Format;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -90,7 +90,6 @@ public class RequestTrackerNode extends DrawableNode {
         requestTableView.getColumns().addAll(new URLColumn());
         requestTableView.getColumns().addAll(new HasParametersColumn());
         requestTableView.getColumns().addAll(new StatusColumn());
-        requestTableView.getColumns().addAll(new RequestLengthColumn());
         requestTableView.getColumns().addAll(new MediaTypeColumn());
         requestTableView.getColumns().addAll(new ExtensionColumn());
         requestTableView.getColumns().addAll(new TitleColumn());
@@ -99,14 +98,13 @@ public class RequestTrackerNode extends DrawableNode {
         requestTableView.getColumns().addAll(new CookieColumn());
         requestTableView.getColumns().addAll(new RequestTimeColumn());
         requestTableView.getColumns().addAll(new DurationColumn());
+        requestTableView.getColumns().addAll(new RequestLengthColumn());
         requestTableView.getColumns().addAll(new ResponseLengthColumn());
         requestTableView.getColumns().addAll(new RedirectColumn());
         requestTableView.getColumns().addAll(new ProxyColumn());
 
         requestTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
-
         UI.setAnchorMargins(requestTableView, 0.0, 0.0, 0.0, 0.0);
-
         requestTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         // Right click context menu
@@ -119,7 +117,10 @@ public class RequestTrackerNode extends DrawableNode {
 
             inspectMenuItem.setOnAction(event -> new RequestInspectWindow(row.getItem()));
             removeMenuItem.setOnAction(event -> requestTableView.getItems().remove(row.getItem()));
-            removeAllMenuItem.setOnAction(event -> requestTableView.getItems().clear());
+            removeAllMenuItem.setOnAction(event -> {
+                requestTableView.getItems().clear();
+                updateTotalRequests();
+            });
 
             contextMenu.getItems().add(inspectMenuItem);
             contextMenu.getItems().add(removeMenuItem);
@@ -150,7 +151,7 @@ public class RequestTrackerNode extends DrawableNode {
         vBox.getChildren().add(requestTableView);
 
         anchorPane.getChildren().add(vBox);
-        anchorPane.setPrefSize(Integer.MAX_VALUE,Integer.MAX_VALUE);
+        anchorPane.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
         UI.setAnchorMargins(anchorPane, 0.0, 0.0, 0.0, 0.0);
 
         updateTotalRequests();

@@ -37,6 +37,9 @@ public class WebProxyManager {
     }
 
     public void closeProxies() {
-        openProxies.forEach(HttpProxyServer::close);
+        // We make a copy of the list before closing the proxies so that we don't get any list concurrency errors
+        List<HttpProxyServer> proxiesToClose = new ArrayList<>();
+        proxiesToClose.addAll(openProxies);
+        proxiesToClose.forEach(HttpProxyServer::close);
     }
 }

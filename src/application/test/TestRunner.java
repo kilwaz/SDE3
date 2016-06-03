@@ -151,6 +151,12 @@ public class TestRunner extends SDERunnable {
                 }
 
                 TestCommand testCommand = TestCommand.parseCommand(command);
+                testCommand.setParentTest(test);
+                if (test != null && test.getTestCase() != null) {
+                    test.getTestCase().addTestCommand(testCommand);
+                }
+                testCommand.setCommandPosition(test.getCurrentLine());
+                testCommand.save();
 
                 // Here we are checking if an if statement is currently happening, if so we need to move to end if statement
                 if (ifTracker.isSkippingIf()) {  // Maybe move this so somewhere else?
