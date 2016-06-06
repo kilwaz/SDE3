@@ -30,6 +30,7 @@ public class TestCommand extends DatabaseObject {
     private BufferedImage screenshot = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     private Boolean hasScreenshot = false;
     private DateTime commandDate = null;
+    private TestCommandError testCommandError = new TestCommandError();
 
     public TestCommand() {
         super();
@@ -89,6 +90,10 @@ public class TestCommand extends DatabaseObject {
         }
     }
 
+    public TestCommandError getTestCommandError() {
+        return testCommandError;
+    }
+
     public DateTime getCommandDate() {
         return commandDate;
     }
@@ -112,6 +117,14 @@ public class TestCommand extends DatabaseObject {
     public void setScreenshot(BufferedImage screenshot) {
         this.screenshot = screenshot;
         this.hasScreenshot = true;
+    }
+
+    public void setException(Exception exception) {
+        testCommandError.setException(exception);
+    }
+
+    public Boolean hasException() {
+        return testCommandError.hasException();
     }
 
     // Returns an input stream from the current screenshot

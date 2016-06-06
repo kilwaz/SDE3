@@ -24,7 +24,7 @@ public class TrackWebAction extends WebAction {
             DrawableNode resultNode = getProgram().getFlowController().getNodeThisControllerFromContainedText(trackerNode.getParameterValue());
             if (resultNode != null && resultNode instanceof RequestTrackerNode) {
                 RequestTrackerNode requestTrackerNode = (RequestTrackerNode) resultNode;
-                getHttpProxyServer().addRequestTrackerNode(requestTrackerNode);
+                getHttpProxyServer().addRequestListener(requestTrackerNode);
             }
         }
     }

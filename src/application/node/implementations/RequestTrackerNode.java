@@ -3,11 +3,12 @@ package application.node.implementations;
 import application.data.SavableAttribute;
 import application.gui.Controller;
 import application.gui.UI;
+import application.gui.columns.requesttracker.*;
 import application.gui.window.RequestInspectWindow;
 import application.net.proxy.GroupedRequests;
+import application.net.proxy.ProxyRequestListener;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
-import application.gui.columns.requesttracker.*;
 import application.utils.Format;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RequestTrackerNode extends DrawableNode {
+public class RequestTrackerNode extends DrawableNode implements ProxyRequestListener {
     private static Logger log = Logger.getLogger(RequestTrackerNode.class);
     private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
 
@@ -43,23 +44,6 @@ public class RequestTrackerNode extends DrawableNode {
 
     public RequestTrackerNode() {
         super();
-    }
-
-    public void addResult(RecordedRequest recordedRequest) {
-        class OneShotTask implements Runnable {
-            private RecordedRequest recordedRequest;
-
-            private OneShotTask(RecordedRequest recordedRequest) {
-                this.recordedRequest = recordedRequest;
-            }
-
-            public void run() {
-                requestList.add(recordedRequest);
-                updateTotalRequests();
-            }
-        }
-
-        Platform.runLater(new OneShotTask(recordedRequest));
     }
 
     public List<SavableAttribute> getDataToSave() {
@@ -187,5 +171,23 @@ public class RequestTrackerNode extends DrawableNode {
         }
 
         Platform.runLater(new GUIUpdate());
+    }
+
+    @Override
+    public void addRequest(RecordedRequest recordedRequest) {
+        class OneShotTask implements Runnable {
+            private RecordedRequest recordedRequest;
+
+            private OneShotTask(RecordedRequest recordedRequest) {
+                this.recordedRequest = recordedRequest;
+            }
+
+            public void run() {
+                requestList.add(recordedRequest);
+                updateTotalRequests();
+            }
+        }
+
+        Platform.runLater(new OneShotTask(recordedRequest));
     }
 }

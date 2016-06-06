@@ -69,10 +69,13 @@ public class WaitWebAction extends WebAction {
 
             refreshCurrentDocument();
         } catch (org.openqa.selenium.TimeoutException ex) {
+            getTestCommand().setException(ex);
             Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("10 second limit").create(ex);
         } catch (InterruptedException | WebDriverException ex) {
+            getTestCommand().setException(ex);
             Error.WAIT_ACTION_INTERRUPT.record().create(ex);
         } catch (com.jayway.awaitility.core.ConditionTimeoutException ex) {
+            getTestCommand().setException(ex);
             Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("Wait for all requests timed out").create(ex);
         }
     }

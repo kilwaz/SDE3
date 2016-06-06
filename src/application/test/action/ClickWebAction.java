@@ -66,6 +66,7 @@ public class ClickWebAction extends WebAction {
 
             testStep.save();
         } catch (Exception ex) {
+            getTestCommand().setException(ex);
             Error.SELENIUM_CLICK_ACTION_NOT_FOUND.record().create(ex);
         } finally {
             // We sent the driver back to being unlimited timeout for page loads

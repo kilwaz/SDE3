@@ -1,12 +1,11 @@
 package application.net.proxy.snoop;
 
 import application.error.Error;
+import application.net.proxy.ProxyRequestListener;
 import application.net.proxy.WebProxyManager;
 import application.net.proxy.WebProxyRequestManager;
-import application.node.implementations.RequestTrackerNode;
 import application.utils.SDERunnable;
 import application.utils.managers.ThreadManager;
-import com.sun.org.apache.xerces.internal.impl.PropertyManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -87,8 +86,8 @@ public final class HttpProxyServer extends SDERunnable {
         return false;
     }
 
-    public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
-        webProxyRequestManager.addRequestTrackerNode(requestTrackerNode);
+    public void addRequestListener(ProxyRequestListener proxyRequestListener) {
+        webProxyRequestManager.addProxyRequestListener(proxyRequestListener);
     }
 
     public void threadRun() {

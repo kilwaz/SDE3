@@ -1,6 +1,5 @@
 package application.net.proxy;
 
-import application.node.implementations.RequestTrackerNode;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ public class WebProxyRequestManager {
     private static Logger log = Logger.getLogger(WebProxyRequestManager.class);
     private ConcurrentHashMap<Integer, WebProxyRequest> activeRequests = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, WebProxyRequest> completedRequests = new ConcurrentHashMap<>();
-    private List<RequestTrackerNode> linkedRequestTrackerNodes = new ArrayList<>();
+    private List<ProxyRequestListener> linkedRequestListeners = new ArrayList<>();
     private HashMap<String, String> redirectURLs = new HashMap<>();
     private Integer requestCount = 1;
 
@@ -36,8 +35,10 @@ public class WebProxyRequestManager {
         redirectURLs.put(url, redirect);
     }
 
-    public void addRequestTrackerNode(RequestTrackerNode requestTrackerNode) {
-        linkedRequestTrackerNodes.add(requestTrackerNode);
+    public void addProxyRequestListener(ProxyRequestListener requestTrackerNode) {
+        if (!linkedRequestListeners.contains(requestTrackerNode)) { // Check to see if listener is already added, can't add a listener twice
+            linkedRequestListeners.add(requestTrackerNode);
+        }
     }
 
     public Boolean isCurrentActiveRequest(Integer httpRequestHash) {
@@ -115,8 +116,8 @@ public class WebProxyRequestManager {
             //recordedRequest.lighten(); // Sets response to "" which will be reloaded from database if needed, to save memory
 
             // Apply the completed request to any linked tracker nodes
-            for (RequestTrackerNode requestTrackerNode : linkedRequestTrackerNodes) {
-                requestTrackerNode.addResult(recordedRequest);
+            for (ProxyRequestListener proxyRequestListener : linkedRequestListeners) {
+                proxyRequestListener.addRequest(recordedRequest);
             }
         }
     }

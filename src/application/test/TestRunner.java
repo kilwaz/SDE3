@@ -154,6 +154,7 @@ public class TestRunner extends SDERunnable {
                 testCommand.setParentTest(test);
                 if (test != null && test.getTestCase() != null) {
                     test.getTestCase().addTestCommand(testCommand);
+                    httpProxyServer.addRequestListener(test.getTestCase());
                 }
                 testCommand.setCommandPosition(test.getCurrentLine());
                 testCommand.save();

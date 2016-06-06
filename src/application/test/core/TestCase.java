@@ -1,6 +1,8 @@
 package application.test.core;
 
 import application.error.Error;
+import application.net.proxy.ProxyRequestListener;
+import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
 import application.node.implementations.InputNode;
 import application.node.implementations.TestNode;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestCase<TemplateCase extends TestTemplate> {
+public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequestListener {
     private static Logger log = Logger.getLogger(TestCase.class);
     private String testIterationID = "";
     private TestSet testSet;
@@ -42,6 +44,7 @@ public class TestCase<TemplateCase extends TestTemplate> {
     private Class<TemplateCase> templateCaseClass;
     private TestTemplate templateObject;
     private ObservableList<TestCommand> testCommands = FXCollections.observableArrayList();
+    private ObservableList<RecordedRequest> testRequests = FXCollections.observableArrayList();
 
     public TestCase() {
     }
@@ -56,6 +59,10 @@ public class TestCase<TemplateCase extends TestTemplate> {
 
     public ObservableList<TestCommand> getTestCommands() {
         return testCommands;
+    }
+
+    public ObservableList<RecordedRequest> getTestRequests() {
+        return testRequests;
     }
 
     public TestCase templateObject(TestTemplate templateObject) {
@@ -356,5 +363,10 @@ public class TestCase<TemplateCase extends TestTemplate> {
 
     public void storePageState(String stateName, PageStateCapture capture) {
         pageCaptures.put(stateName, capture);
+    }
+
+    @Override
+    public void addRequest(RecordedRequest recordedRequest) {
+        testRequests.add(recordedRequest);
     }
 }

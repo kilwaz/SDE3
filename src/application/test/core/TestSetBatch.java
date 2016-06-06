@@ -5,11 +5,14 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TestSetBatch {
+    private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("kk:mm:ss dd MMM yyyy");
     private List<TestSet> testSets = new ArrayList<>();
     private ObservableList<TestCase> testCases = FXCollections.observableArrayList();
     private DateTime created;
@@ -35,6 +38,10 @@ public class TestSetBatch {
 
     public DateTime getCreatedTime() {
         return created;
+    }
+
+    public String getFormattedTime() {
+        return dateFormatter.print(created);
     }
 
     public int getCaseCount() {

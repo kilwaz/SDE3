@@ -50,6 +50,7 @@ public class FrameWebAction extends WebAction {
                     Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element was null").create();
                 }
             } catch (NoSuchElementException ex) {
+                getTestCommand().setException(ex);
                 Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id '" + frameToSelectById.getParameterValue() + "' element could not be located").create(ex);
             }
         }
