@@ -16,5 +16,6 @@ public class TestCommandDatabaseLink extends DatabaseLink {
         link("main_command", method("getMainCommand"), method("setMainCommand", String.class)); // 3
         link("raw_command", method("getRawCommand"), method("setRawCommand", String.class)); // 4
         link("command_position", method("getCommandPosition"), method("setCommandPosition", Integer.class)); // 5
+        linkBlob("screenshot", method("getScreenshotInputStream"), null); // 6
     }
 }

@@ -2,7 +2,6 @@ package application.test.action;
 
 import application.error.Error;
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.LoopedWebElement;
 import application.utils.SDEUtils;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
@@ -29,12 +28,6 @@ public class InputWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestStep testStep = TestStep.create(TestStep.class);
-            testStep.setParentResult(getTestResult());
-            testStep.setTestCommand(getTestCommand());
-
-            getTestResult().addTestStep(testStep);
-
             TestParameter elementId = getTestCommand().getParameterByPath("id");
             TestParameter valueToEnter = getTestCommand().getParameterByPath("value");
             TestParameter characterDelay = getTestCommand().getParameterByPath("characterDelay");
@@ -85,6 +78,10 @@ public class InputWebAction extends WebAction {
 
                 // This delays the input of the text to simulate as if the user were typing it themselves
                 log.info("Entering value '" + textToEnter + "'");
+                if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
+                    getRunningTest().getTestCase().log("Entering value '" + textToEnter + "'");
+                }
+
                 if (characterDelay.exists()) {
                     Long delay = Long.parseLong(characterDelay.getParameterValue());
                     char[] textSplit = textToEnter.toCharArray();
@@ -102,17 +99,17 @@ public class InputWebAction extends WebAction {
                 } else { // Update the text without a delay
                     testElement.sendKeys(textToEnter);
                 }
-                takeScreenshotOfElement(testStep, testElement);
-                testStep.setTestString(getTestCommand().getRawCommand());
+                takeScreenshotOfElement(testElement);
             } else {
                 log.info("Unable to enter value, element not found or not displayed");
+                if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
+                    getRunningTest().getTestCase().log("Unable to enter value, element not found or not displayed");
+                }
             }
             if (eventToTrigger.exists() && testElement != null) {
                 JavascriptLibrary javascript = new JavascriptLibrary();
                 javascript.callEmbeddedSelenium(getDriver(), "triggerEvent", testElement, eventToTrigger.getParameterValue());
             }
-
-            testStep.save();
         } catch (Exception ex) {
             getTestCommand().setException(ex);
             Error.SELENIUM_INPUT_ACTION_NOT_FOUND.record().create(ex);

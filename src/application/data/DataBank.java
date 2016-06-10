@@ -2,11 +2,9 @@ package application.data;
 
 import application.data.model.dao.UserDAO;
 import application.error.Error;
-import application.net.proxy.RecordedRequest;
 import application.node.implementations.CustomObjectNode;
 import application.node.implementations.FileStoreNode;
 import application.node.objects.SDEFile;
-import application.test.TestResult;
 import application.utils.AppParams;
 import application.utils.managers.SessionManager;
 import org.apache.log4j.Logger;
@@ -199,24 +197,6 @@ public class DataBank {
                 valueCount++;
             }
         }
-    }
-
-    public static void loadTestSteps(TestResult testResult) {
-//        SelectResult selectResult = (SelectResult) new SelectQuery("select id, test_string, successful, screenshot, test_result from test_step where test_result = ?")
-//                .addParameter(testResult.getId())
-//                .execute();
-//
-//        for (SelectResultRow resultRow : selectResult.getResults()) {
-//            try {
-//                testResult.addTestStep(new TestStep(resultRow.getInt("id"),
-//                        resultRow.getString("test_string"),
-//                        resultRow.getBoolean("successful"),
-//                        ImageIO.read(resultRow.getBlobInputStream("screenshot")),
-//                        testResult));
-//            } catch (IOException ex) {
-//                Error.LOADING_TEST_STEP.record().create(ex);
-//            }
-//        }
     }
 
     public static void loadCustomObjects(CustomObjectNode customObjectNode) {

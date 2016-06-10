@@ -1,7 +1,6 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.Loop;
 import application.test.action.helpers.LoopedObject;
 import application.test.action.helpers.LoopedWebElement;
@@ -30,10 +29,6 @@ public class LoopWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep = TestStep.create(TestStep.class);
-        testStep.setParentResult(getTestResult());
-        getTestResult().addTestStep(testStep);
-
         TestParameter startElement = getTestCommand().getParameterByName("start");
         TestParameter endElement = getTestCommand().getParameterByName("end");
 
@@ -161,7 +156,5 @@ public class LoopWebAction extends WebAction {
                 }
             }
         }
-
-        testStep.save();
     }
 }

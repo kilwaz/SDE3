@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseObjectManager {
     private static DatabaseObjectManager instance;
-    public ConcurrentHashMap<String, DatabaseObject> databaseObjects;
+    private ConcurrentHashMap<String, DatabaseObject> databaseObjects;
 
     private static Logger log = Logger.getLogger(DatabaseObjectManager.class);
 

@@ -91,21 +91,6 @@ create table switch(
     enabled tinyint,
     PRIMARY KEY (uuid));
 
-create table test_result(
-    uuid char(36) NOT NULL,
-    PRIMARY KEY (uuid));
-
-create table test_step(
-    uuid char(36) NOT NULL,
-    test_string VARCHAR(1000),
-    expected_equal VARCHAR(1000),
-    observed_equal VARCHAR(1000),
-    screenshot mediumblob,
-    successful tinyint,
-    test_result char(36),
-    test_type INT,
-    PRIMARY KEY (uuid));
-
 create table trigger_condition(
     uuid char(36) NOT NULL,
     node_id char(36),
@@ -149,4 +134,5 @@ create table test_command(
     main_command VARCHAR(1000),
     raw_command VARCHAR(1000),
     command_position INT,
+    screenshot mediumblob,
     PRIMARY KEY (uuid));

@@ -111,6 +111,9 @@ public class Test extends DatabaseObject {
     }
 
     public TestCase getTestCase() {
+        if (testCase == null) {
+            testCase = new TestCase();
+        }
         return testCase;
     }
 

@@ -1,7 +1,6 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.LoopedWebElement;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
@@ -30,10 +29,6 @@ public class SelectWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestStep testStep = TestStep.create(TestStep.class);
-            testStep.setParentResult(getTestResult());
-            getTestResult().addTestStep(testStep);
-
             TestParameter idElement = getTestCommand().getParameterByPath("id");
             TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
             TestParameter loopElement = getTestCommand().getParameterByName("loop");
@@ -55,7 +50,7 @@ public class SelectWebAction extends WebAction {
 
                 if (testBy != null) {
                     testElement = getDriver().findElement(testBy);
-                    processElement(testElement, testStep);
+                    processElement(testElement);
                 }
             } else if (loopElement.exists()) {
                 WebElement loopedElement = null;
@@ -64,7 +59,7 @@ public class SelectWebAction extends WebAction {
                     loopedElement = loopedWebElement.getWebElement(getDriver());
                 }
 
-                processElement(loopedElement, testStep);
+                processElement(loopedElement);
             }
 
             refreshCurrentDocument();
@@ -91,6 +86,9 @@ public class SelectWebAction extends WebAction {
                         }
                     } else {
                         log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
+                        if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
+                            getRunningTest().getTestCase().log("No option exists for " + selectText.getParameterValue() + " to be selected");
+                        }
                     }
                 }
             }
@@ -103,10 +101,9 @@ public class SelectWebAction extends WebAction {
         }
     }
 
-    private void processElement(WebElement webElement, TestStep testStep) {
+    private void processElement(WebElement webElement) {
         if (webElement != null) {
-            takeScreenshotOfElement(testStep, webElement);
-            testStep.setTestString(getTestCommand().getRawCommand());
+            takeScreenshotOfElement(webElement);
         }
     }
 }

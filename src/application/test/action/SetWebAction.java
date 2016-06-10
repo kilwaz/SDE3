@@ -1,7 +1,6 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.LoopedWebElement;
 import application.test.action.helpers.Variable;
 import org.apache.log4j.Logger;
@@ -25,10 +24,6 @@ public class SetWebAction extends WebAction {
      * These values are saved and can be retrieved from the {@link application.test.action.helpers.VariableTracker}.
      */
     public void performAction() {
-        TestStep testStep = TestStep.create(TestStep.class);
-        testStep.setParentResult(getTestResult());
-        getTestResult().addTestStep(testStep);
-
         TestParameter variableName = getTestCommand().getParameterByName("var");
         TestParameter variableStringValue = getTestCommand().getParameterByPath("value::string");
         TestParameter variableContent = getTestCommand().getParameterByName("content");
@@ -44,7 +39,5 @@ public class SetWebAction extends WebAction {
                 getVariableTracker().setVariable(new Variable(variableName.getParameterValue(), loopedElement.html()));
             }
         }
-
-        testStep.save();
     }
 }

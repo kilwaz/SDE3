@@ -2,9 +2,7 @@ package application.test.action;
 
 import application.gui.Program;
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.Variable;
-import application.test.action.helpers.VariableTracker;
 import application.utils.NodeRunParams;
 
 /**
@@ -21,10 +19,6 @@ public class RunWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep = TestStep.create(TestStep.class);
-        testStep.setParentResult(getTestResult());
-        getTestResult().addTestStep(testStep);
-
         TestParameter nodeToRun = getTestCommand().getParameterByName("node");
         NodeRunParams nodeRunParams = new NodeRunParams();
 
@@ -47,9 +41,7 @@ public class RunWebAction extends WebAction {
             }
         }
 
-        Program.runHelper(nodeToRun.getParameterValue(), getProgram().getFlowController().getReferenceID(), null, true,true, null, nodeRunParams);
-
-        testStep.save();
+        Program.runHelper(nodeToRun.getParameterValue(), getProgram().getFlowController().getReferenceID(), null, true, true, null, nodeRunParams);
     }
 }
 

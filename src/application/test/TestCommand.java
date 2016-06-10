@@ -1,11 +1,13 @@
 package application.test;
 
 import application.data.model.DatabaseObject;
+import application.data.model.dao.TestCommandDAO;
 import application.error.Error;
 import application.node.objects.Test;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import javax.imageio.ImageIO;
@@ -22,12 +24,13 @@ import java.util.*;
  * The parameters are parsed and kept available to be queried in this object.
  */
 public class TestCommand extends DatabaseObject {
+    private static Logger log = Logger.getLogger(TestCommand.class);
     private SimpleStringProperty mainCommand = new SimpleStringProperty();
     private String rawCommand = "";
     private HashMap<String, TestParameter> parameters = new HashMap<>();
     private Integer commandPosition = -1;
     private Test parentTest = null;
-    private BufferedImage screenshot = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    private BufferedImage screenshot = null;
     private Boolean hasScreenshot = false;
     private DateTime commandDate = null;
     private TestCommandError testCommandError = new TestCommandError();
@@ -111,6 +114,13 @@ public class TestCommand extends DatabaseObject {
     }
 
     public BufferedImage getScreenshot() {
+        if (screenshot == null) {
+            TestCommandDAO recordedRequestDAO = new TestCommandDAO();
+            screenshot = recordedRequestDAO.getLazyScreenshot(this);
+        }
+        if (screenshot == null) {
+            screenshot = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        }
         return screenshot;
     }
 
@@ -121,6 +131,13 @@ public class TestCommand extends DatabaseObject {
 
     public void setException(Exception exception) {
         testCommandError.setException(exception);
+        if (parentTest != null && parentTest.getTestCase() != null) {
+            parentTest.getTestCase().log(exception);
+        }
+    }
+
+    public void lighten() {
+        screenshot = null; // Clear up the screenshot object to clear memory
     }
 
     public Boolean hasException() {
@@ -130,10 +147,10 @@ public class TestCommand extends DatabaseObject {
     // Returns an input stream from the current screenshot
     public InputStream getScreenshotInputStream() {
         InputStream inputStream = null;
-        if (screenshot != null) {
+        if (getScreenshot() != null) {
             try {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
-                ImageIO.write(screenshot, "png", os);
+                ImageIO.write(getScreenshot(), "png", os);
                 inputStream = new ByteArrayInputStream(os.toByteArray());
             } catch (IOException ex) {
                 Error.RETRIEVE_SCREENSHOT.record().create(ex);

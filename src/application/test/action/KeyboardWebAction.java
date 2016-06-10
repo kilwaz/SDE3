@@ -1,7 +1,6 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.LoopedWebElement;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -22,10 +21,6 @@ public class KeyboardWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep = TestStep.create(TestStep.class);
-        testStep.setParentResult(getTestResult());
-        getTestResult().addTestStep(testStep);
-
         TestParameter idElement = getTestCommand().getParameterByName("id");
         TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
@@ -49,7 +44,5 @@ public class KeyboardWebAction extends WebAction {
                 }
             }
         }
-
-        testStep.save();
     }
 }

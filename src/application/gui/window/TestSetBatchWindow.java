@@ -53,6 +53,7 @@ public class TestSetBatchWindow extends Stage {
     private TreeTableView<TestCaseTreeObject> testCaseTreeTableView;
     private PopOver exceptionInformation = new PopOver();
     private TabPane testTabPane = new TabPane();
+    private TextArea testLogTextArea = new TextArea();
 
     private ImageView testCommandImage;
 
@@ -85,6 +86,7 @@ public class TestSetBatchWindow extends Stage {
             testCommandParameters.getColumns().add(new ParameterNameColumn());
             testCommandParameters.getColumns().add(new ParameterValueColumn());
             UI.setAnchorMargins(testCommandParameters, 0.0, 0.0, 0.0, 0.0);
+            UI.setAnchorMargins(testLogTextArea, 0.0, 0.0, 0.0, 0.0);
             testCommandParameters.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 
@@ -128,28 +130,37 @@ public class TestSetBatchWindow extends Stage {
 
     private void createTestTabs() {
         // Create tabs
-        Tab testCommandTab = new Tab("Test Commands");
-        Tab testRequestsTab = new Tab("Test Requests");
+        Tab testCommandTab = new Tab("Commands");
+        Tab testRequestsTab = new Tab("Requests");
+        Tab testLogsTab = new Tab("Logs");
 
+        // Create anchors
         AnchorPane testCommandContent = new AnchorPane();
         AnchorPane testRequestContent = new AnchorPane();
+        AnchorPane testLogContent = new AnchorPane();
 
         UI.setAnchorMargins(testCommandContent, 0.0, 0.0, 0.0, 0.0);
         UI.setAnchorMargins(testRequestContent, 0.0, 0.0, 0.0, 0.0);
+        UI.setAnchorMargins(testLogContent, 0.0, 0.0, 0.0, 0.0);
         testCommandContent.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
         testRequestContent.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        testLogContent.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         HBox hBox = new HBox(5);
         hBox.getChildren().add(testCommandTableView);
         hBox.getChildren().add(testCommandDetailsVBox);
 
+        // Set main elements to anchors of tabs
         testCommandContent.getChildren().add(hBox);
         testRequestContent.getChildren().add(requestTableView);
+        testLogContent.getChildren().add(testLogTextArea);
 
+        // Set contents of tabs
         testCommandTab.setContent(testCommandContent);
         testRequestsTab.setContent(testRequestContent);
+        testLogsTab.setContent(testLogContent);
 
-        testTabPane.getTabs().addAll(testCommandTab, testRequestsTab);
+        testTabPane.getTabs().addAll(testCommandTab, testRequestsTab, testLogsTab);
     }
 
     private void createTestRequestTableView() {
@@ -289,9 +300,12 @@ public class TestSetBatchWindow extends Stage {
                     if (testCaseTreeObject.getType().equals(TestCaseTreeObject.TEST_CASE)) {
                         testCommandTableView.setItems(testCaseTreeObject.getTestCase().getTestCommands());
                         requestTableView.setItems(testCaseTreeObject.getTestCase().getTestRequests());
+                        testLogTextArea.clear();
+                        testLogTextArea.setText(testCaseTreeObject.getTestCase().getLogMessages());
                     } else {
                         testCommandTableView.setItems(null);
                         requestTableView.setItems(null);
+                        testLogTextArea.clear();
                     }
                 });
         testCaseTreeTableView.getColumns().add(new TestCaseNameColumn());

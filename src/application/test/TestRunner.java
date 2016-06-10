@@ -11,6 +11,7 @@ import application.utils.BrowserHelper;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
 import com.jayway.awaitility.Awaitility;
+import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.Units;
@@ -52,11 +53,6 @@ public class TestRunner extends SDERunnable {
     public void run() {
         status = TEST_RUNNING;
         if (test != null) {
-            TestResult testResult = TestResult.create(TestResult.class);
-            if (testResult != null) {
-                testResult.save();
-            }
-
             List<String> commands = new ArrayList<>();
             Collections.addAll(commands, test.getText().split("[\\r\\n]"));
 
@@ -112,8 +108,14 @@ public class TestRunner extends SDERunnable {
 
             if (useLocalDriver) {
                 log.info("Using local driver with browser " + browser);
+                if (test != null && test.getTestCase() != null) {
+                    test.getTestCase().log("Using local driver with browser " + browser);
+                }
             } else {
                 log.info("Using remote driver at " + remoteDriverURL + " with browser " + browser);
+                if (test != null && test.getTestCase() != null) {
+                    test.getTestCase().log("Using remote driver at " + remoteDriverURL + " with browser " + browser);
+                }
             }
 
             WebDriver driver = null;
@@ -140,6 +142,9 @@ public class TestRunner extends SDERunnable {
             }
 
             log.info("Number of commands in test " + commands.size());
+            if (test != null && test.getTestCase() != null) {
+                test.getTestCase().log("Number of commands in test " + commands.size());
+            }
 
             test.setContinueTest(true);
             while (test.getCurrentLine() < commands.size() && test.getContinueTest()) {
@@ -157,7 +162,6 @@ public class TestRunner extends SDERunnable {
                     httpProxyServer.addRequestListener(test.getTestCase());
                 }
                 testCommand.setCommandPosition(test.getCurrentLine());
-                testCommand.save();
 
                 // Here we are checking if an if statement is currently happening, if so we need to move to end if statement
                 if (ifTracker.isSkippingIf()) {  // Maybe move this so somewhere else?
@@ -172,6 +176,9 @@ public class TestRunner extends SDERunnable {
                     test.incrementLineNumber();
                 } else { // If no if is being skipped we continue as normal
                     log.info("(" + test.toString() + ") - Command " + command);
+                    if (test != null && test.getTestCase() != null) {
+                        test.getTestCase().log("(" + test.toString() + ") - Command " + command);
+                    }
 
                     // If the user is viewing the node at the time we can select the line that is currently being run
 //                    if (aceTextArea != null) {
@@ -181,24 +188,24 @@ public class TestRunner extends SDERunnable {
 
                     // Here we are retrieving the correct class held within ActionControl mapping (within application.test.action)
                     // and initialising the object and performing the required action which is then handled by the object
-                    if (testCommand != null) {
-                        if (driver != null) {
-                            try {
-                                Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
-                                WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
-                                webAction.initialise(httpProxyServer, driver, testCommand, testResult, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker);
-                                webAction.performAction();
-                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-                                application.error.Error.TEST_NODE_ACTION.record().create(ex);
-                            } catch (WebDriverException ex) {
-                                application.error.Error.WEB_DRIVER_EXCEPTION.record().create(ex);
-                            }
-                        } else {
-                            test.setContinueTest(false);
-                            application.error.Error.NO_BROWSER_FOUND.record().additionalInformation("Browser set to: " + browser).create();
+                    if (driver != null) {
+                        try {
+                            Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
+                            WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
+                            webAction.initialise(httpProxyServer, driver, testCommand, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker);
+                            webAction.performAction();
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+                            application.error.Error.TEST_NODE_ACTION.record().create(ex);
+                        } catch (WebDriverException ex) {
+                            application.error.Error.WEB_DRIVER_EXCEPTION.record().create(ex);
                         }
+                    } else {
+                        test.setContinueTest(false);
+                        application.error.Error.NO_BROWSER_FOUND.record().additionalInformation("Browser set to: " + browser).create();
                     }
                 }
+                testCommand.save();
+                //testCommand.lighten();
             }
 
             // Tidy up any resources if they are still in use
@@ -215,7 +222,7 @@ public class TestRunner extends SDERunnable {
             httpProxyServer.close();
 
             // Doing something with the screenshots
-            if (testResult != null && AppParams.getCreateTestDocument()) {
+            if (test.getTestCase() != null && AppParams.getCreateTestDocument()) {
                 try {
                     XWPFDocument document = new XWPFDocument();
                     // Write the Document in file system
@@ -226,37 +233,34 @@ public class TestRunner extends SDERunnable {
                     if (test != null && test.getTestCase() != null && test.getTestCase().getTestSet() != null) {
                         fileName = AppParams.getTestDocOutputDir() + test.getTestCase().getTestSet().getParentNode().getContainedText() + " - Test " + test.getTestCase().getTestSet().getTestID() + "-" + test.getTestCase().getTestIterationID() + " - " + fileDate + ".docx";
                     } else {
-                        fileName = AppParams.getTestDocOutputDir() + testResult.getUuidString() + "-" + fileDate + ".docx";
+                        fileName = AppParams.getTestDocOutputDir() + test.getUuidString() + "-" + fileDate + ".docx";
                     }
                     FileOutputStream out = new FileOutputStream(new File(fileName));
                     XWPFParagraph paragraph = document.createParagraph();
                     XWPFRun run = paragraph.createRun();
                     run.setText("Test begins");
                     run.addBreak();
-                    for (TestStep testStep : testResult.getTestSteps()) {
+                    for (TestCommand stepCommand : (ObservableList<TestCommand>) test.getTestCase().getTestCommands()) {
                         try {
-                            if (testStep.hasScreenshot()) {
-                                InputStream screenshotInputStream = testStep.getScreenshotInputStream();
+                            if (stepCommand.getHasScreenshot()) {
+                                InputStream screenshotInputStream = stepCommand.getScreenshotInputStream();
 
-                                TestCommand stepCommand = testStep.getTestCommand();
-                                if (stepCommand != null) {
-                                    if ("click".equals(stepCommand.getMainCommand())) {
-                                        if (stepCommand.getParameterByName("id").exists()) {
-                                            run.setText("Click on " + stepCommand.getParameterByName("id").getParameterValue());
-                                        } else if (stepCommand.getParameterByName("xPath").exists()) {
-                                            run.setText("Click on " + stepCommand.getParameterByName("xPath").getParameterValue());
-                                        }
-                                    } else if ("input".equals(stepCommand.getMainCommand())) {
-                                        if (stepCommand.getParameterByName("value").exists()) {
-                                            run.setText("TestInput value '" + stepCommand.getParameterByName("value").getParameterValue() + "' into " + stepCommand.getParameterByName("id").getParameterValue());
-                                        } else if (stepCommand.getParameterByName("increaseBy").exists()) {
-                                            run.setText("Increase " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("increaseBy").getParameterValue() + "'");
-                                        } else if (stepCommand.getParameterByName("decreaseBy").exists()) {
-                                            run.setText("Decrease " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("decreaseBy").getParameterValue() + "'");
-                                        }
-                                    } else if ("screenshot".equals(stepCommand.getMainCommand())) {
-                                        run.setText("Here is a screenshot...");
+                                if ("click".equals(stepCommand.getMainCommand())) {
+                                    if (stepCommand.getParameterByName("id").exists()) {
+                                        run.setText("Click on " + stepCommand.getParameterByName("id").getParameterValue());
+                                    } else if (stepCommand.getParameterByName("xPath").exists()) {
+                                        run.setText("Click on " + stepCommand.getParameterByName("xPath").getParameterValue());
                                     }
+                                } else if ("input".equals(stepCommand.getMainCommand())) {
+                                    if (stepCommand.getParameterByName("value").exists()) {
+                                        run.setText("TestInput value '" + stepCommand.getParameterByName("value").getParameterValue() + "' into " + stepCommand.getParameterByName("id").getParameterValue());
+                                    } else if (stepCommand.getParameterByName("increaseBy").exists()) {
+                                        run.setText("Increase " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("increaseBy").getParameterValue() + "'");
+                                    } else if (stepCommand.getParameterByName("decreaseBy").exists()) {
+                                        run.setText("Decrease " + stepCommand.getParameterByName("id").getParameterValue() + " by '" + stepCommand.getParameterByName("decreaseBy").getParameterValue() + "'");
+                                    }
+                                } else if ("screenshot".equals(stepCommand.getMainCommand())) {
+                                    run.setText("Here is a screenshot...");
                                 }
 
                                 run.addPicture(screenshotInputStream, XWPFDocument.PICTURE_TYPE_PNG, null, Units.toEMU(16 * 30), Units.toEMU(10 * 30));
@@ -274,6 +278,10 @@ public class TestRunner extends SDERunnable {
                     Error.DOCUMENT_CREATION_ISSUE.record().create(ex);
                 }
             }
+        }
+        // Used to release the screenshot data after the test has completed
+        for (TestCommand testCommand : (ObservableList<TestCommand>) test.getTestCase().getTestCommands()) {
+            testCommand.lighten();
         }
         status = TEST_FINISHED;
     }

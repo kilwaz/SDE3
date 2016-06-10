@@ -1,7 +1,6 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.LoopedWebElement;
 import application.test.action.helpers.Variable;
 import application.utils.SDEUtils;
@@ -22,10 +21,6 @@ public class LogWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestStep testStep = TestStep.create(TestStep.class);
-        testStep.setParentResult(getTestResult());
-        getTestResult().addTestStep(testStep);
-
         TestParameter idElement = getTestCommand().getParameterByName("id");
         TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
         TestParameter loopElement = getTestCommand().getParameterByName("loop");
@@ -35,7 +30,9 @@ public class LogWebAction extends WebAction {
 
         if (message.exists()) {
             log.info(message.getParameterValue());
-            testStep.setTestString(getTestCommand().getRawCommand());
+            if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
+                getRunningTest().getTestCase().log(message.getParameterValue());
+            }
         } else if (idElement.exists() || xPathElement.exists()) {
             String xPath = null;
             if (xPathElement.exists()) {
@@ -46,7 +43,7 @@ public class LogWebAction extends WebAction {
 
             if (xPath != null) {
                 Element testElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
-                processElement(testElement, testStep);
+                processElement(testElement);
 
             }
         } else if (loopElement.exists()) {
@@ -56,25 +53,26 @@ public class LogWebAction extends WebAction {
                 loopedElement = loopedWebElement.getElement();
             }
 
-            processElement(loopedElement, testStep);
+            processElement(loopedElement);
         } else if (variable.exists()) {
             Variable var = getVariableTracker().getVariable(variable.getParameterValue());
             if (var != null) {
                 log.info(var.getVariableValue());
             }
         }
-
-        testStep.save();
     }
 
-    private void processElement(Element element, TestStep testStep) {
-        //takeScreenshotOfElement(testStep, webElement);
-        testStep.setTestString(getTestCommand().getRawCommand());
-
+    private void processElement(Element element) {
         if (element != null) {
             log.info(element.outerHtml());
+            if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
+                getRunningTest().getTestCase().log(element.outerHtml());
+            }
         } else {
             log.info("Null Element passed to LogAction");
+            if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
+                getRunningTest().getTestCase().log("Null Element passed to LogAction");
+            }
         }
     }
 }

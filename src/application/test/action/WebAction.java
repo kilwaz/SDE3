@@ -6,8 +6,6 @@ import application.net.proxy.snoop.HttpProxyServer;
 import application.node.objects.Test;
 import application.test.TestCommand;
 import application.test.TestParameter;
-import application.test.TestResult;
-import application.test.TestStep;
 import application.test.action.helpers.*;
 import application.utils.AppParams;
 import application.utils.SDEUtils;
@@ -41,7 +39,6 @@ public abstract class WebAction implements Action {
         actionClasses.put("exit", ExitWebAction.class);
         actionClasses.put("url", URLWebAction.class);
         actionClasses.put("frame", FrameWebAction.class);
-        actionClasses.put("test", TestWebAction.class);
         actionClasses.put("wait", WaitWebAction.class);
         actionClasses.put("track", TrackWebAction.class);
         actionClasses.put("log", LogWebAction.class);
@@ -63,7 +60,6 @@ public abstract class WebAction implements Action {
 
     private WebDriver driver = null;
     private TestCommand testCommand = null;
-    private TestResult testResult = null;
     private HttpProxyServer httpProxyServer = null;
     private Program program = null;
     private Test runningTest = null;
@@ -92,15 +88,13 @@ public abstract class WebAction implements Action {
      * @param webProxy    The proxy that will handle the request.
      * @param driver      The Selenium web driver that is handling the test.
      * @param testCommand The full test command to process.
-     * @param testResult  The final result of the test, this object is provided to be updated by the action.
      * @param program     Reference to the program this test is a spawn of.
      */
-    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, TestResult testResult, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker, StateTracker stateTracker) {
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker, StateTracker stateTracker) {
         this.program = program;
         this.httpProxyServer = webProxy;
         this.driver = driver;
         this.testCommand = testCommand;
-        this.testResult = testResult;
         this.runningTest = runningTest;
         this.ifTracker = ifTracker;
         this.functionTracker = functionTracker;
@@ -109,23 +103,22 @@ public abstract class WebAction implements Action {
         this.variableTracker = variableTracker;
     }
 
-    public void takeScreenshotOfPage(TestStep testStep) {
-        takeScreenshotOfElement(testStep, null);
+    public void takeScreenshotOfPage() {
+        takeScreenshotOfElement(null);
     }
 
     /**
      * Takes a screenshot of the current Selenium {@link org.openqa.selenium.WebElement}.  A red box will be drawn
      * around the element to show where it is on the page.
      *
-     * @param testStep    The {@link application.test.TestStep} we want to save the screenshot to.
      * @param testElement The {@link org.openqa.selenium.WebElement} we are taking the screenshot of.
      */
-    public void takeScreenshotOfElement(TestStep testStep, WebElement testElement) {
+    public void takeScreenshotOfElement(WebElement testElement) {
         if (AppParams.getRecordScreenshots()) {
             String elementXPath, scriptToRun, highlightId = "";
             if (testElement != null) {
                 elementXPath = SDEUtils.generateXPath(testElement).replace("\"", "'");
-                highlightId = "selenium-highlight@" + testStep.getUuidString();
+                highlightId = "selenium-highlight@" + testCommand.getUuidString();
                 scriptToRun = "var elem = document.evaluate(\"" + elementXPath + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n" +
                         "if(elem != null){\n" +
                         "var box = elem.getBoundingClientRect();\n" +
@@ -152,7 +145,6 @@ public abstract class WebAction implements Action {
             try {
                 BufferedImage bufferedImage = ImageIO.read(scrFile);
                 testCommand.setScreenshot(bufferedImage);
-                testStep.setScreenshot(bufferedImage);
                 if (testElement != null) {
                     // Remove the highlighting
                     scriptToRun = "var elem = document.getElementById(\"" + highlightId + "\");\n" +
@@ -239,22 +231,6 @@ public abstract class WebAction implements Action {
      */
     public void setTestCommand(TestCommand testCommand) {
         this.testCommand = testCommand;
-    }
-
-    /**
-     * This exists for use by actions which extend this class.
-     *
-     * @return Gets {@link application.test.TestResult} for this action.
-     */
-    public TestResult getTestResult() {
-        return testResult;
-    }
-
-    /**
-     * @param testResult The {@link application.test.TestResult} that will hold the outcome of this action.
-     */
-    public void setTestResult(TestResult testResult) {
-        this.testResult = testResult;
     }
 
     /**

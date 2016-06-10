@@ -45,6 +45,7 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     private TestTemplate templateObject;
     private ObservableList<TestCommand> testCommands = FXCollections.observableArrayList();
     private ObservableList<RecordedRequest> testRequests = FXCollections.observableArrayList();
+    private List<TestLogMessage> logMessages = new ArrayList<>();
 
     public TestCase() {
     }
@@ -63,6 +64,24 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
 
     public ObservableList<RecordedRequest> getTestRequests() {
         return testRequests;
+    }
+
+    public String getLogMessages() {
+        StringBuilder logMessage = new StringBuilder();
+        for (TestLogMessage testLogMessage : logMessages) {
+            logMessage.append(testLogMessage.getFormattedDateTime()).append(": ").append(testLogMessage.getMessage()).append("\n");
+        }
+        return logMessage.toString();
+    }
+
+    public TestCase log(Exception ex) {
+        logMessages.add(new TestLogMessage(ex.toString()));
+        return this;
+    }
+
+    public TestCase log(String logMessage) {
+        logMessages.add(new TestLogMessage(logMessage));
+        return this;
     }
 
     public TestCase templateObject(TestTemplate templateObject) {

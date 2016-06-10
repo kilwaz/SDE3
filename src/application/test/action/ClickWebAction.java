@@ -2,7 +2,6 @@ package application.test.action;
 
 import application.error.Error;
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.LoopedWebElement;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -30,11 +29,6 @@ public class ClickWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestStep testStep = TestStep.create(TestStep.class);
-            testStep.setParentResult(getTestResult());
-            testStep.setTestCommand(getTestCommand());
-            getTestResult().addTestStep(testStep);
-
             TestParameter xPathElement = getParameterByPath("xPath");
             TestParameter idElement = getParameterByPath("id");
             TestParameter loopElement = getParameterByName("loop");
@@ -52,7 +46,7 @@ public class ClickWebAction extends WebAction {
 
                 if (testBy != null) {
                     WebElement testElement = getDriver().findElement(testBy);
-                    processElement(testElement, testStep);
+                    processElement(testElement);
                 }
             } else if (loopElement.exists()) {
                 WebElement loopedElement = null;
@@ -61,10 +55,13 @@ public class ClickWebAction extends WebAction {
                     loopedElement = loopedWebElement.getWebElement(getDriver());
                 }
 
-                processElement(loopedElement, testStep);
+                processElement(loopedElement);
+            } else {
+                log.info("No element exists to be clicked");
+                if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
+                    getRunningTest().getTestCase().log("No element exists to be clicked");
+                }
             }
-
-            testStep.save();
         } catch (Exception ex) {
             getTestCommand().setException(ex);
             Error.SELENIUM_CLICK_ACTION_NOT_FOUND.record().create(ex);
@@ -78,12 +75,10 @@ public class ClickWebAction extends WebAction {
      * Processes the element, in this case we need to click the element once we have found it.
      *
      * @param webElement The Selenium WebElement we are going to click.
-     * @param testStep   The TestStep being used to record this action.
      */
-    private void processElement(WebElement webElement, TestStep testStep) {
+    private void processElement(WebElement webElement) {
         if (webElement != null) {
-            takeScreenshotOfElement(testStep, webElement);
-            testStep.setTestString(getTestCommand().getRawCommand());
+            takeScreenshotOfElement(webElement);
             if (webElement.isDisplayed()) {
                 webElement.click();
             } else {

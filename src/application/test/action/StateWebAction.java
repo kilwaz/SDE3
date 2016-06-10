@@ -2,7 +2,6 @@ package application.test.action;
 
 import application.test.ChangedElements;
 import application.test.TestParameter;
-import application.test.TestStep;
 import application.test.action.helpers.PageStateCapture;
 import application.test.action.helpers.Variable;
 import application.test.core.TestCase;
@@ -15,10 +14,6 @@ public class StateWebAction extends WebAction {
     }
 
     public void performAction() {
-        TestStep testStep = TestStep.create(TestStep.class);
-        testStep.setParentResult(getTestResult());
-        getTestResult().addTestStep(testStep);
-
         TestParameter saveStateName = getTestCommand().getParameterByName("save");
         TestParameter compareStateName = getTestCommand().getParameterByPath("compare");
         TestParameter withStateName = getTestCommand().getParameterByName("with");
@@ -47,7 +42,5 @@ public class StateWebAction extends WebAction {
                 }
             }
         }
-
-        testStep.save();
     }
 }

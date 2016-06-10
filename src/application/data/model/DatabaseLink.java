@@ -17,8 +17,6 @@ import application.node.objects.Trigger;
 import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
 import application.test.TestCommand;
-import application.test.TestResult;
-import application.test.TestStep;
 import application.utils.CustomObject;
 
 import java.lang.reflect.Method;
@@ -27,11 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DatabaseLink {
-    private String tableName = "";
-    private List<ModelColumn> modelColumns = new ArrayList<>();
-    private List<DeleteColumn> onDeleteColumns = new ArrayList<>();
-    private Class linkClass;
-
     private static HashMap<Class, Class> linkClasses = new HashMap<>();
 
     // need to find an alternative to doing this
@@ -47,8 +40,6 @@ public class DatabaseLink {
         linkClasses.put(RecordedHeader.class, RecordedHeaderDatabaseLink.class);
         linkClasses.put(Program.class, ProgramDatabaseLink.class);
         linkClasses.put(Switch.class, SwitchDatabaseLink.class);
-        linkClasses.put(TestStep.class, TestStepDatabaseLink.class);
-        linkClasses.put(TestResult.class, TestResultDatabaseLink.class);
         linkClasses.put(DrawableNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(SavableAttribute.class, SavableAttributeDatabaseLink.class);
         linkClasses.put(CustomObject.class, CustomObjectDatabaseLink.class);
@@ -76,15 +67,23 @@ public class DatabaseLink {
         linkClasses.put(TestCaseNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TestNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TestManagerNode.class, DrawableNodeDatabaseLink.class);
-        linkClasses.put(TestResultNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TimerNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TriggerNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(WindowsNode.class, DrawableNodeDatabaseLink.class);
     }
 
+    private String tableName = "";
+    private List<ModelColumn> modelColumns = new ArrayList<>();
+    private List<DeleteColumn> onDeleteColumns = new ArrayList<>();
+    private Class linkClass;
+
     public DatabaseLink(String tableName, Class linkClass) {
         this.tableName = tableName;
         this.linkClass = linkClass;
+    }
+
+    public static Class getLinkClass(Class clazz) {
+        return linkClasses.get(clazz);
     }
 
     public String getTableName() {
@@ -109,10 +108,6 @@ public class DatabaseLink {
 
     public Class getLinkClass() {
         return linkClass;
-    }
-
-    public static Class getLinkClass(Class clazz) {
-        return linkClasses.get(clazz);
     }
 
     public Method method(String methodName, Class<?>... parameterTypes) {
