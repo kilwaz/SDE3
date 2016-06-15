@@ -119,6 +119,7 @@ public class Main extends Application {
         new SessionManager();
         new DatabaseObjectManager();
         new DatabaseTransactionManager();
+        new SeleniumGridManager();
 
         // Start loading data from the database
         if (connectionSuccessful) {
@@ -247,6 +248,7 @@ public class Main extends Application {
         WebProxyManager.getInstance().closeProxies();
         DBConnectionManager.getInstance().closeConnections();
         JobManager.getInstance().closeAllJobs();
+        SeleniumGridManager.getInstance().stopHub();
 
         // Cleans up any class or java files previously compiled.
         String userHome = System.getProperty("user.home");

@@ -10,6 +10,7 @@ import application.utils.AppParams;
 import application.utils.BrowserHelper;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
+import application.utils.managers.SeleniumGridManager;
 import com.jayway.awaitility.Awaitility;
 import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;

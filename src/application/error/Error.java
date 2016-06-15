@@ -131,7 +131,8 @@ public enum Error {
     DOCUMENT_CREATION_ISSUE(126, "Unable to complete creating document from test"),
     XPATH_GENERATION(127, "Unable to generate xPath of element"),
     SELENIUM_INPUT_ACTION_NOT_FOUND(128, "InputAction is failing, selenium is not responding when finding the element"),
-    LOAD_BUFFERED_IMAGE_FAILED(129, "Loading of buffered image for TestCommand failed");
+    LOAD_BUFFERED_IMAGE_FAILED(129, "Loading of buffered image for TestCommand failed"),
+    SELENIUM_GRID_HUB_START_FAILED(130, "Selenium grid hub has failed to start");
 
     private Integer code;
     private String description;
