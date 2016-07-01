@@ -1,13 +1,19 @@
 package application.gui.columns.testnode;
 
-import application.node.implementations.TestNode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.control.TreeTableColumn;
 
-public class EnabledColumn extends TableColumn {
+public class EnabledColumn extends TreeTableColumn<LinkedTestCaseTreeObject, Boolean> {
     public EnabledColumn() {
         setText("Enabled");
         setPrefWidth(130);
-        setCellValueFactory(new PropertyValueFactory<TestNode, String>("ContainedText"));
+        setCellValueFactory(p -> {
+            LinkedTestCaseTreeObject linkedTestCaseTreeObject = p.getValue().getValue();
+            if (linkedTestCaseTreeObject.getType().equals(LinkedTestCaseTreeObject.LINKED_TEST_CASE)) {
+                return p.getValue().getValue().getLinkedTestCase().getEnabledProperty();
+            } else {
+                return new SimpleBooleanProperty();
+            }
+        });
     }
 }

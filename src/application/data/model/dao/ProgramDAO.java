@@ -6,7 +6,6 @@ import application.data.SelectResultRow;
 import application.data.User;
 import application.data.model.links.ProgramDatabaseLink;
 import application.gui.Program;
-import javafx.collections.transformation.SortedList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,5 +30,21 @@ public class ProgramDAO {
         }
 
         return programs;
+    }
+
+    public Program getProgramByName(String programName) {
+        ProgramDatabaseLink programDatabaseLink = new ProgramDatabaseLink();
+
+        SelectResult selectResult = (SelectResult) new SelectQuery("select uuid from " + programDatabaseLink.getTableName() + " where name = ?;")
+                .addParameter(programName)
+                .execute();
+
+        List<SelectResultRow> selectResultRows = selectResult.getResults();
+        if (selectResultRows.size() > 0) {
+            SelectResultRow resultRow = selectResultRows.get(0);
+            String uuid = resultRow.getString("uuid");
+            return Program.load(DAO.UUIDFromString(uuid), Program.class);
+        }
+        return null;
     }
 }

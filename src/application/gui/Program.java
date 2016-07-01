@@ -45,7 +45,7 @@ public class Program extends DatabaseObject implements Comparable<Program> {
                     triggerConnections(sourceNode, ((DrawableNode) node).getContainedText(), referenceID);
                     drawableNode.run(whileWaiting, nodeRunParams);
                 } else {
-                    log.info("Wasn't able to run the program '" + name + "'");
+                    log.info("Unable to run the node '" + name + "'");
                     if ("Start".equals(name) && "1".equals(referenceID)) {
                         new ErrorDialog()
                                 .content("A start node needs to be selected")

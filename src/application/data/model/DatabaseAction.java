@@ -6,6 +6,7 @@ import application.data.model.dao.DrawableNodeDAO;
 import application.error.Error;
 import application.gui.Program;
 import application.node.design.DrawableNode;
+import application.node.objects.LinkedTestCase;
 import application.node.objects.datatable.DataTableRow;
 import application.utils.managers.DatabaseObjectManager;
 import org.apache.commons.lang3.StringUtils;
@@ -186,6 +187,12 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
                                 if (uuidStr != null && !uuidStr.isEmpty()) {
                                     Program program = loadCachedObject(uuidStr, Program.class);
                                     modelColumn.getObjectLoadMethod().invoke(dbObject, program);
+                                }
+                            } else if (loadParameterClass.equals(LinkedTestCase.class)) { // LINKEDTESTCASE
+                                String uuidStr = resultRow.getString(modelColumn.getColumnName());
+                                if (uuidStr != null && !uuidStr.isEmpty()) {
+                                    LinkedTestCase linkedTestCase = loadCachedObject(uuidStr, LinkedTestCase.class);
+                                    modelColumn.getObjectLoadMethod().invoke(dbObject, linkedTestCase);
                                 }
                             } else if (loadParameterClass.equals(DrawableNode.class) || loadParameterClass.getSuperclass() != null && loadParameterClass.getSuperclass().equals(DrawableNode.class)) { // DRAWABLE NODE
                                 String uuidStr = resultRow.getString(modelColumn.getColumnName());

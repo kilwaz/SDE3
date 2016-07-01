@@ -10,10 +10,7 @@ import application.net.proxy.RecordedProxy;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
 import application.node.implementations.*;
-import application.node.objects.Input;
-import application.node.objects.Switch;
-import application.node.objects.Test;
-import application.node.objects.Trigger;
+import application.node.objects.*;
 import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
 import application.test.TestCommand;
@@ -27,7 +24,7 @@ import java.util.List;
 public class DatabaseLink {
     private static HashMap<Class, Class> linkClasses = new HashMap<>();
 
-    // need to find an alternative to doing this
+    // Need to find an alternative to doing this
     static {
         linkClasses.put(Input.class, InputDatabaseLink.class);
         linkClasses.put(NodeColour.class, NodeColourDatabaseLink.class);
@@ -45,6 +42,7 @@ public class DatabaseLink {
         linkClasses.put(CustomObject.class, CustomObjectDatabaseLink.class);
         linkClasses.put(TestCommand.class, TestCommandDatabaseLink.class);
         linkClasses.put(Test.class, TestDatabaseLink.class);
+        linkClasses.put(LinkedTestCase.class, LinkedTestCaseDatabaseLink.class);
 
         // Drawable Node Classes - Better way to do this?
         linkClasses.put(BashNode.class, DrawableNodeDatabaseLink.class);

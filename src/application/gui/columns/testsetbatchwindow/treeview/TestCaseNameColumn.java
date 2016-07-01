@@ -4,10 +4,9 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.control.TreeTableColumn;
 
 public class TestCaseNameColumn extends TreeTableColumn<TestCaseTreeObject, String> {
-
     public TestCaseNameColumn() {
         setText("Tests");
-        setPrefWidth(150);
+        setPrefWidth(250);
         setCellValueFactory((TreeTableColumn.CellDataFeatures<TestCaseTreeObject, String> p) -> new ReadOnlyStringWrapper(p.getValue().getValue().getName()));
     }
 }

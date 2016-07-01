@@ -1,5 +1,6 @@
 package application.gui.dialog;
 
+import application.Main;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 
@@ -48,6 +49,8 @@ public class ErrorDialog implements Dialog {
             }
         }
 
-        Platform.runLater(new OneShotTask(title, header, content));
+        if (!Main.isHeadless) {
+            Platform.runLater(new OneShotTask(title, header, content));
+        }
     }
 }

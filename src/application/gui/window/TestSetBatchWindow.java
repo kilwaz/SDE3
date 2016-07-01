@@ -9,9 +9,11 @@ import application.gui.columns.testsetbatchwindow.commandview.CommandPositionCol
 import application.gui.columns.testsetbatchwindow.commandview.HasScreenshotColumn;
 import application.gui.columns.testsetbatchwindow.commandview.MainCommandColumn;
 import application.gui.columns.testsetbatchwindow.commandview.RawCommandColumn;
+import application.gui.columns.testsetbatchwindow.statecompare.*;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseNameColumn;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseTreeObject;
 import application.net.proxy.RecordedRequest;
+import application.test.PageStateCompare;
 import application.test.TestCommand;
 import application.test.TestCommandItem;
 import application.test.TestParameter;
@@ -50,6 +52,8 @@ public class TestSetBatchWindow extends Stage {
     private TableView<TestCommand> testCommandTableView;
     private TableView<TestParameter> testCommandParameters;
     private TableView<RecordedRequest> requestTableView;
+    private TableView<PageStateCompare> stateCompareTableView;
+    private TableView<CompareStateElementObject> stateCompareElementTableView;
     private TreeTableView<TestCaseTreeObject> testCaseTreeTableView;
     private PopOver exceptionInformation = new PopOver();
     private TabPane testTabPane = new TabPane();
@@ -120,6 +124,8 @@ public class TestSetBatchWindow extends Stage {
         createTestTree();
         createTestCommandTableView();
         createTestRequestTableView();
+        createStateCompareElementTableView();
+        createStateCompareTableView();
         createTestCommandInformation();
         createTestTabs();
     }
@@ -132,35 +138,73 @@ public class TestSetBatchWindow extends Stage {
         // Create tabs
         Tab testCommandTab = new Tab("Commands");
         Tab testRequestsTab = new Tab("Requests");
+        Tab stateComparisonsTab = new Tab("State Comparison");
         Tab testLogsTab = new Tab("Logs");
+
+        testCommandTab.setClosable(false);
+        testRequestsTab.setClosable(false);
+        stateComparisonsTab.setClosable(false);
+        testLogsTab.setClosable(false);
 
         // Create anchors
         AnchorPane testCommandContent = new AnchorPane();
         AnchorPane testRequestContent = new AnchorPane();
         AnchorPane testLogContent = new AnchorPane();
+        AnchorPane stateComparisonsContent = new AnchorPane();
 
         UI.setAnchorMargins(testCommandContent, 0.0, 0.0, 0.0, 0.0);
         UI.setAnchorMargins(testRequestContent, 0.0, 0.0, 0.0, 0.0);
         UI.setAnchorMargins(testLogContent, 0.0, 0.0, 0.0, 0.0);
+        UI.setAnchorMargins(stateComparisonsContent, 0.0, 0.0, 0.0, 0.0);
         testCommandContent.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
         testRequestContent.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
         testLogContent.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        stateComparisonsContent.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         HBox hBox = new HBox(5);
-        hBox.getChildren().add(testCommandTableView);
-        hBox.getChildren().add(testCommandDetailsVBox);
+        hBox.getChildren().addAll(testCommandTableView, testCommandDetailsVBox);
+
+        VBox vBox = new VBox(5);
+        vBox.getChildren().addAll(stateCompareTableView, stateCompareElementTableView);
+        vBox.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        UI.setAnchorMargins(vBox, 0.0, 0.0, 0.0, 0.0);
 
         // Set main elements to anchors of tabs
         testCommandContent.getChildren().add(hBox);
         testRequestContent.getChildren().add(requestTableView);
         testLogContent.getChildren().add(testLogTextArea);
+        stateComparisonsContent.getChildren().add(vBox);
 
         // Set contents of tabs
         testCommandTab.setContent(testCommandContent);
         testRequestsTab.setContent(testRequestContent);
         testLogsTab.setContent(testLogContent);
+        stateComparisonsTab.setContent(stateComparisonsContent);
 
-        testTabPane.getTabs().addAll(testCommandTab, testRequestsTab, testLogsTab);
+        testTabPane.getTabs().addAll(testCommandTab, testRequestsTab, testLogsTab, stateComparisonsTab);
+    }
+
+    private void createStateCompareElementTableView() {
+        stateCompareElementTableView = new TableView<>();
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementChangeTypeColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementAttributeNameColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementMatchedColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementInitialRefColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementInitialValueColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementFinalValueColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementBeforeColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementAfterColumn());
+        stateCompareElementTableView.getColumns().addAll(new StateCompareElementIncreasedByColumn());
+    }
+
+    private void createStateCompareTableView() {
+        stateCompareTableView = new TableView<>();
+        stateCompareTableView.getColumns().addAll(new CompareStateReferenceColumn());
+
+        stateCompareTableView.getSelectionModel().selectedItemProperty().addListener(
+                (ov, oldValue, newValue) -> {
+                    stateCompareElementTableView.setItems(newValue.getElementsList());
+                });
     }
 
     private void createTestRequestTableView() {
@@ -169,7 +213,6 @@ public class TestSetBatchWindow extends Stage {
         requestTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
         UI.setAnchorMargins(requestTableView, 0.0, 0.0, 0.0, 0.0);
         requestTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        //requestTableView.setItems(getResultList());
         requestTableView.getColumns().addAll(new RequestNumberColumn());
         requestTableView.getColumns().addAll(new HostColumn());
         requestTableView.getColumns().addAll(new MethodColumn());
@@ -206,13 +249,11 @@ public class TestSetBatchWindow extends Stage {
             );
             return row;
         });
-
     }
 
     private void createTestCommandTableView() {
         testCommandTableView = new TableView<>();
         UI.setAnchorMargins(testCommandTableView, 0.0, 0.0, 0.0, 0.0);
-//        testCommandTableView.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
         testCommandTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         testCommandTableView.getColumns().add(new CommandPositionColumn());
@@ -300,11 +341,16 @@ public class TestSetBatchWindow extends Stage {
                     if (testCaseTreeObject.getType().equals(TestCaseTreeObject.TEST_CASE)) {
                         testCommandTableView.setItems(testCaseTreeObject.getTestCase().getTestCommands());
                         requestTableView.setItems(testCaseTreeObject.getTestCase().getTestRequests());
+                        ObservableList<PageStateCompare> list = (ObservableList<PageStateCompare>) testCaseTreeObject.getTestCase().getPageCapturesCompares();
+                        stateCompareTableView.setItems(list);
+
                         testLogTextArea.clear();
                         testLogTextArea.setText(testCaseTreeObject.getTestCase().getLogMessages());
                     } else {
                         testCommandTableView.setItems(null);
                         requestTableView.setItems(null);
+                        stateCompareTableView.setItems(null);
+                        stateCompareElementTableView.setItems(null);
                         testLogTextArea.clear();
                     }
                 });

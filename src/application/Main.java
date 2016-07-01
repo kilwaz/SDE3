@@ -3,7 +3,10 @@ package application;
 import application.data.DBConnectionManager;
 import application.data.DataBank;
 import application.data.DatabaseConnectionWatcher;
+import application.data.model.dao.ProgramDAO;
+import application.error.Error;
 import application.gui.Controller;
+import application.gui.Program;
 import application.net.proxy.WebProxyManager;
 import application.utils.AppParams;
 import application.utils.AppProperties;
@@ -31,6 +34,8 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,6 +52,11 @@ public class Main extends Application {
     private static final int SPLASH_HEIGHT = 360;
     private static Main instance;
     private static Logger log = Logger.getLogger(Main.class);
+    public static Boolean isHeadless = false;
+    private static Boolean printJavaProperties = false;
+    private static List argsList;
+    private static String programNameToRun;
+
     private Pane splashLayout;
     private ProgressBar loadProgress;
     private Label progressText;
@@ -59,6 +69,7 @@ public class Main extends Application {
      * @param args Standard args that can be passed into main method, current no args are used.
      */
     public static void main(String[] args) {
+        argsList = Arrays.asList(args);
         launch(args);
     }
 
@@ -81,45 +92,56 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         // This lets all logging be captured and then displayed
         new LogManager();
-
         log.info(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
 
-        Set<String> systemProperties = System.getProperties().stringPropertyNames();
-        log.info("***** START JVM Properties *****");
-        for (String name : systemProperties) {
-            log.info(name + ": " + System.getProperty(name));
+        // Load any command line parameters that have been included
+        Integer parameterIndex = 0;
+        for (int i = 0; i < argsList.size(); i++) {
+            if ("-headless".equals(argsList.get(i))) {
+                isHeadless = true;
+            }
+            if ("-show-properties".equals(argsList.get(i))) {
+                printJavaProperties = true;
+            }
+            if ("-run".equals(argsList.get(i))) {
+                i++;
+                try {
+                    programNameToRun = (String) argsList.get(i);
+                } catch (ArrayIndexOutOfBoundsException ex) {
+                    Error.MISSING_RUN_PROGRAM_NAME.record().create();
+                }
+            }
         }
-        log.info("***** END JVM Properties *****");
+
+        if (isHeadless) {
+            log.info("Running in headless mode");
+        }
+
+        if (printJavaProperties) {
+            Set<String> systemProperties = System.getProperties().stringPropertyNames();
+            log.info("***** START JVM Properties *****");
+            for (String name : systemProperties) {
+                log.info(name + ": " + System.getProperty(name));
+            }
+            log.info("***** END JVM Properties *****");
+        }
 
         instance = this;
-        this.splashStage = stage;
-        showSplash();
+        if (!isHeadless) {
+            this.splashStage = stage;
+            showSplash();
+        }
 
         new AppProperties(); // Set the location of where to find the properties xml file
         if (!AppProperties.readXML()) {
             AppProperties.saveToXML();
         }
 
-        new DBConnectionManager();
-        new DatabaseConnectionWatcher();  // Creates the database watcher which will let the user know when the database disconnects
-        Boolean connectionSuccessful = DBConnectionManager.getInstance().createApplicationConnection();
-        DBConnectionManager.getInstance().getApplicationConnection().migrateFlyway();
-
-        loadProgress.setProgress(0.5);
-
-        // Load all managers
-        new ThreadManager();
-        new SSHConnectionManager();
-        new BrowserManager();
-        new WebProxyManager();
-        new JobManager();
-        new TabManager();
-        new ErrorManager();
-        new NetworkManager();
-        new SessionManager();
-        new DatabaseObjectManager();
-        new DatabaseTransactionManager();
-        new SeleniumGridManager();
+        Boolean connectionSuccessful = startDatabase();
+        if (!isHeadless) {
+            loadProgress.setProgress(0.5);
+        }
+        startManagers();
 
         // Start loading data from the database
         if (connectionSuccessful) {
@@ -127,7 +149,10 @@ public class Main extends Application {
         }
 
         //new NetworkBuilder();  // Finds all available IP addresses on the network
-        loadProgress.setProgress(0.9);
+        if (!isHeadless) {
+            loadProgress.setProgress(0.9);
+        }
+
         //new SDEThread(new WebProxy());
         //new WebRecordListenServer();
 
@@ -156,9 +181,50 @@ public class Main extends Application {
             }
         }
 
-        loadProgress.setProgress(1.0);
-        showMainStage();
+        if (!isHeadless) {
+            loadProgress.setProgress(1.0);
+            showMainStage();
+        } else { // If program is in headless mode
+            if (programNameToRun != null) { // We need to run this program
+                ProgramDAO programDAO = new ProgramDAO();
+                Program programToRun = programDAO.getProgramByName(programNameToRun);
+                if (programToRun != null) {
+                    log.info("Running program " + programToRun.getName());
+                    programToRun.loadNodesToFlowController();
+                    programToRun.run();
+                    log.info("Completed Program");
+                } else {
+                    log.error("Program with name " + programNameToRun + " was not found");
+                }
+            }
+        }
     }
+
+    private Boolean startDatabase() {
+        new DBConnectionManager();
+        new DatabaseConnectionWatcher();  // Creates the database watcher which will let the user know when the database disconnects
+        Boolean connectionSuccessful = DBConnectionManager.getInstance().createApplicationConnection();
+        DBConnectionManager.getInstance().getApplicationConnection().migrateFlyway();
+        return connectionSuccessful;
+    }
+
+    private void startManagers() {
+        // Load all managers
+        new ThreadManager();
+        new SSHConnectionManager();
+        new BrowserManager();
+        new WebProxyManager();
+        new JobManager();
+        new TabManager();
+        new ErrorManager();
+        new NetworkManager();
+        new SessionManager();
+        new DatabaseObjectManager();
+        new DatabaseTransactionManager();
+        new SeleniumHubManager();
+    }
+
+    // Start the application in header mode
 
     /**
      * Sets up the initial splash screen before we show it.
@@ -248,7 +314,7 @@ public class Main extends Application {
         WebProxyManager.getInstance().closeProxies();
         DBConnectionManager.getInstance().closeConnections();
         JobManager.getInstance().closeAllJobs();
-        SeleniumGridManager.getInstance().stopHub();
+        SeleniumHubManager.getInstance().stopHub();
 
         // Cleans up any class or java files previously compiled.
         String userHome = System.getProperty("user.home");

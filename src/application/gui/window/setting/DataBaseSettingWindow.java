@@ -8,8 +8,6 @@ import application.utils.AppParams;
 import application.utils.AppProperties;
 import application.utils.managers.DatabaseObjectManager;
 import application.utils.managers.SessionManager;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -39,7 +37,6 @@ public class DataBaseSettingWindow extends SettingsPage {
     }
 
     public void setupChildren() {
-
     }
 
     public AnchorPane getInterface() {
@@ -48,16 +45,14 @@ public class DataBaseSettingWindow extends SettingsPage {
 
         // SETUP GROUP RADIO BUTTONS
         databaseGroup = new ToggleGroup();
-        databaseGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
-                RadioButton selectedButton = (RadioButton) new_toggle;
-                if ("localRadio".equals(selectedButton.getId())) {
-                    AppParams.setLocalDatabase(true);
-                } else if ("remoteRadio".equals(selectedButton.getId())) {
-                    AppParams.setLocalDatabase(false);
-                }
-                updateFieldAccess();
+        databaseGroup.selectedToggleProperty().addListener((ov, old_toggle, new_toggle) -> {
+            RadioButton selectedButton = (RadioButton) new_toggle;
+            if ("localRadio".equals(selectedButton.getId())) {
+                AppParams.setLocalDatabase(true);
+            } else if ("remoteRadio".equals(selectedButton.getId())) {
+                AppParams.setLocalDatabase(false);
             }
+            updateFieldAccess();
         });
 
         localDatabase = new RadioButton();

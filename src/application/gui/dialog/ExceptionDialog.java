@@ -1,5 +1,6 @@
 package application.gui.dialog;
 
+import application.Main;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -84,7 +85,8 @@ public class ExceptionDialog implements Dialog {
                 alert.show();
             }
         }
-
-        Platform.runLater(new OneShotTask(title, content, ex));
+        if (!Main.isHeadless) {
+            Platform.runLater(new OneShotTask(title, content, ex));
+        }
     }
 }

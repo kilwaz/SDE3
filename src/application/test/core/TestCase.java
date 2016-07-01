@@ -8,15 +8,16 @@ import application.node.implementations.InputNode;
 import application.node.implementations.TestNode;
 import application.node.objects.Input;
 import application.node.objects.Test;
-import application.test.*;
+import application.test.PageStateCompare;
+import application.test.TestCommand;
+import application.test.TestLogMessage;
+import application.test.TestRunner;
 import application.test.action.helpers.PageStateCapture;
-import application.test.annotation.AssertChange;
 import application.utils.SDEThread;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,16 +32,13 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     private List<Input> inputs = new ArrayList<>();
     private List<String> testNodeList = new ArrayList<>();
     private List<String> inputNodeList = new ArrayList<>();
-    private ExpectedElements expectedElements = new ExpectedElements();
-    private ChangedElements changedElements = new ChangedElements();
     private Method buildMethod = null;
     private Method inputMethod = null;
     private Method runMethod = null;
     private Method onCompleteMethod = null;
     private Method threadWaitMethod = null;
-    private PageStateCapture captureBefore = null;
-    private PageStateCapture captureAfter = null;
     private HashMap<String, PageStateCapture> pageCaptures = new HashMap<>();
+    private ObservableList<PageStateCompare> pageCapturesCompares = FXCollections.observableArrayList();
     private Class<TemplateCase> templateCaseClass;
     private TestTemplate templateObject;
     private ObservableList<TestCommand> testCommands = FXCollections.observableArrayList();
@@ -84,6 +82,10 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
         return this;
     }
 
+    public TestTemplate getTemplateObject() {
+        return templateObject;
+    }
+
     public TestCase templateObject(TestTemplate templateObject) {
         this.templateObject = templateObject;
         return this;
@@ -103,6 +105,10 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     public TestCase inputs(List<Input> inputs) {
         this.inputs.addAll(inputs);
         return this;
+    }
+
+    public Class<TemplateCase> getTemplateCaseClass() {
+        return templateCaseClass;
     }
 
     public TestCase templateCaseClass(Class<TemplateCase> templateCaseClass) {
@@ -231,62 +237,10 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     }
 
     private void compareTest() {
-        if (test != null && captureBefore != null && captureAfter != null) {
-            // This needs to be done after the test has completed as some of the assertions require knowledge of elements from the test results
-            for (Method method : templateCaseClass.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(AssertChange.class)) {
-                    Annotation annotation = method.getAnnotation(AssertChange.class);
-                    AssertChange assertChange = (AssertChange) annotation;
-                    ExpectedElement expectedElement = ExpectedElement.define();
-
-                    // id
-                    if (!assertChange.id().isEmpty()) {
-                        expectedElement.id(assertChange.id());
-                    }
-
-                    // type
-                    if (!assertChange.type().isEmpty()) {
-                        expectedElement.type(assertChange.type());
-                    }
-
-                    // attribute
-                    if (!assertChange.attribute().isEmpty()) {
-                        expectedElement.attribute(assertChange.attribute());
-                    }
-
-                    // before
-                    if (!assertChange.before().isEmpty()) {
-                        expectedElement.before(assertChange.before());
-                    }
-
-                    // after
-                    if (!assertChange.after().isEmpty()) {
-                        expectedElement.after(assertChange.after());
-                    }
-
-                    // increasedBy
-                    if (!assertChange.increasedBy().isEmpty()) {
-                        expectedElement.increasedBy(assertChange.increasedBy());
-                    }
-
-                    AssertData assertData = new AssertData();
-                    assertData.expectedElement(expectedElement).inputs(inputs);
-                    assertData.before(captureBefore).after(captureAfter);
-                    assertData.states(pageCaptures);
-
-                    try {
-                        method.invoke(templateObject, assertData);
-                    } catch (IllegalAccessException | InvocationTargetException ex) {
-                        Error.TEST_ANNOTATION_MISSING.record().create(ex);
-                    }
-
-                    expectedElements.add(expectedElement);
-                }
-            }
-
-            // Finally compare the results
-            changedElements = captureBefore.compare(captureAfter);
-        }
+        // Trigger the test comparisons
+        log.info("Comparing test start");
+        pageCapturesCompares.forEach(PageStateCompare::compareTest);
+        log.info("Comparing test end");
     }
 
     private void completeTest() {
@@ -323,32 +277,9 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     }
 
     public void setPageCaptures(PageStateCapture captureBefore, PageStateCapture captureAfter) {
-        this.captureAfter = captureAfter;
-        this.captureBefore = captureBefore;
-    }
-
-    public ExpectedElements getExpectedElements() {
-        return expectedElements;
-    }
-
-    public ChangedElements getChangedElements() {
-        return changedElements;
-    }
-
-    public PageStateCapture getCaptureAfter() {
-        return captureAfter;
-    }
-
-    public void setCaptureAfter(PageStateCapture captureAfter) {
-        this.captureAfter = captureAfter;
-    }
-
-    public PageStateCapture getCaptureBefore() {
-        return captureBefore;
-    }
-
-    public void setCaptureBefore(PageStateCapture captureBefore) {
-        this.captureBefore = captureBefore;
+        log.info("Added new page capture start");
+        pageCapturesCompares.add(new PageStateCompare(this, captureBefore, captureAfter));
+        log.info("Added new page capture end");
     }
 
     public List<Input> getInputs() {
@@ -387,5 +318,14 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     @Override
     public void addRequest(RecordedRequest recordedRequest) {
         testRequests.add(recordedRequest);
+    }
+
+    public HashMap<String, PageStateCapture> getPageCaptures() {
+        return pageCaptures;
+    }
+
+    public ObservableList<PageStateCompare> getPageCapturesCompares() {
+        log.info("Tried to get page capture list");
+        return pageCapturesCompares;
     }
 }

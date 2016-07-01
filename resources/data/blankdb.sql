@@ -19,6 +19,7 @@ drop table if exists node;
 drop table if exists schema_version;
 drop table if exists test;
 drop table if exists test_command;
+drop table if exists linked_test_cases;
 
 create table node(
     uuid char(36) NOT NULL,
@@ -135,4 +136,13 @@ create table test_command(
     raw_command VARCHAR(1000),
     command_position INT,
     screenshot mediumblob,
+    PRIMARY KEY (uuid));
+
+create table linked_test_cases(
+    uuid char(36) NOT NULL,
+    test_case_node_id char(36),
+    test_manager_node_id char(36),
+    linked_test_case_parent_id char(36),
+    enabled tinyint,
+    type VARCHAR(100),
     PRIMARY KEY (uuid));

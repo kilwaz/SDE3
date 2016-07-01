@@ -1,15 +1,19 @@
 package application.node.implementations;
 
 import application.data.SavableAttribute;
+import application.data.model.dao.LinkedTestCaseDAO;
 import application.gui.Controller;
 import application.gui.Program;
 import application.gui.UI;
-import application.gui.window.TestSetBatchWindow;
-import application.node.design.DrawableNode;
 import application.gui.columns.testnode.EnabledColumn;
+import application.gui.columns.testnode.HierarchyTreeRow;
+import application.gui.columns.testnode.LinkedTestCaseTreeObject;
 import application.gui.columns.testnode.NodeNameColumn;
 import application.gui.columns.testsetbatch.CasesColumn;
 import application.gui.columns.testsetbatch.CreatedColumn;
+import application.gui.window.TestSetBatchWindow;
+import application.node.design.DrawableNode;
+import application.node.objects.LinkedTestCase;
 import application.test.core.TestSetBatch;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
@@ -32,15 +36,17 @@ import java.util.List;
 import java.util.UUID;
 
 public class TestManagerNode extends DrawableNode {
-    private static Logger log = Logger.getLogger(BashNode.class);
+    private static Logger log = Logger.getLogger(TestManagerNode.class);
 
     private TabPane testManagerTabPane = null;
     private Tab linkedTestsTab;
     private Tab resultsTab;
     private Button addCaseTestNodeButton = null;
     private TableView<TestSetBatch> testSetBatchTableView;
+    private TreeTableView<LinkedTestCaseTreeObject> linkedTestsTreeTableView;
+    private TreeItem<LinkedTestCaseTreeObject> testRoot;
 
-    private ObservableList<TestCaseNode> linkedTests = FXCollections.observableArrayList();
+    private ObservableList<LinkedTestCase> linkedTestCases = null;
     private ObservableList<TestSetBatch> testSetBatchResults = FXCollections.observableArrayList();
 
     // This will make a copy of the node passed to it
@@ -68,8 +74,25 @@ public class TestManagerNode extends DrawableNode {
 
     public void addTestCaseNode(DrawableNode testCaseNode) {
         if (testCaseNode != null && testCaseNode instanceof TestCaseNode) {
-            if (!linkedTests.contains(testCaseNode)) {
-                linkedTests.add((TestCaseNode) testCaseNode);
+            Boolean alreadyExists = false;
+            for (LinkedTestCase linkedTestCase : getLinkedTestCases()) {
+                // If it already exists, don't add it again
+                if (linkedTestCase.getTestCaseNode() != null && linkedTestCase.getTestCaseNode().getUuidString().equals(testCaseNode.getUuidString())) {
+                    alreadyExists = true;
+                    break;
+                }
+            }
+
+            if (!alreadyExists) {
+                LinkedTestCase linkedTestCase = LinkedTestCase.create(LinkedTestCase.class);
+                linkedTestCase.setTestCaseNode((TestCaseNode) testCaseNode);
+                linkedTestCase.setEnabled(false);
+                linkedTestCase.setTestManagerNode(this);
+                linkedTestCase.save();
+
+                testRoot.getChildren().add(LinkedTestCaseTreeObject.createTreeItem(linkedTestCase));
+
+                getLinkedTestCases().add(linkedTestCase);
             }
         }
     }
@@ -111,18 +134,10 @@ public class TestManagerNode extends DrawableNode {
         testManagerTabPane = new TabPane();
 
         // Setup available tests tab
-        TableView<TestCaseNode> linkedTestsTableView = new TableView<>();
-        linkedTestsTableView.setId("linkedTestsTable-" + getUuidStringWithoutHyphen());
-
-        linkedTestsTab = new Tab("Available Tests");
-        linkedTestsTab.setClosable(false);
+        createTestCaseTree();
 
         AnchorPane linkedTestAnchorPane = new AnchorPane();
-        linkedTestAnchorPane.getChildren().add(linkedTestsTableView);
-
-        linkedTestsTableView.setItems(getLinkedTests());
-        linkedTestsTableView.getColumns().addAll(new NodeNameColumn());
-        linkedTestsTableView.getColumns().addAll(new EnabledColumn());
+        linkedTestAnchorPane.getChildren().add(linkedTestsTreeTableView);
 
         // Setup results tab
         testSetBatchTableView = new TableView<>();
@@ -161,11 +176,11 @@ public class TestManagerNode extends DrawableNode {
         UI.setAnchorMargins(testManagerTabPane, 50.0, 0.0, 0.0, 0.0);
         UI.setAnchorMargins(testSetBatchTableView, 25.0, 0.0, 11.0, 0.0);
         UI.setAnchorMargins(resultsAnchorPane, 10.0, 0.0, 11.0, 0.0);
-        UI.setAnchorMargins(linkedTestsTableView, 25.0, 0.0, 11.0, 0.0);
+        UI.setAnchorMargins(linkedTestsTreeTableView, 25.0, 0.0, 11.0, 0.0);
         UI.setAnchorMargins(linkedTestAnchorPane, 10.0, 0.0, 11.0, 0.0);
 
         testSetBatchTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
-        linkedTestsTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        linkedTestsTreeTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         linkedTestsTab.setContent(linkedTestAnchorPane);
         resultsTab.setContent(resultsAnchorPane);
@@ -194,12 +209,97 @@ public class TestManagerNode extends DrawableNode {
         return savableAttributes;
     }
 
-    public ObservableList<TestCaseNode> getLinkedTests() {
-        return linkedTests;
+    public ObservableList<LinkedTestCase> getLinkedTestCases() {
+        if (linkedTestCases == null) {
+            linkedTestCases = FXCollections.observableArrayList();
+            LinkedTestCaseDAO linkedTestCaseDAO = new LinkedTestCaseDAO();
+            List<LinkedTestCase> loadedLinkedTestCases = linkedTestCaseDAO.getLinkedTestCases(this);
+            linkedTestCases.addAll(loadedLinkedTestCases);
+        }
+        return linkedTestCases;
     }
 
     public ObservableList<TestSetBatch> getTestSetBatchResults() {
         return testSetBatchResults;
+    }
+
+    private TreeItem<LinkedTestCaseTreeObject> buildTestCaseTree(LinkedTestCaseTreeObject linkedTestCaseTreeObject) {
+        for (LinkedTestCase childTestCase : linkedTestCaseTreeObject.getLinkedTestCase().getChildTestCases()) {
+            linkedTestCaseTreeObject.getTreeItem().getChildren().add(buildTestCaseTree(LinkedTestCaseTreeObject.createTreeItem(childTestCase).getValue()));
+        }
+
+        return linkedTestCaseTreeObject.getTreeItem();
+    }
+
+    private void createTestCaseTree() {
+        testRoot = LinkedTestCaseTreeObject.createTreeItem();
+        testRoot.setExpanded(true);
+        for (LinkedTestCase linkedTestCase : getLinkedTestCases()) {
+            if (linkedTestCase.getParentTestCase() == null) { // Top level test case
+                testRoot.getChildren().add(buildTestCaseTree(LinkedTestCaseTreeObject.createTreeItem(linkedTestCase).getValue()));
+            }
+        }
+
+        linkedTestsTreeTableView = new TreeTableView<>(testRoot);
+        linkedTestsTreeTableView.setId("linkedTestsTable-" + getUuidStringWithoutHyphen());
+
+        // Right click context menu
+        linkedTestsTreeTableView.setRowFactory(tableView -> {
+            TreeTableRow<LinkedTestCaseTreeObject> row = new HierarchyTreeRow();
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem removeMenuItem = new MenuItem("Remove");
+            MenuItem enableMenuItem = new MenuItem("Enable");
+            MenuItem disableMenuItem = new MenuItem("Disable");
+            MenuItem testGroupMenuItem = new MenuItem("New Test Group");
+
+            enableMenuItem.setOnAction(event -> { // Enable action
+                LinkedTestCaseTreeObject linkedTestCaseTreeObject = row.getItem();
+                linkedTestCaseTreeObject.getLinkedTestCase().setEnabled(true);
+                linkedTestCaseTreeObject.getLinkedTestCase().save();
+            });
+
+            disableMenuItem.setOnAction(event -> { // Disable action
+                LinkedTestCaseTreeObject linkedTestCaseTreeObject = row.getItem();
+                linkedTestCaseTreeObject.getLinkedTestCase().setEnabled(false);
+                linkedTestCaseTreeObject.getLinkedTestCase().save();
+            });
+
+            removeMenuItem.setOnAction(event -> { // Remove action
+                LinkedTestCaseTreeObject linkedTestCaseTreeObject = row.getItem();
+                linkedTestCaseTreeObject.getLinkedTestCase().delete();
+                testRoot.getChildren().remove(linkedTestCaseTreeObject.getTreeItem());
+            });
+
+            testGroupMenuItem.setOnAction(event -> { // New test group action
+                LinkedTestCaseTreeObject clickedRowTreeObject = row.getItem();
+                LinkedTestCase testCaseGroup = LinkedTestCase.create(LinkedTestCase.class);
+                testCaseGroup.setType("Group");
+                testCaseGroup.setParentTestCase(clickedRowTreeObject.getLinkedTestCase());
+                testCaseGroup.setTestManagerNode(this);
+                testCaseGroup.save();
+
+                clickedRowTreeObject.getTreeItem().getChildren().add(LinkedTestCaseTreeObject.createTreeItem(testCaseGroup));
+            });
+
+            contextMenu.getItems().add(enableMenuItem);
+            contextMenu.getItems().add(disableMenuItem);
+            contextMenu.getItems().add(removeMenuItem);
+            contextMenu.getItems().add(testGroupMenuItem);
+
+            // Set context menu on row, but use a binding to make it only show for non-empty rows:
+            row.contextMenuProperty().bind(
+                    Bindings.when(row.emptyProperty())
+                            .then((ContextMenu) null)
+                            .otherwise(contextMenu)
+            );
+            return row;
+        });
+
+        linkedTestsTab = new Tab("Available Tests");
+        linkedTestsTab.setClosable(false);
+
+        linkedTestsTreeTableView.getColumns().addAll(new NodeNameColumn());
+        linkedTestsTreeTableView.getColumns().addAll(new EnabledColumn());
     }
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
@@ -211,8 +311,11 @@ public class TestManagerNode extends DrawableNode {
         NodeRunParams nodeRunParams1 = new NodeRunParams();
         nodeRunParams1.setOneTimeVariable(testSetBatch);
 
-        for (TestCaseNode testCaseNode : linkedTests) {
-            SDEThread sdeThread = Program.runHelper(testCaseNode.getContainedText(), testCaseNode.getProgram().getFlowController().getReferenceID(), null, false, true, uniqueReference, nodeRunParams1);
+        for (LinkedTestCase linkedTestCase : getLinkedTestCases()) {
+            if (linkedTestCase.isEnabled() && linkedTestCase.getTestCaseNode() != null) {
+                TestCaseNode testCaseNode = linkedTestCase.getTestCaseNode();
+                SDEThread sdeThread = Program.runHelper(testCaseNode.getContainedText(), testCaseNode.getProgram().getFlowController().getReferenceID(), null, false, true, uniqueReference, nodeRunParams1);
+            }
         }
 
         // Waits for all previous threads to finish

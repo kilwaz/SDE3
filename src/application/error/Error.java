@@ -132,7 +132,8 @@ public enum Error {
     XPATH_GENERATION(127, "Unable to generate xPath of element"),
     SELENIUM_INPUT_ACTION_NOT_FOUND(128, "InputAction is failing, selenium is not responding when finding the element"),
     LOAD_BUFFERED_IMAGE_FAILED(129, "Loading of buffered image for TestCommand failed"),
-    SELENIUM_GRID_HUB_START_FAILED(130, "Selenium grid hub has failed to start");
+    SELENIUM_GRID_HUB_START_FAILED(130, "Selenium grid hub has failed to start"),
+    MISSING_RUN_PROGRAM_NAME(131, "Missing program name for run command");
 
     private Integer code;
     private String description;

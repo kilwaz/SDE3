@@ -1,5 +1,6 @@
 package application.gui.dialog;
 
+import application.Main;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -79,7 +80,8 @@ public class ConfirmDialog implements Dialog {
                 }
             }
         }
-
-        Platform.runLater(new OneShotTask(title, content));
+        if (!Main.isHeadless) {
+            Platform.runLater(new OneShotTask(title, content));
+        }
     }
 }

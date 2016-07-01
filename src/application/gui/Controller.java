@@ -127,6 +127,9 @@ public class Controller implements Initializable {
     private TestManagerNode testManagerSelectNode = null;
 
     public static Controller getInstance() {
+        if (controller == null) {
+            controller = new Controller();
+        }
         return Controller.controller;
     }
 
@@ -758,7 +761,9 @@ public class Controller implements Initializable {
 
     // Use this one when not on GUI thread
     public void updateCanvasControllerLater() {
-        Platform.runLater(canvasController::drawProgram);
+        if (canvasController != null) {
+            Platform.runLater(canvasController::drawProgram);
+        }
     }
 
     public void setCursor(Cursor cursor) {
@@ -775,25 +780,29 @@ public class Controller implements Initializable {
 
     public void updateThreadCount(Integer threadCount) {
         class GUIUpdate implements Runnable {
-            Integer threadCount;
+            private Integer threadCount;
 
-            GUIUpdate(Integer threadCount) {
+            private GUIUpdate(Integer threadCount) {
                 this.threadCount = threadCount;
             }
 
             public void run() {
-                activeThreadsStatusBar.setText("Active threads: " + threadCount);
+                if (activeThreadsStatusBar != null) {
+                    activeThreadsStatusBar.setText("Active threads: " + threadCount);
+                }
             }
         }
 
-        Platform.runLater(new GUIUpdate(threadCount));
+        if (!Main.isHeadless) {
+            Platform.runLater(new GUIUpdate(threadCount));
+        }
     }
 
     public void addNewProgram(Program program) {
         class GUIUpdate implements Runnable {
-            Program program;
+            private Program program;
 
-            GUIUpdate(Program program) {
+            private GUIUpdate(Program program) {
                 this.program = program;
             }
 
@@ -807,8 +816,7 @@ public class Controller implements Initializable {
 
     public void setWindowTitle() {
         class GUIUpdate implements Runnable {
-
-            GUIUpdate() {
+            private GUIUpdate() {
             }
 
             public void run() {
@@ -819,7 +827,7 @@ public class Controller implements Initializable {
         Platform.runLater(new GUIUpdate());
     }
 
-    public void closeDeleteNodeTabs(DrawableNode removedNode) {
+    private void closeDeleteNodeTabs(DrawableNode removedNode) {
         Tab tabToRemove = null;
         for (Tab loopTab : nodeTabPane.getTabs()) {
             if (loopTab.getId() != null) {
@@ -841,7 +849,7 @@ public class Controller implements Initializable {
 
     public void closeAllNodeTabs() {
         class GUIUpdate implements Runnable {
-            GUIUpdate() {
+            private GUIUpdate() {
             }
 
             public void run() {
@@ -856,9 +864,9 @@ public class Controller implements Initializable {
         Platform.runLater(new GUIUpdate());
     }
 
-    public void updateFlowLockedStatus() {
+    private void updateFlowLockedStatus() {
         class GUIUpdate implements Runnable {
-            GUIUpdate() {
+            private GUIUpdate() {
             }
 
             public void run() {
@@ -905,7 +913,7 @@ public class Controller implements Initializable {
     }
 
     // Order programs by name
-    public void reorderProgramList() {
+    private void reorderProgramList() {
         // Order programs by name
         ObservableList<Program> list = programList.getItems();
         Collections.sort(list);
@@ -942,7 +950,7 @@ public class Controller implements Initializable {
 
     public void createNotification(String title, String text) {
         class GUIUpdate implements Runnable {
-            GUIUpdate() {
+            private GUIUpdate() {
             }
 
             public void run() {

@@ -15,7 +15,6 @@ public class Test extends DatabaseObject {
     private Boolean clone = false;
     private TestCase testCase = null;
 
-
     public Test() {
         super();
     }
