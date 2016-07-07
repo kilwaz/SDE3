@@ -43,6 +43,7 @@ public class FrameWebAction extends WebAction {
                 if (frameElement != null) {
                     try {
                         getDriver().switchTo().frame(frameElement);
+                        getDocumentTracker().addIFrameChange(frameToSelectById.getParameterValue());
                     } catch (NoSuchFrameException ex) {
                         Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame id " + frameToSelectById.getParameterValue() + " element is not a frame").create();
                     }
@@ -57,8 +58,9 @@ public class FrameWebAction extends WebAction {
 
         if (frameToSelect.exists()) {
             getDriver().switchTo().defaultContent();
+            getDocumentTracker().setToDefaultFrame();
         }
 
-        refreshCurrentDocument();
+        getDocumentTracker().refreshCurrentDocument();
     }
 }

@@ -11,7 +11,7 @@ public class TestCommandItem {
 
     public TestCommandItem(TestCommand testCommand) {
         this.rawCommand = testCommand.getRawCommand();
-        this.commandPosition = testCommand.getCommandPosition();
+        this.commandPosition = testCommand.getCommandLineNumber();
         this.mainCommand = testCommand.getMainCommand();
         this.startDate = testCommand.getCommandDate();
         this.hasScreenshot = testCommand.getHasScreenshot();

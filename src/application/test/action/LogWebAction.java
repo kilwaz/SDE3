@@ -42,7 +42,7 @@ public class LogWebAction extends WebAction {
             }
 
             if (xPath != null) {
-                Element testElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
+                Element testElement = SDEUtils.getElementFromXPath(xPath, getDocumentTracker().getCurrentDocument());
                 processElement(testElement);
 
             }

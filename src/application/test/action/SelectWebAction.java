@@ -62,7 +62,7 @@ public class SelectWebAction extends WebAction {
                 processElement(loopedElement);
             }
 
-            refreshCurrentDocument();
+            getDocumentTracker().refreshCurrentDocument();
 
             if (testElement != null) {
                 if (selectIndex.exists()) {
@@ -70,7 +70,7 @@ public class SelectWebAction extends WebAction {
                     select.selectByIndex(Integer.parseInt(selectIndex.getParameterValue()));
                 } else if (selectText.exists()) {
                     Boolean selectOptionExists = false;
-                    Document document = getCurrentDocument();
+                    Document document = getDocumentTracker().getCurrentDocument();
                     Elements options = document.select("select > option");
                     for (Element element : options) {
                         if (element.text().equalsIgnoreCase(selectText.getParameterValue())) {

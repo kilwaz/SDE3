@@ -5,10 +5,7 @@ import application.gui.UI;
 import application.gui.columns.requesttracker.*;
 import application.gui.columns.testsetbatchwindow.commandparamters.ParameterNameColumn;
 import application.gui.columns.testsetbatchwindow.commandparamters.ParameterValueColumn;
-import application.gui.columns.testsetbatchwindow.commandview.CommandPositionColumn;
-import application.gui.columns.testsetbatchwindow.commandview.HasScreenshotColumn;
-import application.gui.columns.testsetbatchwindow.commandview.MainCommandColumn;
-import application.gui.columns.testsetbatchwindow.commandview.RawCommandColumn;
+import application.gui.columns.testsetbatchwindow.commandview.*;
 import application.gui.columns.testsetbatchwindow.statecompare.*;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseNameColumn;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseTreeObject;
@@ -24,6 +21,7 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -80,7 +78,8 @@ public class TestSetBatchWindow extends Stage {
 
             AnchorPane anchorPane = new AnchorPane();
 
-            HBox topSectionHBox = new HBox(5);
+            SplitPane testCaseSplitPane = new SplitPane();
+            testCaseSplitPane.setOrientation(Orientation.HORIZONTAL);
             testCommandDetailsVBox = new VBox(5);
 
             testCommandImage = new ImageView();
@@ -100,15 +99,15 @@ public class TestSetBatchWindow extends Stage {
             testCommandDetailsVBox.getChildren().add(testCommandParameters);
             initElements();
 
-            topSectionHBox.getChildren().add(testCaseTreeTableView);
-            topSectionHBox.getChildren().add(testTabPane);
+            testCaseSplitPane.getItems().addAll(testCaseTreeTableView, testTabPane);
+            testCaseSplitPane.setDividerPositions(0.2f);
 
-            anchorPane.getChildren().add(topSectionHBox);
+            anchorPane.getChildren().add(testCaseSplitPane);
             root.getChildren().add(anchorPane);
 
             UI.setAnchorMargins(root, 0.0, 0.0, 0.0, 0.0);
             UI.setAnchorMargins(anchorPane, 0.0, 0.0, 0.0, 0.0);
-            UI.setAnchorMargins(topSectionHBox, 0.0, 0.0, 0.0, 0.0);
+            UI.setAnchorMargins(testCaseSplitPane, 0.0, 0.0, 0.0, 0.0);
             UI.setAnchorMargins(testCommandDetailsVBox, 0.0, 0.0, 0.0, 0.0);
 
             URL urlIcon = getClass().getResource("/icon.png");
@@ -164,16 +163,18 @@ public class TestSetBatchWindow extends Stage {
         HBox hBox = new HBox(5);
         hBox.getChildren().addAll(testCommandTableView, testCommandDetailsVBox);
 
-        VBox vBox = new VBox(5);
-        vBox.getChildren().addAll(stateCompareTableView, stateCompareElementTableView);
-        vBox.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
-        UI.setAnchorMargins(vBox, 0.0, 0.0, 0.0, 0.0);
+        SplitPane stateCompareTablesSplitPane = new SplitPane();
+        stateCompareTablesSplitPane.getItems().addAll(stateCompareTableView, stateCompareElementTableView);
+        stateCompareTablesSplitPane.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        stateCompareTablesSplitPane.setOrientation(Orientation.VERTICAL);
+        UI.setAnchorMargins(stateCompareTablesSplitPane, 0.0, 0.0, 0.0, 0.0);
+        stateCompareTablesSplitPane.setDividerPositions(0.3f);
 
         // Set main elements to anchors of tabs
         testCommandContent.getChildren().add(hBox);
         testRequestContent.getChildren().add(requestTableView);
         testLogContent.getChildren().add(testLogTextArea);
-        stateComparisonsContent.getChildren().add(vBox);
+        stateComparisonsContent.getChildren().add(stateCompareTablesSplitPane);
 
         // Set contents of tabs
         testCommandTab.setContent(testCommandContent);
@@ -188,7 +189,6 @@ public class TestSetBatchWindow extends Stage {
         stateCompareElementTableView = new TableView<>();
         stateCompareElementTableView.getColumns().addAll(new StateCompareElementChangeTypeColumn());
         stateCompareElementTableView.getColumns().addAll(new StateCompareElementAttributeNameColumn());
-        stateCompareElementTableView.getColumns().addAll(new StateCompareElementMatchedColumn());
         stateCompareElementTableView.getColumns().addAll(new StateCompareElementInitialRefColumn());
         stateCompareElementTableView.getColumns().addAll(new StateCompareElementInitialValueColumn());
         stateCompareElementTableView.getColumns().addAll(new StateCompareElementFinalValueColumn());
@@ -200,6 +200,8 @@ public class TestSetBatchWindow extends Stage {
     private void createStateCompareTableView() {
         stateCompareTableView = new TableView<>();
         stateCompareTableView.getColumns().addAll(new CompareStateReferenceColumn());
+        stateCompareTableView.getColumns().addAll(new CompareStateBeforeReferenceColumn());
+        stateCompareTableView.getColumns().addAll(new CompareStateAfterReferenceColumn());
 
         stateCompareTableView.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldValue, newValue) -> {
@@ -256,7 +258,8 @@ public class TestSetBatchWindow extends Stage {
         UI.setAnchorMargins(testCommandTableView, 0.0, 0.0, 0.0, 0.0);
         testCommandTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
-        testCommandTableView.getColumns().add(new CommandPositionColumn());
+        testCommandTableView.getColumns().add(new CommandOrderColumn());
+        testCommandTableView.getColumns().add(new CommandLineNumberColumn());
         testCommandTableView.getColumns().add(new MainCommandColumn());
         testCommandTableView.getColumns().add(new HasScreenshotColumn());
         testCommandTableView.getColumns().add(new RawCommandColumn());
@@ -333,8 +336,9 @@ public class TestSetBatchWindow extends Stage {
         }
 
         testCaseTreeTableView = new TreeTableView<>(testRoot);
-        testCaseTreeTableView.setPrefWidth(150);
-        testCaseTreeTableView.setMinWidth(120);
+        testCaseTreeTableView.setPrefWidth(120);
+        testCaseTreeTableView.setMaxWidth(200);
+        testCaseTreeTableView.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         testCaseTreeTableView.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldValue, newValue) -> {
                     TestCaseTreeObject testCaseTreeObject = newValue.getValue();
@@ -343,6 +347,11 @@ public class TestSetBatchWindow extends Stage {
                         requestTableView.setItems(testCaseTreeObject.getTestCase().getTestRequests());
                         ObservableList<PageStateCompare> list = (ObservableList<PageStateCompare>) testCaseTreeObject.getTestCase().getPageCapturesCompares();
                         stateCompareTableView.setItems(list);
+                        if (list.size() > 0) {
+                            stateCompareElementTableView.setItems(list.get(0).getElementsList());
+                        } else {
+                            stateCompareElementTableView.setItems(null);
+                        }
 
                         testLogTextArea.clear();
                         testLogTextArea.setText(testCaseTreeObject.getTestCase().getLogMessages());

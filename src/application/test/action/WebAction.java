@@ -10,8 +10,6 @@ import application.test.action.helpers.*;
 import application.utils.AppParams;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.openqa.selenium.*;
 
 import javax.imageio.ImageIO;
@@ -25,7 +23,6 @@ import java.util.HashMap;
  */
 
 public abstract class WebAction implements Action {
-    private static Document currentDocument = null;
     private static Logger log = Logger.getLogger(WebAction.class);
     // This is used as a reference to match up action names used within the TestNodes to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
@@ -68,6 +65,7 @@ public abstract class WebAction implements Action {
     private VariableTracker variableTracker = null;
     private FunctionTracker functionTracker = null;
     private StateTracker stateTracker = null;
+    private DocumentTracker documentTracker = null;
 
     public WebAction() {
     }
@@ -90,7 +88,7 @@ public abstract class WebAction implements Action {
      * @param testCommand The full test command to process.
      * @param program     Reference to the program this test is a spawn of.
      */
-    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker, StateTracker stateTracker) {
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker, StateTracker stateTracker, DocumentTracker documentTracker) {
         this.program = program;
         this.httpProxyServer = webProxy;
         this.driver = driver;
@@ -101,6 +99,7 @@ public abstract class WebAction implements Action {
         this.stateTracker = stateTracker;
         this.loopTracker = loopTracker;
         this.variableTracker = variableTracker;
+        this.documentTracker = documentTracker;
     }
 
     public void takeScreenshotOfPage() {
@@ -161,37 +160,6 @@ public abstract class WebAction implements Action {
                 log.error(ex);
             }
         }
-    }
-
-    /**
-     * This methods converts the page source returned by Selenium and converts it into a JSoup Document.
-     * <p>
-     * The reason for this is the overhead that is incurred when interacting with Selenium.  A large amount of
-     * actions against Selenium can cause the WebDriver to run close and get overloaded.  Previously it was causing
-     * issues with the number of ports on the local machine.  Selenium uses local ports to connect to the WebDriver
-     * browser and requesting too much too fast exhausts the current ports that are available.
-     * <p>
-     * Using JSoup for all lookups and checking the page speeds up the code and drastically and reduces the amount of work
-     * we are doing in Selenium.
-     */
-    public void refreshCurrentDocument() {
-        String pageSource = getDriver().getPageSource();
-
-        // We check to see if the page source is null, if it is we return a default empty page as to not create null pointers
-        if (pageSource != null) {
-            currentDocument = Jsoup.parse(pageSource);
-        } else {
-            currentDocument = Jsoup.parse("<html></html>");
-        }
-    }
-
-    /**
-     * This exists for use by actions which extend this class.
-     *
-     * @return Gets {@link org.jsoup.nodes.Document} that holds the representation for this action.
-     */
-    public Document getCurrentDocument() {
-        return currentDocument;
     }
 
     /**
@@ -310,5 +278,9 @@ public abstract class WebAction implements Action {
 
     public VariableTracker getVariableTracker() {
         return variableTracker;
+    }
+
+    public DocumentTracker getDocumentTracker() {
+        return documentTracker;
     }
 }

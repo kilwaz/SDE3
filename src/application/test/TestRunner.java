@@ -146,7 +146,11 @@ public class TestRunner extends SDERunnable {
                 test.getTestCase().log("Number of commands in test " + commands.size());
             }
 
+            // Keeps easy reference to the current document
+            DocumentTracker documentTracker = new DocumentTracker(driver);
+
             test.setContinueTest(true);
+            Integer commandCounter = 0;
             while (test.getCurrentLine() < commands.size() && test.getContinueTest()) {
                 String command = commands.get(test.getCurrentLine()).trim(); // We need to trim this to remove spaces and tabs
 
@@ -161,7 +165,8 @@ public class TestRunner extends SDERunnable {
                     test.getTestCase().addTestCommand(testCommand);
                     httpProxyServer.addRequestListener(test.getTestCase());
                 }
-                testCommand.setCommandPosition(test.getCurrentLine());
+                testCommand.setCommandLineNumber(test.getCurrentLine());
+                testCommand.setCommandOrder(commandCounter);
 
                 // Here we are checking if an if statement is currently happening, if so we need to move to end if statement
                 if (ifTracker.isSkippingIf()) {  // Maybe move this so somewhere else?
@@ -192,7 +197,7 @@ public class TestRunner extends SDERunnable {
                         try {
                             Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
                             WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
-                            webAction.initialise(httpProxyServer, driver, testCommand, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker);
+                            webAction.initialise(httpProxyServer, driver, testCommand, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker, documentTracker);
                             webAction.performAction();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                             application.error.Error.TEST_NODE_ACTION.record().create(ex);
@@ -205,7 +210,7 @@ public class TestRunner extends SDERunnable {
                     }
                 }
                 testCommand.save();
-                //testCommand.lighten();
+                commandCounter++;
             }
 
             // Tidy up any resources if they are still in use

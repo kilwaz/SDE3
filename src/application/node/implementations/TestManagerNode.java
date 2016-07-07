@@ -174,9 +174,9 @@ public class TestManagerNode extends DrawableNode {
 
         UI.setAnchorMargins(vBox, 50.0, 0.0, 11.0, 0.0);
         UI.setAnchorMargins(testManagerTabPane, 50.0, 0.0, 0.0, 0.0);
-        UI.setAnchorMargins(testSetBatchTableView, 25.0, 0.0, 11.0, 0.0);
+        UI.setAnchorMargins(testSetBatchTableView, 0.0, 0.0, 0.0, 0.0);
         UI.setAnchorMargins(resultsAnchorPane, 10.0, 0.0, 11.0, 0.0);
-        UI.setAnchorMargins(linkedTestsTreeTableView, 25.0, 0.0, 11.0, 0.0);
+        UI.setAnchorMargins(linkedTestsTreeTableView, 0.0, 0.0, 0.0, 0.0);
         UI.setAnchorMargins(linkedTestAnchorPane, 10.0, 0.0, 11.0, 0.0);
 
         testSetBatchTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);

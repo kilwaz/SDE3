@@ -77,7 +77,7 @@ public class LoopWebAction extends WebAction {
                                 }
                                 //log.info("Found elements via loop of " + listElement);
                             } else {
-                                listElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
+                                listElement = SDEUtils.getElementFromXPath(xPath, getDocumentTracker().getCurrentDocument());
                             }
 
                             if (listElement != null) {
@@ -93,7 +93,7 @@ public class LoopWebAction extends WebAction {
                                 }
                             }
                         } else {
-                            elements = getCurrentDocument().getElementsByTag(listTag.getParameterValue());
+                            elements = getDocumentTracker().getCurrentDocument().getElementsByTag(listTag.getParameterValue());
                         }
                     }
 

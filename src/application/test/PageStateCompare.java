@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.stream.Collectors;
 
 public class PageStateCompare {
     private static Logger log = Logger.getLogger(PageStateCompare.class);
@@ -32,6 +31,20 @@ public class PageStateCompare {
         this.captureAfter = captureAfter;
         this.parentTestCase = parentTestCase;
         reference.set("Test Reference");
+    }
+
+    public StringProperty beforeStateNameProperty() {
+        if (captureBefore != null) {
+            return captureBefore.stateNameProperty();
+        }
+        return null;
+    }
+
+    public StringProperty afterStateNameProperty() {
+        if (captureAfter != null) {
+            return captureAfter.stateNameProperty();
+        }
+        return null;
     }
 
     public String getReference() {
@@ -116,12 +129,20 @@ public class PageStateCompare {
             changedElements = captureBefore.compare(captureAfter);
 
             // Matching up the changed and expected elements
+            // Add matched elements first
             for (ChangedElement changedElement : changedElements.getElements()) {
                 ExpectedElement expectedElement = expectedElements.getMatch(changedElement);
+                getElementsList().add(new CompareStateElementObject(expectedElement, changedElement));
             }
 
-            getElementsList().addAll(expectedElements.getElements().stream().map(CompareStateElementObject::new).collect(Collectors.toList()));
-            getElementsList().addAll(changedElements.getElements().stream().map(CompareStateElementObject::new).collect(Collectors.toList()));
+            // Unmatched elements are those left
+            for (ExpectedElement expectedElement : expectedElements.getElements()) {
+                if (!expectedElement.getMatched()) {
+                    CompareStateElementObject compareStateElementObject = new CompareStateElementObject(expectedElement, null);
+                    compareStateElementObject.setUnexpectedChange(true);
+                    getElementsList().add(compareStateElementObject);
+                }
+            }
         }
     }
 }

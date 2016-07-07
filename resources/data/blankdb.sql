@@ -134,7 +134,8 @@ create table test_command(
     test_id char(36),
     main_command VARCHAR(1000),
     raw_command VARCHAR(1000),
-    command_position INT,
+    command_line_number INT,
+    command_order INT,
     screenshot mediumblob,
     PRIMARY KEY (uuid));
 

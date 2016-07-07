@@ -6,7 +6,7 @@ import javafx.scene.control.TreeTableColumn;
 public class TestCaseNameColumn extends TreeTableColumn<TestCaseTreeObject, String> {
     public TestCaseNameColumn() {
         setText("Tests");
-        setPrefWidth(250);
+        setPrefWidth(130);
         setCellValueFactory((TreeTableColumn.CellDataFeatures<TestCaseTreeObject, String> p) -> new ReadOnlyStringWrapper(p.getValue().getValue().getName()));
     }
 }

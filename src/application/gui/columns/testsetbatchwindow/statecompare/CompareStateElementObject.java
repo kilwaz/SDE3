@@ -7,17 +7,18 @@ public class CompareStateElementObject {
     private ChangedElement changedElement;
     private ExpectedElement expectedElement;
 
-    public CompareStateElementObject(ChangedElement changedElement) {
-        this.changedElement = changedElement;
-    }
+    private Boolean unexpectedChange = false;
 
-    public CompareStateElementObject(ExpectedElement expectedElement) {
+    public CompareStateElementObject(ExpectedElement expectedElement, ChangedElement changedElement) {
+        this.changedElement = changedElement;
         this.expectedElement = expectedElement;
     }
 
     public String getAttributeName() {
         if (changedElement != null) {
             return changedElement.getAttributeName();
+        } else if (expectedElement != null) {
+            return expectedElement.getAttribute();
         } else {
             return null;
         }
@@ -26,6 +27,8 @@ public class CompareStateElementObject {
     public String getInitialRef() {
         if (changedElement != null) {
             return changedElement.getInitialRef();
+        } else if (expectedElement != null) {
+            return expectedElement.getElementReference();
         } else {
             return null;
         }
@@ -75,15 +78,25 @@ public class CompareStateElementObject {
         if (expectedElement != null) {
             return expectedElement.getMatched();
         } else {
-            return null;
+            return false;
         }
     }
 
     public String getChangeType() {
         if (expectedElement != null) {
             return expectedElement.getChangeType();
+        } else if (changedElement != null) {
+            return changedElement.getChangeType();
         } else {
             return null;
         }
+    }
+
+    public void setUnexpectedChange(Boolean unexpectedChange) {
+        this.unexpectedChange = unexpectedChange;
+    }
+
+    public Boolean isUnexpectedChange() {
+        return unexpectedChange;
     }
 }

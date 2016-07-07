@@ -68,14 +68,6 @@ public class Controller implements Initializable {
     @FXML
     private ListView<Program> programList;
     @FXML
-    private AnchorPane programAccordion;
-    @FXML
-    private AnchorPane leftAccordionAnchorPane;
-    @FXML
-    private AnchorPane lowerMainSplitPane;
-    @FXML
-    private AnchorPane rightContextAnchorPane;
-    @FXML
     private TitledPane programTitlePane;
     @FXML
     private Accordion leftAccordion;
@@ -596,12 +588,12 @@ public class Controller implements Initializable {
         return menuItem;
     }
 
-    public void selectTab(Tab tab) {
+    private void selectTab(Tab tab) {
         SingleSelectionModel<Tab> selectionModel = nodeTabPane.getSelectionModel();
         selectionModel.select(tab);
     }
 
-    public TextField createNodeNameField(DrawableNode drawableNode) {
+    private TextField createNodeNameField(DrawableNode drawableNode) {
         TextField nameField = new TextField();
         nameField.setId("fieldName-" + drawableNode.getUuidStringWithoutHyphen());
         nameField.setText(drawableNode.getContainedText());
@@ -628,7 +620,7 @@ public class Controller implements Initializable {
         return nameField;
     }
 
-    public TextField createNextNodeField(DrawableNode drawableNode) {
+    private TextField createNextNodeField(DrawableNode drawableNode) {
         TextField nameField = new TextField();
         nameField.setId("fieldNextNode-" + drawableNode.getUuidStringWithoutHyphen());
         nameField.setText(drawableNode.getNextNodeToRun());
@@ -647,19 +639,19 @@ public class Controller implements Initializable {
         return nameField;
     }
 
-    public Label createNodeNameLabel() {
+    private Label createNodeNameLabel() {
         Label nameFieldLabel = new Label();
         nameFieldLabel.setText("Name:");
         return nameFieldLabel;
     }
 
-    public Label createNextNodeLabel() {
+    private Label createNextNodeLabel() {
         Label nameFieldLabel = new Label();
         nameFieldLabel.setText("Next:");
         return nameFieldLabel;
     }
 
-    public Label createNodeInfoLabel(DrawableNode node) {
+    private Label createNodeInfoLabel(DrawableNode node) {
         Label nameFieldLabel = new Label();
 
         nameFieldLabel.setOnMouseClicked(event -> {

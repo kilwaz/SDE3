@@ -132,6 +132,7 @@ public class CompileCode {
                 "import application.test.action.helpers.*;" +
                 "import org.jsoup.Jsoup;" +
                 "import org.jsoup.nodes.*;" +
+                "import org.jsoup.select.*;" +
                 "import org.apache.log4j.Logger;" +
                 "@SuppressWarnings(\"unchecked\")" +
                 classAnnotations + "\r\n" +
@@ -202,6 +203,9 @@ public class CompileCode {
                 "import application.node.objects.*;" +
                 "import application.node.objects.datatable.*;" +
                 "import application.net.proxy.*;" +
+                "import org.jsoup.Jsoup;" +
+                "import org.jsoup.nodes.*;" +
+                "import org.jsoup.select.*;" +
                 "import application.test.action.helpers.*;" +
                 "import org.apache.log4j.Logger;" +
                 "@SuppressWarnings(\"unchecked\")" +

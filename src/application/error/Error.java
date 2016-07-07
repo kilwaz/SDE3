@@ -133,7 +133,8 @@ public enum Error {
     SELENIUM_INPUT_ACTION_NOT_FOUND(128, "InputAction is failing, selenium is not responding when finding the element"),
     LOAD_BUFFERED_IMAGE_FAILED(129, "Loading of buffered image for TestCommand failed"),
     SELENIUM_GRID_HUB_START_FAILED(130, "Selenium grid hub has failed to start"),
-    MISSING_RUN_PROGRAM_NAME(131, "Missing program name for run command");
+    MISSING_RUN_PROGRAM_NAME(131, "Missing program name for run command"),
+    STATE_COMPARE_ELEMENT_CELL_ERROR(132, "Issue building table cell");
 
     private Integer code;
     private String description;

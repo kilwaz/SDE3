@@ -28,7 +28,8 @@ public class TestCommand extends DatabaseObject {
     private SimpleStringProperty mainCommand = new SimpleStringProperty();
     private String rawCommand = "";
     private HashMap<String, TestParameter> parameters = new HashMap<>();
-    private Integer commandPosition = -1;
+    private Integer commandLineNumber = -1;
+    private Integer commandOrder = -1;
     private Test parentTest = null;
     private BufferedImage screenshot = null;
     private Boolean hasScreenshot = false;
@@ -160,12 +161,20 @@ public class TestCommand extends DatabaseObject {
         return inputStream;
     }
 
-    public Integer getCommandPosition() {
-        return this.commandPosition;
+    public Integer getCommandLineNumber() {
+        return this.commandLineNumber;
     }
 
-    public void setCommandPosition(Integer commandPosition) {
-        this.commandPosition = commandPosition;
+    public void setCommandLineNumber(Integer commandLineNumber) {
+        this.commandLineNumber = commandLineNumber;
+    }
+
+    public Integer getCommandOrder() {
+        return commandOrder;
+    }
+
+    public void setCommandOrder(Integer commandOrder) {
+        this.commandOrder = commandOrder;
     }
 
     public Test getParentTest() {

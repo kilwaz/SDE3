@@ -20,12 +20,12 @@ public class StateWebAction extends WebAction {
         TestParameter resultVar = getTestCommand().getParameterByName("var");
 
         if (saveStateName.exists()) {
-            PageStateCapture pageStateCapture = new PageStateCapture("default", saveStateName.getParameterValue());
+            PageStateCapture pageStateCapture = new PageStateCapture(getDocumentTracker().getIFrameTree(), saveStateName.getParameterValue());
             pageStateCapture.capturePage(getDriver());
             getStateTracker().setState(pageStateCapture);
             TestCase testCase = getRunningTest().getTestCase();
             if (testCase != null) {
-                testCase.storePageState(saveStateName.getParameterValue(), pageStateCapture);
+                testCase.storePageState(pageStateCapture);
             }
         } else if (compareStateName.exists() && withStateName.exists()) {
             PageStateCapture compareState = getStateTracker().getState(compareStateName.getParameterValue());

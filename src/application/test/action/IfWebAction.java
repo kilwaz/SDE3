@@ -50,7 +50,7 @@ public class IfWebAction extends WebAction {
         Element testElement = null;
         WebElement testWebElement = null;
         if (elementId.exists() || elementXPath.exists()) { // Get the element via id
-            testElement = SDEUtils.getElementFromXPath(xPath, getCurrentDocument());
+            testElement = SDEUtils.getElementFromXPath(xPath, getDocumentTracker().getCurrentDocument());
         } else if (loopElement.exists()) { // Get element via loop
             LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
             if (loopedWebElement != null) {

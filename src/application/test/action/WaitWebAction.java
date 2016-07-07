@@ -67,7 +67,7 @@ public class WaitWebAction extends WebAction {
                 Awaitility.await().atMost(Integer.parseInt(waitForRequests.getParameterValue()), TimeUnit.MILLISECONDS).until(getHttpProxyServer().getWebProxyRequestManager().haveAllRequestsFinished());
             }
 
-            refreshCurrentDocument();
+            getDocumentTracker().refreshCurrentDocument();
         } catch (org.openqa.selenium.TimeoutException ex) {
             getTestCommand().setException(ex);
             Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("10 second limit").create(ex);

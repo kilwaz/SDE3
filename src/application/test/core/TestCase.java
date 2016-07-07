@@ -238,9 +238,7 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
 
     private void compareTest() {
         // Trigger the test comparisons
-        log.info("Comparing test start");
         pageCapturesCompares.forEach(PageStateCompare::compareTest);
-        log.info("Comparing test end");
     }
 
     private void completeTest() {
@@ -311,8 +309,8 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
         return pageCaptures.get(stateName);
     }
 
-    public void storePageState(String stateName, PageStateCapture capture) {
-        pageCaptures.put(stateName, capture);
+    public void storePageState(PageStateCapture capture) {
+        pageCaptures.put(capture.getStateName(), capture);
     }
 
     @Override
@@ -325,7 +323,6 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     }
 
     public ObservableList<PageStateCompare> getPageCapturesCompares() {
-        log.info("Tried to get page capture list");
         return pageCapturesCompares;
     }
 }

@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 
 public class SeleniumHubManager {
-    private static final String SELENIUM_HUB_JAR = "selenium-server-standalone-2.53.0.jar";
+    private static final String SELENIUM_HUB_JAR = "selenium-server-standalone-2.53.1.jar";
     private static SeleniumHubManager instance = null;
     private static Logger log = Logger.getLogger(SeleniumHubManager.class);
     private Process hub = null;

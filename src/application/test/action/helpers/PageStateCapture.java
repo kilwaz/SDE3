@@ -3,6 +3,8 @@ package application.test.action.helpers;
 import application.error.Error;
 import application.test.ChangedElement;
 import application.test.ChangedElements;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
@@ -21,50 +23,19 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PageStateCapture {
-    private static final String generateHTMLjs = "return generateDOMHTML(document.getElementsByTagName(\"BODY\")[0]); " +
-            "function generateDOMHTML(element) {" +
-            "   var voidElements = [\"area\",\"base\",\"br\",\"col\",\"hr\",\"img\",\"input\",\"link\",\"meta\",\"param\"];" +
-            "   if(element.nodeType == Node.ELEMENT_NODE){" +
-            "       var html = \"<\" + element.tagName;" +
-            "       for (var i = 0; i < element.attributes.length; i++) {" +
-            "           var attrib = element.attributes[i];" +
-            "           if (attrib.specified) {" +
-            "               if(attrib.name in element){" +
-            "                   html += \" \" + attrib.name + \"=\\\"\" + eval(\"element.\" + attrib.name) + \"\\\"\";" +
-            "               } else {" +
-            "                   html += \" \" + attrib.name + \"=\\\"\" + attrib.value + \"\\\"\";" +
-            "               }" +
-            "           }" +
-            "       }" +
-            "       var isVoidElement = (voidElements.indexOf(element.tagName.toLowerCase()) > -1);" +
-            "       if(isVoidElement){" +
-            "           html += \"/>\";" +
-            "       } else {" +
-            "       html += \">\";" +
-            "       for(child in element.childNodes){" +
-            "           var el = element.childNodes[child];" +
-            "           html += generateDOMHTML(el);" +
-            "       }" +
-            "           html += \"</\" + element.tagName + \">\";" +
-            "       }" +
-            "       return html;" +
-            "   } else if(element.nodeType == Node.TEXT_NODE) {" +
-            "       return element.textContent;" +
-            "   }" +
-            "   return \"\";" +
-            "};";
+
     private static Logger log = Logger.getLogger(PageStateCapture.class);
-    private String elementFrame;
+    private List<String> elementFrameTree;
     private String rawSource;
     private HashMap<String, String> selectValues = new HashMap<>();
     private Document doc;
     private Elements allElements;
     private HashMap<String, Element> allElementsMap = new HashMap<>();
-    private String stateName = "";
+    private StringProperty stateName = new SimpleStringProperty();
 
-    public PageStateCapture(String elementFrame, String stateName) {
-        this.elementFrame = elementFrame;
-        this.stateName = stateName;
+    public PageStateCapture(List<String> elementFrameTree, String stateName) {
+        this.elementFrameTree = elementFrameTree;
+        this.stateName.set(stateName);
     }
 
     public HashMap<String, String> getSelectValues() {
@@ -80,14 +51,11 @@ public class PageStateCapture {
     }
 
     public void capturePage(WebDriver driver) {
-        if (!"default".equals(elementFrame)) {
-            WebDriverWait wait = new WebDriverWait(driver, 10);
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.id(elementFrame)));
-            driver.switchTo().frame(elementFrame);
-        }
+        driver.switchTo().defaultContent();
 
         JavascriptExecutor js = (JavascriptExecutor) driver;
-        rawSource = "<HTML>" + js.executeScript(generateHTMLjs) + "</HTML>";
+        //log.info("JS:   " + generateHTMLjsForIFrame());
+        rawSource = "<HTML>" + js.executeScript(generateHTMLjsForIFrame()) + "</HTML>";
 
         doc = Jsoup.parse(rawSource);
         allElements = doc.getAllElements();
@@ -96,7 +64,7 @@ public class PageStateCapture {
             if ("select".equals(tag.tagName())) {
                 String javascript = "";
                 try {
-                    javascript = "return document.getElementById('" + tag.attr("id") + "').options[document.getElementById('" + tag.attr("id") + "').selectedIndex].text";
+                    javascript = "return " + getIFrameLocatorDocument() + ".getElementById('" + tag.attr("id") + "').options[" + getIFrameLocatorDocument() + ".getElementById('" + tag.attr("id") + "').selectedIndex].text";
                     String selectResult = (String) js.executeScript(javascript);
                     selectValues.put(tag.attr("id"), selectResult);
                 } catch (WebDriverException ex) {
@@ -115,9 +83,83 @@ public class PageStateCapture {
             allElementsMap.put(mapString.toString(), element);
         }
 
-        if (!"default".equals(elementFrame)) {
+
+        if (elementFrameTree.size() > 0) {
             driver.switchTo().defaultContent();
+
+            for (String iFrameId : elementFrameTree) {
+                log.info("Switching to frame " + iFrameId);
+                WebDriverWait wait = new WebDriverWait(driver, 10);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.id(iFrameId)));
+                driver.switchTo().frame(iFrameId);
+            }
         }
+    }
+
+    private String getIFrameLocatorDocument() {
+        String locator = getIFrameLocator();
+        if (locator.isEmpty()) {
+            return "document";
+        } else {
+            return locator + ".contentWindow.document";
+        }
+    }
+
+    private String getIFrameLocator() {
+        String iFrameLocation = "";
+        Boolean firstFrame = true;
+        for (String iFrameID : elementFrameTree) {
+            if (firstFrame) {
+                iFrameLocation = "document.getElementById(\"" + iFrameID + "\")";
+                firstFrame = false;
+            } else {
+                iFrameLocation += ".contentWindow.document.getElementById(\"" + iFrameID + "\")";
+            }
+        }
+
+        return iFrameLocation;
+    }
+
+    private String generateHTMLjsForIFrame() {
+        String iFrameLocation = getIFrameLocator();
+        if (elementFrameTree.size() > 0) {
+            iFrameLocation += ".contentWindow.document.getElementsByTagName(\"BODY\")[0]";
+        } else {
+            iFrameLocation = "document.getElementsByTagName(\"BODY\")[0]";
+        }
+
+        return "return generateDOMHTML(" + iFrameLocation + "); " +
+                "function generateDOMHTML(element) {" +
+                "   var voidElements = [\"area\",\"base\",\"br\",\"col\",\"hr\",\"img\",\"input\",\"link\",\"meta\",\"param\"];" +
+                "   if(element.nodeType == Node.ELEMENT_NODE){" +
+                "       var html = \"<\" + element.tagName;" +
+                "       for (var i = 0; i < element.attributes.length; i++) {" +
+                "           var attrib = element.attributes[i];" +
+                "           if (attrib.specified) {" +
+                "               if(attrib.name in element){" +
+                "                   html += \" \" + attrib.name + \"=\\\"\" + eval(\"element.\" + attrib.name) + \"\\\"\";" +
+                "               } else {" +
+                "                   html += \" \" + attrib.name + \"=\\\"\" + attrib.value + \"\\\"\";" +
+                "               }" +
+                "           }" +
+                "       }" +
+                "       var isVoidElement = (voidElements.indexOf(element.tagName.toLowerCase()) > -1);" +
+                "       if(isVoidElement){" +
+                "           html += \"/>\";" +
+                "       } else {" +
+                "       html += \">\";" +
+                "       for(child in element.childNodes){" +
+                "           var el = element.childNodes[child];" +
+                "           html += generateDOMHTML(el);" +
+                "       }" +
+                "           html += \"</\" + element.tagName + \">\";" +
+                "       }" +
+                "       return html;" +
+                "   } else if(element.nodeType == Node.TEXT_NODE) {" +
+                "       return element.textContent;" +
+                "   }" +
+                "   return \"\";" +
+                "};";
     }
 
     public ChangedElements compare(PageStateCapture pageStateCapture) {
@@ -220,6 +262,10 @@ public class PageStateCapture {
     }
 
     public String getStateName() {
+        return stateName.get();
+    }
+
+    public StringProperty stateNameProperty() {
         return stateName;
     }
 
