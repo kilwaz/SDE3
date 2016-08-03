@@ -16,7 +16,6 @@ import org.joda.time.format.DateTimeFormatter;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.file.Path;
 
 public class LogManager {
     private static Logger log = Logger.getLogger(LogManager.class);

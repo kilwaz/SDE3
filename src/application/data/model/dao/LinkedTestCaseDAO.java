@@ -31,7 +31,7 @@ public class LinkedTestCaseDAO {
         return linkedTestCases;
     }
 
-    public List<LinkedTestCase> getChildLinkedTestCases(LinkedTestCase linkedTestCase){
+    public List<LinkedTestCase> getChildLinkedTestCases(LinkedTestCase linkedTestCase) {
         LinkedTestCaseDatabaseLink linkedTestCaseDatabaseLink = new LinkedTestCaseDatabaseLink();
         List<LinkedTestCase> linkedTestCases = new ArrayList<>();
 

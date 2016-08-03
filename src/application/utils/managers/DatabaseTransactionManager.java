@@ -86,7 +86,7 @@ public class DatabaseTransactionManager {
     public synchronized void finaliseTransactions() {
         try {
             if (inTransaction) {
-                if(DBConnectionManager.getInstance().getApplicationConnection() != null && DBConnectionManager.getInstance().getApplicationConnection().getConnection() != null){
+                if (DBConnectionManager.getInstance().getApplicationConnection() != null && DBConnectionManager.getInstance().getApplicationConnection().getConnection() != null) {
                     DBConnectionManager.getInstance().getApplicationConnection().getConnection().commit();
                     DBConnectionManager.getInstance().getApplicationConnection().getConnection().setAutoCommit(true);
                     pendingQueryList.clear();

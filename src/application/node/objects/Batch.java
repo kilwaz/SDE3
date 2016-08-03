@@ -1,6 +1,5 @@
 package application.node.objects;
 
-import application.data.DataBank;
 import application.node.implementations.BatchNode;
 
 public class Batch {

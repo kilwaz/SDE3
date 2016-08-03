@@ -11,7 +11,7 @@ public class Trigger extends DatabaseObject {
     private String then = "";
     private TriggerNode parentNode;
 
-    public Trigger(){
+    public Trigger() {
 
     }
 

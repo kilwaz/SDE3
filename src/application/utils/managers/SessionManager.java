@@ -32,7 +32,7 @@ public class SessionManager {
         return sessionManager;
     }
 
-    public void clearAllSessions(){
+    public void clearAllSessions() {
         sessions.clear();
     }
 }

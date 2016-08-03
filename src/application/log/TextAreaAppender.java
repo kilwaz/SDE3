@@ -1,6 +1,5 @@
 package application.log;
 
-import application.error.*;
 import application.error.Error;
 import application.gui.window.LogWindow;
 import application.utils.managers.LogManager;

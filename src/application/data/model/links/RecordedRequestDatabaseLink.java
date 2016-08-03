@@ -3,7 +3,6 @@ package application.data.model.links;
 import application.data.model.DatabaseLink;
 import application.net.proxy.RecordedRequest;
 
-import java.io.InputStream;
 import java.util.UUID;
 
 public class RecordedRequestDatabaseLink extends DatabaseLink {

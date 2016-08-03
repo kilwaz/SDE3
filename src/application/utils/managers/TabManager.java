@@ -7,9 +7,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class TabManager {
     private static TabManager instance;
     private TabDragAction currentlyDragging = null;

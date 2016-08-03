@@ -39,7 +39,7 @@ public class DataTableNode extends DrawableNode {
     private Button orderUpButton;
     private Button orderDownButton;
 
-    private VBox leftSection;
+    private VBox rightSection;
     private HBox detailsHBox;
 
     private String selectedValue = "";
@@ -258,7 +258,7 @@ public class DataTableNode extends DrawableNode {
 
             List<DataTableNodeRenameListItem> columnNames = findColumnNames(getDataTableRows());
 
-            leftSection = new VBox(5);
+            rightSection = new VBox(5);
             detailsHBox = new HBox(5);
 
             Label nameLabel = new Label("Name:");
@@ -294,7 +294,6 @@ public class DataTableNode extends DrawableNode {
             renameTextField.setId("");
             renameTextField.setDisable(true);
 
-
             orderUpButton = new Button();
             orderUpButton.setGraphic(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.ARROW_UP).build());
             orderUpButton.setOnAction(event -> orderChanged(true));
@@ -306,9 +305,9 @@ public class DataTableNode extends DrawableNode {
             detailsHBox.getChildren().add(nameLabel);
             detailsHBox.getChildren().add(renameTextField);
 
-            leftSection.getChildren().add(detailsHBox);
-            leftSection.getChildren().add(orderUpButton);
-            leftSection.getChildren().add(orderDownButton);
+            rightSection.getChildren().add(detailsHBox);
+            rightSection.getChildren().add(orderUpButton);
+            rightSection.getChildren().add(orderDownButton);
 
             columnListView = new ListView<>();
             columnListView.getItems().addAll(columnNames);
@@ -326,7 +325,7 @@ public class DataTableNode extends DrawableNode {
             UI.setAnchorMargins(hbox, 10.0, 10.0, 10.0, 10.0);
 
             hbox.getChildren().add(columnListView);
-            hbox.getChildren().add(leftSection);
+            hbox.getChildren().add(rightSection);
 
             renameColumnsAnchorPane.getChildren().add(hbox);
 
@@ -335,17 +334,21 @@ public class DataTableNode extends DrawableNode {
     }
 
     private void orderChanged(Boolean up) {
+        Integer newOrder = null;
         for (DataTableRow dataTableRow : getDataTableRows()) {
             if (selectedValue != null) {
                 DataTableValue dataTableValue = dataTableRow.getDataTableValuesCollection().get(selectedValue);
 
                 if (dataTableValue != null) {
-                    if (up) {
-                        dataTableValue.setOrder(dataTableValue.getOrder() - 1);
-                    } else {
-                        dataTableValue.setOrder(dataTableValue.getOrder() + 1);
+                    if (newOrder == null) {
+                        if (up) {
+                            newOrder = dataTableValue.getOrder() - 1;
+                        } else {
+                            newOrder = dataTableValue.getOrder() + 1;
+                        }
                     }
 
+                    dataTableValue.setOrder(newOrder);
                     dataTableValue.save();
                 }
 

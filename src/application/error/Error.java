@@ -134,7 +134,9 @@ public enum Error {
     LOAD_BUFFERED_IMAGE_FAILED(129, "Loading of buffered image for TestCommand failed"),
     SELENIUM_GRID_HUB_START_FAILED(130, "Selenium grid hub has failed to start"),
     MISSING_RUN_PROGRAM_NAME(131, "Missing program name for run command"),
-    STATE_COMPARE_ELEMENT_CELL_ERROR(132, "Issue building table cell");
+    STATE_COMPARE_ELEMENT_CELL_ERROR(132, "Issue building table cell"),
+    HTTP_PROXY_REQUEST_FAILED(133, "Request has failed to be processed"),
+    HTTP_PROXY_UNABLE_TO_PARSE_CONTENT_LENGTH(134, "Unable to parse content length of response");
 
     private Integer code;
     private String description;

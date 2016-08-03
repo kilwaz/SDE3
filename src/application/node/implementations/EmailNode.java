@@ -10,7 +10,6 @@ import application.utils.NodeRunParams;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -95,7 +94,7 @@ public class EmailNode extends DrawableNode {
                 for (Trigger trigger : triggers) {
                     NodeRunParams nodeRunParams = new NodeRunParams();
                     nodeRunParams.setOneTimeVariable("Hello");
-                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false,true, null, nodeRunParams);
+                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, true, null, nodeRunParams);
                 }
             }
         }

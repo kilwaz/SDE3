@@ -1,10 +1,7 @@
 package application.gui.columns.testnode;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.geometry.Pos;
-import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
-import javafx.util.Callback;
 
 public class NodeNameColumn extends TreeTableColumn<LinkedTestCaseTreeObject, String> {
     public NodeNameColumn() {

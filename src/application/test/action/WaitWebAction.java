@@ -1,6 +1,8 @@
 package application.test.action;
 
 import application.error.Error;
+import application.error.RecordedError;
+import application.net.proxy.WebProxyRequest;
 import application.test.TestParameter;
 import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
@@ -76,7 +78,11 @@ public class WaitWebAction extends WebAction {
             Error.WAIT_ACTION_INTERRUPT.record().create(ex);
         } catch (com.jayway.awaitility.core.ConditionTimeoutException ex) {
             getTestCommand().setException(ex);
-            Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("Wait for all requests timed out").create(ex);
+            RecordedError requestWaitError = Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("Wait for all requests timed out");
+            for (WebProxyRequest webProxyRequest : getHttpProxyServer().getWebProxyRequestManager().getActiveRequests().values()) {
+                requestWaitError.additionalInformation("Active request: " + webProxyRequest.getRequestURL());
+            }
+            requestWaitError.create(ex);
         }
     }
 }

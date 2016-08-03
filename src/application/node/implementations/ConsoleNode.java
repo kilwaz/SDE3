@@ -92,7 +92,7 @@ public class ConsoleNode extends DrawableNode {
                     for (Trigger trigger : triggers) {
                         NodeRunParams nodeRunParams = new NodeRunParams();
                         nodeRunParams.setOneTimeVariable(consoleToWrite);
-                        Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, true,null, nodeRunParams);
+                        Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, true, null, nodeRunParams);
                     }
 
                     consoleToWrite = "";

@@ -32,8 +32,10 @@ public class SelectWebAction extends WebAction {
             TestParameter idElement = getTestCommand().getParameterByPath("id");
             TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
             TestParameter loopElement = getTestCommand().getParameterByName("loop");
+            TestParameter loopedOptionElement = getTestCommand().getParameterByName("loopedOption");
             TestParameter selectText = getTestCommand().getParameterByName("select");
             TestParameter selectIndex = getTestCommand().getParameterByName("index");
+            String optionSelectedText = null;
 
             // We only wait for 10 seconds for page loads, sometimes the click hangs forever otherwise
             getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
@@ -57,23 +59,36 @@ public class SelectWebAction extends WebAction {
                 LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
                 if (loopedWebElement != null) {
                     loopedElement = loopedWebElement.getWebElement(getDriver());
+                    processElement(loopedElement);
+                    testElement = loopedElement;
                 }
-
-                processElement(loopedElement);
             }
 
             getDocumentTracker().refreshCurrentDocument();
+
+            if (loopedOptionElement.exists()) { // Loop through a list of options
+                Element loopedElement = null;
+                LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopedOptionElement.getParameterValue()).getCurrentLoopObject();
+                if (loopedWebElement != null) {
+                    loopedElement = loopedWebElement.getElement();
+                    optionSelectedText = loopedElement.text();
+                    processElement(loopedWebElement.getWebElement(getDriver()));
+                }
+            }
 
             if (testElement != null) {
                 if (selectIndex.exists()) {
                     Select select = new Select(testElement);
                     select.selectByIndex(Integer.parseInt(selectIndex.getParameterValue()));
-                } else if (selectText.exists()) {
+                } else if (selectText.exists() || optionSelectedText != null) {
+                    if (optionSelectedText == null) {
+                        optionSelectedText = selectText.getParameterValue();
+                    }
                     Boolean selectOptionExists = false;
                     Document document = getDocumentTracker().getCurrentDocument();
                     Elements options = document.select("select > option");
                     for (Element element : options) {
-                        if (element.text().equalsIgnoreCase(selectText.getParameterValue())) {
+                        if (element.text().equalsIgnoreCase(optionSelectedText)) {
                             selectOptionExists = true;
                             break;
                         }
@@ -82,12 +97,12 @@ public class SelectWebAction extends WebAction {
                     if (selectOptionExists) {
                         if (testElement.isDisplayed()) { // WebDriver seems to have issues selecting options when the select box is not visible
                             Select select = new Select(testElement);
-                            select.selectByVisibleText(selectText.getParameterValue());
+                            select.selectByVisibleText(optionSelectedText);
                         }
                     } else {
-                        log.info("No option exists for " + selectText.getParameterValue() + " to be selected");
+                        log.info("No option exists for " + optionSelectedText + " to be selected");
                         if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
-                            getRunningTest().getTestCase().log("No option exists for " + selectText.getParameterValue() + " to be selected");
+                            getRunningTest().getTestCase().log("No option exists for " + optionSelectedText + " to be selected");
                         }
                     }
                 }

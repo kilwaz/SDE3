@@ -8,7 +8,10 @@ import application.node.objects.Trigger;
 import application.utils.NodeRunParams;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -140,7 +143,7 @@ public class CopyNode extends DrawableNode {
                 List<Trigger> triggers = getProgram().getFlowController().getActiveTriggers(getContainedText(), "Copy complete");
                 for (Trigger trigger : triggers) {
                     NodeRunParams nodeRunParams = new NodeRunParams();
-                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false,true, null, nodeRunParams);
+                    Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, true, null, nodeRunParams);
                 }
             }
         }

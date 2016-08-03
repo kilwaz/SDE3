@@ -1,7 +1,6 @@
 package application.data;
 
 import application.utils.AppParams;
-import application.utils.SDEUtils;
 import application.utils.managers.DatabaseTransactionManager;
 import org.apache.log4j.Logger;
 

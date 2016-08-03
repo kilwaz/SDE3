@@ -88,6 +88,8 @@ public class Controller implements Initializable {
     @FXML
     private MenuItem menuBarMenuItemClearRequestData;
     @FXML
+    private MenuItem menuBarMenuItemOpenManualProxy;
+    @FXML
     private MenuItem menuBarMenuItemExportNodeColours;
     @FXML
     private SplitPane splitPanePageCentral;
@@ -540,6 +542,7 @@ public class Controller implements Initializable {
         menuBarMenuItemExportNodeColours.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE_COLOURS));
         menuBarMenuItemImport.setOnAction(event -> new ImportWindow());
         menuBarMenuItemError.setOnAction(event -> new ErrorWindow());
+        menuBarMenuItemOpenManualProxy.setOnAction(event -> new ManualProxyWindow());
         menuBarMenuItemClearRequestData.setOnAction(event -> {
             RecordedHeaderDAO recordedHeaderDAO = new RecordedHeaderDAO();
             RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();

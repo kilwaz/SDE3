@@ -1,7 +1,6 @@
 package application.data.model.dao;
 
 import application.data.UpdateQuery;
-import application.data.UpdateResult;
 
 
 public class RecordedProxyDAO {

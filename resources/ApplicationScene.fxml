@@ -80,6 +80,13 @@
                                 </MenuItem>
                             </items>
                         </Menu>
+                        <Menu mnemonicParsing="false" text="Proxy">
+                            <items>
+                                <MenuItem fx:id="menuBarMenuItemOpenManualProxy" mnemonicParsing="false"
+                                          text="Open Manual Proxy...">
+                                </MenuItem>
+                            </items>
+                        </Menu>
                     </menus>
                 </MenuBar>
                 <ToolBar fx:id="toolBar"/>

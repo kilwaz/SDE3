@@ -1,6 +1,5 @@
 package application.utils;
 
-import application.error.*;
 import application.error.Error;
 import org.apache.log4j.Logger;
 

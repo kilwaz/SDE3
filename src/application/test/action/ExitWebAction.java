@@ -1,8 +1,6 @@
 package application.test.action;
 
-import application.error.Error;
 import org.apache.log4j.Logger;
-import org.openqa.selenium.WebDriverException;
 
 /**
  * This action closes down the browser, web driver and associated proxy used as this test.

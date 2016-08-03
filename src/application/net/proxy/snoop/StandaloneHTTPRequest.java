@@ -6,7 +6,10 @@ import application.net.proxy.WebProxyRequestManager;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,6 +44,7 @@ public class StandaloneHTTPRequest {
     private static final String notFoundResponse = "HTTP/1.0 404 Not Found";
     private static final String internalErrorResponse = "HTTP/1.0 500 Internal Server Error";
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
+    private static Integer maximumRetryCount = 2;
     private String method = "GET";
     private String destinationUrl = "";
     private String redirectUrl = "";
@@ -52,7 +56,6 @@ public class StandaloneHTTPRequest {
     private Boolean hasCompleted = false;
     private WebProxyRequestManager webProxyRequestManager;
     private Integer currentRetryCount = 0;
-    private Integer maximumRetryCount = 2;
 
     /**
      * Set the URL of the request.  Any redirects will be applied here
@@ -155,11 +158,9 @@ public class StandaloneHTTPRequest {
             webProxyRequestManager.addNewActiveRequest(webProxyRequest.hashCode(), webProxyRequest);
 
             //Create connection
+            //URL url = new URL(URIUtil.encodePath(destinationUrl));
             URL url = new URL(destinationUrl);
-//            System.setProperty("http.proxyHost", "127.0.0.1");
-//            System.setProperty("http.proxyPort", "8080");
-
-            connection = new ProxyConnectionWrapper(url, https);
+            connection = new ProxyConnectionWrapper(url, https, ProxyConnectionWrapper.HTTP_CLIENT_APACHE);
             connection.setRequestMethod(method);
             if ("POST".equals(method) || "PUT".equals(method)) {
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -184,6 +185,7 @@ public class StandaloneHTTPRequest {
 //            }
 
             // Sets the parameters for the outgoing request
+            // THIS IS REPLICATED IN PROXYCONNETIONWRAPPER.java
             String urlParameters = "";
             for (String parameter : requestParameters.keySet()) {
                 if (urlParameters.equals("")) {
@@ -207,12 +209,7 @@ public class StandaloneHTTPRequest {
 //                }
 //            }
 
-            // Write request body, only if we are doing post or put
-            if ("POST".equals(method) || "PUT".equals(method)) {
-                DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-                wr.writeBytes(urlParameters);
-                wr.close();
-            }
+            connection.setRequestParameters(requestParameters);
 
             // This starts the response timer
             webProxyRequest.instantStartProxyToServer();
@@ -284,7 +281,8 @@ public class StandaloneHTTPRequest {
                 Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
             } catch (IOException ex) { // 500
                 response = ByteBuffer.wrap(internalErrorResponse.getBytes());
-                Error.PROXY_INTERNAL_SERVER_ERROR.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
+                //Error.PROXY_INTERNAL_SERVER_ERROR.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
+                Error.PROXY_INTERNAL_SERVER_ERROR.record().additionalInformation("URL: " + url).create(ex);
             }
 
             webProxyRequest.instantCompleteServerToProxy();

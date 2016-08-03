@@ -9,6 +9,7 @@ import application.gui.columns.testsetbatchwindow.commandview.*;
 import application.gui.columns.testsetbatchwindow.statecompare.*;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseNameColumn;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseTreeObject;
+import application.gui.columns.testsetbatchwindow.treeview.TestOverviewColumn;
 import application.net.proxy.RecordedRequest;
 import application.test.PageStateCompare;
 import application.test.TestCommand;
@@ -337,7 +338,7 @@ public class TestSetBatchWindow extends Stage {
 
         testCaseTreeTableView = new TreeTableView<>(testRoot);
         testCaseTreeTableView.setPrefWidth(120);
-        testCaseTreeTableView.setMaxWidth(200);
+        testCaseTreeTableView.setMaxWidth(300);
         testCaseTreeTableView.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         testCaseTreeTableView.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldValue, newValue) -> {
@@ -364,5 +365,6 @@ public class TestSetBatchWindow extends Stage {
                     }
                 });
         testCaseTreeTableView.getColumns().add(new TestCaseNameColumn());
+        testCaseTreeTableView.getColumns().add(new TestOverviewColumn());
     }
 }

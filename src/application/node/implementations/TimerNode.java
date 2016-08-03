@@ -554,7 +554,7 @@ public class TimerNode extends DrawableNode {
 
             simpleScheduleBuilder.repeatForever();
             triggerBuilder.endAt(endDate.toDate());
-        } else if("Forever".equals(repetition)){
+        } else if ("Forever".equals(repetition)) {
             simpleScheduleBuilder.repeatForever();
         }
 

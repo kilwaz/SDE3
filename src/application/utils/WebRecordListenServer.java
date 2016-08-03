@@ -1,6 +1,5 @@
 package application.utils;
 
-import application.error.*;
 import application.error.Error;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

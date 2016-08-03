@@ -128,6 +128,10 @@ public class WebProxyRequestManager {
         };
     }
 
+    public ConcurrentHashMap<Integer, WebProxyRequest> getActiveRequests() {
+        return activeRequests;
+    }
+
     public RecordedProxy getRecordedProxy() {
         return recordedProxy;
     }

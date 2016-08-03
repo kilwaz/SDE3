@@ -14,6 +14,7 @@ import application.test.TestLogMessage;
 import application.test.TestRunner;
 import application.test.action.helpers.PageStateCapture;
 import application.utils.SDEThread;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
@@ -44,8 +45,18 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     private ObservableList<TestCommand> testCommands = FXCollections.observableArrayList();
     private ObservableList<RecordedRequest> testRequests = FXCollections.observableArrayList();
     private List<TestLogMessage> logMessages = new ArrayList<>();
+    private SimpleIntegerProperty passedTestCases = new SimpleIntegerProperty();
 
     public TestCase() {
+        passedTestCases.set(0);
+    }
+
+    public int getPassedTestCases() {
+        return passedTestCases.get();
+    }
+
+    public SimpleIntegerProperty passedTestCasesProperty() {
+        return passedTestCases;
     }
 
     public TestCase(Class<TemplateCase> testClass) {

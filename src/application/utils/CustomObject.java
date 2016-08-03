@@ -4,14 +4,13 @@ import application.data.model.DatabaseObject;
 import application.node.implementations.CustomObjectNode;
 
 import java.io.InputStream;
-import java.util.UUID;
 
 public class CustomObject extends DatabaseObject {
     private CustomObjectNode parentNode = null;
     private Object payload = "";
     private String payLoadReference = "";
 
-    public CustomObject(){
+    public CustomObject() {
         super();
     }
 

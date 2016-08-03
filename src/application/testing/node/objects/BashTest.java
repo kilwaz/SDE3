@@ -1,6 +1,5 @@
 package application.testing.node.objects;
 
-import application.data.DataBank;
 import application.gui.Program;
 import application.node.implementations.BashNode;
 import application.node.objects.Bash;

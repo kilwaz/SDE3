@@ -1,6 +1,5 @@
 package application.gui.window;
 
-import application.error.*;
 import application.error.Error;
 import application.node.implementations.TestNode;
 import javafx.scene.Scene;

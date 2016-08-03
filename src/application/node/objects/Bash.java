@@ -1,9 +1,8 @@
 package application.node.objects;
 
-import application.data.DataBank;
+import application.error.Error;
 import application.node.implementations.BashNode;
 import org.apache.log4j.Logger;
-import application.error.Error;
 
 /**
  * This class handles the script used within {@link application.node.implementations.BashNode}.
