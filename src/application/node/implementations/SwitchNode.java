@@ -31,6 +31,8 @@ public class SwitchNode extends DrawableNode {
     private List<Switch> aSwitches = null;
     private HashMap<Switch, HBox> switchUI = new HashMap<>();
     private VBox switchRows;
+    private ContextMenu programListContextMenu;
+
 
     // This will make a copy of the node passed to it
     public SwitchNode(SwitchNode switchNode) {
@@ -130,6 +132,41 @@ public class SwitchNode extends DrawableNode {
 
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
+
+        // Hide the context menu if it is showing
+        anchorPane.setOnMouseClicked(event -> {
+            if (programListContextMenu != null) {
+                programListContextMenu.hide();
+            }
+        });
+
+        // Construct the context menu
+        anchorPane.setOnContextMenuRequested(event -> {
+            if (programListContextMenu != null) {
+                programListContextMenu.hide();
+            }
+
+            MenuItem menuItemEnableAll = new MenuItem("Enabled all");
+            menuItemEnableAll.setOnAction(event1 -> {
+                for (Switch aSwitch : aSwitches) {
+                    aSwitch.setEnabled(true);
+                    aSwitch.save();
+                }
+            });
+
+            MenuItem menuItemDisableAll = new MenuItem("Disable all");
+            menuItemDisableAll.setOnAction(event1 -> {
+                for (Switch aSwitch : aSwitches) {
+                    aSwitch.setEnabled(false);
+                    aSwitch.save();
+                }
+            });
+
+            programListContextMenu = new ContextMenu();
+            programListContextMenu.getItems().add(menuItemEnableAll);
+            programListContextMenu.getItems().add(menuItemDisableAll);
+            programListContextMenu.show(anchorPane, event.getScreenX(), event.getScreenY());
+        });
 
         switchRows = new VBox(5);
         VBox rows = new VBox(5);

@@ -2,6 +2,7 @@ package application.data.model.links;
 
 import application.data.model.DatabaseLink;
 import application.net.proxy.RecordedRequest;
+import application.test.core.TestCase;
 
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ public class RecordedRequestDatabaseLink extends DatabaseLink {
         link("response_size", method("getResponseSize"), method("setResponseSize", Integer.class)); // 6
         linkBlob("request_content", method("getRequestInputStream"), null); // 7
         linkBlob("response_content", method("getResponseInputStream"), null); // 8
+        link("test_case_parent_id", method("getParentTestCaseUuid"), method("setParentTestCase", TestCase.class)); // 9
 
 //        link("request_content", method("getRequest"), null); // 7 - lazy load, only found if needed
 //        link("response_content", method("getResponse"), null); // 8 - lazy load, only found if needed

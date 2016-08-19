@@ -307,6 +307,8 @@ public class TestManagerNode extends DrawableNode {
         String uniqueReference = this.toString() + "-" + UUID.randomUUID().toString();
 
         addTestSetBatchResult(testSetBatch);
+        testSetBatch.setParentNode(this);
+        testSetBatch.save();
 
         NodeRunParams nodeRunParams1 = new NodeRunParams();
         nodeRunParams1.setOneTimeVariable(testSetBatch);

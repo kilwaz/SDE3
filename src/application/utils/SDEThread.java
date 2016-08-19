@@ -13,7 +13,7 @@ public class SDEThread {
     private String description = "";
     private String threadReference = null;
 
-    public SDEThread(Runnable runnable, String description, String threadReference, Boolean doNotStart) {
+    public SDEThread(Runnable runnable, String description, String threadReference, Boolean startNow) {
         threadCounter++;
         this.id = threadCounter;
         this.description = description;
@@ -21,7 +21,7 @@ public class SDEThread {
         this.threadReference = threadReference;
 
         thread = new Thread(runnable);
-        if (doNotStart) {
+        if (startNow) {
             start();
         }
     }

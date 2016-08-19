@@ -69,9 +69,11 @@ public class SelectWebAction extends WebAction {
             if (loopedOptionElement.exists()) { // Loop through a list of options
                 Element loopedElement = null;
                 LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopedOptionElement.getParameterValue()).getCurrentLoopObject();
+                log.info("loop element is " + loopedWebElement);
                 if (loopedWebElement != null) {
                     loopedElement = loopedWebElement.getElement();
                     optionSelectedText = loopedElement.text();
+                    log.info("Selecting text " + optionSelectedText);
                     processElement(loopedWebElement.getWebElement(getDriver()));
                 }
             }

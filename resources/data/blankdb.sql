@@ -10,7 +10,6 @@ drop table if exists recorded_requests;
 drop table if exists http_proxies;
 drop table if exists serialized;
 drop table if exists switch;
-drop table if exists test_step;
 drop table if exists test_result;
 drop table if exists trigger_condition;
 drop table if exists user;
@@ -20,6 +19,9 @@ drop table if exists schema_version;
 drop table if exists test;
 drop table if exists test_command;
 drop table if exists linked_test_cases;
+drop table if exists test_case;
+drop table if exists test_set;
+drop table if exists test_set_batch;
 
 create table node(
     uuid char(36) NOT NULL,
@@ -76,6 +78,7 @@ create table recorded_requests(
     response_size INT,
     request_content MEDIUMTEXT,
     response_content MEDIUMTEXT,
+    test_case_parent_id char(36),
     PRIMARY KEY (uuid));
 
 create table serialized(
@@ -137,6 +140,7 @@ create table test_command(
     command_line_number INT,
     command_order INT,
     screenshot mediumblob,
+    test_case_parent_id char(36),
     PRIMARY KEY (uuid));
 
 create table linked_test_cases(
@@ -146,4 +150,24 @@ create table linked_test_cases(
     linked_test_case_parent_id char(36),
     enabled tinyint,
     type VARCHAR(100),
+    PRIMARY KEY (uuid));
+
+create table test_case (
+    uuid char(36) NOT NULL,
+    test_iteration_id VARCHAR(1000),
+
+    test_set_parent_id char(36),
+    PRIMARY KEY (uuid));
+
+create table test_set (
+    uuid char(36) NOT NULL,
+    test_id VARCHAR(1000),
+    test_description VARCHAR(1000),
+    test_set_batch_parent_id char(36),
+    PRIMARY KEY (uuid));
+
+create table test_set_batch (
+    uuid char(36) NOT NULL,
+    node_id char(36),
+    created_time DATE,
     PRIMARY KEY (uuid));

@@ -3,6 +3,7 @@ package application.data.model.dao;
 import application.data.SelectQuery;
 import application.data.SelectResult;
 import application.data.SelectResultRow;
+import application.data.UpdateQuery;
 import application.error.Error;
 import application.test.TestCommand;
 import org.apache.log4j.Logger;
@@ -37,5 +38,9 @@ public class TestCommandDAO {
         }
 
         return imBuff;
+    }
+
+    public void deleteAllTestCommands() {
+        new UpdateQuery("delete from test_command").execute();
     }
 }

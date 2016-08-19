@@ -1,5 +1,6 @@
 package application.test.core;
 
+import application.data.model.DatabaseObject;
 import application.node.design.DrawableNode;
 import application.node.objects.Input;
 import application.test.annotation.*;
@@ -11,21 +12,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TestSet<Template extends TestTemplate> {
+public class TestSet<Template extends TestTemplate> extends DatabaseObject {
     private static Logger log = Logger.getLogger(TestSet.class);
 
     private DrawableNode parentNode = null;
-    private String testID = "";
-    private String testDescription = "";
+    private String testID;
+    private String testDescription;
     private Class templateTestClass;
     private TestTemplate templateObject;
     private List<TestCase> testCases = new ArrayList<>();
     private List<Input> additionalInputs = new ArrayList<>();
     private TestSetBatch testSetBatch;
 
-    public TestSet(TestTemplate templateObject) {
+    public TestSet() {
+        super();
+    }
+
+    public void setTemplateObject(TestTemplate templateObject) {
         this.templateObject = templateObject;
         templateTestClass = templateObject.getClass();
+        // Calculate these values
+        getTestID();
+        getTestDescription();
     }
 
     public TestSet additionalInput(Input input) {
@@ -134,11 +142,42 @@ public class TestSet<Template extends TestTemplate> {
     }
 
     public String getTestID() {
+        if (testID == null) {
+            if (templateTestClass.isAnnotationPresent(TestID.class)) {
+                Annotation annotation = templateTestClass.getAnnotation(TestID.class);
+                TestID testIDAnnotation = ((TestID) annotation);
+                testID = testIDAnnotation.val();
+            }
+        }
+
         return testID;
     }
 
+    public void setTestID(String testID) {
+        this.testID = testID;
+    }
+
+    public String getParentTestSetBatchUuid() {
+        if (testSetBatch != null) {
+            return testSetBatch.getUuidString();
+        }
+        return null;
+    }
+
     public String getTestDescription() {
+        if (testDescription == null) {
+            if (templateTestClass.isAnnotationPresent(TestDescription.class)) {
+                Annotation annotation = templateTestClass.getAnnotation(TestDescription.class);
+                TestDescription testDescriptionAnnotation = ((TestDescription) annotation);
+                testDescription = testDescriptionAnnotation.val();
+            }
+        }
+
         return testDescription;
+    }
+
+    public void setTestDescription(String testDescription) {
+        this.testDescription = testDescription;
     }
 
     private Input getTestDescriptionInput() {
@@ -166,7 +205,6 @@ public class TestSet<Template extends TestTemplate> {
             testIDInput.setVariableName(testIDAnnotation.name());
             testIDInput.setVariableValue(testIDAnnotation.val());
         } else if (testID != null) { // This can be set via nodeRunParams or if it is already set elsewhere
-            log.info("TEST ID already set = " + testID);
             testIDInput = Input.create(Input.class);
             testIDInput.setVariableName("[[testID]]");
             testIDInput.setVariableValue(testID);

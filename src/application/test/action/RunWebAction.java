@@ -2,6 +2,7 @@ package application.test.action;
 
 import application.gui.Program;
 import application.test.TestParameter;
+import application.test.action.helpers.LoopedWebElement;
 import application.test.action.helpers.Variable;
 import application.utils.NodeRunParams;
 
@@ -34,6 +35,14 @@ public class RunWebAction extends WebAction {
                     Variable variable = getVariableTracker().getVariable(childVariable.getParameterValue());
                     if (variable != null) {
                         nodeRunParams.addVariable(parameters, variable.getVariableValue());
+                    }
+                } else if ("loop".equals(testParameter.getParameterName())) {
+                    TestParameter loopElement = getParameterByName("loop");
+                    if (loopElement.exists()) {
+                        LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
+                        if (loopedWebElement != null) {
+                            nodeRunParams.addVariable(parameters, loopedWebElement.getWebElement(getDriver()));
+                        }
                     }
                 } else { // Otherwise just do whatever was passed in with names and straight string values
                     nodeRunParams.addVariable(parameters, testParameter.getParameterValue());

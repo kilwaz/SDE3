@@ -1,5 +1,7 @@
 package application.test.core;
 
+import application.data.model.DatabaseObject;
+import application.node.implementations.TestManagerNode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -11,17 +13,35 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestSetBatch {
+public class TestSetBatch extends DatabaseObject {
     private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("kk:mm:ss dd MMM yyyy");
     private List<TestSet> testSets = new ArrayList<>();
     private ObservableList<TestCase> testCases = FXCollections.observableArrayList();
-    private DateTime created;
+    private DateTime createdTime;
     private SimpleIntegerProperty caseCount;
+    private TestManagerNode parentNode;
 
     public TestSetBatch() {
-        created = new DateTime();
+        super();
+
+        createdTime = new DateTime();
         caseCount = new SimpleIntegerProperty();
         caseCount.bind(Bindings.size(testCases));
+    }
+
+    public TestManagerNode getParentNode() {
+        return parentNode;
+    }
+
+    public void setParentNode(TestManagerNode parentNode) {
+        this.parentNode = parentNode;
+    }
+
+    public String getParentUuid() {
+        if (parentNode != null) {
+            return parentNode.getUuidString();
+        }
+        return null;
     }
 
     public void addTestSet(TestSet testSet) {
@@ -37,11 +57,19 @@ public class TestSetBatch {
     }
 
     public DateTime getCreatedTime() {
-        return created;
+        return createdTime;
+    }
+
+    public void setCreatedTime(DateTime createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public void setParent(TestManagerNode parentNode) {
+        this.parentNode = parentNode;
     }
 
     public String getFormattedTime() {
-        return dateFormatter.print(created);
+        return dateFormatter.print(createdTime);
     }
 
     public int getCaseCount() {

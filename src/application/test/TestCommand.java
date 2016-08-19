@@ -4,6 +4,7 @@ import application.data.model.DatabaseObject;
 import application.data.model.dao.TestCommandDAO;
 import application.error.Error;
 import application.node.objects.Test;
+import application.test.core.TestCase;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,6 +36,7 @@ public class TestCommand extends DatabaseObject {
     private Boolean hasScreenshot = false;
     private DateTime commandDate = null;
     private TestCommandError testCommandError = new TestCommandError();
+    private TestCase parentTestCase;
 
     public TestCommand() {
         super();
@@ -96,6 +98,17 @@ public class TestCommand extends DatabaseObject {
 
     public TestCommandError getTestCommandError() {
         return testCommandError;
+    }
+
+    public void setParentTestCase(TestCase parentTestCase) {
+        this.parentTestCase = parentTestCase;
+    }
+
+    public String getParentTestCaseUuid() {
+        if (parentTestCase != null) {
+            return parentTestCase.getUuidString();
+        }
+        return null;
     }
 
     public DateTime getCommandDate() {

@@ -93,7 +93,8 @@ public class TestCaseNode extends DrawableNode {
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         TestTemplate testTemplate = (TestTemplate) this.getLogic().getObjectInstance();
-        TestSet testSet = new TestSet(testTemplate);
+        TestSet testSet = new TestSet();
+        testSet.setTemplateObject(testTemplate);
 
         if (nodeRunParams.getOneTimeVariable() instanceof TestSetBatch) {
             TestSetBatch testSetBatch = (TestSetBatch) nodeRunParams.getOneTimeVariable();
@@ -112,6 +113,7 @@ public class TestCaseNode extends DrawableNode {
         }
 
         testSet.setParentNode(this);
+        testSet.save();
         testSet.init();
     }
 }

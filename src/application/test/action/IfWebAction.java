@@ -16,6 +16,9 @@ import org.openqa.selenium.WebElement;
 public class IfWebAction extends WebAction {
     private static Logger log = Logger.getLogger(IfWebAction.class);
 
+    private TestParameter startElement;
+    private TestParameter not;
+
     public IfWebAction() {
     }
 
@@ -24,7 +27,7 @@ public class IfWebAction extends WebAction {
      */
     public void performAction() {
         // Element References
-        TestParameter startElement = getTestCommand().getParameterByName("start");
+        startElement = getTestCommand().getParameterByName("start");
         TestParameter loopElement = getTestCommand().getParameterByPath("loop");
         TestParameter elementId = getTestCommand().getParameterByPath("id");
         TestParameter elementXPath = getTestCommand().getParameterByPath("xPath");
@@ -37,6 +40,7 @@ public class IfWebAction extends WebAction {
         TestParameter equals = getTestCommand().getParameterByPath("equals");
         TestParameter contains = getTestCommand().getParameterByPath("contains");
         TestParameter exists = getTestCommand().getParameterByPath("exists");
+        not = getTestCommand().getParameterByPath("not");
         TestParameter elementExists = getTestCommand().getParameterByPath("elementExists");
         TestParameter elementVisible = getTestCommand().getParameterByPath("elementVisible");
 
@@ -81,26 +85,23 @@ public class IfWebAction extends WebAction {
             if (equals.exists() && !"".equals(valueToCheck)) {
                 //log.info("Comparing equals " + valueToCheck + " vs " + equals.getParameterValue());
                 if (valueToCheck.equals(equals.getParameterValue())) { // TRUE
-
+                    skipIfStatement(false);
                 } else {  // FALSE
                     // As it was false we now need to skip all statements until the end
-                    getIfTracker().setIsSkippingIf(true);
-                    getIfTracker().setIfReference(startElement.getParameterValue());
+                    skipIfStatement(true);
                 }
             }
 
             if (contains.exists()) {
                 if ("".equals(valueToCheck)) { // FALSE
                     // If no element was found (so valueToCheck is "") then it does not contain our text, return false
-                    getIfTracker().setIsSkippingIf(true);
-                    getIfTracker().setIfReference(startElement.getParameterValue());
+                    skipIfStatement(true);
                 } else {
                     if (valueToCheck.contains(contains.getParameterValue())) { // TRUE
-
+                        skipIfStatement(false);
                     } else {  // FALSE
                         // As it was false we now need to skip all statements until the end
-                        getIfTracker().setIsSkippingIf(true);
-                        getIfTracker().setIfReference(startElement.getParameterValue());
+                        skipIfStatement(true);
                     }
                 }
             }
@@ -108,13 +109,11 @@ public class IfWebAction extends WebAction {
             if (exists.exists()) { // Test to see if a specific parameter exists
                 if (!"".equals(valueToCheck)) {  // TRUE
                     if (exists.getParameterValue().equals("false")) {
-                        getIfTracker().setIsSkippingIf(true);
-                        getIfTracker().setIfReference(startElement.getParameterValue());
+                        skipIfStatement(true);
                     }
                 } else {  // FALSE
                     if (exists.getParameterValue().equals("true")) {
-                        getIfTracker().setIsSkippingIf(true);
-                        getIfTracker().setIfReference(startElement.getParameterValue());
+                        skipIfStatement(true);
                     }
                 }
             }
@@ -122,13 +121,11 @@ public class IfWebAction extends WebAction {
             if (elementExists.exists()) { // Test to see if the element exists
                 if (testElement != null) {  // TRUE
                     if (elementExists.getParameterValue().equals("false")) {
-                        getIfTracker().setIsSkippingIf(true);
-                        getIfTracker().setIfReference(startElement.getParameterValue());
+                        skipIfStatement(true);
                     }
                 } else {  // FALSE
                     if (elementExists.getParameterValue().equals("true")) {
-                        getIfTracker().setIsSkippingIf(true);
-                        getIfTracker().setIfReference(startElement.getParameterValue());
+                        skipIfStatement(true);
                     }
                 }
             }
@@ -136,14 +133,29 @@ public class IfWebAction extends WebAction {
             if (elementVisible.exists()) { // Test to see if the element is currently visible
                 if (testElement != null && testWebElement != null && testWebElement.isDisplayed()) {  // TRUE
                     if (elementVisible.getParameterValue().equals("false")) {
-                        getIfTracker().setIsSkippingIf(true);
-                        getIfTracker().setIfReference(startElement.getParameterValue());
+                        skipIfStatement(true);
+                    } else {
+                        skipIfStatement(false);
                     }
                 } else {  // FALSE
-                    getIfTracker().setIsSkippingIf(true);
-                    getIfTracker().setIfReference(startElement.getParameterValue());
+                    skipIfStatement(true);
                 }
             }
         }
+    }
+
+    // Decide if we skip this if statement depending on not modifier
+    private void skipIfStatement(Boolean skip) {
+        if ((!isNot() && skip) || (isNot() && !skip)) {
+            if (startElement != null && startElement.exists()) {
+                getIfTracker().setIsSkippingIf(true);
+                getIfTracker().setIfReference(startElement.getParameterValue());
+            }
+        }
+    }
+
+    // Tell us if there is a not within this command
+    private Boolean isNot() {
+        return not != null && not.exists();
     }
 }

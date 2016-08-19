@@ -14,6 +14,9 @@ import application.node.objects.*;
 import application.node.objects.datatable.DataTableRow;
 import application.node.objects.datatable.DataTableValue;
 import application.test.TestCommand;
+import application.test.core.TestCase;
+import application.test.core.TestSet;
+import application.test.core.TestSetBatch;
 import application.utils.CustomObject;
 
 import java.lang.reflect.Method;
@@ -43,6 +46,9 @@ public class DatabaseLink {
         linkClasses.put(TestCommand.class, TestCommandDatabaseLink.class);
         linkClasses.put(Test.class, TestDatabaseLink.class);
         linkClasses.put(LinkedTestCase.class, LinkedTestCaseDatabaseLink.class);
+        linkClasses.put(TestCase.class, TestCaseDatabaseLink.class);
+        linkClasses.put(TestSet.class, TestSetDatabaseLink.class);
+        linkClasses.put(TestSetBatch.class, TestSetBatchDatabaseLink.class);
 
         // Drawable Node Classes - Better way to do this?
         linkClasses.put(BashNode.class, DrawableNodeDatabaseLink.class);

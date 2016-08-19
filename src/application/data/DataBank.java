@@ -8,6 +8,7 @@ import application.node.objects.SDEFile;
 import application.utils.AppParams;
 import application.utils.managers.SessionManager;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.InputStream;
@@ -22,7 +23,6 @@ public class DataBank {
 
     private static HashMap<String, HashMap<String, Object>> programVariables = new HashMap<>();
     private static HashMap<String, HashMap<String, Object>> programInstances = new HashMap<>();
-    private static HashMap<String, HashMap<String, Object>> testResultInstances = new HashMap<>();
     private static NodeColours nodeColours = new NodeColours();
 
     public static void saveVariable(String name, Object object, String referenceID) {
@@ -147,6 +147,7 @@ public class DataBank {
             } else {
                 if (dbConnection.isApplicationConnection()) {
                     DatabaseConnectionWatcher.getInstance().setConnected(false);
+                    DBConnectionManager.getInstance().getApplicationConnection().getConnection().setAutoCommit(false);
                     // Reconnect to the DB
                     log.info("Trying to reconnect after seeing  the exception");
                     dbConnection.connect();
@@ -190,6 +191,9 @@ public class DataBank {
                     preparedStatement.setString(valueCount, (String) value);
                 } else if (value instanceof UUID) {
                     preparedStatement.setString(valueCount, value.toString());
+                } else if (value instanceof DateTime) {
+                    java.sql.Date date = new java.sql.Date(((DateTime) value).getMillis());
+                    preparedStatement.setDate(valueCount, date);
                 } else if (value == null) {
                     preparedStatement.setObject(valueCount, null);
                 }

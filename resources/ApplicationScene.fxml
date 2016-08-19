@@ -33,6 +33,12 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
+                                <MenuItem fx:id="menuBarMenuItemStats" mnemonicParsing="false" text="Stats">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
                                 <MenuItem fx:id="menuBarMenuItemQuit" mnemonicParsing="false" text="Quit">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP"
@@ -75,6 +81,13 @@
                                           text="Clear Request Data">
                                     <accelerator>
                                         <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP"
+                                                            shortcut="UP"/>
+                                    </accelerator>
+                                </MenuItem>
+                                <MenuItem fx:id="menuBarMenuItemClearTestData" mnemonicParsing="false"
+                                          text="Clear Test Data">
+                                    <accelerator>
+                                        <KeyCodeCombination alt="UP" code="T" control="DOWN" meta="UP" shift="UP"
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>

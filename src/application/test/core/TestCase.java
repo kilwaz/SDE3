@@ -1,5 +1,6 @@
 package application.test.core;
 
+import application.data.model.DatabaseObject;
 import application.error.Error;
 import application.net.proxy.ProxyRequestListener;
 import application.net.proxy.RecordedRequest;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequestListener {
+public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject implements ProxyRequestListener {
     private static Logger log = Logger.getLogger(TestCase.class);
     private String testIterationID = "";
     private TestSet testSet;
@@ -51,6 +52,10 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
         passedTestCases.set(0);
     }
 
+    public TestCase(Class<TemplateCase> testClass) {
+        this.templateCaseClass = testClass;
+    }
+
     public int getPassedTestCases() {
         return passedTestCases.get();
     }
@@ -59,11 +64,9 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
         return passedTestCases;
     }
 
-    public TestCase(Class<TemplateCase> testClass) {
-        this.templateCaseClass = testClass;
-    }
-
     public void addTestCommand(TestCommand testCommand) {
+        testCommand.setParentTestCase(this);
+        testCommand.save();
         testCommands.add(testCommand);
     }
 
@@ -84,12 +87,16 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     }
 
     public TestCase log(Exception ex) {
-        logMessages.add(new TestLogMessage(ex.toString()));
+        TestLogMessage testLogMessage = new TestLogMessage();
+        testLogMessage.setMessage(ex.toString());
+        logMessages.add(testLogMessage);
         return this;
     }
 
     public TestCase log(String logMessage) {
-        logMessages.add(new TestLogMessage(logMessage));
+        TestLogMessage testLogMessage = new TestLogMessage();
+        testLogMessage.setMessage(logMessage);
+        logMessages.add(testLogMessage);
         return this;
     }
 
@@ -327,6 +334,8 @@ public class TestCase<TemplateCase extends TestTemplate> implements ProxyRequest
     @Override
     public void addRequest(RecordedRequest recordedRequest) {
         testRequests.add(recordedRequest);
+        recordedRequest.setParentTestCase(this);
+        recordedRequest.save();
     }
 
     public HashMap<String, PageStateCapture> getPageCaptures() {

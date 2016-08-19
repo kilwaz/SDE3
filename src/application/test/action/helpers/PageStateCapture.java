@@ -1,5 +1,6 @@
 package application.test.action.helpers;
 
+import application.data.model.DatabaseObject;
 import application.error.Error;
 import application.test.ChangedElement;
 import application.test.ChangedElements;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PageStateCapture {
+public class PageStateCapture extends DatabaseObject {
 
     private static Logger log = Logger.getLogger(PageStateCapture.class);
     private List<String> elementFrameTree;
@@ -33,9 +34,12 @@ public class PageStateCapture {
     private HashMap<String, Element> allElementsMap = new HashMap<>();
     private StringProperty stateName = new SimpleStringProperty();
 
-    public PageStateCapture(List<String> elementFrameTree, String stateName) {
+    public PageStateCapture() {
+        super();
+    }
+
+    public void setElementFrameTree(List<String> elementFrameTree) {
         this.elementFrameTree = elementFrameTree;
-        this.stateName.set(stateName);
     }
 
     public HashMap<String, String> getSelectValues() {
@@ -263,6 +267,10 @@ public class PageStateCapture {
 
     public String getStateName() {
         return stateName.get();
+    }
+
+    public void setStateName(String stateName) {
+        this.stateName.set(stateName);
     }
 
     public StringProperty stateNameProperty() {

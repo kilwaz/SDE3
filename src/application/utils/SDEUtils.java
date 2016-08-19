@@ -9,12 +9,14 @@ import application.node.design.DrawableNode;
 import application.node.implementations.ConsoleNode;
 import application.node.implementations.LinuxNode;
 import com.jcraft.jsch.JSch;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.zeroturnaround.zip.ZipUtil;
+import us.codecraft.xsoup.Xsoup;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -259,19 +261,7 @@ public class SDEUtils {
     }
 
     public static List<Element> getElementsFromXPath(String xPath, Document document) {
-        String startingId = xPath;
-        startingId = startingId.replace("//*[@id=\"", "");  // Removes the initial id
-        startingId = startingId.substring(0, startingId.indexOf("\""));
-
-        Element startingElement = document.getElementById(startingId);
-
-        List<Element> returnedElement = new ArrayList<>();
-
-        if (startingElement != null) {
-            returnedElement.add(startingElement);
-        }
-
-        return returnedElement;
+        return (List<Element>) IteratorUtils.toList(Xsoup.compile(xPath).evaluate(document).getElements().listIterator());
     }
 
     public static void zipDirectory(String directoryPath, String zipFileLocation) {

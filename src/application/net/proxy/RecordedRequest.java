@@ -2,6 +2,7 @@ package application.net.proxy;
 
 import application.data.model.DatabaseObject;
 import application.data.model.dao.RecordedRequestDAO;
+import application.test.core.TestCase;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -32,6 +33,7 @@ public class RecordedRequest extends DatabaseObject {
     private Boolean isHttps = false;
     private String method = "";
     private Integer status = -1;
+    private TestCase parentTestCase;
 
     public RecordedRequest() {
         super();
@@ -43,6 +45,17 @@ public class RecordedRequest extends DatabaseObject {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void setParentTestCase(TestCase parentTestCase) {
+        this.parentTestCase = parentTestCase;
+    }
+
+    public String getParentTestCaseUuid() {
+        if (parentTestCase != null) {
+            return parentTestCase.getUuidString();
+        }
+        return null;
     }
 
     public String getLocalUrl() {
@@ -213,18 +226,18 @@ public class RecordedRequest extends DatabaseObject {
         return request;
     }
 
+    // Required to be an empty method
+    // When loading the object we don't want to initially set this due to the memory foot print
+    public void setRequest(InputStream inputStream) {
+
+    }
+
     public void setRequest(String request) {
         if (request == null) {
             this.request = "";
         } else {
             this.request = request;
         }
-    }
-
-    // Required to be an empty method
-    // When loading the object we don't want to initially set this due to the memory foot print
-    public void setRequest(InputStream inputStream) {
-
     }
 
     public Integer getRequestNumber() {

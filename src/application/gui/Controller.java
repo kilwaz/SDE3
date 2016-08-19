@@ -1,14 +1,8 @@
 package application.gui;
 
 import application.Main;
-import application.data.DataBank;
-import application.data.DatabaseConnectionWatcher;
-import application.data.NodeColour;
-import application.data.User;
+import application.data.*;
 import application.data.model.dao.ProgramDAO;
-import application.data.model.dao.RecordedHeaderDAO;
-import application.data.model.dao.RecordedProxyDAO;
-import application.data.model.dao.RecordedRequestDAO;
 import application.error.Error;
 import application.gui.canvas.CanvasController;
 import application.gui.dialog.ConfirmDialog;
@@ -86,7 +80,11 @@ public class Controller implements Initializable {
     @FXML
     private MenuItem menuBarMenuItemError;
     @FXML
+    private MenuItem menuBarMenuItemStats;
+    @FXML
     private MenuItem menuBarMenuItemClearRequestData;
+    @FXML
+    private MenuItem menuBarMenuItemClearTestData;
     @FXML
     private MenuItem menuBarMenuItemOpenManualProxy;
     @FXML
@@ -542,16 +540,10 @@ public class Controller implements Initializable {
         menuBarMenuItemExportNodeColours.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE_COLOURS));
         menuBarMenuItemImport.setOnAction(event -> new ImportWindow());
         menuBarMenuItemError.setOnAction(event -> new ErrorWindow());
+        menuBarMenuItemStats.setOnAction(event -> new StatsWindow());
         menuBarMenuItemOpenManualProxy.setOnAction(event -> new ManualProxyWindow());
-        menuBarMenuItemClearRequestData.setOnAction(event -> {
-            RecordedHeaderDAO recordedHeaderDAO = new RecordedHeaderDAO();
-            RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
-            RecordedProxyDAO recordedProxyDAO = new RecordedProxyDAO();
-
-            recordedHeaderDAO.deleteAllRecordedHeaders();
-            recordedRequestDAO.deleteAllRecordedRequests();
-            recordedProxyDAO.deleteAllRecordedProxies();
-        });
+        menuBarMenuItemClearRequestData.setOnAction(event -> ClearDatabaseRequestDataRunner.execute());
+        menuBarMenuItemClearTestData.setOnAction(event -> ClearDatabaseTestDataRunner.execute());
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());

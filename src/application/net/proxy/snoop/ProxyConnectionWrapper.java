@@ -198,7 +198,7 @@ public class ProxyConnectionWrapper {
     }
 
     public int getContentLength() throws IOException {
-        if (connectionMethod == HTTP_CLIENT_APACHE) {
+        if (connectionMethod == HTTP_CLIENT_APACHE && httpResponse != null) {
             Header[] headers = httpResponse.getHeaders("Content-Length");
             if (headers.length > 0 && headers[0] != null) {
                 try {
@@ -222,10 +222,12 @@ public class ProxyConnectionWrapper {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             Map<String, List<String>> headers = new HashMap<>();
 
-            for (Header header : httpResponse.getAllHeaders()) {
-                List<String> elements = new ArrayList<>();
-                elements.add(header.getValue());
-                headers.put(header.getName(), elements);
+            if (httpResponse != null) {
+                for (Header header : httpResponse.getAllHeaders()) {
+                    List<String> elements = new ArrayList<>();
+                    elements.add(header.getValue());
+                    headers.put(header.getName(), elements);
+                }
             }
             return headers;
         } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {

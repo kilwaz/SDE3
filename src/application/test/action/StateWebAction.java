@@ -20,7 +20,9 @@ public class StateWebAction extends WebAction {
         TestParameter resultVar = getTestCommand().getParameterByName("var");
 
         if (saveStateName.exists()) {
-            PageStateCapture pageStateCapture = new PageStateCapture(getDocumentTracker().getIFrameTree(), saveStateName.getParameterValue());
+            PageStateCapture pageStateCapture = new PageStateCapture();
+            pageStateCapture.setElementFrameTree(getDocumentTracker().getIFrameTree());
+            pageStateCapture.setStateName(saveStateName.getParameterValue());
             pageStateCapture.capturePage(getDriver());
             getStateTracker().setState(pageStateCapture);
             TestCase testCase = getRunningTest().getTestCase();
