@@ -3,10 +3,7 @@ package application.node.implementations;
 import application.Main;
 import application.data.SavableAttribute;
 import application.data.export.Export;
-import application.data.export.ExportCell;
-import application.data.export.ExportFormula;
-import application.data.export.ExportValue;
-import application.error.Error;
+import application.data.export.ExportBuilder;
 import application.gui.Controller;
 import application.node.design.DrawableNode;
 import application.utils.NodeRunParams;
@@ -21,19 +18,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import org.apache.log4j.Logger;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FormulaError;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,107 +57,15 @@ public class ExportNode extends DrawableNode {
 
     public void run(Boolean whileWaiting, NodeRunParams nodeRunParams) {
         if (nodeRunParams.getOneTimeVariable() instanceof Export) {
-            FileOutputStream fos = null;
-            try {
-                Export export = (Export) nodeRunParams.getOneTimeVariable();
+            Export export = (Export) nodeRunParams.getOneTimeVariable();
 
-                XSSFWorkbook workbook = new XSSFWorkbook();
-                XSSFSheet sheet = workbook.createSheet("Export");
+            // Setup and create the file location we are going to use
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+            Date date = new Date();
+            dateFormat.format(date);
 
-//            SheetConditionalFormatting sheetCF = sheet.getSheetConditionalFormatting();
-//            ConditionalFormattingRule rule1 = sheetCF.createConditionalFormattingRule(ComparisonOperator.GT, "0");
-//            FontFormatting fontFmt = rule1.createFontFormatting();
-//            fontFmt.setFontStyle(true, false);
-//            fontFmt.setFontColorIndex(IndexedColors.DARK_RED.index);
-//
-//            ConditionalFormattingRule[] cfRules = {rule1};
-//
-//            CellRangeAddress[] regions = {
-//                    CellRangeAddress.valueOf("A2:BS59")
-//            };
-//
-//            sheetCF.addConditionalFormatting(regions, cfRules);
-                for (Integer row = 0; row < export.getRowCount(); row++) {
-                    XSSFRow currentRow = sheet.createRow(row);
-
-                    for (Integer col = 0; col < export.getColCount(); col++) {
-                        ExportCell exportCell = export.getValue(row, col);
-
-                        XSSFCell currentCell = currentRow.createCell(col);
-
-//                        // Set the cell colour if it has any assigned
-
-                        if (exportCell != null && exportCell.getCellColour() != null) {
-                            CellStyle cellStyle = workbook.createCellStyle();
-                            IndexedColors indexedColors = IndexedColors.valueOf(exportCell.getCellColour());
-                            if (indexedColors != null) {
-                                cellStyle.setFillForegroundColor(indexedColors.getIndex());
-                                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
-                                currentCell.setCellStyle(cellStyle);
-                            }
-                        }
-
-                        if (exportCell instanceof ExportValue) {
-                            ExportValue exportValue = (ExportValue) exportCell;
-
-                            // Find the type of value that this is and set it correctly
-                            if (exportValue.getDataValue() instanceof String) { // String
-                                currentCell.setCellValue((String) exportValue.getDataValue());
-                            } else if (exportValue.getDataValue() instanceof Long) { // Long
-                                currentCell.setCellValue((Long) exportValue.getDataValue());
-                            } else if (exportValue.getDataValue() instanceof Double) { // Double
-                                DecimalFormat df2 = new DecimalFormat("###.##");
-                                currentCell.setCellValue(Double.valueOf(df2.format(exportValue.getDataValue())));
-                            } else if (exportValue.getDataValue() instanceof Integer) { // Integer
-                                currentCell.setCellValue((Integer) exportValue.getDataValue());
-                            } else if (exportValue.getDataValue() == null) { // If the value passed in is null then we don't do anything
-                                currentCell.setCellValue("");
-                            } else { // If something else we haven't found call toString
-                                currentCell.setCellValue(exportValue.getDataValue().toString());
-                            }
-                        } else if (exportCell instanceof ExportFormula) {
-                            ExportFormula exportFormula = (ExportFormula) exportCell;
-
-                            currentCell.setCellFormula(exportFormula.getFormula());
-                            currentCell.setCellErrorValue(FormulaError.NA);
-                        }
-                    }
-                }
-
-                for (Integer col = 0; col < export.getColCount(); col++) {
-                    sheet.autoSizeColumn(col);
-                }
-
-                // Setup and create the file location we are going to use
-                File exportOutputFile = null;
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-                Date date = new Date();
-                dateFormat.format(date);
-
-                buildConstructedFileName();
-
-                exportOutputFile = new File(constructedFileName);
-                if (!exportOutputFile.exists()) {
-                    Boolean createDirectoryResult = exportOutputFile.getParentFile().mkdirs();
-                    Boolean createFileResult = exportOutputFile.createNewFile();
-                }
-
-                // Try writing the file
-                fos = new FileOutputStream(exportOutputFile);
-                workbook.write(fos);
-            } catch (IOException | NullPointerException ex) {
-                Error.RUN_EXPORT_NODE.record().create(ex);
-            } catch (Exception ex) {
-                Error.RUN_EXPORT_NODE.record().additionalInformation("Unexpected Error").create(ex);
-            } finally {
-                try {
-                    if (fos != null) {
-                        fos.close();
-                    }
-                } catch (IOException ex) {
-                    Error.CLOSE_FILE.record().create(ex);
-                }
-            }
+            buildConstructedFileName();
+            new ExportBuilder().export(export).saveLocation(new File(constructedFileName)).construct();
         }
     }
 

@@ -1,23 +1,30 @@
 package application.data.export;
 
+import application.error.Error;
 import org.apache.log4j.Logger;
 
 public class ExportCell {
+    private static Logger log = Logger.getLogger(ExportCell.class);
     private Integer rowPosition = null;
     private Integer columnPosition = null;
     private String cellColour = null;
 
-    private static Logger log = Logger.getLogger(ExportCell.class);
-
     public ExportCell(Integer rowPosition, Integer columnPosition) {
-        this.rowPosition = rowPosition;
-        this.columnPosition = columnPosition;
+        setupPositionValues(rowPosition, columnPosition);
     }
 
     public ExportCell(Integer rowPosition, Integer columnPosition, String cellColour) {
-        this.rowPosition = rowPosition;
-        this.columnPosition = columnPosition;
+        setupPositionValues(rowPosition, columnPosition);
         this.cellColour = cellColour;
+    }
+
+    private void setupPositionValues(Integer rowPosition, Integer columnPosition) {
+        this.rowPosition = rowPosition - 1; // Arrays start at 0 but user see 1
+        this.columnPosition = columnPosition - 1; // Arrays start at 0 but user see 1
+
+        if (this.rowPosition < 0 || this.columnPosition < 0) {
+            Error.EXPORT_NEGATIVE_VALUES.record().additionalInformation(rowPosition + "," + columnPosition).create();
+        }
     }
 
     public Integer getRowPosition() {

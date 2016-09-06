@@ -50,9 +50,9 @@ import java.util.Set;
 public class Main extends Application {
     private static final int SPLASH_WIDTH = 940;
     private static final int SPLASH_HEIGHT = 360;
+    public static Boolean isHeadless = false;
     private static Main instance;
     private static Logger log = Logger.getLogger(Main.class);
-    public static Boolean isHeadless = false;
     private static Boolean printJavaProperties = false;
     private static List argsList;
     private static String programNameToRun;
@@ -143,6 +143,8 @@ public class Main extends Application {
         }
         startManagers();
 
+        StatisticsManager.getInstance().getTotalStatisticStore().incrementApplicationStart();
+
         // Start loading data from the database
         if (connectionSuccessful) {
             DataBank.createCurrentSession();
@@ -222,6 +224,7 @@ public class Main extends Application {
         new DatabaseObjectManager();
         new DatabaseTransactionManager();
         new SeleniumHubManager();
+        new StatisticsManager();
     }
 
     // Start the application in header mode
@@ -315,6 +318,7 @@ public class Main extends Application {
         DBConnectionManager.getInstance().closeConnections();
         JobManager.getInstance().closeAllJobs();
         SeleniumHubManager.getInstance().stopHub();
+        StatisticsManager.getInstance().saveStatistics();
 
         // Cleans up any class or java files previously compiled.
         String userHome = System.getProperty("user.home");

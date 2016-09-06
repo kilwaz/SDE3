@@ -15,6 +15,7 @@ import application.gui.window.TestSetBatchWindow;
 import application.node.design.DrawableNode;
 import application.node.objects.LinkedTestCase;
 import application.test.core.TestSetBatch;
+import application.data.export.CreateTestResultExcel;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
 import application.utils.SDEThreadCollection;
@@ -152,10 +153,13 @@ public class TestManagerNode extends DrawableNode {
             TableRow<TestSetBatch> row = new TableRow<>();
             ContextMenu contextMenu = new ContextMenu();
             MenuItem inspectMenuItem = new MenuItem("Inspect");
+            MenuItem exportMenuItem = new MenuItem("ExportSheet...");
 
             inspectMenuItem.setOnAction(event -> new TestSetBatchWindow(row.getItem()));
+            exportMenuItem.setOnAction(event -> CreateTestResultExcel.outputExcelTestResults(row.getItem()));
 
             contextMenu.getItems().add(inspectMenuItem);
+            contextMenu.getItems().add(exportMenuItem);
 
             // Set context menu on row, but use a binding to make it only show for non-empty rows:
             row.contextMenuProperty().bind(

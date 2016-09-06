@@ -93,7 +93,7 @@ public class BulkTestNode extends DrawableNode {
         startAllTestsThreaded(false);
     }
 
-    public void startAllTestsThreaded(Boolean whileWaiting) {
+    private void startAllTestsThreaded(Boolean whileWaiting) {
         List<SDEThread> threads = new ArrayList<>();
         for (TestRunner testRunner : getTests()) {
             threads.add(new SDEThread(testRunner, "Browser test", null, true));

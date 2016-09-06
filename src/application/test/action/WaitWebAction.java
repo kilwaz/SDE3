@@ -6,9 +6,7 @@ import application.net.proxy.WebProxyRequest;
 import application.test.TestParameter;
 import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -70,6 +68,10 @@ public class WaitWebAction extends WebAction {
             }
 
             getDocumentTracker().refreshCurrentDocument();
+        } catch (UnhandledAlertException ex) { // If a popup is blocking a wait command close it
+            log.info("Auto closing alert popup");
+            Alert alert = getDriver().switchTo().alert();
+            alert.accept();
         } catch (org.openqa.selenium.TimeoutException ex) {
             getTestCommand().setException(ex);
             Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("10 second limit").create(ex);

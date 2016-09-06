@@ -50,6 +50,7 @@ public class LoopWebAction extends WebAction {
                     TestParameter listRootElementId = getTestCommand().getParameterByPath("id");
                     TestParameter listRootElementXPath = getTestCommand().getParameterByPath("xPath");
                     TestParameter filteredHasClass = getTestCommand().getParameterByPath("filter::hasClass");
+                    TestParameter filteredSelect = getTestCommand().getParameterByPath("filter::select");
 
                     TestParameter loopElement = getTestCommand().getParameterByName("loop");
                     TestParameter directChildren = getTestCommand().getParameterByName("direct");
@@ -103,9 +104,12 @@ public class LoopWebAction extends WebAction {
                         for (Element element : elements) { // Remove the element if it does not have this class
                             if (!element.hasClass(filteredHasClass.getParameterValue())) {
                                 elementsToRemove.add(element);
+
                             }
                         }
                         elements.removeAll(elementsToRemove);
+
+
                     }
 
                     // Add the looped elements to a handling wrapper

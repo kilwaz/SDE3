@@ -10,6 +10,7 @@ import application.utils.AppParams;
 import application.utils.BrowserHelper;
 import application.utils.SDERunnable;
 import application.utils.SDEThread;
+import application.utils.managers.StatisticsManager;
 import com.jayway.awaitility.Awaitility;
 import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
@@ -199,6 +200,8 @@ public class TestRunner extends SDERunnable {
                             WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
                             webAction.initialise(httpProxyServer, driver, testCommand, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker, documentTracker);
                             webAction.performAction();
+                            StatisticsManager.getInstance().getTotalStatisticStore().incrementCommands();
+                            StatisticsManager.getInstance().getSessionStatisticStore().incrementCommands();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                             application.error.Error.TEST_NODE_ACTION.record().create(ex);
                         } catch (WebDriverException ex) {

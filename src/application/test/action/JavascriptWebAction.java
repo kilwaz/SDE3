@@ -6,6 +6,8 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriverException;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * This action runs javascript that is passed to it.
  */
@@ -21,6 +23,8 @@ public class JavascriptWebAction extends WebAction {
      */
     public void performAction() {
         TestParameter scriptToRun = getTestCommand().getParameterByPath("script");
+
+        //getDriver().manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
 
         if (scriptToRun.exists()) { // If it is specified, wait for this javascript to be true
             try {

@@ -540,7 +540,7 @@ public class Controller implements Initializable {
         menuBarMenuItemExportNodeColours.setOnAction(event -> new ExportWindow(ExportWindow.EXPORT_NODE_COLOURS));
         menuBarMenuItemImport.setOnAction(event -> new ImportWindow());
         menuBarMenuItemError.setOnAction(event -> new ErrorWindow());
-        menuBarMenuItemStats.setOnAction(event -> new StatsWindow());
+        menuBarMenuItemStats.setOnAction(event -> new StatisticsWindow());
         menuBarMenuItemOpenManualProxy.setOnAction(event -> new ManualProxyWindow());
         menuBarMenuItemClearRequestData.setOnAction(event -> ClearDatabaseRequestDataRunner.execute());
         menuBarMenuItemClearTestData.setOnAction(event -> ClearDatabaseTestDataRunner.execute());

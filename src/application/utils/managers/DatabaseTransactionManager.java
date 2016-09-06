@@ -22,9 +22,7 @@ public class DatabaseTransactionManager {
 
     private List<Query> pendingQueryList = new ArrayList<>();
     private Boolean inTransaction = false;
-    private Boolean transactionTimer = false;
 
-    private JobDetail transactionJob;
     private Timer timeOfLastQuery = new Timer();
 
     private static Logger log = Logger.getLogger(DatabaseTransactionManager.class);
@@ -32,7 +30,7 @@ public class DatabaseTransactionManager {
     public DatabaseTransactionManager() {
         databaseTransactionManager = this;
 
-        transactionJob = JobBuilder.newJob(TransactionJob.class).build();
+        JobDetail transactionJob = JobBuilder.newJob(TransactionJob.class).build();
         SimpleScheduleBuilder simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
         TriggerBuilder triggerBuilder = TriggerBuilder.newTrigger();
 

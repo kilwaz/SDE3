@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 public class AppParams {
     // Application information
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "v0.5.0.6";
+    public final static String APP_VERSION = "v0.5.0.7";
 
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";

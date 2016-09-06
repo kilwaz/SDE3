@@ -53,6 +53,7 @@ public abstract class WebAction implements Action {
         actionClasses.put("window", WindowWebAction.class);
         actionClasses.put("keyboard", KeyboardWebAction.class);
         actionClasses.put("screenshot", ScreenshotWebAction.class);
+        actionClasses.put("refresh", RefreshWebAction.class);
     }
 
     private WebDriver driver = null;

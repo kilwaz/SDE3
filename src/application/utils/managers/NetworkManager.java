@@ -6,19 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NetworkManager {
-    private static NetworkManager NetworkManager;
+    private static NetworkManager instance;
     private List<NetworkNodeInfo> networkList;
 
     public NetworkManager() {
-        NetworkManager = this;
+        instance = this;
         networkList = new ArrayList<>();
+    }
+
+    public static NetworkManager getInstance() {
+        if (instance == null) {
+            instance = new NetworkManager();
+        }
+        return instance;
     }
 
     public void addNetworkNodeInfo(NetworkNodeInfo networkNodeInfo) {
         networkList.add(networkNodeInfo);
-    }
-
-    public static NetworkManager getInstance() {
-        return NetworkManager;
     }
 }

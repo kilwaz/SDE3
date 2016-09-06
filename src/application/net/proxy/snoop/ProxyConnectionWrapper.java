@@ -2,6 +2,7 @@ package application.net.proxy.snoop;
 
 
 import application.error.Error;
+import application.utils.managers.StatisticsManager;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -76,7 +77,10 @@ public class ProxyConnectionWrapper {
         }
     }
 
-    public void setRequestProperty(String propertyName, String propertyValue) throws IOException {
+    public int setRequestProperty(String propertyName, String propertyValue) throws IOException {
+        if (propertyName == null || propertyValue == null) {
+            return 0;
+        }
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             requestHeaders.put(propertyName, propertyValue);
         } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
@@ -86,6 +90,8 @@ public class ProxyConnectionWrapper {
                 httpConnection.setRequestProperty(propertyName, propertyValue);
             }
         }
+
+        return propertyName.getBytes().length + propertyValue.getBytes().length + 2; // +2 for the ': ' between name and value
     }
 
     public void setDoOutput(Boolean doOutput) throws IOException {
@@ -189,6 +195,9 @@ public class ProxyConnectionWrapper {
                         DataOutputStream wr = new DataOutputStream(outputStream);
                         wr.writeBytes(urlParameters);
                         wr.close();
+
+                        StatisticsManager.getInstance().getTotalStatisticStore().addRequestSize(urlParameters.getBytes().length);
+                        StatisticsManager.getInstance().getSessionStatisticStore().addRequestSize(urlParameters.getBytes().length);
                     }
                 }
             }

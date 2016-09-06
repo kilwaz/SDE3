@@ -121,18 +121,18 @@ public class ExportWindow extends Stage {
                     DrawableNodeXML drawableNodeXML = new DrawableNodeXML(drawableNode);
                     exportTextArea.setText(exportTextArea.getText() + "\r\n" + XMLTransform.writeXMLToString(drawableNodeXML.getXMLRepresentation()));
                 }
-                this.setTitle("Export Node " + (selectedNodes.size() > 0 ? selectedNodes.get(0).getContainedText() : ""));
+                this.setTitle("ExportSheet Node " + (selectedNodes.size() > 0 ? selectedNodes.get(0).getContainedText() : ""));
             } else if (exportType.equals(EXPORT_PROGRAM)) {
                 Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
                 ProgramXML programXML = new ProgramXML(selectedProgram);
                 exportTextArea.setText(XMLTransform.writeXMLToString(programXML.getXMLRepresentation()));
-                this.setTitle("Export Program " + selectedProgram.getName());
+                this.setTitle("ExportSheet Program " + selectedProgram.getName());
             } else if (exportType.equals(EXPORT_NODE_COLOURS)) {
                 NodeColourDAO nodeColourDAO = new NodeColourDAO();
                 NodeColoursXML nodeColoursXML = new NodeColoursXML(nodeColourDAO.getNodeColours());
                 exportTextArea.setText(exportTextArea.getText() + "\r\n" + XMLTransform.writeXMLToString(nodeColoursXML.getXMLRepresentation()));
 
-                this.setTitle("Export Node Colours");
+                this.setTitle("ExportSheet Node Colours");
             }
 
             URL url = getClass().getResource("/icon.png");

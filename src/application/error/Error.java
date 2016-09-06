@@ -6,7 +6,7 @@ public enum Error {
     ACE_TEXT_READ_FILE(1, "Error reading files"),
     APP_PROPERTIES_READ(2, "Error reading application properties"),
     APP_PROPERTIES_XML_PARSE(3, "Error parsing XML"),
-    APP_PROPERTIES_SAVE_XML(4, "Error trying to save database config"),
+    APP_PROPERTIES_SAVE_XML(4, "Error saving application properties"),
     A_STAR_START_GOAL_MISSING(5, "Error finding start or goal for path"),
     BASH_NODE_PARENT_NULL(6, "Parent BashNode being passed to create new Bash was null"),
     SELENIUM_CLICK_ACTION_NOT_FOUND(7, "ClickAction is failing, selenium is not responding when finding the element"),
@@ -136,7 +136,13 @@ public enum Error {
     MISSING_RUN_PROGRAM_NAME(131, "Missing program name for run command"),
     STATE_COMPARE_ELEMENT_CELL_ERROR(132, "Issue building table cell"),
     HTTP_PROXY_REQUEST_FAILED(133, "Request has failed to be processed"),
-    HTTP_PROXY_UNABLE_TO_PARSE_CONTENT_LENGTH(134, "Unable to parse content length of response");
+    HTTP_PROXY_UNABLE_TO_PARSE_CONTENT_LENGTH(134, "Unable to parse content length of response"),
+    EXPORT_NEGATIVE_VALUES(135, "ExportSheet values must have a value greater than zero"),
+    EXPORT_NOTHING_TO_EXPORT(136, "No data has been provided to export"),
+    EXPORT_NO_FILE_SPECIFIED(137, "No location has been provided to save export to"),
+    APP_STATISTICS_READ(138, "Error reading application statistics"),
+    APP_STATISTICS_SAVE_XML(139, "Error saving application statistics"),
+    PERCENTILE_OUT_OF_RANGE(140, "Percentile is out of accepted range of 1-100");
 
     private Integer code;
     private String description;

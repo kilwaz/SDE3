@@ -3,6 +3,7 @@ package application.net.proxy.snoop;
 import application.error.Error;
 import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
+import application.utils.managers.StatisticsManager;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
@@ -147,6 +148,9 @@ public class StandaloneHTTPRequest {
      * @return Returns the instance of the {@link application.net.proxy.snoop.StandaloneHTTPRequest}
      */
     private StandaloneHTTPRequest executeHttp() {
+        StatisticsManager.getInstance().getTotalStatisticStore().incrementRequests();
+        StatisticsManager.getInstance().getSessionStatisticStore().incrementRequests();
+
         ProxyConnectionWrapper connection = null;
         WebProxyRequest webProxyRequest = null;
         try {
@@ -158,12 +162,12 @@ public class StandaloneHTTPRequest {
             webProxyRequestManager.addNewActiveRequest(webProxyRequest.hashCode(), webProxyRequest);
 
             //Create connection
-            //URL url = new URL(URIUtil.encodePath(destinationUrl));
+            int requestSize = 0;
             URL url = new URL(destinationUrl);
             connection = new ProxyConnectionWrapper(url, https, ProxyConnectionWrapper.HTTP_CLIENT_APACHE);
             connection.setRequestMethod(method);
             if ("POST".equals(method) || "PUT".equals(method)) {
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                requestSize += connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 connection.setDoOutput(true);
             }
 
@@ -172,17 +176,12 @@ public class StandaloneHTTPRequest {
                 if (!header.equals("If-None-Match")
                         && !header.equals("If-Modified-Since")
                         && !header.equals("Proxy-Connection")) {
-                    connection.setRequestProperty(header, requestHeaders.get(header));
+                    requestSize += connection.setRequestProperty(header, requestHeaders.get(header));
                 }
             }
 
-//            if (requestHeaders.containsKey("Cookie")) {
-//                log.info(requestHeaders.get("Cookie") + " for " + destinationUrl);
-//            } else if (requestHeaders.containsKey("cookie")) {
-//                log.info("SMALL " + requestHeaders.get("cookie") + " for " + destinationUrl);
-//            } else {
-//                log.info("NO COOKIE for " + destinationUrl);
-//            }
+            StatisticsManager.getInstance().getTotalStatisticStore().addRequestSize(requestSize);
+            StatisticsManager.getInstance().getSessionStatisticStore().addRequestSize(requestSize);
 
             // Sets the parameters for the outgoing request
             // THIS IS REPLICATED IN PROXYCONNETIONWRAPPER.java
@@ -198,24 +197,12 @@ public class StandaloneHTTPRequest {
             webProxyRequest.setRequestHeaders(requestHeaders);
             webProxyRequest.setRequestContent(urlParameters);
 
-//            if (destinationUrl.contains("/Login")) {
-//                log.info("HEADERS FOR SPECIAL REQUEST");
-//                for (String headerName : requestHeaders.keySet()) {
-//                    log.info(headerName + " - " + requestHeaders.get(headerName));
-//                }
-//                log.info("PARAMS");
-//                for (String paramName : requestParameters.keySet()) {
-//                    log.info(paramName + " - " + requestParameters.get(paramName));
-//                }
-//            }
-
             connection.setRequestParameters(requestParameters);
 
             // This starts the response timer
             webProxyRequest.instantStartProxyToServer();
 
             InputStream is = null;
-            int contentLength = 0;
             try {
                 // Get Response
                 try {
@@ -230,7 +217,7 @@ public class StandaloneHTTPRequest {
                     Error.HTTP_UNKNOWN_HOST.record().additionalInformation("URL " + url).create(ex);
                 }
 
-                contentLength = connection.getContentLength();
+                int contentLength = connection.getContentLength();
 
                 Map<String, List<String>> connectionHeaders = connection.getHeaderFields();
                 for (String header : connectionHeaders.keySet()) {
@@ -245,15 +232,12 @@ public class StandaloneHTTPRequest {
                     if (header != null && !header.equals("Transfer-Encoding") && !header.equals("Content-Length")) {
                         responseHeaders.put(header, concatHeader.trim());
                     }
-
-//                    if (header != null && header.equals("Set-Cookie")) {
-//                        log.info("SET COOKIE - " + concatHeader.trim());
-//                    }
                 }
 
                 ByteArrayOutputStream tmpOut;
+                int totalResponseLength = 0;
                 if (contentLength != -1) {
-                    tmpOut = new ByteArrayOutputStream(contentLength);
+                    tmpOut = new ByteArrayOutputStream(contentLength); // Would the total length be larger than the content size?
                 } else {
                     tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
                 }
@@ -264,10 +248,14 @@ public class StandaloneHTTPRequest {
                         if (len == -1) {
                             break;
                         }
+                        totalResponseLength += len;
                         tmpOut.write(buf, 0, len);
                     }
                     is.close();
                 }
+
+                StatisticsManager.getInstance().getTotalStatisticStore().addResponseSize(totalResponseLength);
+                StatisticsManager.getInstance().getSessionStatisticStore().addResponseSize(totalResponseLength);
 
                 tmpOut.close();
 
@@ -276,6 +264,8 @@ public class StandaloneHTTPRequest {
             } catch (FileNotFoundException | MalformedURLException ex) { // 404
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
                 Error.PROXY_REQUEST_NOT_FOUND.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
+                StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(404);
+                StatisticsManager.getInstance().getSessionStatisticStore().incrementResponseCode(404);
             } catch (SSLException ex) { // SSL Exception
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
                 Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
@@ -283,11 +273,15 @@ public class StandaloneHTTPRequest {
                 response = ByteBuffer.wrap(internalErrorResponse.getBytes());
                 //Error.PROXY_INTERNAL_SERVER_ERROR.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
                 Error.PROXY_INTERNAL_SERVER_ERROR.record().additionalInformation("URL: " + url).create(ex);
+                StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(500);
+                StatisticsManager.getInstance().getSessionStatisticStore().incrementResponseCode(500);
             }
 
             webProxyRequest.instantCompleteServerToProxy();
             webProxyRequest.setResponseBuffer(response);
             webProxyRequest.setStatus(connection.getResponseStatus());
+            StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(connection.getResponseStatus());
+            StatisticsManager.getInstance().getSessionStatisticStore().incrementResponseCode(connection.getResponseStatus());
             webProxyRequest.setResponseHeaders(responseHeaders);
         } catch (Exception ex) {
             Error.HTTP_PROXY_REQUEST.record().create(ex);
