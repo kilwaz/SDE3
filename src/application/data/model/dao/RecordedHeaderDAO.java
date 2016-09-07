@@ -28,6 +28,6 @@ public class RecordedHeaderDAO {
     }
 
     public void deleteAllRecordedHeaders() {
-        new UpdateQuery("delete from http_headers").execute();
+        new UpdateQuery("update http_headers set forDelete = 1").execute();
     }
 }

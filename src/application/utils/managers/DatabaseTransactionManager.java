@@ -5,7 +5,9 @@ import application.data.Query;
 import application.data.SelectQuery;
 import application.data.UpdateQuery;
 import application.error.Error;
+import application.utils.AppParams;
 import application.utils.Timer;
+import application.utils.timers.DeleteDataJob;
 import application.utils.timers.TransactionJob;
 import org.apache.log4j.Logger;
 import org.quartz.JobBuilder;
@@ -19,25 +21,29 @@ import java.util.List;
 
 public class DatabaseTransactionManager {
     private static DatabaseTransactionManager databaseTransactionManager;
-
+    private static Logger log = Logger.getLogger(DatabaseTransactionManager.class);
     private List<Query> pendingQueryList = new ArrayList<>();
     private Boolean inTransaction = false;
-
     private Timer timeOfLastQuery = new Timer();
-
-    private static Logger log = Logger.getLogger(DatabaseTransactionManager.class);
 
     public DatabaseTransactionManager() {
         databaseTransactionManager = this;
 
         JobDetail transactionJob = JobBuilder.newJob(TransactionJob.class).build();
-        SimpleScheduleBuilder simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
-        TriggerBuilder triggerBuilder = TriggerBuilder.newTrigger();
+        JobDetail dataDataJob = JobBuilder.newJob(DeleteDataJob.class).build();
 
-        simpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(1000);
+        SimpleScheduleBuilder transactionSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
+        SimpleScheduleBuilder deleteDataSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
+        TriggerBuilder transactionTriggerBuilder = TriggerBuilder.newTrigger();
+        TriggerBuilder deleteDataTriggerBuilder = TriggerBuilder.newTrigger();
 
-        JobManager.getInstance().scheduleJob(transactionJob, triggerBuilder.withSchedule(simpleScheduleBuilder).build());
-        triggerBuilder.startNow();
+        transactionSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(1000);
+        deleteDataSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(5000);
+
+        JobManager.getInstance().scheduleJob(transactionJob, transactionTriggerBuilder.withSchedule(transactionSimpleScheduleBuilder).build());
+        JobManager.getInstance().scheduleJob(dataDataJob, deleteDataTriggerBuilder.withSchedule(deleteDataSimpleScheduleBuilder).build());
+        transactionTriggerBuilder.startNow();
+        deleteDataTriggerBuilder.startNow();
     }
 
     public static synchronized DatabaseTransactionManager getInstance() {
@@ -62,6 +68,14 @@ public class DatabaseTransactionManager {
         } catch (SQLException ex) {
             Error.DATABASE_TRANSACTION.record().create(ex);
         }
+    }
+
+    public synchronized void scheduledDelete() {
+        new UpdateQuery("delete from http_headers where forDelete = 1 limit " + AppParams.getDatabaseDeleteLimit()).execute();
+        new UpdateQuery("delete from http_proxies where forDelete = 1 limit " + AppParams.getDatabaseDeleteLimit()).execute();
+        new UpdateQuery("delete from recorded_requests where forDelete = 1 limit " + AppParams.getDatabaseDeleteLimit()).execute();
+        new UpdateQuery("delete from test_command where forDelete = 1 limit " + AppParams.getDatabaseDeleteLimit()).execute();
+        new UpdateQuery("delete from test where forDelete = 1 limit " + AppParams.getDatabaseDeleteLimit()).execute();
     }
 
     public synchronized void addUpdate(UpdateQuery updateQuery) {
@@ -110,9 +124,5 @@ public class DatabaseTransactionManager {
                 finaliseTransactions();
             }
         }
-    }
-
-    public Boolean getInTransaction() {
-        return inTransaction;
     }
 }

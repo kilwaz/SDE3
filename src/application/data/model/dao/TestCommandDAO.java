@@ -41,6 +41,6 @@ public class TestCommandDAO {
     }
 
     public void deleteAllTestCommands() {
-        new UpdateQuery("delete from test_command").execute();
+        new UpdateQuery("update test_command set forDelete = 1").execute();
     }
 }

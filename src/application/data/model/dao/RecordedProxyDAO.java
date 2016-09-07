@@ -9,6 +9,6 @@ public class RecordedProxyDAO {
     }
 
     public void deleteAllRecordedProxies() {
-        new UpdateQuery("delete from http_proxies").execute();
+        new UpdateQuery("update http_proxies set forDelete = 1").execute();
     }
 }

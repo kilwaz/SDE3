@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 public class AppParams {
     // Application information
     public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "v0.5.0.7";
+    public final static String APP_VERSION = "v0.5.0.8";
 
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";
@@ -27,6 +27,9 @@ public class AppParams {
     private static String TEST_DOC_OUTPUT_DIR = "C:\\Users\\alex\\Downloads\\";
     private static Boolean CREATE_TEST_DOCUMENT = true;
     private static Boolean RECORD_SCREENSHOTS = true;
+
+    // Database
+    private static Integer DATABASE_DELETE_LIMIT = 100;
 
     public static Font getFont() {
         return getFont(12);
@@ -111,6 +114,10 @@ public class AppParams {
 
     public static void setAutoManageSeleniumHub(Boolean autoManageSeleniumHub) {
         AUTO_MANAGE_SELENIUM_HUB = autoManageSeleniumHub;
+    }
+
+    public static Integer getDatabaseDeleteLimit() {
+        return DATABASE_DELETE_LIMIT;
     }
 
     public static String getJVMProperty(String key) {

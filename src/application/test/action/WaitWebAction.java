@@ -10,6 +10,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,6 +33,7 @@ public class WaitWebAction extends WebAction {
         TestParameter elementToBePresentXPath = getParameterByPath("presence::xPath");
         TestParameter javaScriptToBeTrue = getParameterByPath("frameLoaded::frame");
         TestParameter waitForTime = getParameterByPath("specificTime");
+        TestParameter waitForRandomTime = getParameterByPath("randomTime");
         TestParameter waitForRequests = getParameterByPath("finishAllRequests");
 
         try {
@@ -63,6 +65,24 @@ public class WaitWebAction extends WebAction {
             if (waitForTime.exists()) { // If it is specified, wait for this amount of time
                 Thread.sleep(Long.parseLong(waitForTime.getParameterValue()));
             }
+            if (waitForRandomTime.exists()) { // Waits for a random time between two values
+                TestParameter waitForRandomTimeMin = getParameterByPath("min");
+                TestParameter waitForRandomTimeMax = getParameterByPath("max");
+
+                Integer min = 0;
+                Integer max = 0;
+                if (waitForRandomTimeMin.exists()) {
+                    min = Integer.parseInt(waitForRandomTimeMin.getParameterValue());
+                }
+                if (waitForRandomTimeMax.exists()) {
+                    max = Integer.parseInt(waitForRandomTimeMax.getParameterValue());
+                }
+
+                Random ran = new Random();
+                Integer waitTime = ran.nextInt((1 + max) - min) + min;
+                log.info("Time to wait = " + waitTime + " (" + min + "/" + max + ")");
+                Thread.sleep(waitTime);
+            }
             if (waitForRequests.exists()) {
                 Awaitility.await().atMost(Integer.parseInt(waitForRequests.getParameterValue()), TimeUnit.MILLISECONDS).until(getHttpProxyServer().getWebProxyRequestManager().haveAllRequestsFinished());
             }
@@ -85,6 +105,8 @@ public class WaitWebAction extends WebAction {
                 requestWaitError.additionalInformation("Active request: " + webProxyRequest.getRequestURL());
             }
             requestWaitError.create(ex);
+        } catch (Exception ex) {
+            Error.WAIT_ACTION_TIMEOUT.record().additionalInformation("Unexpected exception").create(ex);
         }
     }
 }

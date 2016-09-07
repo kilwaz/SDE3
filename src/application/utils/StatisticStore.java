@@ -165,7 +165,7 @@ public class StatisticStore {
     public void incrementResponseCode(Integer code) {
         SimpleIntegerProperty codeProperty = responseCodes.get(code);
         if (codeProperty == null) {
-            log.info("Creating new stat for code " + code);
+            //log.info("Creating new stat for code " + code);
             codeProperty = responseCodes.putIfAbsent(code, new SimpleIntegerProperty());
         }
         Platform.runLater(new StatisticStore.StatisticIntegerUpdate(codeProperty, 1));

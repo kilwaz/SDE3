@@ -8,6 +8,6 @@ public class TestDAO {
     }
 
     public void deleteAllTests() {
-        new UpdateQuery("delete from test").execute();
+        new UpdateQuery("update test set forDelete = 1").execute();
     }
 }
