@@ -1,19 +1,21 @@
 package application.utils;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class StatisticStore {
     private static Logger log = Logger.getLogger(StatisticStore.class);
 
-    private SimpleIntegerProperty requests;
-    private SimpleIntegerProperty applicationStarts;
-    private SimpleIntegerProperty upTime;
+    private SimpleLongProperty requests;
+    private SimpleLongProperty applicationStarts;
+    private SimpleLongProperty programsStarted;
+    private SimpleLongProperty upTime;
     private SimpleStringProperty upTimeFormatted;
 
     private SimpleLongProperty requestSize;
@@ -22,47 +24,59 @@ public class StatisticStore {
     private SimpleLongProperty responseSize;
     private SimpleStringProperty responseSizeFormatted;
 
-    private HashMap<Integer, SimpleIntegerProperty> responseCodes;
+    private HashMap<Integer, SimpleLongProperty> responseCodes;
 
-    private SimpleIntegerProperty commands;
+    private SimpleLongProperty commands;
 
     public StatisticStore() {
         resetStatistics();
     }
 
-    public int getRequests() {
+    public long getRequests() {
         return requests.get();
     }
 
-    public void setRequests(int requests) {
+    public void setRequests(long requests) {
         this.requests.set(requests);
     }
 
-    public SimpleIntegerProperty requestsProperty() {
+    public SimpleLongProperty requestsProperty() {
         return requests;
     }
 
-    public int getApplicationStarts() {
+    public long getApplicationStarts() {
         return applicationStarts.get();
     }
 
-    public void setApplicationStarts(int applicationStarts) {
+    public void setApplicationStarts(long applicationStarts) {
         this.applicationStarts.set(applicationStarts);
     }
 
-    public SimpleIntegerProperty applicationStartsProperty() {
+    public SimpleLongProperty applicationStartsProperty() {
         return applicationStarts;
     }
 
-    public int getUpTime() {
+    public long getProgramsStarted() {
+        return programsStarted.get();
+    }
+
+    public void setProgramsStarted(long programsStarted) {
+        this.programsStarted.set(programsStarted);
+    }
+
+    public SimpleLongProperty programsStartedProperty() {
+        return programsStarted;
+    }
+
+    public long getUpTime() {
         return upTime.get();
     }
 
-    public void setUpTime(int upTime) {
+    public void setUpTime(long upTime) {
         this.upTime.set(upTime);
     }
 
-    public SimpleIntegerProperty upTimeProperty() {
+    public SimpleLongProperty upTimeProperty() {
         return upTime;
     }
 
@@ -126,22 +140,23 @@ public class StatisticStore {
         return responseSizeFormatted;
     }
 
-    public int getCommands() {
+    public long getCommands() {
         return commands.get();
     }
 
-    public void setCommands(int commands) {
+    public void setCommands(long commands) {
         this.commands.set(commands);
     }
 
-    public SimpleIntegerProperty commandsProperty() {
+    public SimpleLongProperty commandsProperty() {
         return commands;
     }
 
     public void resetStatistics() {
-        requests = new SimpleIntegerProperty();
-        applicationStarts = new SimpleIntegerProperty();
-        upTime = new SimpleIntegerProperty();
+        requests = new SimpleLongProperty();
+        applicationStarts = new SimpleLongProperty();
+        programsStarted = new SimpleLongProperty();
+        upTime = new SimpleLongProperty();
         upTimeFormatted = new SimpleStringProperty();
 
         requestSize = new SimpleLongProperty();
@@ -152,23 +167,23 @@ public class StatisticStore {
 
         responseCodes = new HashMap<>();
 
-        commands = new SimpleIntegerProperty();
+        commands = new SimpleLongProperty();
 
         addRequestSize(0);
         addResponseSize(0);
     }
 
-    public HashMap<Integer, SimpleIntegerProperty> getResponseCodes() {
+    public HashMap<Integer, SimpleLongProperty> getResponseCodes() {
         return responseCodes;
     }
 
     public void incrementResponseCode(Integer code) {
-        SimpleIntegerProperty codeProperty = responseCodes.get(code);
+        SimpleLongProperty codeProperty = responseCodes.get(code);
         if (codeProperty == null) {
             //log.info("Creating new stat for code " + code);
-            codeProperty = responseCodes.putIfAbsent(code, new SimpleIntegerProperty());
+            codeProperty = responseCodes.putIfAbsent(code, new SimpleLongProperty());
         }
-        Platform.runLater(new StatisticStore.StatisticIntegerUpdate(codeProperty, 1));
+        Platform.runLater(new StatisticStore.StatisticLongUpdate(codeProperty, 1));
     }
 
     public void addResponseSize(long responseSize) {
@@ -182,24 +197,52 @@ public class StatisticStore {
     }
 
     public void incrementRequests() {
-        Platform.runLater(new StatisticIntegerUpdate(requestsProperty(), 1));
+        Platform.runLater(new StatisticLongUpdate(requestsProperty(), 1));
     }
 
     public void incrementCommands() {
-        Platform.runLater(new StatisticIntegerUpdate(commandsProperty(), 1));
+        Platform.runLater(new StatisticLongUpdate(commandsProperty(), 1));
     }
 
     public void incrementApplicationStart() {
-        Platform.runLater(new StatisticIntegerUpdate(applicationStartsProperty(), 1));
+        Platform.runLater(new StatisticLongUpdate(applicationStartsProperty(), 1));
+    }
+
+    public void incrementProgramStart() {
+        Platform.runLater(new StatisticLongUpdate(programsStartedProperty(), 1));
     }
 
     public void incrementUpTime() {
         Platform.runLater(new StatisticIntegerUpdate(upTimeProperty(), 1));
-        int totalSecs = upTimeProperty().get();
-        int hours = totalSecs / 3600;
-        int minutes = (totalSecs % 3600) / 60;
-        int seconds = totalSecs % 60;
-        Platform.runLater(new StatisticStringUpdate(upTimeFormattedProperty(), String.format("%02d:%02d:%02d", hours, minutes, seconds)));
+        Long totalSecs = upTimeProperty().get();
+        Long days = totalSecs / 86400;
+        Long hours = (totalSecs % 86400) / 3600;
+        Long minutes = (totalSecs % 3600) / 60;
+        Long seconds = totalSecs % 60;
+        String formatString = "";
+        List<Long> timeValues = new ArrayList<>();
+        if (days > 0) { // Include days if time has been that long
+            timeValues.add(days);
+            if (days > 1) {
+                formatString += "%s days";
+            } else {
+                formatString += "%s day";
+            }
+        }
+        if (hours > 0) { // Include hours if time has been that long
+            timeValues.add(hours);
+            formatString += " %sh";
+        }
+        if (minutes > 0) { // Include minutes if time has been that long
+            timeValues.add(minutes);
+            formatString += " %sm";
+        }
+        if (seconds > 0) { // Include seconds if time has been that long
+            timeValues.add(seconds);
+            formatString += " %ss";
+        }
+
+        Platform.runLater(new StatisticStringUpdate(upTimeFormattedProperty(), String.format(formatString, timeValues.toArray())));
     }
 
     private String humanReadableByteCount(long bytes, boolean si) {
@@ -227,10 +270,10 @@ public class StatisticStore {
     }
 
     private class StatisticIntegerUpdate implements Runnable {
-        private SimpleIntegerProperty property;
+        private SimpleLongProperty property;
         private Integer increaseAmount;
 
-        private StatisticIntegerUpdate(SimpleIntegerProperty property, Integer increaseAmount) {
+        private StatisticIntegerUpdate(SimpleLongProperty property, Integer increaseAmount) {
             this.property = property;
             this.increaseAmount = increaseAmount;
         }
@@ -249,6 +292,11 @@ public class StatisticStore {
         private StatisticLongUpdate(SimpleLongProperty property, Long increaseAmount) {
             this.property = property;
             this.increaseAmount = increaseAmount;
+        }
+
+        private StatisticLongUpdate(SimpleLongProperty property, Integer increaseAmount) {
+            this.property = property;
+            this.increaseAmount = increaseAmount.longValue();
         }
 
         public void run() {

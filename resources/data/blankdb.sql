@@ -129,7 +129,7 @@ create table http_headers(
 create table test(
     uuid char(36) NOT NULL,
     node_id char(36),
-    text VARCHAR(10000),
+    text VARCHAR(30000),
     PRIMARY KEY (uuid));
 
 create table test_command(

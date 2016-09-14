@@ -109,12 +109,17 @@ public class StatisticsManager {
 
             Element documentElement = document.getDocumentElement();
 
-            totalStatisticStore.requestsProperty().set(Integer.parseInt(getTextValue("0", documentElement, "TotalRequests")));
-            totalStatisticStore.upTimeProperty().set(Integer.parseInt(getTextValue("0", documentElement, "TotalUpTime")));
+            totalStatisticStore.requestsProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalRequests")));
+            totalStatisticStore.upTimeProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalUpTime")));
             totalStatisticStore.requestSizeProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalRequestSize")));
             totalStatisticStore.applicationStartsProperty().set(Integer.parseInt(getTextValue("0", documentElement, "TotalApplicationStarts")));
-            totalStatisticStore.responseSizeProperty().set(Integer.parseInt(getTextValue("0", documentElement, "TotalResponseSize")));
-            totalStatisticStore.commandsProperty().set(Integer.parseInt(getTextValue("0", documentElement, "TotalCommands")));
+            totalStatisticStore.responseSizeProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalResponseSize")));
+            totalStatisticStore.commandsProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalCommands")));
+            totalStatisticStore.programsStartedProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalProgramStarts")));
+
+            // Formats the current sizes
+            totalStatisticStore.addRequestSize(0);
+            totalStatisticStore.addResponseSize(0);
 
             sessionStatisticStore.requestsProperty().set(0); // Only relates to current session
             sessionStatisticStore.upTimeProperty().set(0); // Only relates to current session
@@ -157,6 +162,7 @@ public class StatisticsManager {
             rootEle.appendChild(buildSaveElement("TotalResponseSize", totalStatisticStore.responseSizeProperty().getValue().toString(), document));
             rootEle.appendChild(buildSaveElement("TotalApplicationStarts", totalStatisticStore.applicationStartsProperty().getValue().toString(), document));
             rootEle.appendChild(buildSaveElement("TotalCommands", totalStatisticStore.commandsProperty().getValue().toString(), document));
+            rootEle.appendChild(buildSaveElement("TotalProgramStarts", totalStatisticStore.programsStartedProperty().getValue().toString(), document));
 
             document.appendChild(rootEle);
 

@@ -34,6 +34,7 @@ public class RecordedRequest extends DatabaseObject {
     private String method = "";
     private Integer status = -1;
     private TestCase parentTestCase;
+    private String reference;
 
     public RecordedRequest() {
         super();
@@ -45,6 +46,14 @@ public class RecordedRequest extends DatabaseObject {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 
     public void setParentTestCase(TestCase parentTestCase) {

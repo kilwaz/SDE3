@@ -20,8 +20,6 @@ public class RecordedRequestDatabaseLink extends DatabaseLink {
         linkBlob("request_content", method("getRequestInputStream"), null); // 7
         linkBlob("response_content", method("getResponseInputStream"), null); // 8
         link("test_case_parent_id", method("getParentTestCaseUuid"), method("setParentTestCase", TestCase.class)); // 9
-
-//        link("request_content", method("getRequest"), null); // 7 - lazy load, only found if needed
-//        link("response_content", method("getResponse"), null); // 8 - lazy load, only found if needed
+        link("reference", method("getReference"), method("setReference", String.class)); // 10
     }
 }

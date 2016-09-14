@@ -38,12 +38,12 @@ public class DatabaseTransactionManager {
         TriggerBuilder deleteDataTriggerBuilder = TriggerBuilder.newTrigger();
 
         transactionSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(1000);
-        deleteDataSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(5000);
+        //deleteDataSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(5000);
 
         JobManager.getInstance().scheduleJob(transactionJob, transactionTriggerBuilder.withSchedule(transactionSimpleScheduleBuilder).build());
         JobManager.getInstance().scheduleJob(dataDataJob, deleteDataTriggerBuilder.withSchedule(deleteDataSimpleScheduleBuilder).build());
         transactionTriggerBuilder.startNow();
-        deleteDataTriggerBuilder.startNow();
+        //deleteDataTriggerBuilder.startNow();
     }
 
     public static synchronized DatabaseTransactionManager getInstance() {

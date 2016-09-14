@@ -41,17 +41,19 @@ public class StatisticsWindow extends Stage {
             vBox.getChildren().add(buildStatisticRow("Session Request Size", Bindings.format("%s", statisticsManager.getSessionStatisticStore().requestSizeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Session Response Size", Bindings.format("%s", statisticsManager.getSessionStatisticStore().responseSizeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Session Total Commands", Bindings.format("%,d", statisticsManager.getSessionStatisticStore().commandsProperty())));
-
+            vBox.getChildren().add(buildStatisticRow("Session Programs Starts", Bindings.format("%,d", statisticsManager.getSessionStatisticStore().programsStartedProperty())));
+            vBox.getChildren().add(new Label()); // Spacer
             vBox.getChildren().add(buildStatisticRow("Total Requests", Bindings.format("%,d", statisticsManager.getTotalStatisticStore().requestsProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Up Time", Bindings.format("%s", statisticsManager.getTotalStatisticStore().upTimeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Request Size", Bindings.format("%s", statisticsManager.getTotalStatisticStore().requestSizeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Response Size", Bindings.format("%s", statisticsManager.getTotalStatisticStore().responseSizeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Commands", Bindings.format("%,d", statisticsManager.getTotalStatisticStore().commandsProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Application Starts", Bindings.format("%,d", statisticsManager.getTotalStatisticStore().applicationStartsProperty())));
+            vBox.getChildren().add(buildStatisticRow("Total Programs Starts", Bindings.format("%,d", statisticsManager.getTotalStatisticStore().programsStartedProperty())));
 
             statisticsAnchor.getChildren().add(vBox);
 
-            Scene newScene = new Scene(statisticsAnchor, 200, 300);
+            Scene newScene = new Scene(statisticsAnchor, 220, 350);
             this.setScene(newScene);
 
             this.setTitle("Application Statistics");

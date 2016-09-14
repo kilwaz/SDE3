@@ -20,12 +20,16 @@ public class TrackWebAction extends WebAction {
     public void performAction() {
         // Add the result to a result node if it is linked
         TestParameter trackerNode = getTestCommand().getParameterByPath("trackerNode");
+        TestParameter trackerReference = getTestCommand().getParameterByPath("trackerReference");
         if (trackerNode.exists()) {
             DrawableNode resultNode = getProgram().getFlowController().getNodeThisControllerFromContainedText(trackerNode.getParameterValue());
             if (resultNode != null && resultNode instanceof RequestTrackerNode) {
                 RequestTrackerNode requestTrackerNode = (RequestTrackerNode) resultNode;
                 getHttpProxyServer().addRequestListener(requestTrackerNode);
             }
+        }
+        if (trackerReference.exists()) {
+            getHttpProxyServer().getWebProxyRequestManager().getRecordedProxy().setProxyReference(trackerReference.getParameterValue());
         }
     }
 }

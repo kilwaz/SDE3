@@ -86,6 +86,7 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
         requestTableView.getColumns().addAll(new ResponseLengthColumn());
         requestTableView.getColumns().addAll(new RedirectColumn());
         requestTableView.getColumns().addAll(new ProxyColumn());
+        requestTableView.getColumns().addAll(new RequestReferenceColumn());
 
         requestTableView.setPrefSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
         UI.setAnchorMargins(requestTableView, 0.0, 0.0, 0.0, 0.0);
@@ -148,8 +149,26 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
         updateTotalRequests();
     }
 
+    public void clearRequestByReference(String reference) {
+        if (reference == null) return;
+        List<RecordedRequest> requestsToRemove = requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList());
+        requestList.removeAll(requestsToRemove);
+        updateTotalRequests();
+    }
+
     public ObservableList<RecordedRequest> getResultList() {
         return requestList;
+    }
+
+    public List<RecordedRequest> getResultListByReference(String reference) {
+        return requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList());
+    }
+
+    public GroupedRequests getGroupedRequestsByReference(String reference) {
+        GroupedRequests recordedRequests = new GroupedRequests();
+        List<RecordedRequest> requestsByReference = requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList());
+        recordedRequests.addAll(requestsByReference);
+        return recordedRequests;
     }
 
     public GroupedRequests getGroupedRequests() {

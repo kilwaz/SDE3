@@ -216,14 +216,17 @@ public class CompileCode {
                 "   private Logger log = Logger.getLogger(\"" + logic.getParentLogicNode().getContainedText() + " (#" + logic.getParentLogicNode().getUuidStringWithoutHyphen() + ")\");" +
                 "   " + logic.getLogic() + "\r\n" +
                 "   public void threadRun() {" +
+                "       FlowController.sourceStarted(this.logicReferenceUuid);" +
+                "       function();" +
+                "       threadWait();" +
+                "       FlowController.sourceFinished(this.logicReferenceUuid);" +
+                "   }" +
+                "   public void threadWait() {" +
                 "      try {" +
-                "           FlowController.sourceStarted(this.logicReferenceUuid);" +
-                "           function();" +
                 "           SDEThreadCollection sdeThreadCollection = ThreadManager.getInstance().getThreadCollection(\"" + className + "\");" +
                 "           if(sdeThreadCollection != null) {" +
                 "               sdeThreadCollection.join();" +
                 "           }" +
-                "           FlowController.sourceFinished(this.logicReferenceUuid);" +
                 "      } catch (Exception ex) {" +
                 "           Error.COMPILED_LOGIC_NODE.record().additionalInformation(\"Node - " + logic.getParentLogicNode().getContainedText() + " (" + className + ")\").create(ex);" +
                 "      }" +

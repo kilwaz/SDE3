@@ -101,6 +101,7 @@ public class WebProxyRequestManager {
             recordedRequest.setMethod(webProxyRequest.getMethod());
             recordedRequest.setStatus(webProxyRequest.getStatus());
             recordedRequest.setRedirectUrl(webProxyRequest.getRedirectUrl());
+            recordedRequest.setReference(recordedProxy.getProxyReference());
 
             // Save the request headers
             for (String name : webProxyRequest.getRequestHeaders().keySet()) {

@@ -197,11 +197,11 @@ public class TestRunner extends SDERunnable {
                     if (driver != null) {
                         try {
                             Class actionClass = WebAction.getClassMapping(testCommand.getMainCommand());
+                            StatisticsManager.getInstance().getTotalStatisticStore().incrementCommands();
+                            StatisticsManager.getInstance().getSessionStatisticStore().incrementCommands();
                             WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
                             webAction.initialise(httpProxyServer, driver, testCommand, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker, documentTracker);
                             webAction.performAction();
-                            StatisticsManager.getInstance().getTotalStatisticStore().incrementCommands();
-                            StatisticsManager.getInstance().getSessionStatisticStore().incrementCommands();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                             application.error.Error.TEST_NODE_ACTION.record().create(ex);
                         } catch (WebDriverException ex) {

@@ -64,8 +64,18 @@ public class ExportNode extends DrawableNode {
             Date date = new Date();
             dateFormat.format(date);
 
+            String fileNameToUse;
+            if (nodeRunParams.getVariable("fullFileName") != null) {
+                fileNameToUse = (String) nodeRunParams.getVariable("fullFileName");
+            } else if (nodeRunParams.getVariable("fileName") != null && nodeRunParams.getVariable("fileDirectory") != null) {
+                fileNameToUse = buildConstructedFileName((String) nodeRunParams.getVariable("fileDirectory"), (String) nodeRunParams.getVariable("fileName"));
+            } else {
+                buildConstructedFileName();
+                fileNameToUse = constructedFileName;
+            }
+
             buildConstructedFileName();
-            new ExportBuilder().export(export).saveLocation(new File(constructedFileName)).construct();
+            new ExportBuilder().export(export).saveLocation(new File(fileNameToUse)).construct();
         }
     }
 
@@ -167,17 +177,22 @@ public class ExportNode extends DrawableNode {
         return tab;
     }
 
-    public void buildConstructedFileName() {
+    public String buildConstructedFileName() {
+        return buildConstructedFileName(fileOutputDirectory, fileOutputName);
+    }
+
+    public String buildConstructedFileName(String fileDirectory, String fileName) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         Date date = new Date();
         String fileDate = dateFormat.format(date);
 
-        constructedFileName = fileOutputDirectory + "/" + fileOutputName + ".xlsx";
+        constructedFileName = fileDirectory + "/" + fileName + ".xlsx";
         constructedFileName = constructedFileName.replace("[DATE]", fileDate);
 
-        constructedDirectory = fileOutputDirectory.replace("[DATE]", fileDate) + "/";
+        constructedDirectory = fileDirectory.replace("[DATE]", fileDate) + "/";
 
         updateConstructedFileNameLabel(constructedFileName);
+        return constructedFileName;
     }
 
     public void updateConstructedFileNameLabel(String text) {

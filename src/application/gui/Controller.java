@@ -12,6 +12,7 @@ import application.node.implementations.BatchNode;
 import application.node.implementations.TestManagerNode;
 import application.utils.AppParams;
 import application.utils.managers.SessionManager;
+import application.utils.managers.StatisticsManager;
 import application.utils.managers.ThreadManager;
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -509,6 +510,8 @@ public class Controller implements Initializable {
         runButtonToolBar.setOnMouseReleased(event -> runButtonToolBar.setStyle("-fx-background-color: lightgray;"));
         runButtonToolBar.setOnMouseExited(event -> runButtonToolBar.setStyle("-fx-background-color: null;"));
         runButtonToolBar.setOnAction(event -> {
+                    StatisticsManager.getInstance().getSessionStatisticStore().incrementProgramStart();
+                    StatisticsManager.getInstance().getTotalStatisticStore().incrementProgramStart();
                     Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
                     if (selectedProgram != null) {
                         selectedProgram.run();
