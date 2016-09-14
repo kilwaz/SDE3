@@ -13,12 +13,13 @@ import org.apache.log4j.Logger;
 
 import java.net.URL;
 
-public class SettingsPickerWindow extends Stage {
+public class SettingsPickerWindow extends SDEWindow {
     private static Logger log = Logger.getLogger(SettingsPickerWindow.class);
     private AnchorPane settingContent = new AnchorPane();
     private TreeView<SettingsPage> treeView = null;
 
     public SettingsPickerWindow() {
+        super();
         init();
     }
 

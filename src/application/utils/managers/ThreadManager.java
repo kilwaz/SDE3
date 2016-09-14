@@ -11,22 +11,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ThreadManager {
-    private static ThreadManager threadManager;
+    private static ThreadManager instnace;
     private ObservableList<SDEThread> runningThreads;
     private Integer activeThreads = 0;
     private HashMap<String, SDEThreadCollection> threadCollections = new HashMap<>();
 
     public ThreadManager() {
-        threadManager = this;
+        instnace = this;
         runningThreads = FXCollections.observableArrayList();
     }
 
     public synchronized static ThreadManager getInstance() {
-        if (threadManager == null) {
-            threadManager = new ThreadManager();
+        if (instnace == null) {
+            instnace = new ThreadManager();
         }
 
-        return threadManager;
+        return instnace;
     }
 
     // Synchronized method as we are accessing runningThreads list

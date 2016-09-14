@@ -12,15 +12,15 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
 import java.net.URL;
 
-public class StatisticsWindow extends Stage {
+public class StatisticsWindow extends SDEWindow {
     private static Logger log = Logger.getLogger(ErrorWindow.class);
 
     public StatisticsWindow() {
+        super();
         init();
     }
 

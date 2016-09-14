@@ -11,15 +11,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
 import java.net.URL;
 
-public class ErrorWindow extends Stage {
+public class ErrorWindow extends SDEWindow {
     private static Logger log = Logger.getLogger(ErrorWindow.class);
 
     public ErrorWindow() {
+        super();
         init();
     }
 

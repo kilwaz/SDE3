@@ -12,13 +12,14 @@ import org.apache.log4j.Logger;
 
 import java.net.URL;
 
-public class PreviousTestsWindow extends Stage {
+public class PreviousTestsWindow extends SDEWindow {
     private TestNode testNode;
 
     private static Logger log = Logger.getLogger(PreviousTestsWindow.class);
 
 
     public PreviousTestsWindow(TestNode testNode) {
+        super();
         this.testNode = testNode;
         init();
     }

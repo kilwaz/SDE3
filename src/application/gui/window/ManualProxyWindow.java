@@ -27,7 +27,7 @@ import org.openqa.selenium.WebDriver;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-public class ManualProxyWindow extends Stage implements ProxyRequestListener {
+public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener {
     private static Logger log = Logger.getLogger(RequestInspectWindow.class);
 
     private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
@@ -35,6 +35,7 @@ public class ManualProxyWindow extends Stage implements ProxyRequestListener {
     private HttpProxyServer httpProxyServer;
 
     public ManualProxyWindow() {
+        super();
         init();
     }
 

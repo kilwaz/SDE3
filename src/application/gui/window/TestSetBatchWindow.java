@@ -45,7 +45,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 
-public class TestSetBatchWindow extends Stage {
+public class TestSetBatchWindow extends SDEWindow {
     private static Logger log = Logger.getLogger(TestSetBatchWindow.class);
     private TestSetBatch testSetBatch;
     private TableView<TestCommand> testCommandTableView;
@@ -66,6 +66,7 @@ public class TestSetBatchWindow extends Stage {
     private AnchorPane exceptionInformationAnchor = new AnchorPane();
 
     public TestSetBatchWindow(TestSetBatch testSetBatch) {
+        super();
         this.testSetBatch = testSetBatch;
         init();
     }

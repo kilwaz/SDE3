@@ -17,12 +17,13 @@ import org.apache.log4j.Logger;
 import java.net.URL;
 import java.util.HashMap;
 
-public class RequestInspectWindow extends Stage {
+public class RequestInspectWindow extends SDEWindow {
     private RecordedRequest recordedRequest;
 
     private static Logger log = Logger.getLogger(RequestInspectWindow.class);
 
     public RequestInspectWindow(RecordedRequest recordedRequest) {
+        super();
         this.recordedRequest = recordedRequest;
         init();
     }

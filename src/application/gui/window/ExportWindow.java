@@ -27,7 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExportWindow extends Stage {
+public class ExportWindow extends SDEWindow {
     public final static Integer EXPORT_NODE = 1;
     public final static Integer EXPORT_PROGRAM = 2;
     public final static Integer EXPORT_NODE_COLOURS = 3;
@@ -38,6 +38,7 @@ public class ExportWindow extends Stage {
     private static Logger log = Logger.getLogger(ExportWindow.class);
 
     public ExportWindow(Integer exportType) {
+        super();
         this.exportType = exportType;
         init();
     }

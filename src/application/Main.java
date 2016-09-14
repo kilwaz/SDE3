@@ -213,6 +213,7 @@ public class Main extends Application {
     private void startManagers() {
         // Load all managers
         new ThreadManager();
+        new WindowManager();
         new SSHConnectionManager();
         new BrowserManager();
         new WebProxyManager();
@@ -310,6 +311,7 @@ public class Main extends Application {
      */
     public void shutdownApplication() {
         // On Application Close we try and clean up all the open connections and running threads
+        WindowManager.getInstance().closeAllWindows();
         DatabaseTransactionManager.getInstance().finaliseTransactions();
         SSHConnectionManager.getInstance().closeConnections();
         ThreadManager.getInstance().removeInactiveThreads();

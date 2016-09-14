@@ -15,7 +15,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.TaskProgressView;
 import org.w3c.dom.Document;
@@ -29,12 +28,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public class ImportWindow extends Stage {
+public class ImportWindow extends SDEWindow {
     private static Logger log = Logger.getLogger(ImportWindow.class);
     private HBox headerButtons;
     private TaskProgressView<ImportTask> taskTaskProgressView = null;
 
     public ImportWindow() {
+        super();
         init();
     }
 

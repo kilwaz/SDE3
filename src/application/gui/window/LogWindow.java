@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import java.net.URL;
 import java.util.*;
 
-public class LogWindow extends Stage {
+public class LogWindow extends SDEWindow {
     private TextArea loggingTextArea;
     private ListView<LogClass> listView;
 
@@ -30,6 +30,7 @@ public class LogWindow extends Stage {
     private static List<LogWindow> logWindows = new ArrayList<>();
 
     public LogWindow() {
+        super();
         init();
     }
 
