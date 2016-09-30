@@ -28,10 +28,8 @@ public class InputWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestParameter elementId = getTestCommand().getParameterByPath("id");
             TestParameter valueToEnter = getTestCommand().getParameterByPath("value");
             TestParameter characterDelay = getTestCommand().getParameterByPath("characterDelay");
-            TestParameter loopElement = getTestCommand().getParameterByName("loop");
             TestParameter eventToTrigger = getTestCommand().getParameterByName("event");
             TestParameter clearFirstText = getTestCommand().getParameterByName("clearFirst");
             TestParameter increaseBy = getTestCommand().getParameterByName("increaseBy");
@@ -41,13 +39,7 @@ public class InputWebAction extends WebAction {
             getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 
             // Finds element
-            WebElement testElement = null;
-            if (elementId.exists()) { // Get the element via id
-                testElement = getDriver().findElement(By.id(elementId.getParameterValue()));
-            } else if (loopElement.exists()) { // Get element via loop
-                LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
-                testElement = loopedWebElement.getWebElement(getDriver());
-            }
+            WebElement testElement = specifiedElement();
 
             if (testElement != null && testElement.isDisplayed()) {
                 String textToEnter = "";

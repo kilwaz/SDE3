@@ -191,10 +191,10 @@ public class SDEUtils {
     }
 
     public static String generateXPath(WebElement webElement, Boolean withId) {
+        if (webElement == null) return null;
         if (!webElement.getAttribute("id").equals("") && withId) { // If the element has an ID we just use that as we found an anchor
             return "//*[@id=\"" + webElement.getAttribute("id") + "\"]";
         } else { // If not we put the tag and go up
-//            try {
             if ("body".equals(webElement.getTagName())) {
                 return "/html/body";
             } else {
@@ -253,7 +253,7 @@ public class SDEUtils {
 
     public static Element getElementFromXPath(String xPath, Document document) {
         List<Element> elements = getElementsFromXPath(xPath, document);
-        if (elements.size() > 0) {
+        if (elements != null && elements.size() > 0) {
             return elements.get(0);
         } else {
             return null;
@@ -261,6 +261,7 @@ public class SDEUtils {
     }
 
     public static List<Element> getElementsFromXPath(String xPath, Document document) {
+        if (xPath == null) return null;
         return (List<Element>) IteratorUtils.toList(Xsoup.compile(xPath).evaluate(document).getElements().listIterator());
     }
 

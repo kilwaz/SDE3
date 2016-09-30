@@ -45,7 +45,6 @@ public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject 
     private TestTemplate templateObject;
     private ObservableList<TestCommand> testCommands = FXCollections.observableArrayList();
     private ObservableList<RecordedRequest> testRequests = FXCollections.observableArrayList();
-    private List<TestLogMessage> logMessages = new ArrayList<>();
     private SimpleIntegerProperty passedTestCases = new SimpleIntegerProperty();
 
     public TestCase() {
@@ -80,23 +79,25 @@ public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject 
 
     public String getLogMessages() {
         StringBuilder logMessage = new StringBuilder();
-        for (TestLogMessage testLogMessage : logMessages) {
-            logMessage.append(testLogMessage.getFormattedDateTime()).append(": ").append(testLogMessage.getMessage()).append("\n");
-        }
+//        for (TestLogMessage testLogMessage : logMessages) {
+//            logMessage.append(testLogMessage.getFormattedDateTime()).append(": ").append(testLogMessage.getMessage()).append("\n");
+//        }
         return logMessage.toString();
     }
 
     public TestCase log(Exception ex) {
         TestLogMessage testLogMessage = new TestLogMessage();
         testLogMessage.setMessage(ex.toString());
-        logMessages.add(testLogMessage);
+        testLogMessage.setParentTestCase(this);
+        testLogMessage.save();
         return this;
     }
 
     public TestCase log(String logMessage) {
         TestLogMessage testLogMessage = new TestLogMessage();
         testLogMessage.setMessage(logMessage);
-        logMessages.add(testLogMessage);
+        testLogMessage.setParentTestCase(this);
+        testLogMessage.save();
         return this;
     }
 
@@ -336,6 +337,7 @@ public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject 
         testRequests.add(recordedRequest);
         recordedRequest.setParentTestCase(this);
         recordedRequest.save();
+        recordedRequest.lighten();
     }
 
     public HashMap<String, PageStateCapture> getPageCaptures() {

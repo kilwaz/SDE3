@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
@@ -29,9 +28,6 @@ public class SelectWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestParameter idElement = getTestCommand().getParameterByPath("id");
-            TestParameter xPathElement = getTestCommand().getParameterByPath("xPath");
-            TestParameter loopElement = getTestCommand().getParameterByName("loop");
             TestParameter loopedOptionElement = getTestCommand().getParameterByName("loopedOption");
             TestParameter selectText = getTestCommand().getParameterByName("select");
             TestParameter selectIndex = getTestCommand().getParameterByName("index");
@@ -39,29 +35,9 @@ public class SelectWebAction extends WebAction {
 
             // We only wait for 10 seconds for page loads, sometimes the click hangs forever otherwise
             getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
-
-            By testBy = null;
-
-            WebElement testElement = null;
-            if (idElement.exists() || xPathElement.exists()) {
-                if (xPathElement.exists()) {
-                    testBy = findElement(xPathElement);
-                } else if (idElement.exists()) {
-                    testBy = findElement(idElement);
-                }
-
-                if (testBy != null) {
-                    testElement = getDriver().findElement(testBy);
-                    processElement(testElement);
-                }
-            } else if (loopElement.exists()) {
-                WebElement loopedElement = null;
-                LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
-                if (loopedWebElement != null) {
-                    loopedElement = loopedWebElement.getWebElement(getDriver());
-                    processElement(loopedElement);
-                    testElement = loopedElement;
-                }
+            WebElement testElement = specifiedElement();
+            if (testElement != null) {
+                processElement(testElement);
             }
 
             getDocumentTracker().refreshCurrentDocument();

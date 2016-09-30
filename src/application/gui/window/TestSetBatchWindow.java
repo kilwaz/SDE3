@@ -35,7 +35,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.PropertySheet;
@@ -267,7 +266,7 @@ public class TestSetBatchWindow extends SDEWindow {
         testCommandTableView.getColumns().add(new RawCommandColumn());
         testCommandTableView.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldTestCommand, newTestCommand) -> {
-                    BufferedImage bufferedImage = newTestCommand.getScreenshot();
+                    BufferedImage bufferedImage = newTestCommand.getScreenshot().getScreenshotFromDatabase();
                     WritableImage writableImage = new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight());
                     SwingFXUtils.toFXImage(bufferedImage, writableImage);
                     testCommandImage.setImage(writableImage);

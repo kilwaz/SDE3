@@ -1,11 +1,11 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import application.test.action.helpers.LoopedWebElement;
 import application.test.action.helpers.Variable;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
+import org.openqa.selenium.WebElement;
 
 /**
  * This action logs a message, it can also log an element variable.
@@ -21,11 +21,7 @@ public class LogWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestParameter idElement = getTestCommand().getParameterByName("id");
-        TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
-        TestParameter loopElement = getTestCommand().getParameterByName("loop");
         TestParameter variable = getTestCommand().getParameterByName("var");
-
         TestParameter message = getTestCommand().getParameterByName("message");
 
         if (message.exists()) {
@@ -33,37 +29,19 @@ public class LogWebAction extends WebAction {
             if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
                 getRunningTest().getTestCase().log(message.getParameterValue());
             }
-        } else if (idElement.exists() || xPathElement.exists()) {
-            String xPath = null;
-            if (xPathElement.exists()) {
-                xPath = xPathElement.getParameterValue();
-            } else if (idElement.exists()) {
-                xPath = "//*[@id=\"" + idElement.getParameterValue() + "\"]";
-            }
-
-            if (xPath != null) {
-                Element testElement = SDEUtils.getElementFromXPath(xPath, getDocumentTracker().getCurrentDocument());
-                processElement(testElement);
-
-            }
-        } else if (loopElement.exists()) {
-            Element loopedElement = null;
-            LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
-            if (loopedWebElement != null) {
-                loopedElement = loopedWebElement.getElement();
-            }
-
-            processElement(loopedElement);
         } else if (variable.exists()) {
             Variable var = getVariableTracker().getVariable(variable.getParameterValue());
             if (var != null) {
                 log.info(var.getVariableValue());
             }
+        } else {
+            processElement(specifiedElement());
         }
     }
 
-    private void processElement(Element element) {
-        if (element != null) {
+    private void processElement(WebElement webElement) {
+        if (webElement != null) {
+            Element element = SDEUtils.getJSoupElementFromWebElement(webElement, getDocumentTracker().getCurrentDocument());
             log.info(element.outerHtml());
             if (getRunningTest() != null && getRunningTest().getTestCase() != null) {
                 getRunningTest().getTestCase().log(element.outerHtml());

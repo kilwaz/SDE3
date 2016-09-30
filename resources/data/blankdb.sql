@@ -22,6 +22,8 @@ drop table if exists linked_test_cases;
 drop table if exists test_case;
 drop table if exists test_set;
 drop table if exists test_set_batch;
+drop table if exists test_log_messages;
+drop table if exists test_command_screenshot;
 
 create table node(
     uuid char(36) NOT NULL,
@@ -76,8 +78,8 @@ create table recorded_requests(
     duration INT,
     request_size INT,
     response_size INT,
-    request_content MEDIUMTEXT,
-    response_content MEDIUMTEXT,
+    request_content LONGTEXT,
+    response_content LONGTEXT,
     test_case_parent_id char(36),
     PRIMARY KEY (uuid));
 
@@ -139,7 +141,6 @@ create table test_command(
     raw_command VARCHAR(1000),
     command_line_number INT,
     command_order INT,
-    screenshot mediumblob,
     test_case_parent_id char(36),
     PRIMARY KEY (uuid));
 
@@ -155,7 +156,6 @@ create table linked_test_cases(
 create table test_case (
     uuid char(36) NOT NULL,
     test_iteration_id VARCHAR(1000),
-
     test_set_parent_id char(36),
     PRIMARY KEY (uuid));
 
@@ -170,4 +170,17 @@ create table test_set_batch (
     uuid char(36) NOT NULL,
     node_id char(36),
     created_time DATE,
+    PRIMARY KEY (uuid));
+
+create table test_log_messages (
+    uuid char(36) NOT NULL,
+    test_case_parent_id char(36),
+    log_message VARCHAR(4000),
+    log_time DATE,
+    PRIMARY KEY (uuid));
+
+create table test_command_screenshot (
+    uuid char(36) NOT NULL,
+    test_command_parent_id char(36),
+    screenshot mediumblob,
     PRIMARY KEY (uuid));

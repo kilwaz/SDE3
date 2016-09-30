@@ -20,7 +20,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
@@ -169,6 +168,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
 
             public void run() {
                 requestList.add(recordedRequest);
+                recordedRequest.lighten();
                 updateTotalRequests();
             }
         }

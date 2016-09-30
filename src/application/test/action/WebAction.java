@@ -5,6 +5,7 @@ import application.gui.Program;
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.objects.Test;
 import application.test.TestCommand;
+import application.test.TestCommandScreenshot;
 import application.test.TestParameter;
 import application.test.action.helpers.*;
 import application.utils.AppParams;
@@ -144,7 +145,10 @@ public abstract class WebAction implements Action {
 
             try {
                 BufferedImage bufferedImage = ImageIO.read(scrFile);
-                testCommand.setScreenshot(bufferedImage);
+                TestCommandScreenshot testCommandScreenshot = TestCommandScreenshot.create(TestCommandScreenshot.class);
+                testCommandScreenshot.setParentTestCommand(testCommand);
+                testCommandScreenshot.setScreenshot(bufferedImage);
+                testCommand.setTestCommandScreenshot(testCommandScreenshot);
                 if (testElement != null) {
                     // Remove the highlighting
                     scriptToRun = "var elem = document.getElementById(\"" + highlightId + "\");\n" +
@@ -252,9 +256,48 @@ public abstract class WebAction implements Action {
             return By.xpath(elementToFind.getParameterValue());
         } else if ("id".equals(elementToFind.getParameterName())) {
             return By.id(elementToFind.getParameterValue());
+        } else if ("name".equals(elementToFind.getParameterName())) {
+            return By.name(elementToFind.getParameterValue());
         }
 
         return null;
+    }
+
+    public WebElement specifiedElement() {
+        TestParameter idElement = getTestCommand().getParameterByName("id");
+        TestParameter nameElement = getTestCommand().getParameterByName("name");
+        TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
+        TestParameter loopElement = getTestCommand().getParameterByName("loop");
+
+        WebElement testElement = null;
+        if (idElement.exists()) { // Get the element via id
+            testElement = getDriver().findElement(findElement(idElement));
+        } else if (xPathElement.exists()) { // Get the element via xPath
+            testElement = getDriver().findElement(findElement(xPathElement));
+        } else if (loopElement.exists()) { // Get element via loop
+            LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
+            if (loopedWebElement != null) {
+                testElement = loopedWebElement.getWebElement(getDriver());
+            }
+        } else if (nameElement.exists()) { // Get element via name
+            testElement = getDriver().findElement(findElement(nameElement));
+        }
+
+        return testElement;
+    }
+
+    public By specifiedBy() {
+        TestParameter idElement = getTestCommand().getParameterByName("id");
+        TestParameter nameElement = getTestCommand().getParameterByName("name");
+        TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
+
+        By by = null;
+        if (idElement.exists() || xPathElement.exists() || nameElement.exists()) { // Get the element via id
+            by = findElement(idElement);
+        }
+
+        return by;
+
     }
 
     public Test getRunningTest() {

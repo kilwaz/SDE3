@@ -2,7 +2,6 @@ package application.test;
 
 import application.data.model.DatabaseObject;
 import application.data.model.dao.TestCommandDAO;
-import application.error.Error;
 import application.node.objects.Test;
 import application.test.core.TestCase;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,12 +10,7 @@ import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -32,7 +26,7 @@ public class TestCommand extends DatabaseObject {
     private Integer commandLineNumber = -1;
     private Integer commandOrder = -1;
     private Test parentTest = null;
-    private BufferedImage screenshot = null;
+    private TestCommandScreenshot screenshot = null;
     private Boolean hasScreenshot = false;
     private DateTime commandDate = null;
     private TestCommandError testCommandError = new TestCommandError();
@@ -127,18 +121,12 @@ public class TestCommand extends DatabaseObject {
         this.hasScreenshot = hasScreenshot;
     }
 
-    public BufferedImage getScreenshot() {
-        if (screenshot == null) {
-            TestCommandDAO recordedRequestDAO = new TestCommandDAO();
-            screenshot = recordedRequestDAO.getLazyScreenshot(this);
-        }
-        if (screenshot == null) {
-            screenshot = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-        }
+    public TestCommandScreenshot getScreenshot() {
         return screenshot;
     }
 
-    public void setScreenshot(BufferedImage screenshot) {
+    // Sets the screenshot and then immediately offloads it to the database
+    public void setTestCommandScreenshot(TestCommandScreenshot screenshot) {
         this.screenshot = screenshot;
         this.hasScreenshot = true;
     }
@@ -150,28 +138,8 @@ public class TestCommand extends DatabaseObject {
         }
     }
 
-    public void lighten() {
-        screenshot = null; // Clear up the screenshot object to clear memory
-    }
-
     public Boolean hasException() {
         return testCommandError.hasException();
-    }
-
-    // Returns an input stream from the current screenshot
-    public InputStream getScreenshotInputStream() {
-        InputStream inputStream = null;
-        if (getScreenshot() != null) {
-            try {
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                ImageIO.write(getScreenshot(), "png", os);
-                inputStream = new ByteArrayInputStream(os.toByteArray());
-            } catch (IOException ex) {
-                Error.RETRIEVE_SCREENSHOT.record().create(ex);
-            }
-        }
-
-        return inputStream;
     }
 
     public Integer getCommandLineNumber() {

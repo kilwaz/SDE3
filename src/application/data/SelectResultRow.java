@@ -73,6 +73,8 @@ public class SelectResultRow {
     public InputStream getBlobInputStream(String colName) {
         try {
             return ((Blob) rowValues.get(colName + "-Blob")).getBinaryStream();
+        } catch (NullPointerException ex) {
+            Error.SQL_BLOB.record().additionalInformation("Nothing returned from column lookup: " + colName + "-Blob").create(ex);
         } catch (SQLException ex) {
             Error.SQL_BLOB.record().create(ex);
         }

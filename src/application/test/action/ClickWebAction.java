@@ -1,10 +1,7 @@
 package application.test.action;
 
 import application.error.Error;
-import application.test.TestParameter;
-import application.test.action.helpers.LoopedWebElement;
 import org.apache.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.util.concurrent.TimeUnit;
@@ -29,33 +26,13 @@ public class ClickWebAction extends WebAction {
      */
     public void performAction() {
         try {
-            TestParameter xPathElement = getParameterByPath("xPath");
-            TestParameter idElement = getParameterByPath("id");
-            TestParameter loopElement = getParameterByName("loop");
-            By testBy = null;
-
             // We only wait for 10 seconds for page loads, sometimes the click hangs forever otherwise
             getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 
-            if (idElement.exists() || xPathElement.exists()) {
-                if (xPathElement.exists()) {
-                    testBy = findElement(xPathElement);
-                } else if (idElement.exists()) {
-                    testBy = findElement(idElement);
-                }
+            WebElement webElement = specifiedElement();
 
-                if (testBy != null) {
-                    WebElement testElement = getDriver().findElement(testBy);
-                    processElement(testElement);
-                }
-            } else if (loopElement.exists()) {
-                WebElement loopedElement = null;
-                LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
-                if (loopedWebElement != null) {
-                    loopedElement = loopedWebElement.getWebElement(getDriver());
-                }
-
-                processElement(loopedElement);
+            if (webElement != null) {
+                processElement(webElement);
             } else {
                 log.info("No element exists to be clicked");
                 if (getRunningTest() != null && getRunningTest().getTestCase() != null) {

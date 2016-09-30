@@ -28,8 +28,10 @@ public class WaitWebAction extends WebAction {
      * Run by {@link WebAction} to handle this action.
      */
     public void performAction() {
-        TestParameter elementToBeClickable = getParameterByPath("clickable::id");
+        TestParameter elementToBeClickableId = getParameterByPath("clickable::id");
+        TestParameter elementToBeClickableName = getParameterByPath("clickable::name");
         TestParameter elementToBePresentId = getParameterByPath("presence::id");
+        TestParameter elementToBePresentName = getParameterByPath("presence::name");
         TestParameter elementToBePresentXPath = getParameterByPath("presence::xPath");
         TestParameter javaScriptToBeTrue = getParameterByPath("frameLoaded::frame");
         TestParameter waitForTime = getParameterByPath("specificTime");
@@ -37,13 +39,21 @@ public class WaitWebAction extends WebAction {
         TestParameter waitForRequests = getParameterByPath("finishAllRequests");
 
         try {
-            if (elementToBeClickable.exists()) { // If it is specified, wait until this element is clickable
+            if (elementToBeClickableId.exists()) { // If it is specified, wait until this element is clickable
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
-                wait.until(ExpectedConditions.elementToBeClickable(findElement(elementToBeClickable)));
+                wait.until(ExpectedConditions.elementToBeClickable(findElement(elementToBeClickableId)));
+            }
+            if (elementToBeClickableName.exists()) { // If it is specified, wait until this element is clickable
+                WebDriverWait wait = new WebDriverWait(getDriver(), 10);
+                wait.until(ExpectedConditions.elementToBeClickable(findElement(elementToBeClickableName)));
             }
             if (elementToBePresentId.exists()) { // If it is specified, wait until this element is present
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
                 wait.until(ExpectedConditions.presenceOfElementLocated(findElement(elementToBePresentId)));
+            }
+            if (elementToBePresentName.exists()) { // If it is specified, wait until this element is present
+                WebDriverWait wait = new WebDriverWait(getDriver(), 10);
+                wait.until(ExpectedConditions.presenceOfElementLocated(findElement(elementToBePresentName)));
             }
             if (elementToBePresentXPath.exists()) { // If it is specified, wait until this element is present
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);

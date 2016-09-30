@@ -1,6 +1,7 @@
 package application.node.implementations;
 
 import application.data.SavableAttribute;
+import application.error.Error;
 import application.gui.Controller;
 import application.gui.UI;
 import application.gui.columns.requesttracker.*;
@@ -22,6 +23,8 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 public class RequestTrackerNode extends DrawableNode implements ProxyRequestListener {
@@ -55,7 +58,17 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
     }
 
     public List<RecordedRequest> getRequestsByURL(String url) {
-        return requestList.stream().filter(recordedRequest -> recordedRequest.getUrl().equals(url)).collect(Collectors.toList());
+        // Future task to schedule returning filtered version of the list
+        final FutureTask futureTask = new FutureTask(() -> requestList.stream().filter(recordedRequest -> recordedRequest.getUrl().equals(url)).collect(Collectors.toList()));
+
+        Platform.runLater(futureTask);
+        List<RecordedRequest> returnList = new ArrayList<>();
+        try {
+            returnList = (List<RecordedRequest>) futureTask.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            Error.FUTURE_TASK_INTERRUPT.record().create(ex);
+        }
+        return returnList;
     }
 
     public Tab createInterface() {
@@ -151,8 +164,18 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
 
     public void clearRequestByReference(String reference) {
         if (reference == null) return;
-        List<RecordedRequest> requestsToRemove = requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList());
-        requestList.removeAll(requestsToRemove);
+
+        // Future task to schedule returning filtered version of the list
+        final FutureTask futureTask = new FutureTask(() -> requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList()));
+        Platform.runLater(futureTask);
+
+        try {
+            List<RecordedRequest> returnList = (List<RecordedRequest>) futureTask.get();
+            requestList.removeAll(returnList);
+        } catch (InterruptedException | ExecutionException ex) {
+            Error.FUTURE_TASK_INTERRUPT.record().create(ex);
+        }
+
         updateTotalRequests();
     }
 
@@ -161,13 +184,31 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
     }
 
     public List<RecordedRequest> getResultListByReference(String reference) {
-        return requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList());
+        // Future task to schedule returning filtered version of the list
+        final FutureTask futureTask = new FutureTask(() -> requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList()));
+        Platform.runLater(futureTask);
+
+        List<RecordedRequest> returnList = new ArrayList<>();
+        try {
+            returnList = (List<RecordedRequest>) futureTask.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            Error.FUTURE_TASK_INTERRUPT.record().create(ex);
+        }
+        return returnList;
     }
 
     public GroupedRequests getGroupedRequestsByReference(String reference) {
         GroupedRequests recordedRequests = new GroupedRequests();
-        List<RecordedRequest> requestsByReference = requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList());
-        recordedRequests.addAll(requestsByReference);
+
+        // Future task to schedule returning filtered version of the list
+        final FutureTask futureTask = new FutureTask(() -> requestList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList()));
+        Platform.runLater(futureTask);
+
+        try {
+            recordedRequests.addAll((List<RecordedRequest>) futureTask.get());
+        } catch (InterruptedException | ExecutionException ex) {
+            Error.FUTURE_TASK_INTERRUPT.record().create(ex);
+        }
         return recordedRequests;
     }
 
@@ -204,6 +245,7 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
             public void run() {
                 requestList.add(recordedRequest);
                 updateTotalRequests();
+                recordedRequest.lighten();
             }
         }
 

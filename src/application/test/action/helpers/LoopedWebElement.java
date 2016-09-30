@@ -8,10 +8,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 public class LoopedWebElement extends LoopedObject {
+    private static Logger log = Logger.getLogger(LoopedWebElement.class);
     private Element element = null;
     private String xPath = "";
-
-    private static Logger log = Logger.getLogger(LoopedWebElement.class);
 
     public LoopedWebElement(Element element) {
         this.element = element;

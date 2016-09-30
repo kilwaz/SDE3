@@ -206,6 +206,8 @@ public class TestRunner extends SDERunnable {
                             application.error.Error.TEST_NODE_ACTION.record().create(ex);
                         } catch (WebDriverException ex) {
                             application.error.Error.WEB_DRIVER_EXCEPTION.record().create(ex);
+                        } catch (Exception ex) { // Anything else that might happen
+                            application.error.Error.WEB_ACTION_EXCEPTION.record().create(ex);
                         }
                     } else {
                         test.setContinueTest(false);
@@ -251,7 +253,7 @@ public class TestRunner extends SDERunnable {
                     for (TestCommand stepCommand : (ObservableList<TestCommand>) test.getTestCase().getTestCommands()) {
                         try {
                             if (stepCommand.getHasScreenshot()) {
-                                InputStream screenshotInputStream = stepCommand.getScreenshotInputStream();
+                                InputStream screenshotInputStream = stepCommand.getScreenshot().getScreenshotInputStream();
 
                                 if ("click".equals(stepCommand.getMainCommand())) {
                                     if (stepCommand.getParameterByName("id").exists()) {
@@ -286,10 +288,6 @@ public class TestRunner extends SDERunnable {
                     Error.DOCUMENT_CREATION_ISSUE.record().create(ex);
                 }
             }
-        }
-        // Used to release the screenshot data after the test has completed
-        for (TestCommand testCommand : (ObservableList<TestCommand>) test.getTestCase().getTestCommands()) {
-            testCommand.lighten();
         }
         status = TEST_FINISHED;
     }

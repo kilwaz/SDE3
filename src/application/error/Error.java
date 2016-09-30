@@ -142,7 +142,9 @@ public enum Error {
     EXPORT_NO_FILE_SPECIFIED(137, "No location has been provided to save export to"),
     APP_STATISTICS_READ(138, "Error reading application statistics"),
     APP_STATISTICS_SAVE_XML(139, "Error saving application statistics"),
-    PERCENTILE_OUT_OF_RANGE(140, "Percentile is out of accepted range of 1-100");
+    PERCENTILE_OUT_OF_RANGE(140, "Percentile is out of accepted range of 1-100"),
+    FUTURE_TASK_INTERRUPT(141, "Interrupted future task"),
+    WEB_ACTION_EXCEPTION(142, "Unexpected web action exception");
 
     private Integer code;
     private String description;

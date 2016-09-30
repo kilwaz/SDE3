@@ -1,7 +1,6 @@
 package application.test.action;
 
 import application.test.TestParameter;
-import application.test.action.helpers.LoopedWebElement;
 import application.test.action.helpers.Variable;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
@@ -28,9 +27,6 @@ public class IfWebAction extends WebAction {
     public void performAction() {
         // Element References
         startElement = getTestCommand().getParameterByName("start");
-        TestParameter loopElement = getTestCommand().getParameterByPath("loop");
-        TestParameter elementId = getTestCommand().getParameterByPath("id");
-        TestParameter elementXPath = getTestCommand().getParameterByPath("xPath");
         TestParameter elementAttribute = getTestCommand().getParameterByPath("attribute");
         TestParameter elementClass = getTestCommand().getParameterByPath("class");
         TestParameter elementContent = getTestCommand().getParameterByPath("content");
@@ -44,26 +40,10 @@ public class IfWebAction extends WebAction {
         TestParameter elementExists = getTestCommand().getParameterByPath("elementExists");
         TestParameter elementVisible = getTestCommand().getParameterByPath("elementVisible");
 
-        String xPath = null;
-        if (elementXPath.exists()) {
-            xPath = elementXPath.getParameterValue();
-        } else if (elementId.exists()) {
-            xPath = "//*[@id=\"" + elementId.getParameterValue() + "\"]";
-        }
-
-        Element testElement = null;
-        WebElement testWebElement = null;
-        if (elementId.exists() || elementXPath.exists()) { // Get the element via id
-            testElement = SDEUtils.getElementFromXPath(xPath, getDocumentTracker().getCurrentDocument());
-        } else if (loopElement.exists()) { // Get element via loop
-            LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
-            if (loopedWebElement != null) {
-                testElement = loopedWebElement.getElement();
-                testWebElement = loopedWebElement.getWebElement(getDriver());
-            }
-        }
-
         if (startElement.exists()) {
+            Element testElement = SDEUtils.getJSoupElementFromWebElement(specifiedElement(), getDocumentTracker().getCurrentDocument());
+            WebElement testWebElement = specifiedElement();
+
             String valueToCheck = "";
             if (elementAttribute.exists() && testElement != null) {
                 valueToCheck = testElement.attr(elementAttribute.getParameterValue());

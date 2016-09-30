@@ -1,6 +1,7 @@
 package application.test;
 
 import application.data.model.DatabaseObject;
+import application.test.core.TestCase;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -9,6 +10,7 @@ public class TestLogMessage extends DatabaseObject {
     private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("kk:mm:ss.SSS dd MMM yyyy");
     private String message;
     private DateTime dateTime;
+    private TestCase parent;
 
     public TestLogMessage() {
         super();
@@ -27,7 +29,26 @@ public class TestLogMessage extends DatabaseObject {
         return dateTime;
     }
 
+    public void setDateTime(DateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
     public String getFormattedDateTime() {
         return dateFormatter.print(dateTime);
+    }
+
+    public TestCase getParent() {
+        return parent;
+    }
+
+    public void setParentTestCase(TestCase parent) {
+        this.parent = parent;
+    }
+
+    public String getParentUuid() {
+        if (parent != null) {
+            return parent.getUuidString();
+        }
+        return null;
     }
 }

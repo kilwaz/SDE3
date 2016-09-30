@@ -30,7 +30,7 @@ public class DatabaseTransactionManager {
         databaseTransactionManager = this;
 
         JobDetail transactionJob = JobBuilder.newJob(TransactionJob.class).build();
-        JobDetail dataDataJob = JobBuilder.newJob(DeleteDataJob.class).build();
+        //JobDetail dataDataJob = JobBuilder.newJob(DeleteDataJob.class).build();
 
         SimpleScheduleBuilder transactionSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
         SimpleScheduleBuilder deleteDataSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
@@ -41,7 +41,7 @@ public class DatabaseTransactionManager {
         //deleteDataSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(5000);
 
         JobManager.getInstance().scheduleJob(transactionJob, transactionTriggerBuilder.withSchedule(transactionSimpleScheduleBuilder).build());
-        JobManager.getInstance().scheduleJob(dataDataJob, deleteDataTriggerBuilder.withSchedule(deleteDataSimpleScheduleBuilder).build());
+        //JobManager.getInstance().scheduleJob(dataDataJob, deleteDataTriggerBuilder.withSchedule(deleteDataSimpleScheduleBuilder).build());
         transactionTriggerBuilder.startNow();
         //deleteDataTriggerBuilder.startNow();
     }

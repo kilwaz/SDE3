@@ -47,53 +47,26 @@ public class LoopWebAction extends WebAction {
                 } else if (loopList.exists()) {
                     TestParameter listTag = getTestCommand().getParameterByPath("list::tag");
                     TestParameter listWindow = getTestCommand().getParameterByPath("list::window");
-                    TestParameter listRootElementId = getTestCommand().getParameterByPath("id");
-                    TestParameter listRootElementXPath = getTestCommand().getParameterByPath("xPath");
                     TestParameter filteredHasClass = getTestCommand().getParameterByPath("filter::hasClass");
                     TestParameter filteredSelect = getTestCommand().getParameterByPath("filter::select");
-
-                    TestParameter loopElement = getTestCommand().getParameterByName("loop");
                     TestParameter directChildren = getTestCommand().getParameterByName("direct");
 
                     List<Element> elements = new ArrayList<>();
                     List<LoopedObject> loopedObjects;
                     if (listTag.exists()) {
-                        if (listRootElementId.exists() || listRootElementXPath.exists() || loopElement.exists()) {
-                            String xPath = null;
-
-                            if (listRootElementXPath.exists()) {
-                                xPath = listRootElementXPath.getParameterValue();
-                            } else if (listRootElementId.exists()) {
-                                xPath = "//*[@id=\"" + listRootElementId.getParameterValue() + "\"]";
-                            }
-
-                            Element listElement = null;
-                            if (loopElement.exists()) {
-                                Loop loop = getLoopTracker().getLoop(loopElement.getParameterValue());
-                                if (loop != null) {
-                                    LoopedWebElement loopedWebElement = (LoopedWebElement) loop.getCurrentLoopObject();
-                                    if (loopedWebElement != null) {
-                                        listElement = loopedWebElement.getElement();
+                        Element listElement = SDEUtils.getJSoupElementFromWebElement(specifiedElement(), getDocumentTracker().getCurrentDocument());
+                        if (listElement != null) {
+                            if (directChildren.exists()) {
+                                // We only want direct children from this
+                                for (Element childElement : listElement.children()) {
+                                    if (childElement.tagName().equals(listTag.getParameterValue())) {
+                                        elements.add(childElement);
                                     }
                                 }
-                                //log.info("Found elements via loop of " + listElement);
                             } else {
-                                listElement = SDEUtils.getElementFromXPath(xPath, getDocumentTracker().getCurrentDocument());
+                                elements = listElement.getElementsByTag(listTag.getParameterValue());
                             }
-
-                            if (listElement != null) {
-                                if (directChildren.exists()) {
-                                    // We only want direct children from this
-                                    for (Element childElement : listElement.children()) {
-                                        if (childElement.tagName().equals(listTag.getParameterValue())) {
-                                            elements.add(childElement);
-                                        }
-                                    }
-                                } else {
-                                    elements = listElement.getElementsByTag(listTag.getParameterValue());
-                                }
-                            }
-                        } else {
+                        } else { // If no specific element was provided we start at the document root
                             elements = getDocumentTracker().getCurrentDocument().getElementsByTag(listTag.getParameterValue());
                         }
                     }
@@ -108,8 +81,6 @@ public class LoopWebAction extends WebAction {
                             }
                         }
                         elements.removeAll(elementsToRemove);
-
-
                     }
 
                     // Add the looped elements to a handling wrapper
