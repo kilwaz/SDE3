@@ -42,8 +42,8 @@ public class FrameWebAction extends WebAction {
                 WebElement frameElement = specifiedElement();
                 if (frameElement != null) {
                     try {
+                        getDocumentTracker().addIFrameChange(frameElement.getAttribute("id"));
                         getDriver().switchTo().frame(frameElement);
-                        getDocumentTracker().addIFrameChange(specifiedBy.toString());
                     } catch (NoSuchFrameException ex) {
                         Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame " + specifiedBy.toString() + " is not a frame").create(ex);
                     }

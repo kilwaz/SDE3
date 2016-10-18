@@ -12,6 +12,7 @@ public class RootSettingWindow extends SettingsPage {
     public void setupChildren() {
         getChildren().add(new DataBaseSettingWindow());
         getChildren().add(new DocumentCreationSettingWindow());
+        getChildren().add(new LogSettingsWindow());
         getChildren().add(new SeleniumHubControl());
     }
 

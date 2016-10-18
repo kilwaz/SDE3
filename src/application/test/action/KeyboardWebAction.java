@@ -23,6 +23,8 @@ public class KeyboardWebAction extends WebAction {
 
         WebElement testElement = specifiedElement();
 
+        log.info("When trying to press tab the element is " + testElement);
+
         if (testElement != null) {
             if (keyToPress.exists()) {
                 if ("tab".equals(keyToPress.getParameterValue())) {

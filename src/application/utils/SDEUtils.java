@@ -193,13 +193,13 @@ public class SDEUtils {
     public static String generateXPath(WebElement webElement, Boolean withId) {
         if (webElement == null) return null;
         if (!webElement.getAttribute("id").equals("") && withId) { // If the element has an ID we just use that as we found an anchor
-            return "//*[@id=\"" + webElement.getAttribute("id") + "\"]";
+            return "//*[@id='" + webElement.getAttribute("id") + "']";
         } else { // If not we put the tag and go up
             if ("body".equals(webElement.getTagName())) {
                 return "/html/body";
             } else {
                 WebElement parent = webElement.findElement(By.xpath(".."));
-                List<WebElement> parentTagList = parent.findElements(By.tagName(webElement.getTagName()));
+                List<WebElement> parentTagList = parent.findElements(By.xpath(webElement.getTagName()));
 
                 if (parentTagList.size() == 1) { // If the tag was the only one of its kind we don't need to specify index
                     return generateXPath(parent, withId) + "/" + webElement.getTagName();
@@ -216,7 +216,7 @@ public class SDEUtils {
 
     public static String generateXPath(Element element, Boolean withId) {
         if (!element.attr("id").equals("") && withId) { // If the element has an ID we just use that as we found an anchor
-            return "//*[@id=\"" + element.attr("id") + "\"]";
+            return "//*[@id='" + element.attr("id") + "']";
         } else { // If not we put the tag and go up
             Element parent = element.parent();
             // If there is no parent there is nothing to add, we are at the top of the tree

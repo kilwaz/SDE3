@@ -10,11 +10,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by alex on 26/10/2015.
- */
 public class RecordedError {
-
     private final int code;
     private final String description;
     private Exception exception;

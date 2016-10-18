@@ -55,6 +55,8 @@ public class AppProperties {
             AppParams.setCreateTestDocument(Boolean.parseBoolean(getTextValue(AppParams.getCreateTestDocument().toString(), documentElement, "CreateTestDoc")));
             AppParams.setRecordScreenshots(Boolean.parseBoolean(getTextValue(AppParams.getRecordScreenshots().toString(), documentElement, "RecordScreenshots")));
             AppParams.setAutoManageSeleniumHub(Boolean.parseBoolean(getTextValue(AppParams.getAutoManageSeleniumHub().toString(), documentElement, "AutoManageSeleniumHub")));
+            AppParams.setInAppLogView(Boolean.parseBoolean(getTextValue(AppParams.getInAppLogView().toString(), documentElement, "InAppLogView")));
+
             return true;
 
         } catch (ParserConfigurationException | SAXException | IOException ex) {
@@ -124,6 +126,10 @@ public class AppProperties {
 
             e = document.createElement("AutoManageSeleniumHub");
             e.appendChild(document.createTextNode(AppParams.getAutoManageSeleniumHub().toString()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("InAppLogView");
+            e.appendChild(document.createTextNode(AppParams.getInAppLogView().toString()));
             rootEle.appendChild(e);
 
             document.appendChild(rootEle);

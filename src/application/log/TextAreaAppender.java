@@ -2,6 +2,7 @@ package application.log;
 
 import application.error.Error;
 import application.gui.window.LogWindow;
+import application.utils.AppParams;
 import application.utils.managers.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
@@ -14,6 +15,7 @@ public class TextAreaAppender extends WriterAppender {
 
     @Override
     public void append(final LoggingEvent loggingEvent) {
+
         final String message = this.layout.format(loggingEvent);
         String stackTrace = "";
 
@@ -21,8 +23,10 @@ public class TextAreaAppender extends WriterAppender {
             stackTrace = getStackTrace(loggingEvent.getThrowableInformation().getThrowable());
         }
 
-        LogMessage logMessage = new LogMessage(message + stackTrace, loggingEvent.getLogger().getName(), loggingEvent.getTimeStamp());
-        LogManager.getInstance().addLogMessage(logMessage);
+        if (AppParams.getInAppLogView()) { // Only user the in app logger if it is enabled - has a memory impact
+            LogMessage logMessage = new LogMessage(message + stackTrace, loggingEvent.getLogger().getName(), loggingEvent.getTimeStamp());
+            LogManager.getInstance().addLogMessage(logMessage);
+        }
 
         // Update all of the log windows which are open watching this
         LogWindow.getLogWindows().forEach(application.gui.window.LogWindow::forceRefresh);
