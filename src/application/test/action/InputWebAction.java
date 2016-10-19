@@ -2,15 +2,14 @@ package application.test.action;
 
 import application.error.Error;
 import application.test.TestParameter;
-import application.test.action.helpers.LoopedWebElement;
 import application.utils.SDEUtils;
-import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 import org.apache.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 import java.util.concurrent.TimeUnit;
+
+//import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
 /**
  * This action finds an input box on the screen and inputs some text to it.
@@ -99,8 +98,8 @@ public class InputWebAction extends WebAction {
                 }
             }
             if (eventToTrigger.exists() && testElement != null) {
-                JavascriptLibrary javascript = new JavascriptLibrary();
-                javascript.callEmbeddedSelenium(getDriver(), "triggerEvent", testElement, eventToTrigger.getParameterValue());
+//                JavascriptLibrary javascript = new JavascriptLibrary();
+//                javascript.callEmbeddedSelenium(getDriver(), "triggerEvent", testElement, eventToTrigger.getParameterValue());
             }
         } catch (Exception ex) {
             getTestCommand().setException(ex);

@@ -144,7 +144,8 @@ public enum Error {
     APP_STATISTICS_SAVE_XML(139, "Error saving application statistics"),
     PERCENTILE_OUT_OF_RANGE(140, "Percentile is out of accepted range of 1-100"),
     FUTURE_TASK_INTERRUPT(141, "Interrupted future task"),
-    WEB_ACTION_EXCEPTION(142, "Unexpected web action exception");
+    WEB_ACTION_EXCEPTION(142, "Unexpected web action exception"),
+    SELENIUM_XPATH_NOT_FOUND(143, "Selenium could not find the element with provided xPath");
 
     private Integer code;
     private String description;

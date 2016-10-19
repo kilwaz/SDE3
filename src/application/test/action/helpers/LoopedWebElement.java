@@ -1,11 +1,10 @@
 package application.test.action.helpers;
 
+import application.error.Error;
 import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 
 public class LoopedWebElement extends LoopedObject {
     private static Logger log = Logger.getLogger(LoopedWebElement.class);
@@ -25,9 +24,16 @@ public class LoopedWebElement extends LoopedObject {
         // Here we get the element from Selenium as it is ready to be used
         WebElement webElement = null;
         try {
+            try { // We need to check this first as trying to find an element with xpath if an alert is open causes selenium to hang
+                Alert alert = webDriver.switchTo().alert();
+                log.info("Auto closing alert popup");
+                alert.accept();
+            } catch (NoAlertPresentException ex) {
+                // We don't really want to do anything with this exception, if the alert doesn't exist then great
+            }
             webElement = webDriver.findElement(By.xpath(xPath));
         } catch (Exception ex) {
-            log.info("Selenium could not find the element with xPath " + xPath, ex);
+            Error.SELENIUM_XPATH_NOT_FOUND.record().additionalInformation("Xpath = " + xPath).create(ex);
         }
 
         return webElement;
