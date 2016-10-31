@@ -102,6 +102,12 @@ public class WebProxyRequestManager {
             recordedRequest.setStatus(webProxyRequest.getStatus());
             recordedRequest.setRedirectUrl(webProxyRequest.getRedirectUrl());
             recordedRequest.setReference(recordedProxy.getProxyReference());
+            recordedRequest.setProxyRequestReceivedTime(webProxyRequest.getInstantStartProxyToServer().toDateTime());
+            recordedRequest.setDownloadTime(webProxyRequest.getDownloadTime());
+            recordedRequest.setWaitTimeToFirstByte(webProxyRequest.getWaitTimeToFirstByte());
+            recordedRequest.setStatusText(webProxyRequest.getStatusText());
+            recordedRequest.setProtocolVersion(webProxyRequest.getProtocolVersion());
+            recordedRequest.setCookies(webProxyRequest.getCookies());
 
             // Save the request headers
             for (String name : webProxyRequest.getRequestHeaders().keySet()) {

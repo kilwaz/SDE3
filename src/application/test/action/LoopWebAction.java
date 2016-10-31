@@ -129,7 +129,6 @@ public class LoopWebAction extends WebAction {
                         getLoopTracker().removeLoop(loopRef);
                     }
                 }
-                log.info("Loop " + loopRef + " is now " + loop.getCurrentLoopCount());
             }
         }
     }

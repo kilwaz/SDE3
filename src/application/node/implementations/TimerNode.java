@@ -523,9 +523,7 @@ public class TimerNode extends DrawableNode {
                 .usingJobData(jobDataMap)
                 .build();
 
-        TriggerBuilder triggerBuilder = TriggerBuilder
-                .newTrigger();
-
+        TriggerBuilder triggerBuilder = TriggerBuilder.newTrigger();
         SimpleScheduleBuilder simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
 
         if ("Milliseconds".equals(frequencyDuration)) {

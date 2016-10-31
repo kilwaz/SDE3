@@ -7,6 +7,7 @@ import application.node.design.DrawableNode;
 import application.node.objects.Trigger;
 import application.utils.Email;
 import application.utils.NodeRunParams;
+import application.utils.ReceivedEmail;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -87,13 +88,13 @@ public class EmailNode extends DrawableNode {
         return triggers;
     }
 
-    public void newEmailTrigger() {
+    public void newEmailTrigger(ReceivedEmail receivedEmail) {
         class EmailNodeNewEmail implements Runnable {
             public void run() {
                 List<Trigger> triggers = getProgram().getFlowController().getActiveTriggers(getContainedText(), "Receive New Email");
                 for (Trigger trigger : triggers) {
                     NodeRunParams nodeRunParams = new NodeRunParams();
-                    nodeRunParams.setOneTimeVariable("Hello");
+                    nodeRunParams.setOneTimeVariable(receivedEmail);
                     Program.runHelper(trigger.getParent().getNextNodeToRun(), getProgram().getFlowController().getReferenceID(), trigger.getParent(), false, true, null, nodeRunParams);
                 }
             }

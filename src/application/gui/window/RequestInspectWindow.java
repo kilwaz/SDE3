@@ -11,16 +11,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
 import java.net.URL;
-import java.util.HashMap;
+import java.util.List;
 
 public class RequestInspectWindow extends SDEWindow {
-    private RecordedRequest recordedRequest;
-
     private static Logger log = Logger.getLogger(RequestInspectWindow.class);
+    private RecordedRequest recordedRequest;
 
     public RequestInspectWindow(RecordedRequest recordedRequest) {
         super();
@@ -36,11 +34,13 @@ public class RequestInspectWindow extends SDEWindow {
             TextArea requestTextArea = new TextArea();
             UI.setAnchorMargins(requestTextArea, 0.0, 0.0, 0.0, 0.0);
 
-            HashMap<String, RecordedHeader> requestHeaders = recordedRequest.getRequestHeaders();
-            for (String headerName : requestHeaders.keySet()) {
-                requestTextArea.appendText(headerName + ": " + requestHeaders.get(headerName).getValue() + "\n\r");
+            // Request headers
+            List<RecordedHeader> requestHeaders = recordedRequest.getRequestHeaders();
+            for (RecordedHeader header : requestHeaders) {
+                requestTextArea.appendText(header.getName() + ": " + header.getValue() + "\n\r");
             }
 
+            // Request content
             requestTextArea.appendText("\n\r");
             requestTextArea.appendText(recordedRequest.getRequest().replaceAll("(?m)^[ \t]*\r?\n", ""));
             requestTextArea.positionCaret(0);
@@ -49,11 +49,16 @@ public class RequestInspectWindow extends SDEWindow {
             TextArea responseTextArea = new TextArea();
             UI.setAnchorMargins(responseTextArea, 0.0, 0.0, 0.0, 0.0);
 
-            HashMap<String, RecordedHeader> responseHeaders = recordedRequest.getResponseHeaders();
-            for (String headerName : responseHeaders.keySet()) {
-                responseTextArea.appendText(headerName + ": " + responseHeaders.get(headerName).getValue() + "\n\r");
+            // Response HTTP Status
+            responseTextArea.appendText(recordedRequest.getFullStatus() + "\n\r");
+
+            // Response headers
+            List<RecordedHeader> responseHeaders = recordedRequest.getResponseHeaders();
+            for (RecordedHeader header : responseHeaders) {
+                responseTextArea.appendText(header.getName() + ": " + header.getValue() + "\n\r");
             }
 
+            // Response content
             responseTextArea.appendText("\n\r");
             responseTextArea.appendText(recordedRequest.getResponse().replaceAll("(?m)^[ \t]*\r?\n", ""));
             responseTextArea.positionCaret(0);

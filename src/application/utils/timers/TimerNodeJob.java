@@ -14,13 +14,12 @@ import org.quartz.JobExecutionException;
 
 public class TimerNodeJob implements Job {
     private static Logger log = Logger.getLogger(TimerNodeJob.class);
-    private DrawableNode nodeToRun;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
 
-        nodeToRun = (DrawableNode) dataMap.get("node");
+        DrawableNode nodeToRun = (DrawableNode) dataMap.get("node");
 
         if (nodeToRun != null) {
             Controller.getInstance().createNotification("Job Started", "Running " + nodeToRun.getContainedText());

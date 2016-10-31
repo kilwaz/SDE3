@@ -36,7 +36,7 @@ public enum Error {
     IMPORT_NODE(31, "Error importing node"),
     IMPORT_PARSE(32, "Error parsing import"),
     CREATE_IMPORT_WINDOW(33, "Error creating import window"),
-    CLOSE_JOBS(34, "Error closing all jobs"),
+    STOP_JOBS(34, "Error stopping all jobs"),
     JOB_MANAGER(35, "Error creating job manager"),
     SCHEDULE_JOB(36, "Error scheduling job"),
     RUN_LINUX_NODE(37, "Error writing file for linux node"),
@@ -145,7 +145,12 @@ public enum Error {
     PERCENTILE_OUT_OF_RANGE(140, "Percentile is out of accepted range of 1-100"),
     FUTURE_TASK_INTERRUPT(141, "Interrupted future task"),
     WEB_ACTION_EXCEPTION(142, "Unexpected web action exception"),
-    SELENIUM_XPATH_NOT_FOUND(143, "Selenium could not find the element with provided xPath");
+    SELENIUM_XPATH_NOT_FOUND(143, "Selenium could not find the element with provided xPath"),
+    HAR_OUTPUT_OPEN_FAILED(144, "Problem while starting the HAR output"),
+    HAR_OUTPUT_CLOSE_FAILED(145, "Problem while closing the HAR output"),
+    HAR_OUTPUT_WRITE_FAILED(146, "Problem while writing the HAR output"),
+    NO_REFERENCE_PROVIDED(147, "No reference provided for custom request list against a RequestTrackerNode"),
+    STOP_JOB(148, "Error stopping a jobs");
 
     private Integer code;
     private String description;

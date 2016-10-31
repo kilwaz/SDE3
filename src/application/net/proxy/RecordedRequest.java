@@ -3,6 +3,7 @@ package application.net.proxy;
 import application.data.model.DatabaseObject;
 import application.data.model.dao.RecordedRequestDAO;
 import application.test.core.TestCase;
+import org.apache.http.cookie.Cookie;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -14,7 +15,9 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RecordedRequest extends DatabaseObject {
     private static Logger log = Logger.getLogger(RecordedRequest.class);
@@ -25,16 +28,22 @@ public class RecordedRequest extends DatabaseObject {
     private String request = "";
     private String response = "";
     private RecordedProxy parentHttpProxy;
-    private HashMap<String, RecordedHeader> requestHeaders = new HashMap<>();
-    private HashMap<String, RecordedHeader> responseHeaders = new HashMap<>();
+    private List<RecordedHeader> requestHeaders = new ArrayList<>();
+    private List<RecordedHeader> responseHeaders = new ArrayList<>();
     private Integer requestNumber = 0;
     private String host = "";
     private String redirectUrl = "";
     private Boolean isHttps = false;
     private String method = "";
     private Integer status = -1;
+    private String statusText = "";
     private TestCase parentTestCase;
     private String reference;
+    private DateTime proxyRequestReceivedTime = null;
+    private Long waitTimeToFirstByte = -1L;
+    private Long downloadTime = -1L;
+    private String protocolVersion = "";
+    private List<Cookie> cookies = new ArrayList<>();
 
     public RecordedRequest() {
         super();
@@ -60,6 +69,38 @@ public class RecordedRequest extends DatabaseObject {
         this.parentTestCase = parentTestCase;
     }
 
+    public DateTime getProxyRequestReceivedTime() {
+        return proxyRequestReceivedTime;
+    }
+
+    public void setProxyRequestReceivedTime(DateTime proxyRequestReceivedTime) {
+        this.proxyRequestReceivedTime = proxyRequestReceivedTime;
+    }
+
+    public Long getWaitTimeToFirstByte() {
+        return waitTimeToFirstByte;
+    }
+
+    public void setWaitTimeToFirstByte(Long waitTimeToFirstByte) {
+        this.waitTimeToFirstByte = waitTimeToFirstByte;
+    }
+
+    public Long getDownloadTime() {
+        return downloadTime;
+    }
+
+    public void setDownloadTime(Long downloadTime) {
+        this.downloadTime = downloadTime;
+    }
+
+    public String getProtocolVersion() {
+        return protocolVersion;
+    }
+
+    public void setProtocolVersion(String protocolVersion) {
+        this.protocolVersion = protocolVersion;
+    }
+
     public String getParentTestCaseUuid() {
         if (parentTestCase != null) {
             return parentTestCase.getUuidString();
@@ -78,8 +119,9 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public String getMediaType() {
-        if (responseHeaders.get("Content-Type") != null) {
-            String content = responseHeaders.get("Content-Type").getValue();
+        RecordedHeader mediaTypeHeader = getResponseHeader("Content-Type");
+        if (mediaTypeHeader != null) {
+            String content = mediaTypeHeader.getValue();
             if (content.contains(";")) {
                 content = content.substring(0, content.indexOf(";"));
             }
@@ -120,12 +162,55 @@ public class RecordedRequest extends DatabaseObject {
         return parseHost(redirectUrl);
     }
 
-    public String getCookies() {
-        if (responseHeaders.get("Set-Cookie") != null) {
-            return responseHeaders.get("Set-Cookie").getValue();
-        } else {
-            return "";
+    public List<Cookie> getCookies() {
+        return cookies;
+    }
+
+    public void setCookies(List<Cookie> cookies) {
+        this.cookies = cookies;
+    }
+
+    public List<RecordedHeader> getRequestCookiesList() {
+        return getRequestHeaders("Cookie");
+    }
+
+    public List<RecordedHeader> getResponseSetCookiesList() {
+        return getResponseHeaders("Set-Cookie");
+    }
+
+    public RecordedHeader getResponseHeader(String name) {
+        return getHeader(name, responseHeaders);
+    }
+
+    public RecordedHeader getRequestHeader(String name) {
+        return getHeader(name, requestHeaders);
+    }
+
+    // If case we want to look for more than one of the same named headers -  generally there shouldn't be more than one of each though
+    public List<RecordedHeader> getResponseHeaders(String name) {
+        return getHeaders(name, responseHeaders);
+    }
+
+    public List<RecordedHeader> getRequestHeaders(String name) {
+        return getHeaders(name, requestHeaders);
+    }
+
+    private List<RecordedHeader> getHeaders(String name, List<RecordedHeader> headerList) {
+        return headerList.stream().filter(header -> name.equals(header.getName())).collect(Collectors.toList());
+    }
+
+    private RecordedHeader getHeader(String name, List<RecordedHeader> headerList) {
+        if (name == null || headerList == null) {
+            return null;
         }
+
+        for (RecordedHeader header : headerList) {
+            if (name.equals(header.getName())) {
+                return header;
+            }
+        }
+
+        return null;
     }
 
     public String getIP() {
@@ -147,6 +232,18 @@ public class RecordedRequest extends DatabaseObject {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getFullStatus() {
+        return protocolVersion + " " + status + " " + statusText;
+    }
+
+    public String getStatusText() {
+        return statusText;
+    }
+
+    public void setStatusText(String statusText) {
+        this.statusText = statusText;
     }
 
     public Boolean getHasParameters() {
@@ -259,9 +356,9 @@ public class RecordedRequest extends DatabaseObject {
 
     public void addRecordedHeader(RecordedHeader recordedHeader) {
         if ("request".equals(recordedHeader.getType())) {
-            requestHeaders.put(recordedHeader.getName(), recordedHeader);
+            requestHeaders.add(recordedHeader);
         } else if ("response".equals(recordedHeader.getType())) {
-            responseHeaders.put(recordedHeader.getName(), recordedHeader);
+            responseHeaders.add(recordedHeader);
         }
     }
 
@@ -272,7 +369,7 @@ public class RecordedRequest extends DatabaseObject {
         requestHeader.setValue(value);
         requestHeader.setType("request");
         requestHeader.save();
-        requestHeaders.put(requestHeader.getName(), requestHeader);
+        requestHeaders.add(requestHeader);
     }
 
     public void addNewResponseHeader(String name, String value) {
@@ -282,7 +379,7 @@ public class RecordedRequest extends DatabaseObject {
         responseHeader.setValue(value);
         responseHeader.setType("response");
         responseHeader.save();
-        responseHeaders.put(responseHeader.getName(), responseHeader);
+        responseHeaders.add(responseHeader);
     }
 
     // Required to be an empty method
@@ -315,9 +412,10 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public DateTime getResponseDateTimeFromHeaders() {
-        if (responseHeaders.get("Date") != null) {
+        RecordedHeader dateHeader = getResponseHeader("Date");
+        if (dateHeader != null) {
             DateTimeFormatter dateStringFormat = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss zzz");
-            return dateStringFormat.parseDateTime(responseHeaders.get("Date").getValue());
+            return dateStringFormat.parseDateTime(dateHeader.getValue());
         }
 
         return null;
@@ -343,11 +441,11 @@ public class RecordedRequest extends DatabaseObject {
         this.parentHttpProxy = parentHttpProxy;
     }
 
-    public HashMap<String, RecordedHeader> getRequestHeaders() {
+    public List<RecordedHeader> getRequestHeaders() {
         return requestHeaders;
     }
 
-    public HashMap<String, RecordedHeader> getResponseHeaders() {
+    public List<RecordedHeader> getResponseHeaders() {
         return responseHeaders;
     }
 

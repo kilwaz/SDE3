@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.StageStyle;
 import org.apache.log4j.Logger;
 
 import java.net.URL;
@@ -27,6 +28,8 @@ public class StatisticsWindow extends SDEWindow {
     private void init() {
         try {
             StatisticsManager statisticsManager = StatisticsManager.getInstance();
+
+            //this.initStyle(StageStyle.UTILITY);  // No max or min buttons
 
             AnchorPane statisticsAnchor = new AnchorPane();
             statisticsAnchor.setPadding(new Insets(7, 11, 7, 11));

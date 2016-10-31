@@ -3,6 +3,7 @@ package application.net.proxy.snoop;
 import application.error.Error;
 import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
+import application.utils.Timer;
 import application.utils.managers.StatisticsManager;
 import org.apache.log4j.Logger;
 
@@ -203,10 +204,13 @@ public class StandaloneHTTPRequest {
             webProxyRequest.instantStartProxyToServer();
 
             InputStream is = null;
+            Long downloadTime = -1L;
             try {
                 // Get Response
+                Timer downloadTimer = null;
                 try {
                     is = connection.getInputStream();
+                    downloadTimer = new Timer();
                 } catch (ConnectException ex) { // Retry the connection if for some reason it timed out
                     if (currentRetryCount < maximumRetryCount) {
                         currentRetryCount++;
@@ -253,6 +257,9 @@ public class StandaloneHTTPRequest {
                     }
                     is.close();
                 }
+                if (downloadTimer != null) {
+                    downloadTime = downloadTimer.getTimeSince();
+                }
 
                 StatisticsManager.getInstance().getTotalStatisticStore().addResponseSize(totalResponseLength);
                 StatisticsManager.getInstance().getSessionStatisticStore().addResponseSize(totalResponseLength);
@@ -280,6 +287,11 @@ public class StandaloneHTTPRequest {
             webProxyRequest.instantCompleteServerToProxy();
             webProxyRequest.setResponseBuffer(response);
             webProxyRequest.setStatus(connection.getResponseStatus());
+            webProxyRequest.setStatusText(connection.getResponseStatusText());
+            webProxyRequest.setDownloadTime(downloadTime);
+            webProxyRequest.setWaitTimeToFirstByte(connection.getWaitTimeToFirstByte());
+            webProxyRequest.setProtocolVersion(connection.getProtocolVersion());
+            webProxyRequest.setCookies(connection.getCookies());
             StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(connection.getResponseStatus());
             StatisticsManager.getInstance().getSessionStatisticStore().incrementResponseCode(connection.getResponseStatus());
             webProxyRequest.setResponseHeaders(responseHeaders);

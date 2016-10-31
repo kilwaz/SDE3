@@ -3,6 +3,7 @@ package application.net.proxy;
 import application.error.Error;
 import io.netty.handler.codec.http.HttpObject;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.cookie.Cookie;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
@@ -42,9 +43,14 @@ public class WebProxyRequest {
     private Boolean isHttps = false;
     private String method = "";
     private Integer status = -1;
+    private String statusText = "";
+    private String protocolVersion = "";
     private String redirectUrl = "";
+    private Long waitTimeToFirstByte = -1L;
+    private Long downloadTime = -1L;
     private HashMap<String, String> responseHeaders = new HashMap<>();
     private HashMap<String, String> requestHeaders = new HashMap<>();
+    private List<Cookie> cookies = new ArrayList<>();
 
     public WebProxyRequest() {
 
@@ -76,6 +82,38 @@ public class WebProxyRequest {
 
     public void instantCompleteServerToProxy() {
         instantCompleteServerToProxy = new Instant();
+    }
+
+    public Long getWaitTimeToFirstByte() {
+        return waitTimeToFirstByte;
+    }
+
+    public void setWaitTimeToFirstByte(Long waitTimeToFirstByte) {
+        this.waitTimeToFirstByte = waitTimeToFirstByte;
+    }
+
+    public Long getDownloadTime() {
+        return downloadTime;
+    }
+
+    public void setDownloadTime(Long downloadTime) {
+        this.downloadTime = downloadTime;
+    }
+
+    public String getProtocolVersion() {
+        return protocolVersion;
+    }
+
+    public void setProtocolVersion(String protocolVersion) {
+        this.protocolVersion = protocolVersion;
+    }
+
+    public List<Cookie> getCookies() {
+        return cookies;
+    }
+
+    public void setCookies(List<Cookie> cookies) {
+        this.cookies = cookies;
     }
 
     public Integer getRequestHttpObjectCount() {
@@ -110,6 +148,14 @@ public class WebProxyRequest {
         this.status = status;
     }
 
+    public String getStatusText() {
+        return statusText;
+    }
+
+    public void setStatusText(String statusText) {
+        this.statusText = statusText;
+    }
+
     public String getMethod() {
         return method;
     }
@@ -125,6 +171,10 @@ public class WebProxyRequest {
         }
 
         return -1l;
+    }
+
+    public Instant getInstantStartProxyToServer() {
+        return instantStartProxyToServer;
     }
 
     public Integer getRequestID() {

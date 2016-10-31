@@ -2,16 +2,20 @@ package application.net.proxy.snoop;
 
 
 import application.error.Error;
+import application.utils.Timer;
 import application.utils.managers.StatisticsManager;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
@@ -43,6 +47,8 @@ public class ProxyConnectionWrapper {
     private HashMap<String, String> requestParameters = new HashMap<>();
     private URL destinationURL;
     private HttpResponse httpResponse;
+    private Long waitTimeToFirstByte = -1L;
+    private CookieStore httpCookieStore = new BasicCookieStore();
 
     public ProxyConnectionWrapper(URL destinationURL, Boolean https, int connectionMethod) throws IOException {
         this.https = https;
@@ -52,7 +58,7 @@ public class ProxyConnectionWrapper {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             if (httpClient == null) {  // Only build this once as it can be reused multiple times
                 RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).build();
-                httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
+                httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).setDefaultCookieStore(httpCookieStore).build();
             }
         } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
             if (https) {
@@ -135,8 +141,6 @@ public class ProxyConnectionWrapper {
                 List<NameValuePair> urlParameters = new ArrayList<>();
 
                 if (request instanceof HttpGet) {
-                    HttpGet getRequest = (HttpGet) request;
-
                     for (String paramName : requestParameters.keySet()) {
                         urlParameters.add(new BasicNameValuePair(paramName, requestParameters.get(paramName)));
                     }
@@ -148,8 +152,9 @@ public class ProxyConnectionWrapper {
                     }
                     postRequest.setEntity(new UrlEncodedFormEntity(urlParameters));
                 }
-
+                Timer responseTime = new Timer();
                 httpResponse = httpClient.execute(request);
+                waitTimeToFirstByte = responseTime.getTimeSince();
                 if (httpResponse != null && httpResponse.getEntity() != null) {
                     return httpResponse.getEntity().getContent();
                 } else {
@@ -249,6 +254,51 @@ public class ProxyConnectionWrapper {
         return new HashMap<>();
     }
 
+    public String getProtocolVersion() {
+        if (connectionMethod == HTTP_CLIENT_APACHE) {
+            if (httpResponse != null) {
+                return httpResponse.getStatusLine().getProtocolVersion().toString();
+            }
+        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
+//            if (https) {
+//                return httpsConnection.get();
+//            } else {
+//                return httpConnection.getResponseMessage();
+//            }
+        }
+        return "";
+    }
+
+    public String getResponseStatusText() throws IOException {
+        if (connectionMethod == HTTP_CLIENT_APACHE) {
+            if (httpResponse != null) {
+                return httpResponse.getStatusLine().getReasonPhrase();
+            }
+        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
+            if (https) {
+                return httpsConnection.getResponseMessage();
+            } else {
+                return httpConnection.getResponseMessage();
+            }
+        }
+        return "";
+    }
+
+    public List<Cookie> getCookies() {
+        if (connectionMethod == HTTP_CLIENT_APACHE) {
+            if (httpResponse != null && httpCookieStore != null) {
+                return httpCookieStore.getCookies();
+            }
+        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
+//            if (https) {
+//                return httpsConnection.getResponseMessage();
+//            } else {
+//                return httpConnection.getResponseMessage();
+//            }
+        }
+        return new ArrayList<>();
+    }
+
     public int getResponseStatus() throws IOException {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             if (httpResponse != null) {
@@ -274,5 +324,9 @@ public class ProxyConnectionWrapper {
                 httpConnection.disconnect();
             }
         }
+    }
+
+    public Long getWaitTimeToFirstByte() {
+        return waitTimeToFirstByte;
     }
 }

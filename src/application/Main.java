@@ -318,7 +318,7 @@ public class Main extends Application {
         BrowserManager.getInstance().closeBrowsers();
         WebProxyManager.getInstance().closeProxies();
         DBConnectionManager.getInstance().closeConnections();
-        JobManager.getInstance().closeAllJobs();
+        JobManager.getInstance().stopAllJobs();
         SeleniumHubManager.getInstance().stopHub();
         StatisticsManager.getInstance().saveStatistics();
 

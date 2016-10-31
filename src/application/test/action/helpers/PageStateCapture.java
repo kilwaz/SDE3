@@ -134,7 +134,7 @@ public class PageStateCapture extends DatabaseObject {
 
         return "return generateDOMHTML(" + iFrameLocation + "); " +
                 "function generateDOMHTML(element) {" +
-                "   var voidElements = [\"area\",\"base\",\"br\",\"col\",\"hr\",\"img\",\"input\",\"link\",\"meta\",\"param\"];" +
+                "   var voidElements = [\"area\",\"base\",\"br\",\"col\",\"hr\",\"img\",\"input\",\"link\",\"meta\",\"Param\"];" +
                 "   if(element.nodeType == Node.ELEMENT_NODE){" +
                 "       var html = \"<\" + element.tagName;" +
                 "       for (var i = 0; i < element.attributes.length; i++) {" +

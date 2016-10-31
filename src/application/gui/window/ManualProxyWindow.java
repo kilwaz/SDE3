@@ -1,5 +1,6 @@
 package application.gui.window;
 
+import application.data.export.har.HarExportHelper;
 import application.error.Error;
 import application.gui.UI;
 import application.gui.columns.requesttracker.*;
@@ -52,7 +53,12 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
                 Awaitility.await().atMost(60000, TimeUnit.MILLISECONDS).until(httpProxyServer.nowConnected());
                 httpProxyServer.addRequestListener(this);
                 WebDriver driver = BrowserHelper.getChrome(httpProxyServer.getConnectionString());
-                driver.get("https://www.google.com");
+                driver.get("about:blank"); // Opens blank page
+            });
+
+            Button harOutput = new Button("Export HAR");
+            harOutput.setOnAction(event -> {
+                HarExportHelper.build().withRequests(requestList).export();
             });
 
             this.setOnCloseRequest(event -> {
@@ -120,6 +126,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
             totalRequestsNumber = new Label("0");
 
             hBox.getChildren().add(openBrowser);
+            hBox.getChildren().add(harOutput);
             hBox.getChildren().add(totalRequests);
             hBox.getChildren().add(totalRequestsNumber);
             vBox.getChildren().add(hBox);
