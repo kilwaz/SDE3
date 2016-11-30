@@ -21,7 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class BrowserHelper {
-    private static final String CHROME_DRIVER = "chromedriver-2.24.exe";
+    private static final String CHROME_DRIVER = "chromedriver-2.25.exe";
     private static final String IE_DRIVER = "IEDriverServer-2.53.1.exe";
     private static final String OPREA_DRIVER = "operadriver-0.2.2.exe";
 
