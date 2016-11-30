@@ -25,6 +25,7 @@ drop table if exists test_set_batch;
 drop table if exists test_log_messages;
 drop table if exists test_command_screenshot;
 
+-- Tables
 create table node(
     uuid char(36) NOT NULL,
     program_id char(36),
@@ -184,3 +185,6 @@ create table test_command_screenshot (
     test_command_parent_id char(36),
     screenshot mediumblob,
     PRIMARY KEY (uuid));
+
+-- INDEXES
+ALTER TABLE http_headers ADD INDEX `ind_http_headers` (`request_id`,`header_type`);

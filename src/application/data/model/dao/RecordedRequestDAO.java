@@ -12,7 +12,6 @@ import java.util.List;
 
 public class RecordedRequestDAO {
     public RecordedRequestDAO() {
-
     }
 
     public List<RecordedRequest> getRecordedRequestByProxy(RecordedProxy recordedProxy) {

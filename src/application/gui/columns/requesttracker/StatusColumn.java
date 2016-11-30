@@ -1,5 +1,6 @@
 package application.gui.columns.requesttracker;
 
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedRequest;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -9,7 +10,7 @@ public class StatusColumn extends TableColumn {
     public StatusColumn() {
         setText("Status");
         setPrefWidth(40);
-        setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("Status"));
+        setCellValueFactory(new PropertyValueFactory<MetaRecordedRequest, Integer>("Status"));
         setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {

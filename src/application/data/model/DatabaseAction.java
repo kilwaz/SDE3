@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends DatabaseLink> {
     private static Logger log = Logger.getLogger(DatabaseAction.class);
@@ -220,6 +221,13 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
         if (uuidStr != null && !uuidStr.isEmpty()) {
             UUID uuid = DAO.UUIDFromString(uuidStr);
             DatabaseObject databaseObject = null;
+
+//            try {
+//                databaseObject = databaseObjectManager.getDatabaseObjects().get(uuid.toString(), () -> DatabaseObject.load(uuid, clazz));
+//            } catch (ExecutionException e) {
+//                e.printStackTrace();
+//            }
+
             if (databaseObjectManager.objectExists(uuid)) {
                 databaseObject = databaseObjectManager.getDatabaseObject(uuid);
             } else {

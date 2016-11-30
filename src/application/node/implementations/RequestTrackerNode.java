@@ -7,11 +7,11 @@ import application.gui.UI;
 import application.gui.columns.requesttracker.*;
 import application.gui.window.RequestInspectWindow;
 import application.net.proxy.GroupedRequests;
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.ProxyRequestListener;
 import application.net.proxy.RecordedRequest;
 import application.node.design.DrawableNode;
 import application.utils.Format;
-import application.utils.Timer;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -23,7 +23,6 @@ import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class RequestTrackerNode extends DrawableNode implements ProxyRequestListener {
     private static Logger log = Logger.getLogger(RequestTrackerNode.class);
-    private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
+    private ObservableList<MetaRecordedRequest> requestList = FXCollections.observableArrayList();
 
     private Label totalRequestsNumber = null;
 
@@ -59,14 +58,14 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
         return savableAttributes;
     }
 
-    public List<RecordedRequest> getRequestsByURL(String url) {
+    public List<MetaRecordedRequest> getRequestsByURL(String url) {
         // Future task to schedule returning filtered version of the list
-        final FutureTask futureTask = new FutureTask(() -> requestList.stream().filter(recordedRequest -> recordedRequest.getUrl().equals(url)).collect(Collectors.toList()));
+        final FutureTask futureTask = new FutureTask(() -> requestList.stream().filter(metaRecordedRequest -> metaRecordedRequest.getUrl().equals(url)).collect(Collectors.toList()));
 
         Platform.runLater(futureTask);
-        List<RecordedRequest> returnList = new ArrayList<>();
+        List<MetaRecordedRequest> returnList = new ArrayList<>();
         try {
-            returnList = (List<RecordedRequest>) futureTask.get();
+            returnList = (List<MetaRecordedRequest>) futureTask.get();
         } catch (InterruptedException | ExecutionException ex) {
             Error.FUTURE_TASK_INTERRUPT.record().create(ex);
         }
@@ -79,7 +78,7 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
         Tab tab = controller.createDefaultNodeTab(this);
         AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
-        TableView<RecordedRequest> requestTableView = new TableView<>();
+        TableView<MetaRecordedRequest> requestTableView = new TableView<>();
         requestTableView.setId("requestTable-" + getUuidStringWithoutHyphen());
 
         requestTableView.setItems(getResultList());
@@ -109,7 +108,7 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
 
         // Right click context menu
         requestTableView.setRowFactory(tableView -> {
-            TableRow<RecordedRequest> row = new TableRow<>();
+            TableRow<MetaRecordedRequest> row = new TableRow<>();
             ContextMenu contextMenu = new ContextMenu();
             MenuItem inspectMenuItem = new MenuItem("Inspect");
             MenuItem removeMenuItem = new MenuItem("Remove");
@@ -164,8 +163,8 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
         updateTotalRequests();
     }
 
-    private List<RecordedRequest> threadSafeFilter(String reference) {
-        List<RecordedRequest> copiedList = new ArrayList<>(requestList);
+    private List<MetaRecordedRequest> threadSafeFilter(String reference) {
+        List<MetaRecordedRequest> copiedList = new ArrayList<>(requestList);
         return copiedList.stream().filter(recordedRequest -> reference.equals(recordedRequest.getReference())).collect(Collectors.toList());
     }
 
@@ -175,17 +174,17 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
             return;
         }
 
-        List<RecordedRequest> returnList = threadSafeFilter(reference);
+        List<MetaRecordedRequest> returnList = threadSafeFilter(reference);
         requestList.removeAll(returnList);
 
         updateTotalRequests();
     }
 
-    public ObservableList<RecordedRequest> getResultList() {
+    public ObservableList<MetaRecordedRequest> getResultList() {
         return requestList;
     }
 
-    public List<RecordedRequest> getResultListByReference(String reference) {
+    public List<MetaRecordedRequest> getResultListByReference(String reference) {
         if (reference == null) {
             Error.NO_REFERENCE_PROVIDED.record().create();
             return new ArrayList<>();
@@ -236,9 +235,8 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
             }
 
             public void run() {
-                requestList.add(recordedRequest);
+                requestList.add(recordedRequest.getMetaRecordedRequest());
                 updateTotalRequests();
-                recordedRequest.lighten();
             }
         }
 

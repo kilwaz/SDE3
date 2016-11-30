@@ -114,8 +114,7 @@ public class ImportWindow extends SDEWindow {
 
             exportOutputAnchor.getChildren().add(rows);
 
-            Scene newScene = new Scene(exportOutputAnchor, 700, 400);
-            this.setScene(newScene);
+            createScene(exportOutputAnchor, 700, 400);
             this.setTitle("Import");
 
             URL url = getClass().getResource("/icon.png");

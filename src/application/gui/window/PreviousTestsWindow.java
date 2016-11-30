@@ -41,7 +41,7 @@ public class PreviousTestsWindow extends SDEWindow {
 
             root.getChildren().add(tabPane);
 
-            this.setScene(new Scene(root, 900, 800));
+            createScene(root, 900, 800);
             this.setTitle("Previous tests - " + testNode.getContainedText());
 
             URL url = getClass().getResource("/icon.png");

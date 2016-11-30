@@ -63,7 +63,7 @@ public class LogWindow extends SDEWindow {
 
             root.getChildren().add(hbox);
 
-            this.setScene(new Scene(root, 900, 800));
+            createScene(root, 900, 800);
             this.setTitle("Log");
 
             URL url = getClass().getResource("/icon.png");

@@ -283,6 +283,11 @@ public class Main extends Application {
             fadeSplash.setToValue(0.0);
             fadeSplash.setOnFinished(actionEvent -> {
                 splashStage.hide();
+                // Clean up the splash page as we don't need it anymore
+                splashStage = null;
+                splashLayout = null;
+                loadProgress = null;
+                progressText = null;
                 mainStage.show();
             });
             fadeSplash.play();

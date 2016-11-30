@@ -1,5 +1,6 @@
 package application.gui.columns.requesttracker;
 
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedRequest;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -13,7 +14,7 @@ public class ResponseLengthColumn extends TableColumn {
     public ResponseLengthColumn() {
         setText("Response Length");
         setPrefWidth(100);
-        setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("ResponseSize"));
+        setCellValueFactory(new PropertyValueFactory<MetaRecordedRequest, Integer>("ResponseSize"));
         setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {

@@ -114,8 +114,7 @@ public class ExportWindow extends SDEWindow {
 
             exportOutputAnchor.getChildren().add(rows);
 
-            Scene newScene = new Scene(exportOutputAnchor, 900, 800);
-            this.setScene(newScene);
+            createScene(exportOutputAnchor, 900, 800);
 
             if (exportType.equals(EXPORT_NODE)) {
                 for (DrawableNode drawableNode : selectedNodes) {

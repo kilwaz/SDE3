@@ -62,8 +62,7 @@ public class ErrorWindow extends SDEWindow {
             UI.setAnchorMargins(errorAnchor, 0.0, 0.0, 0.0, 0.0);
             UI.setAnchorMargins(errorTableView, 0.0, 0.0, 0.0, 0.0);
 
-            Scene newScene = new Scene(errorAnchor, 900, 800);
-            this.setScene(newScene);
+            createScene(errorAnchor, 900, 800);
 
             this.setTitle("Error Report (" + ErrorManager.getInstance().getErrors().size() + " errors)");
 

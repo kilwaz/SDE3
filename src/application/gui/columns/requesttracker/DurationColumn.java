@@ -1,5 +1,6 @@
 package application.gui.columns.requesttracker;
 
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedRequest;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -13,7 +14,7 @@ public class DurationColumn extends TableColumn {
     public DurationColumn() {
         setText("Duration");
         setPrefWidth(60);
-        setCellValueFactory(new PropertyValueFactory<RecordedRequest, Integer>("Duration"));
+        setCellValueFactory(new PropertyValueFactory<MetaRecordedRequest, Integer>("Duration"));
         setCellFactory(column -> new TableCell<RecordedRequest, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {

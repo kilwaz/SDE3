@@ -1,11 +1,12 @@
 package application.gui.columns.requesttracker.cell;
 
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedRequest;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 
-public class BooleanTableCell extends TableCell<RecordedRequest, Boolean> {
+public class BooleanTableCell extends TableCell<MetaRecordedRequest, Boolean> {
     private CheckBox checkBox;
 
     public BooleanTableCell() {

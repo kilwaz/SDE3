@@ -1,45 +1,48 @@
 package application.utils.managers;
 
 import application.data.model.DatabaseObject;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.log4j.Logger;
 
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseObjectManager {
     private static DatabaseObjectManager instance;
-    private ConcurrentHashMap<String, DatabaseObject> databaseObjects;
-
     private static Logger log = Logger.getLogger(DatabaseObjectManager.class);
+    private Cache<String, DatabaseObject> databaseObjects;
 
     public DatabaseObjectManager() {
         instance = this;
-        databaseObjects = new ConcurrentHashMap<>();
-    }
-
-    public Boolean objectExists(UUID uuid) {
-        return databaseObjects.containsKey(uuid.toString());
-    }
-
-    public DatabaseObject getDatabaseObject(UUID uuid) {
-//        log.info("Got object " + uuid + " -> " + databaseObjects.get(uuid.toString()));
-        return databaseObjects.get(uuid.toString());
-    }
-
-    public void addObject(DatabaseObject databaseObject) {
-//        log.info("Added object " + databaseObject.getUuid() + " -> " + databaseObject);
-        databaseObjects.put(databaseObject.getUuidString(), databaseObject);
-    }
-
-    public void removeObject(DatabaseObject databaseObject) {
-        databaseObjects.remove(databaseObject.getUuid().toString());
+        int numProcessors = Runtime.getRuntime().availableProcessors();
+        databaseObjects = CacheBuilder
+                .newBuilder()
+                .concurrencyLevel(numProcessors * 2)
+                .weakValues()
+                .build();
     }
 
     public static DatabaseObjectManager getInstance() {
         return instance;
     }
 
+    public Boolean objectExists(UUID uuid) {
+        return getDatabaseObject(uuid) != null;
+    }
+
+    public DatabaseObject getDatabaseObject(UUID uuid) {
+        return databaseObjects.getIfPresent(uuid.toString());
+    }
+
+    public void addObject(DatabaseObject databaseObject) {
+        databaseObjects.put(databaseObject.getUuidString(), databaseObject);
+    }
+
+    public void removeObject(DatabaseObject databaseObject) {
+        databaseObjects.invalidate(databaseObject.getUuid().toString());
+    }
+
     public void clearAllObjects() {
-        databaseObjects.clear();
+        databaseObjects.invalidateAll();
     }
 }

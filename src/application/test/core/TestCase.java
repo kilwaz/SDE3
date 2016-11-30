@@ -334,10 +334,10 @@ public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject 
 
     @Override
     public void addRequest(RecordedRequest recordedRequest) {
-        testRequests.add(recordedRequest);
-        recordedRequest.setParentTestCase(this);
-        recordedRequest.save();
-        recordedRequest.lighten();
+//        testRequests.add(recordedRequest);
+//        recordedRequest.setParentTestCase(this);
+//        recordedRequest.save();
+//        recordedRequest.lighten();
     }
 
     public HashMap<String, PageStateCapture> getPageCaptures() {

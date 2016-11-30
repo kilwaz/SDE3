@@ -28,8 +28,8 @@ public abstract class WebAction implements Action {
     // This is used as a reference to match up action names used within the TestNodes to the class name which will handle the action
     private static HashMap<String, Class> actionClasses = new HashMap<>();
 
-    /**
-     *   We need to manually link which written commands link to which classes.
+    /*
+        We need to manually link which written commands link to which classes.
      */
     static {
         actionClasses.put("input", InputWebAction.class);

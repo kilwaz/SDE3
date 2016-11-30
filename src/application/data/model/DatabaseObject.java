@@ -22,6 +22,22 @@ public class DatabaseObject {
     public static <DBObject extends DatabaseObject> DBObject load(UUID uuid, Class<DBObject> clazz) {
         DatabaseObjectManager databaseObjectManager = DatabaseObjectManager.getInstance();
         DatabaseObject loadedObject;
+
+//        try {
+//            databaseObject = databaseObjectManager.getDatabaseObjects().get(uuid.toString(), () -> {
+//                DatabaseObject loadedObject = create(clazz);
+//                loadedObject.setUuid(uuid);
+//                //loadedObject.load();
+//
+//                return loadedObject;
+//            });
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        }
+//        if (databaseObject != null) {
+//            databaseObject.load();
+//        }
+
         if (databaseObjectManager.objectExists(uuid)) {
             loadedObject = databaseObjectManager.getDatabaseObject(uuid);
         } else {

@@ -56,8 +56,7 @@ public class StatisticsWindow extends SDEWindow {
 
             statisticsAnchor.getChildren().add(vBox);
 
-            Scene newScene = new Scene(statisticsAnchor, 220, 350);
-            this.setScene(newScene);
+            createScene(statisticsAnchor, 220, 350);
 
             this.setTitle("Application Statistics");
 

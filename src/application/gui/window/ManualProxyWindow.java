@@ -4,6 +4,7 @@ import application.data.export.har.HarExportHelper;
 import application.error.Error;
 import application.gui.UI;
 import application.gui.columns.requesttracker.*;
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.ProxyRequestListener;
 import application.net.proxy.RecordedRequest;
 import application.net.proxy.snoop.HttpProxyServer;
@@ -15,7 +16,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener {
     private static Logger log = Logger.getLogger(RequestInspectWindow.class);
 
-    private ObservableList<RecordedRequest> requestList = FXCollections.observableArrayList();
+    private ObservableList<MetaRecordedRequest> requestList = FXCollections.observableArrayList();
     private Label totalRequestsNumber = null;
     private HttpProxyServer httpProxyServer;
 
@@ -69,7 +69,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
 
             UI.setAnchorMargins(root, 0.0, 0.0, 0.0, 0.0);
 
-            TableView<RecordedRequest> requestTableView = new TableView<>();
+            TableView<MetaRecordedRequest> requestTableView = new TableView<>();
             requestTableView.setItems(getResultList());
             requestTableView.getColumns().addAll(new RequestNumberColumn());
             requestTableView.getColumns().addAll(new HostColumn());
@@ -96,7 +96,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
 
             // Right click context menu
             requestTableView.setRowFactory(tableView -> {
-                TableRow<RecordedRequest> row = new TableRow<>();
+                TableRow<MetaRecordedRequest> row = new TableRow<>();
                 ContextMenu contextMenu = new ContextMenu();
                 MenuItem inspectMenuItem = new MenuItem("Inspect");
                 MenuItem removeMenuItem = new MenuItem("Remove");
@@ -135,7 +135,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
 
 
             URL url = getClass().getResource("/icon.png");
-            this.setScene(new Scene(root, 900, 800));
+            createScene(root, 900, 800);
             this.getIcons().add(new Image(url.toExternalForm()));
             this.setTitle("Manual Proxy");
 
@@ -160,7 +160,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
         Platform.runLater(new GUIUpdate());
     }
 
-    public ObservableList<RecordedRequest> getResultList() {
+    public ObservableList<MetaRecordedRequest> getResultList() {
         return requestList;
     }
 
@@ -174,8 +174,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
             }
 
             public void run() {
-                requestList.add(recordedRequest);
-                recordedRequest.lighten();
+                requestList.add(recordedRequest.getMetaRecordedRequest());
                 updateTotalRequests();
             }
         }

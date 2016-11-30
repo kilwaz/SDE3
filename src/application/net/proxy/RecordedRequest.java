@@ -1,6 +1,7 @@
 package application.net.proxy;
 
 import application.data.model.DatabaseObject;
+import application.data.model.dao.RecordedHeaderDAO;
 import application.data.model.dao.RecordedRequestDAO;
 import application.test.core.TestCase;
 import org.apache.http.cookie.Cookie;
@@ -28,10 +29,9 @@ public class RecordedRequest extends DatabaseObject {
     private String request = "";
     private String response = "";
     private RecordedProxy parentHttpProxy;
-    private List<RecordedHeader> requestHeaders = new ArrayList<>();
-    private List<RecordedHeader> responseHeaders = new ArrayList<>();
+    private List<RecordedHeader> requestHeaders = null;
+    private List<RecordedHeader> responseHeaders = null;
     private Integer requestNumber = 0;
-    private String host = "";
     private String redirectUrl = "";
     private Boolean isHttps = false;
     private String method = "";
@@ -162,6 +162,14 @@ public class RecordedRequest extends DatabaseObject {
         return parseHost(redirectUrl);
     }
 
+    public String getCookiesAsString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Cookie cookie : cookies) {
+            stringBuilder.append(cookie.getName()).append(":").append(cookie.getValue());
+        }
+        return stringBuilder.toString();
+    }
+
     public List<Cookie> getCookies() {
         return cookies;
     }
@@ -179,20 +187,20 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public RecordedHeader getResponseHeader(String name) {
-        return getHeader(name, responseHeaders);
+        return getHeader(name, getResponseHeaders());
     }
 
     public RecordedHeader getRequestHeader(String name) {
-        return getHeader(name, requestHeaders);
+        return getHeader(name, getRequestHeaders());
     }
 
     // If case we want to look for more than one of the same named headers -  generally there shouldn't be more than one of each though
     public List<RecordedHeader> getResponseHeaders(String name) {
-        return getHeaders(name, responseHeaders);
+        return getHeaders(name, getResponseHeaders());
     }
 
     public List<RecordedHeader> getRequestHeaders(String name) {
-        return getHeaders(name, requestHeaders);
+        return getHeaders(name, getRequestHeaders());
     }
 
     private List<RecordedHeader> getHeaders(String name, List<RecordedHeader> headerList) {
@@ -329,13 +337,10 @@ public class RecordedRequest extends DatabaseObject {
             RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
             request = recordedRequestDAO.getLazyRequest(this);
         }
+
+        log.info("Got request on " + this);
+
         return request;
-    }
-
-    // Required to be an empty method
-    // When loading the object we don't want to initially set this due to the memory foot print
-    public void setRequest(InputStream inputStream) {
-
     }
 
     public void setRequest(String request) {
@@ -344,6 +349,12 @@ public class RecordedRequest extends DatabaseObject {
         } else {
             this.request = request;
         }
+    }
+
+    // Required to be an empty method
+    // When loading the object we don't want to initially set this due to the memory foot print
+    public void setRequest(InputStream inputStream) {
+
     }
 
     public Integer getRequestNumber() {
@@ -356,9 +367,9 @@ public class RecordedRequest extends DatabaseObject {
 
     public void addRecordedHeader(RecordedHeader recordedHeader) {
         if ("request".equals(recordedHeader.getType())) {
-            requestHeaders.add(recordedHeader);
+            getRequestHeaders().add(recordedHeader);
         } else if ("response".equals(recordedHeader.getType())) {
-            responseHeaders.add(recordedHeader);
+            getResponseHeaders().add(recordedHeader);
         }
     }
 
@@ -369,7 +380,7 @@ public class RecordedRequest extends DatabaseObject {
         requestHeader.setValue(value);
         requestHeader.setType("request");
         requestHeader.save();
-        requestHeaders.add(requestHeader);
+        getRequestHeaders().add(requestHeader);
     }
 
     public void addNewResponseHeader(String name, String value) {
@@ -379,7 +390,7 @@ public class RecordedRequest extends DatabaseObject {
         responseHeader.setValue(value);
         responseHeader.setType("response");
         responseHeader.save();
-        responseHeaders.add(responseHeader);
+        getResponseHeaders().add(responseHeader);
     }
 
     // Required to be an empty method
@@ -442,10 +453,20 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public List<RecordedHeader> getRequestHeaders() {
+        if (requestHeaders == null) {
+            RecordedHeaderDAO recordedHeaderDAO = new RecordedHeaderDAO();
+            requestHeaders = recordedHeaderDAO.getRecordedRequestHeadersByRequest(this);
+        }
+
         return requestHeaders;
     }
 
     public List<RecordedHeader> getResponseHeaders() {
+        if (responseHeaders == null) {
+            RecordedHeaderDAO recordedHeaderDAO = new RecordedHeaderDAO();
+            responseHeaders = recordedHeaderDAO.getRecordedResponseHeadersByRequest(this);
+        }
+
         return responseHeaders;
     }
 
@@ -454,5 +475,14 @@ public class RecordedRequest extends DatabaseObject {
             return parentHttpProxy.getConnectionString();
         }
         return "No Proxy";
+    }
+
+    public void initNewObj() {
+        requestHeaders = new ArrayList<>();
+        responseHeaders = new ArrayList<>();
+    }
+
+    public MetaRecordedRequest getMetaRecordedRequest() {
+        return new MetaRecordedRequest(this);
     }
 }

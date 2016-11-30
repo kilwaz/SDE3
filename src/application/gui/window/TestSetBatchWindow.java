@@ -10,6 +10,7 @@ import application.gui.columns.testsetbatchwindow.statecompare.*;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseNameColumn;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseTreeObject;
 import application.gui.columns.testsetbatchwindow.treeview.TestOverviewColumn;
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedRequest;
 import application.test.PageStateCompare;
 import application.test.TestCommand;
@@ -49,7 +50,7 @@ public class TestSetBatchWindow extends SDEWindow {
     private TestSetBatch testSetBatch;
     private TableView<TestCommand> testCommandTableView;
     private TableView<TestParameter> testCommandParameters;
-    private TableView<RecordedRequest> requestTableView;
+    private TableView<MetaRecordedRequest> requestTableView;
     private TableView<PageStateCompare> stateCompareTableView;
     private TableView<CompareStateElementObject> stateCompareElementTableView;
     private TreeTableView<TestCaseTreeObject> testCaseTreeTableView;
@@ -74,7 +75,7 @@ public class TestSetBatchWindow extends SDEWindow {
         try {
             StackPane root = new StackPane();
 
-            this.setScene(new Scene(root, 900, 800));
+            createScene(root, 900, 800);
             this.setTitle("Test " + testSetBatch.getFormattedTime() + " (" + testSetBatch.getCaseCount() + " cases)");
 
             AnchorPane anchorPane = new AnchorPane();
@@ -237,7 +238,7 @@ public class TestSetBatchWindow extends SDEWindow {
 
         // Right click context menu
         requestTableView.setRowFactory(tableView -> {
-            TableRow<RecordedRequest> row = new TableRow<>();
+            TableRow<MetaRecordedRequest> row = new TableRow<>();
             ContextMenu contextMenu = new ContextMenu();
             MenuItem inspectMenuItem = new MenuItem("Inspect");
 

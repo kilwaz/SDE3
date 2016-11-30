@@ -48,7 +48,7 @@ public class SettingsPickerWindow extends SDEWindow {
 
         hBox.getChildren().add(treeView);
         hBox.getChildren().add(settingContent);
-        this.setScene(new Scene(hBox, 800, 350));
+        createScene(hBox, 800, 350);
         this.setTitle("Settings");
 
         URL url = getClass().getResource("/icon.png");

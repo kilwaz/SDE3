@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -128,7 +129,8 @@ public class ProxyConnectionWrapper {
                 }
 
                 // URL
-                request.setURI(destinationURL.toURI());
+                URI destinationURI = new URI(destinationURL.getProtocol(), destinationURL.getHost(), destinationURL.getPath(), destinationURL.getQuery(), null);
+                request.setURI(destinationURI);
 
                 // Headers
                 for (String headerName : requestHeaders.keySet()) {

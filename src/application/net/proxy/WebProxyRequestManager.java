@@ -89,6 +89,7 @@ public class WebProxyRequestManager {
 
             // Save the request to the database
             RecordedRequest recordedRequest = RecordedRequest.create(RecordedRequest.class);
+            recordedRequest.initNewObj();
             recordedRequest.setParentHttpProxy(recordedProxy);
             recordedRequest.setUrl(applyRedirects(webProxyRequest.getRequestURL()));
             recordedRequest.setDuration(webProxyRequest.getRequestDuration().intValue());

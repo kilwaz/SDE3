@@ -1,5 +1,6 @@
 package application.gui.columns.requesttracker;
 
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedRequest;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -14,7 +15,7 @@ public class RequestTimeColumn extends TableColumn {
     public RequestTimeColumn() {
         setText("Time");
         setPrefWidth(140);
-        setCellValueFactory(new PropertyValueFactory<RecordedRequest, DateTime>("ResponseDateTimeFromHeaders"));
+        setCellValueFactory(new PropertyValueFactory<MetaRecordedRequest, DateTime>("RequestTime"));
         setCellFactory(column -> new TableCell<RecordedRequest, DateTime>() {
             @Override
             protected void updateItem(DateTime item, boolean empty) {

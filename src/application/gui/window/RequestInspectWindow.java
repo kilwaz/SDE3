@@ -2,9 +2,10 @@ package application.gui.window;
 
 import application.error.Error;
 import application.gui.UI;
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedHeader;
 import application.net.proxy.RecordedRequest;
-import javafx.scene.Scene;
+import application.utils.managers.WindowManager;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -20,9 +21,9 @@ public class RequestInspectWindow extends SDEWindow {
     private static Logger log = Logger.getLogger(RequestInspectWindow.class);
     private RecordedRequest recordedRequest;
 
-    public RequestInspectWindow(RecordedRequest recordedRequest) {
+    public RequestInspectWindow(MetaRecordedRequest metaRecordedRequest) {
         super();
-        this.recordedRequest = recordedRequest;
+        this.recordedRequest = metaRecordedRequest.getRecordedRequest();
         init();
     }
 
@@ -90,7 +91,7 @@ public class RequestInspectWindow extends SDEWindow {
 
             root.getChildren().add(tabPane);
 
-            this.setScene(new Scene(root, 900, 800));
+            createScene(root, 900, 800);
             this.setTitle(recordedRequest.getUrl());
 
             URL url = getClass().getResource("/icon.png");

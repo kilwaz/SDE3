@@ -1,5 +1,6 @@
 package application.data.export.har;
 
+import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.RecordedHeader;
 import application.net.proxy.RecordedRequest;
 
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HarExportHelper {
-    private List<RecordedRequest> requestList = new ArrayList<>();
+    private List<MetaRecordedRequest> requestList = new ArrayList<>();
     private Log harLog = new Log();
 
     private HarExportHelper() {
@@ -18,7 +19,7 @@ public class HarExportHelper {
         return new HarExportHelper();
     }
 
-    public HarExportHelper withRequests(List<RecordedRequest> requestList) {
+    public HarExportHelper withRequests(List<MetaRecordedRequest> requestList) {
         this.requestList = requestList;
         return this;
     }
@@ -26,7 +27,8 @@ public class HarExportHelper {
     public void export() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-        for (RecordedRequest recordedRequest : requestList) {
+        for (MetaRecordedRequest metaRecordedRequest : requestList) {
+            RecordedRequest recordedRequest = metaRecordedRequest.getRecordedRequest();
             Page page = new Page();
 
             Entry entry = new Entry();

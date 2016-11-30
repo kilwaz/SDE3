@@ -57,7 +57,7 @@ public class ThreadWindow extends SDEWindow {
 
             root.getChildren().add(threadTableView);
 
-            this.setScene(new Scene(root, 900, 800));
+            createScene(root, 900, 800);
             this.setTitle("Current Threads");
 
             URL urlIcon = getClass().getResource("/icon.png");

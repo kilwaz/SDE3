@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GroupedRequests extends ArrayList<RecordedRequest> {
+public class GroupedRequests extends ArrayList<MetaRecordedRequest> {
     private static final int SIZE = 1;
     private static final int DURATION = 2;
     private static Logger log = Logger.getLogger(GroupedRequests.class);
@@ -17,7 +17,7 @@ public class GroupedRequests extends ArrayList<RecordedRequest> {
 
     public Integer getAverageResponseDuration() {
         Integer total = 0;
-        for (RecordedRequest request : this) {
+        for (MetaRecordedRequest request : this) {
             total += request.getDuration();
         }
         return total / size();
@@ -25,7 +25,7 @@ public class GroupedRequests extends ArrayList<RecordedRequest> {
 
     public Integer getAverageResponseSize() {
         Integer total = 0;
-        for (RecordedRequest request : this) {
+        for (MetaRecordedRequest request : this) {
             total += request.getResponseSize();
         }
         return total / size();
@@ -48,7 +48,7 @@ public class GroupedRequests extends ArrayList<RecordedRequest> {
 
         // Create the list
         List<Integer> valueList = new ArrayList<>();
-        for (RecordedRequest request : this) {
+        for (MetaRecordedRequest request : this) {
             if (type == SIZE) {
                 valueList.add(request.getResponseSize());
             } else if (type == DURATION) {
@@ -79,7 +79,7 @@ public class GroupedRequests extends ArrayList<RecordedRequest> {
     public GroupedRequests filter(String filterURL) {
         GroupedRequests recordedRequests = new GroupedRequests();
 
-        for (RecordedRequest request : this) {
+        for (MetaRecordedRequest request : this) {
             String url = request.getUrl();
             String cleanedURL = url;
             if (url.contains("?")) {

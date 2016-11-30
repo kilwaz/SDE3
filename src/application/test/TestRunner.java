@@ -2,6 +2,7 @@ package application.test;
 
 import application.error.Error;
 import application.gui.Program;
+import application.net.proxy.RecordedRequest;
 import application.net.proxy.snoop.HttpProxyServer;
 import application.node.objects.Test;
 import application.test.action.WebAction;
@@ -290,6 +291,11 @@ public class TestRunner extends SDERunnable {
             }
         }
         status = TEST_FINISHED;
+
+        // Temp fix to reduce memory overhead
+        for (RecordedRequest recordedRequest : (ObservableList<RecordedRequest>) test.getTestCase().getTestRequests()) {
+            recordedRequest.lighten();
+        }
     }
 
     public String getStatusText() {
