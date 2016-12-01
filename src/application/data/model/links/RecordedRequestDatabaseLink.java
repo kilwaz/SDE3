@@ -19,7 +19,10 @@ public class RecordedRequestDatabaseLink extends DatabaseLink {
         link("response_size", method("getResponseSize"), method("setResponseSize", Integer.class)); // 6
         linkBlob("request_content", method("getRequestInputStream"), null); // 7
         linkBlob("response_content", method("getResponseInputStream"), null); // 8
-        link("test_case_parent_id", method("getParentTestCaseUuid"), method("setParentTestCase", TestCase.class)); // 9
-        link("reference", method("getReference"), method("setReference", String.class)); // 10
+        link("protocol_version", method("getProtocolVersion"), method("setProtocolVersion", String.class)); // 9
+        link("status", method("getStatus"), method("setStatus", Integer.class)); // 10
+        link("statusText", method("getStatusText"), method("setStatusText", String.class)); // 11
+        link("test_case_parent_id", method("getParentTestCaseUuid"), method("setParentTestCase", TestCase.class)); // 12
+        link("reference", method("getReference"), method("setReference", String.class)); // 13
     }
 }

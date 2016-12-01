@@ -81,6 +81,9 @@ create table recorded_requests(
     response_size INT,
     request_content LONGTEXT,
     response_content LONGTEXT,
+    protocol_version VARCHAR(100),
+    status INT,
+    statusText VARCHAR(100),
     test_case_parent_id char(36),
     PRIMARY KEY (uuid));
 
