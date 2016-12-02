@@ -48,18 +48,20 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
 
             Button openBrowser = new Button("Open Browser");
             openBrowser.setOnAction(event -> {
-                httpProxyServer = new HttpProxyServer();
-                SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running manual proxy server", null, true);
-                Awaitility.await().atMost(60000, TimeUnit.MILLISECONDS).until(httpProxyServer.nowConnected());
-                httpProxyServer.addRequestListener(this);
                 WebDriver driver = BrowserHelper.getChrome(httpProxyServer.getConnectionString());
                 driver.get("about:blank"); // Opens blank page
+
             });
 
             Button harOutput = new Button("Export HAR");
             harOutput.setOnAction(event -> {
                 HarExportHelper.build().withRequests(requestList).export();
             });
+
+            httpProxyServer = new HttpProxyServer();
+            SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running manual proxy server", null, true);
+            Awaitility.await().atMost(60000, TimeUnit.MILLISECONDS).until(httpProxyServer.nowConnected());
+            httpProxyServer.addRequestListener(this);
 
             this.setOnCloseRequest(event -> {
                 if (httpProxyServer != null) {
@@ -137,7 +139,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
             URL url = getClass().getResource("/icon.png");
             createScene(root, 900, 800);
             this.getIcons().add(new Image(url.toExternalForm()));
-            this.setTitle("Manual Proxy");
+            this.setTitle("Manual Proxy - Listening on " + httpProxyServer.getConnectionString());
 
             this.show();
         } catch (Exception ex) {
