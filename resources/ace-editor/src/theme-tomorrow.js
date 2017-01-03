@@ -1,8 +1,8 @@
-define("ace/theme/tomorrow", ["require", "exports", "module", "ace/lib/dom"], function (require, exports, module) {
+ace.define("ace/theme/tomorrow",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
 
-    exports.isDark = false;
-    exports.cssClass = "ace-tomorrow";
-    exports.cssText = ".ace-tomorrow .ace_gutter {\
+exports.isDark = false;
+exports.cssClass = "ace-tomorrow";
+exports.cssText = ".ace-tomorrow .ace_gutter {\
 background: #f6f6f6;\
 color: #4D4D4C\
 }\
@@ -22,7 +22,6 @@ background: #D6D6D6\
 }\
 .ace-tomorrow.ace_multiselect .ace_selection.ace_start {\
 box-shadow: 0 0 3px 0px #FFFFFF;\
-border-radius: 2px\
 }\
 .ace-tomorrow .ace_marker-layer .ace_step {\
 background: rgb(255, 255, 0)\
@@ -104,6 +103,6 @@ color: #8E908C\
 background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bdu3f/BwAlfgctduB85QAAAABJRU5ErkJggg==) right repeat-y\
 }";
 
-    var dom = require("../lib/dom");
-    dom.importCssString(exports.cssText, exports.cssClass);
+var dom = require("../lib/dom");
+dom.importCssString(exports.cssText, exports.cssClass);
 });

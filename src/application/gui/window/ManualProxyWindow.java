@@ -28,7 +28,7 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener {
-    private static Logger log = Logger.getLogger(RequestInspectWindow.class);
+    private static Logger log = Logger.getLogger(InspectWindow.class);
 
     private ObservableList<MetaRecordedRequest> requestList = FXCollections.observableArrayList();
     private Label totalRequestsNumber = null;
@@ -104,7 +104,7 @@ public class ManualProxyWindow extends SDEWindow implements ProxyRequestListener
                 MenuItem removeMenuItem = new MenuItem("Remove");
                 MenuItem removeAllMenuItem = new MenuItem("Remove All");
 
-                inspectMenuItem.setOnAction(event -> new RequestInspectWindow(row.getItem()));
+                inspectMenuItem.setOnAction(event -> new InspectWindow(row.getItem()));
                 removeMenuItem.setOnAction(event -> requestTableView.getItems().remove(row.getItem()));
                 removeAllMenuItem.setOnAction(event -> {
                     requestTableView.getItems().clear();

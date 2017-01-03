@@ -59,7 +59,7 @@ public class HarExportHelper {
             // Response Content
             entry.getResponse().getContent().setText(recordedRequest.getResponse());
             entry.getResponse().getContent().setSize(recordedRequest.getResponseSize());
-            entry.getResponse().getContent().setMimeType(recordedRequest.getMediaType());
+            entry.getResponse().getContent().setMimeType(recordedRequest.getMediaSubType());
 
             // Response cookies
             for (org.apache.http.cookie.Cookie cookie : recordedRequest.getCookies()) {

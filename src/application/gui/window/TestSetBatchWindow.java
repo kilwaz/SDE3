@@ -11,7 +11,6 @@ import application.gui.columns.testsetbatchwindow.treeview.TestCaseNameColumn;
 import application.gui.columns.testsetbatchwindow.treeview.TestCaseTreeObject;
 import application.gui.columns.testsetbatchwindow.treeview.TestOverviewColumn;
 import application.net.proxy.MetaRecordedRequest;
-import application.net.proxy.RecordedRequest;
 import application.test.PageStateCompare;
 import application.test.TestCommand;
 import application.test.TestCommandItem;
@@ -26,7 +25,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -242,7 +240,7 @@ public class TestSetBatchWindow extends SDEWindow {
             ContextMenu contextMenu = new ContextMenu();
             MenuItem inspectMenuItem = new MenuItem("Inspect");
 
-            inspectMenuItem.setOnAction(event -> new RequestInspectWindow(row.getItem()));
+            inspectMenuItem.setOnAction(event -> new InspectWindow(row.getItem()));
             contextMenu.getItems().add(inspectMenuItem);
 
             // Set context menu on row, but use a binding to make it only show for non-empty rows:

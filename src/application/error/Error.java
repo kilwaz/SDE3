@@ -150,7 +150,9 @@ public enum Error {
     HAR_OUTPUT_CLOSE_FAILED(145, "Problem while closing the HAR output"),
     HAR_OUTPUT_WRITE_FAILED(146, "Problem while writing the HAR output"),
     NO_REFERENCE_PROVIDED(147, "No reference provided for custom request list against a RequestTrackerNode"),
-    STOP_JOB(148, "Error stopping a jobs");
+    STOP_JOB(148, "Error stopping a jobs"),
+    BLOB_TO_STRING_CONVERT_FAILED(149, "Error converting BLOB to string"),
+    HTTP_STREAM_CLOSED(150, "Http stream closed unexpectedly");
 
     private Integer code;
     private String description;

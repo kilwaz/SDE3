@@ -5,7 +5,7 @@ import application.error.Error;
 import application.gui.Controller;
 import application.gui.UI;
 import application.gui.columns.requesttracker.*;
-import application.gui.window.RequestInspectWindow;
+import application.gui.window.InspectWindow;
 import application.net.proxy.GroupedRequests;
 import application.net.proxy.MetaRecordedRequest;
 import application.net.proxy.ProxyRequestListener;
@@ -114,7 +114,7 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
             MenuItem removeMenuItem = new MenuItem("Remove");
             MenuItem removeAllMenuItem = new MenuItem("Remove All");
 
-            inspectMenuItem.setOnAction(event -> new RequestInspectWindow(row.getItem()));
+            inspectMenuItem.setOnAction(event -> new InspectWindow(row.getItem()));
             removeMenuItem.setOnAction(event -> requestTableView.getItems().remove(row.getItem()));
             removeAllMenuItem.setOnAction(event -> {
                 requestTableView.getItems().clear();

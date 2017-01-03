@@ -96,7 +96,7 @@ public class WebProxyRequestManager {
             recordedRequest.setRequestSize(webProxyRequest.getRequestContentSize());
             recordedRequest.setResponseSize(webProxyRequest.getResponseContentSize());
             recordedRequest.setRequest(webProxyRequest.getRequestContent());
-            recordedRequest.setResponse(webProxyRequest.getResponseContent());
+            recordedRequest.setResponseBuffer(webProxyRequest.getResponseBuffer());
             recordedRequest.setRequestNumber(webProxyRequest.getRequestID());
             recordedRequest.setHttps(webProxyRequest.getHttps());
             recordedRequest.setMethod(webProxyRequest.getMethod());

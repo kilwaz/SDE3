@@ -79,8 +79,8 @@ create table recorded_requests(
     duration INT,
     request_size INT,
     response_size INT,
-    request_content LONGTEXT,
-    response_content LONGTEXT,
+    request_content MEDIUMBLOB,
+    response_content MEDIUMBLOB,
     protocol_version VARCHAR(100),
     status INT,
     statusText VARCHAR(100),
@@ -128,7 +128,7 @@ create table http_headers(
     uuid char(36) NOT NULL,
     request_id char(36),
     header_name VARCHAR(1000),
-    header_value VARCHAR(1000),
+    header_value VARCHAR(3000),
     header_type VARCHAR(100),
     PRIMARY KEY (uuid));
 

@@ -148,7 +148,9 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
 
                 if (keepAlive) {
                     // Add 'Content-Length' header only for a keep-alive connection.
-                    response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
+                    int readableByte = response.content().readableBytes();
+                    response.headers().setInt(CONTENT_LENGTH, readableByte);
+                    log.info("Readable bytes " + readableByte);
                     // Add keep alive header as per:
                     response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                 }

@@ -36,33 +36,35 @@ public class WindowWebAction extends WebAction {
 
         if (windowHandle.exists()) {
             Set<String> handles = getDriver().getWindowHandles();
-            log.info("Total handles = " + handles.size());
+            //log.info("Total handles = " + handles.size());
 
             String currentWindow = getDriver().getWindowHandle();
 
             for (String windowHandleStr : handles) {
                 getDriver().switchTo().window(windowHandleStr);
-                if (currentWindow.equals(windowHandleStr)) {
-                    log.info("CURRENT: " + getDriver().getWindowHandle() + " " + getDriver().getTitle());
-                } else {
-                    log.info(getDriver().getWindowHandle() + " " + getDriver().getTitle());
-                }
+//                if (currentWindow.equals(windowHandleStr)) {
+//                    log.info("CURRENT: " + getDriver().getWindowHandle() + " " + getDriver().getTitle());
+//                } else {
+//                    log.info(getDriver().getWindowHandle() + " " + getDriver().getTitle());
+//                }
             }
 
             getDriver().switchTo().window(currentWindow);
         }
 
         if (switchWindowByLoop.exists()) {
-            LoopedWindowHandle loopedWindowHandle = (LoopedWindowHandle) getLoopTracker().getLoop(switchWindowByLoop.getParameterValue()).getCurrentLoopObject();
-            if (loopedWindowHandle != null) {
-                log.info("Switching to window " + loopedWindowHandle.getWindowHandle());
-                try {
-                    // We only wait for 10 seconds for the browser to find the window
-                    getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
-                    getDriver().switchTo().window(loopedWindowHandle.getWindowHandle());
-                } finally {
-                    // We sent the driver back to being unlimited timeout for page loads
-                    getDriver().manage().timeouts().pageLoadTimeout(-1, TimeUnit.SECONDS);
+            if (getLoopTracker().getLoop(switchWindowByLoop.getParameterValue()) != null) {
+                LoopedWindowHandle loopedWindowHandle = (LoopedWindowHandle) getLoopTracker().getLoop(switchWindowByLoop.getParameterValue()).getCurrentLoopObject();
+                if (loopedWindowHandle != null) {
+                    //log.info("Switching to window " + loopedWindowHandle.getWindowHandle());
+                    try {
+                        // We only wait for 10 seconds for the browser to find the window
+                        getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+                        getDriver().switchTo().window(loopedWindowHandle.getWindowHandle());
+                    } finally {
+                        // We sent the driver back to being unlimited timeout for page loads
+                        getDriver().manage().timeouts().pageLoadTimeout(-1, TimeUnit.SECONDS);
+                    }
                 }
             }
         }

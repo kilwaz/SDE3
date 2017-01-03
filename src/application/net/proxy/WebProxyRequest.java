@@ -1,8 +1,6 @@
 package application.net.proxy;
 
-import application.error.Error;
 import io.netty.handler.codec.http.HttpObject;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.cookie.Cookie;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -11,14 +9,10 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 public class WebProxyRequest {
     public static final Integer REQUEST_STATUS_NOT_STARTED = 0;
@@ -217,34 +211,6 @@ public class WebProxyRequest {
         this.requestContent = requestContent;
     }
 
-    public String getResponseContent() {
-        if (responseBuffer != null) {
-            if ("gzip".equals(getResponseHeader("Content-Encoding"))) { // If the response is encoded as a gzip, decompress into a string
-                ByteBufferBackedInputStream in = new ByteBufferBackedInputStream(responseBuffer);
-                InputStream zin = null;
-                try {
-                    zin = new GZIPInputStream(in);
-                    return IOUtils.toString(zin, Charset.forName("UTF-8"));
-                } catch (IOException ex) {
-                    Error.FAILED_TO_DECODE_GZIP_RESPONSE.record().create(ex);
-                } finally {
-                    try {
-                        if (zin != null) {
-                            zin.close();
-                        }
-                        in.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                return new String(responseBuffer.array(), Charset.forName("UTF-8"));
-            }
-        }
-
-        return "No Response Data";
-    }
-
     public Integer getRequestContentSize() {
         return requestContent.length();
     }
@@ -254,7 +220,7 @@ public class WebProxyRequest {
     }
 
     public ByteBuffer getResponseBuffer() {
-        return responseBuffer;
+        return this.responseBuffer;
     }
 
     public void setResponseBuffer(ByteBuffer responseBuffer) {

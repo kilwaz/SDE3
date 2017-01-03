@@ -28,7 +28,7 @@ public class MetaRecordedRequest {
         this.title = recordedRequest.getTitle().intern();
         this.isHttps = recordedRequest.getHttps();
         this.ip = recordedRequest.getIP().intern();
-        this.mediaType = recordedRequest.getMediaType().intern();
+        this.mediaType = recordedRequest.getMediaSubType().intern();
         this.hasParameters = recordedRequest.getHasParameters();
         this.cookies = recordedRequest.getCookiesAsString().intern();
         this.requestTime = recordedRequest.getResponseDateTimeFromHeaders();

@@ -22,8 +22,10 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class SDEUtils {
     private static Logger log = Logger.getLogger(SDEUtils.class);
@@ -289,5 +291,51 @@ public class SDEUtils {
         }
 
         return 0d;
+    }
+
+    public static InputStream gUnzipInputStream(InputStream is) {
+        InputStream zin = null;
+        try {
+            zin = new GZIPInputStream(is);
+        } catch (IOException ex) {
+            Error.FAILED_TO_DECODE_GZIP_RESPONSE.record().create(ex);
+        }
+
+        return zin;
+    }
+
+    public static ByteBuffer toByteBuffer(InputStream is) {
+        try {
+            ByteArrayOutputStream tmpOut;
+            int totalResponseLength = 0;
+            tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
+            if (is != null) {
+                byte[] buf = new byte[512];
+                while (true) {
+                    try {
+                        int len = 0;
+
+                        len = is.read(buf);
+
+                        if (len == -1) {
+                            break;
+                        }
+                        totalResponseLength += len;
+                        tmpOut.write(buf, 0, len);
+                    } catch (IOException ex) {
+                        Error.HTTP_STREAM_CLOSED.record().create(ex);
+                    }
+                }
+            }
+
+            tmpOut.close();
+
+            byte[] array = tmpOut.toByteArray();
+            return ByteBuffer.wrap(array);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
     }
 }

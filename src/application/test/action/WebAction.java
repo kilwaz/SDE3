@@ -275,9 +275,11 @@ public abstract class WebAction implements Action {
         } else if (xPathElement.exists()) { // Get the element via xPath
             testElement = getDriver().findElement(findElement(xPathElement));
         } else if (loopElement.exists()) { // Get element via loop
-            LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
-            if (loopedWebElement != null) {
-                testElement = loopedWebElement.getWebElement(getDriver());
+            if(getLoopTracker().getLoop(loopElement.getParameterValue()) != null){
+                LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
+                if (loopedWebElement != null) {
+                    testElement = loopedWebElement.getWebElement(getDriver());
+                }
             }
         } else if (nameElement.exists()) { // Get element via name
             testElement = getDriver().findElement(findElement(nameElement));

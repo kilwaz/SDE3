@@ -11,11 +11,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,9 +27,11 @@ public class RecordedRequest extends DatabaseObject {
     private Integer responseSize = -1;
     private String request = "";
     private String response = "";
+    private ByteBuffer responseBuffer = null;
     private RecordedProxy parentHttpProxy;
     private List<RecordedHeader> requestHeaders = null;
     private List<RecordedHeader> responseHeaders = null;
+    private List<RecordedParameter> requestParameters = null;
     private Integer requestNumber = 0;
     private String redirectUrl = "";
     private Boolean isHttps = false;
@@ -118,7 +119,37 @@ public class RecordedRequest extends DatabaseObject {
         return "";
     }
 
+    public String getMediaGroup() {
+        RecordedHeader mediaTypeHeader = getResponseHeader("Content-Type");
+        if (mediaTypeHeader != null) {
+            String content = mediaTypeHeader.getValue();
+            if (content.contains(";")) {
+                content = content.substring(0, content.indexOf(";"));
+            }
+            if (content.contains("/")) {
+                content = content.substring(0, content.indexOf("/"));
+                if (content.contains("-")) {
+                    return content.substring(content.indexOf("-") + 1);
+                } else {
+                    return content;
+                }
+            }
+            return content;
+        }
+
+        return "";
+    }
+
     public String getMediaType() {
+        RecordedHeader mediaTypeHeader = getResponseHeader("Content-Type");
+        if (mediaTypeHeader != null) {
+            return mediaTypeHeader.getValue();
+        }
+
+        return "";
+    }
+
+    public String getMediaSubType() {
         RecordedHeader mediaTypeHeader = getResponseHeader("Content-Type");
         if (mediaTypeHeader != null) {
             String content = mediaTypeHeader.getValue();
@@ -151,7 +182,7 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public String getTitle() {
-        if ("html".equals(getMediaType())) {
+        if ("html".equals(getMediaSubType())) {
             return Jsoup.parse(response).title();
         } else {
             return "";
@@ -338,9 +369,13 @@ public class RecordedRequest extends DatabaseObject {
             request = recordedRequestDAO.getLazyRequest(this);
         }
 
-        log.info("Got request on " + this);
-
         return request;
+    }
+
+    // Required to be an empty method
+    // When loading the object we don't want to initially set this due to the memory foot print
+    public void setRequest(InputStream inputStream) {
+
     }
 
     public void setRequest(String request) {
@@ -349,12 +384,6 @@ public class RecordedRequest extends DatabaseObject {
         } else {
             this.request = request;
         }
-    }
-
-    // Required to be an empty method
-    // When loading the object we don't want to initially set this due to the memory foot print
-    public void setRequest(InputStream inputStream) {
-
     }
 
     public Integer getRequestNumber() {
@@ -393,14 +422,13 @@ public class RecordedRequest extends DatabaseObject {
         getResponseHeaders().add(responseHeader);
     }
 
-    // Required to be an empty method
-    // When loading the object we don't want to initially set this due to the memory foot print
-    public void setResponse(InputStream inputStream) {
-
+    public void setResponseBuffer(ByteBuffer byteBuffer) {
+        this.responseBuffer = byteBuffer;
     }
 
     public InputStream getRequestInputStream() {
-        return new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8));
+        RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
+        return recordedRequestDAO.getLazyRequestInputStream(this);
     }
 
     // This removes the request/response string to free memory and are lazy loaded when needed
@@ -418,7 +446,7 @@ public class RecordedRequest extends DatabaseObject {
         return response;
     }
 
-    public void setResponse(String response) {
+    public void setResponseBuffer(String response) {
         this.response = response;
     }
 
@@ -433,7 +461,17 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public InputStream getResponseInputStream() {
-        return new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8));
+        if (responseBuffer != null) {
+            responseBuffer.position(0);
+            return new ByteBufferBackedInputStream(responseBuffer);
+        } else {
+            RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
+            return recordedRequestDAO.getLazyResponseInputStream(this);
+        }
+    }
+
+    public void setResponseInputStream(InputStream ios) {
+
     }
 
     public String getParentHttpProxyUuid() {
@@ -459,6 +497,23 @@ public class RecordedRequest extends DatabaseObject {
         }
 
         return requestHeaders;
+    }
+
+    public List<RecordedParameter> getRequestParameters() {
+        requestParameters = new ArrayList<>();
+        if (getUrl().contains("?")) {
+            String[] paramStrings = getUrl().substring(getUrl().indexOf("?") + 1).split("&");
+
+            for (String param : paramStrings) {
+                RecordedParameter recordedParameter = new RecordedParameter();
+                String[] paramSplit = param.split("=");
+                if (paramSplit.length > 0) recordedParameter.setName(paramSplit[0]);
+                if (paramSplit.length > 1) recordedParameter.setValue(paramSplit[1]);
+                requestParameters.add(recordedParameter);
+            }
+        }
+
+        return requestParameters;
     }
 
     public List<RecordedHeader> getResponseHeaders() {

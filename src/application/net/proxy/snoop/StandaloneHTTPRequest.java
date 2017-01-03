@@ -3,12 +3,12 @@ package application.net.proxy.snoop;
 import application.error.Error;
 import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
+import application.utils.SDEUtils;
 import application.utils.Timer;
 import application.utils.managers.StatisticsManager;
 import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLException;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -238,36 +238,35 @@ public class StandaloneHTTPRequest {
                     }
                 }
 
-                ByteArrayOutputStream tmpOut;
-                int totalResponseLength = 0;
-                if (contentLength != -1) {
-                    tmpOut = new ByteArrayOutputStream(contentLength); // Would the total length be larger than the content size?
+                // If the response is encoded as a gzip, decompress it
+                if (responseHeaders.containsKey("Content-Encoding") && "gzip".equals(responseHeaders.get("Content-Encoding"))) {
+                    InputStream unzippedStream = SDEUtils.gUnzipInputStream(is);
+
+                    // Convert the response stream into a buffer
+                    response = SDEUtils.toByteBuffer(unzippedStream);
+                    unzippedStream.close();
                 } else {
-                    tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
+                    // Convert the response stream into a buffer
+                    response = SDEUtils.toByteBuffer(is);
                 }
+
+                // Close the response input stream
                 if (is != null) {
-                    byte[] buf = new byte[512];
-                    while (true) {
-                        int len = is.read(buf);
-                        if (len == -1) {
-                            break;
-                        }
-                        totalResponseLength += len;
-                        tmpOut.write(buf, 0, len);
-                    }
                     is.close();
                 }
+
+                // Stop the download timer
                 if (downloadTimer != null) {
                     downloadTime = downloadTimer.getTimeSince();
                 }
 
-                StatisticsManager.getInstance().getTotalStatisticStore().addResponseSize(totalResponseLength);
-                StatisticsManager.getInstance().getSessionStatisticStore().addResponseSize(totalResponseLength);
+                //StatisticsManager.getInstance().getTotalStatisticStore().addResponseSize(totalResponseLength);
+                //StatisticsManager.getInstance().getSessionStatisticStore().addResponseSize(totalResponseLength);
 
-                tmpOut.close();
+                //tmpOut.close();
 
-                byte[] array = tmpOut.toByteArray();
-                response = ByteBuffer.wrap(array);
+                //byte[] array = tmpOut.toByteArray();
+                //response = ByteBuffer.wrap(array);
             } catch (FileNotFoundException | MalformedURLException ex) { // 404
                 response = ByteBuffer.wrap(notFoundResponse.getBytes());
                 Error.PROXY_REQUEST_NOT_FOUND.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);

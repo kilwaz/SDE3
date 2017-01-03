@@ -5,7 +5,6 @@ import application.node.design.DrawableNode;
 import application.utils.SDEUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
@@ -14,11 +13,6 @@ import netscape.javascript.JSObject;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -36,9 +30,18 @@ public class AceTextArea extends VBox {
     private String textMode;
     private Boolean initialised = false;
     private String textToBeSet;
+    private String initialContent = null;
+    private Boolean beautify = false;
 
     public AceTextArea(String textMode) {
         this.textMode = textMode;
+        init();
+    }
+
+    public AceTextArea(String textMode, String initialContent) {
+        this.textMode = textMode;
+        this.initialContent = initialContent;
+        this.beautify = true;
         init();
     }
 
@@ -97,16 +100,18 @@ public class AceTextArea extends VBox {
             Error.ACE_TEXT_PASTE.record().create(ex);
         }
 
-        // If no logic node is linked then we remove the content placeholder
-        if (node != null) {
-            content = content.replace("[[content]]", StringEscapeUtils.escapeHtml4(node.getAceTextAreaText()));
-        } else {
-            content = content.replace("[[content]]", "");
-        }
-
         content = content.replace("[[ace]]", "file:/" + editorPath);
         content = content.replace("[[languageTools]]", "file:/" + languageTools);
         content = content.replace("[[mode]]", textMode);
+
+        // If no logic node is linked then we remove the content placeholder
+        if (node != null) {
+            content = content.replace("[[content]]", StringEscapeUtils.escapeHtml4(node.getAceTextAreaText()));
+        } else if (initialContent != null) {
+            content = content.replace("[[content]]", StringEscapeUtils.escapeHtml4(initialContent));
+        } else {
+            content = content.replace("[[content]]", "");
+        }
 
         webEngine.loadContent(content);
 
@@ -180,6 +185,12 @@ public class AceTextArea extends VBox {
             } else {
                 jsObject.call("setText", text);
             }
+        }
+    }
+
+    public void beautify() {
+        if (jsObject != null) {
+            jsObject.call("beautify");
         }
     }
 

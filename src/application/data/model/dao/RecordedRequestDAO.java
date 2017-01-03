@@ -4,9 +4,15 @@ import application.data.SelectQuery;
 import application.data.SelectResult;
 import application.data.SelectResultRow;
 import application.data.UpdateQuery;
+import application.error.Error;
 import application.net.proxy.RecordedProxy;
 import application.net.proxy.RecordedRequest;
+import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +31,32 @@ public class RecordedRequestDAO {
         return recordedRequests;
     }
 
+    public InputStream getLazyRequestInputStream(RecordedRequest recordedRequest) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select request_content from recorded_requests where uuid = ?")
+                .addParameter(recordedRequest.getUuidString()) // 1
+                .execute();
+
+        InputStream requestStream = new ByteArrayInputStream("".getBytes()); // Default blank input stream
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            requestStream = resultRow.getBlobInputStream("request_content");
+        }
+
+        return requestStream;
+    }
+
     public String getLazyRequest(RecordedRequest recordedRequest) {
         SelectResult selectResult = (SelectResult) new SelectQuery("select request_content from recorded_requests where uuid = ?")
                 .addParameter(recordedRequest.getUuidString()) // 1
                 .execute();
         String requestContent = "";
         for (SelectResultRow resultRow : selectResult.getResults()) {
-            requestContent = resultRow.getString("request_content");
+            StringWriter writer = new StringWriter();
+            try {
+                IOUtils.copy(resultRow.getBlobInputStream("request_content"), writer);
+            } catch (IOException ex) {
+                Error.BLOB_TO_STRING_CONVERT_FAILED.record().create(ex);
+            }
+            requestContent = writer.toString();
         }
 
         return requestContent;
@@ -43,10 +68,30 @@ public class RecordedRequestDAO {
                 .execute();
         String responseContent = "";
         for (SelectResultRow resultRow : selectResult.getResults()) {
-            responseContent = resultRow.getString("response_content");
+
+            StringWriter writer = new StringWriter();
+            try {
+                IOUtils.copy(resultRow.getBlobInputStream("response_content"), writer);
+            } catch (IOException ex) {
+                Error.BLOB_TO_STRING_CONVERT_FAILED.record().create(ex);
+            }
+            responseContent = writer.toString();
         }
 
         return responseContent;
+    }
+
+    public InputStream getLazyResponseInputStream(RecordedRequest recordedRequest) {
+        SelectResult selectResult = (SelectResult) new SelectQuery("select response_content from recorded_requests where uuid = ?")
+                .addParameter(recordedRequest.getUuidString()) // 1
+                .execute();
+
+        InputStream responseStream = new ByteArrayInputStream("".getBytes()); // Default blank input stream
+        for (SelectResultRow resultRow : selectResult.getResults()) {
+            responseStream = resultRow.getBlobInputStream("response_content");
+        }
+
+        return responseStream;
     }
 
     public void deleteAllRecordedRequests() {

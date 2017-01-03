@@ -129,7 +129,8 @@ public class ProxyConnectionWrapper {
                 }
 
                 // URL
-                URI destinationURI = new URI(destinationURL.getProtocol(), destinationURL.getHost(), destinationURL.getPath(), destinationURL.getQuery(), null);
+                URI destinationURI = new URI(destinationURL.getProtocol(), null, destinationURL.getHost(), destinationURL.getPort(), destinationURL.getPath(), destinationURL.getQuery(), null);
+                //URI destinationURI = new URI(destinationURL.getProtocol(), destinationURL.getHost(), destinationURL.getPath(), destinationURL.getQuery(), null);
                 request.setURI(destinationURI);
 
                 // Headers
