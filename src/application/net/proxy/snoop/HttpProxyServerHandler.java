@@ -2,6 +2,7 @@ package application.net.proxy.snoop;
 
 import application.error.Error;
 import application.net.proxy.WebProxyRequestManager;
+import application.utils.managers.StatisticsManager;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -150,8 +151,9 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                     // Add 'Content-Length' header only for a keep-alive connection.
                     int readableByte = response.content().readableBytes();
                     response.headers().setInt(CONTENT_LENGTH, readableByte);
-                    log.info("Readable bytes " + readableByte);
                     // Add keep alive header as per:
+                    StatisticsManager.getInstance().getTotalStatisticStore().addResponseSize(readableByte);
+                    StatisticsManager.getInstance().getSessionStatisticStore().addResponseSize(readableByte);
                     response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                 }
 

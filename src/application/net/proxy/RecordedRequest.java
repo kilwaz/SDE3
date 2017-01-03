@@ -301,6 +301,19 @@ public class RecordedRequest extends DatabaseObject {
         return parseHost(url);
     }
 
+    public String getFileNameFromURL() {
+        String workingURL = url;
+        if (url.contains("?")) {
+            workingURL = url.substring(0, url.indexOf("?"));
+        }
+
+        if (workingURL.lastIndexOf("/") < workingURL.length()) {
+            return workingURL.substring(workingURL.lastIndexOf("/") + 1);
+        } else {
+            return workingURL;
+        }
+    }
+
     private String parseHost(String url) {
         if (url != null) {
             String host = url.substring(url.indexOf("//") + 2);

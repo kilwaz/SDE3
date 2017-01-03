@@ -307,7 +307,7 @@ public class SDEUtils {
     public static ByteBuffer toByteBuffer(InputStream is) {
         try {
             ByteArrayOutputStream tmpOut;
-            int totalResponseLength = 0;
+            //int totalResponseLength = 0;
             tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
             if (is != null) {
                 byte[] buf = new byte[512];
@@ -320,7 +320,7 @@ public class SDEUtils {
                         if (len == -1) {
                             break;
                         }
-                        totalResponseLength += len;
+                        //totalResponseLength += len;
                         tmpOut.write(buf, 0, len);
                     } catch (IOException ex) {
                         Error.HTTP_STREAM_CLOSED.record().create(ex);
