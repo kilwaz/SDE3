@@ -8,12 +8,15 @@ import application.net.proxy.snoop.HttpProxyServer;
 import application.node.design.DrawableNode;
 import application.node.objects.Test;
 import application.test.TestRunner;
+import application.test.core.TestStructure;
 import application.utils.BrowserHelper;
 import application.utils.NodeRunParams;
 import application.utils.SDEThread;
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
@@ -29,14 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestNode extends DrawableNode {
+    private static Logger log = Logger.getLogger(TestNode.class);
     private Test test;
     private AceTextArea aceTextArea = null;
-
-    private Tab testEditTab;
+    private Tab testRawEditTab;
+    private Tab testHelperEditTab;
     private List<Tab> runningTabs = new ArrayList<>();
     private TabPane testNodeTabPane = null;
-
-    private static Logger log = Logger.getLogger(TestNode.class);
+    private TestStructure testStructure = null;
 
     // This will make a copy of the node passed to it
     public TestNode(TestNode testNode) {
@@ -63,14 +66,31 @@ public class TestNode extends DrawableNode {
         Tab tab = controller.createDefaultNodeTab(this, false);
         AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
+        // Setup helper interface tab
+        AnchorPane testHelperAnchorPane = new AnchorPane();
+
         // Setup main tab pane
         testNodeTabPane = new TabPane();
+        testNodeTabPane.getSelectionModel().selectedItemProperty().addListener(
+                new ChangeListener<Tab>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
+                        if ("Raw Script".equals(ov.getValue().getText()) && t != null) {
+                            test.setText(testStructure.toScript());
+                            //aceTextArea.setText(test.getText());
+                        } else if ("Helper".equals(ov.getValue().getText())) {
+                            testStructure = TestStructure.create(test);
+                            testHelperAnchorPane.getChildren().clear();
+                            testHelperAnchorPane.getChildren().add(testStructure.getInterface());
+                        }
+                    }
+                });
 
-        // Setup edit tab
-        testEditTab = new Tab("Edit Script");
-        testEditTab.setClosable(false);
+        // Setup raw script tab
+        testRawEditTab = new Tab("Raw Script");
+        testRawEditTab.setClosable(false);
 
-        VBox vBox = new VBox(5);
+        VBox vBoxEdit = new VBox(5);
         AnchorPane testEditAnchorPane = new AnchorPane();
 
         Button recordButton = new Button();
@@ -92,18 +112,30 @@ public class TestNode extends DrawableNode {
         hBox.getChildren().add(recordButton);
         hBox.setAlignment(Pos.BASELINE_LEFT);
 
-        vBox.getChildren().add(hBox);
-        vBox.getChildren().add(aceTextArea);
+        vBoxEdit.getChildren().add(hBox);
+        vBoxEdit.getChildren().add(aceTextArea);
 
-        UI.setAnchorMargins(vBox, 10.0, 0.0, 11.0, 0.0);
+        UI.setAnchorMargins(vBoxEdit, 10.0, 0.0, 11.0, 0.0);
         UI.setAnchorMargins(testEditAnchorPane, 0.0, 0.0, 0.0, 0.0);
+
+        testEditAnchorPane.getChildren().add(vBoxEdit);
+        testRawEditTab.setContent(testEditAnchorPane);
+
+        testHelperEditTab = new Tab("Helper");
+        testHelperEditTab.setClosable(false);
+
+        UI.setAnchorMargins(testHelperAnchorPane, 0.0, 0.0, 0.0, 0.0);
+
+        testHelperEditTab.setContent(testHelperAnchorPane);
+//
+//        TestStructure testStructure = TestStructure.create(test);
+//        testHelperAnchorPane.getChildren().add(testStructure.getInterface());
+
         UI.setAnchorMargins(testNodeTabPane, 50.0, 0.0, 0.0, 0.0);
 
-        testEditAnchorPane.getChildren().add(vBox);
-        testEditTab.setContent(testEditAnchorPane);
-
         // Add created tabs to main tab pane
-        testNodeTabPane.getTabs().addAll(testEditTab);
+        testNodeTabPane.getTabs().addAll(testRawEditTab);
+        testNodeTabPane.getTabs().addAll(testHelperEditTab);
         testNodeTabPane.getTabs().addAll(runningTabs);
         anchorPane.getChildren().addAll(testNodeTabPane);
 

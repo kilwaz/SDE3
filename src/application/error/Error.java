@@ -152,7 +152,8 @@ public enum Error {
     NO_REFERENCE_PROVIDED(147, "No reference provided for custom request list against a RequestTrackerNode"),
     STOP_JOB(148, "Error stopping a jobs"),
     BLOB_TO_STRING_CONVERT_FAILED(149, "Error converting BLOB to string"),
-    HTTP_STREAM_CLOSED(150, "Http stream closed unexpectedly");
+    HTTP_STREAM_CLOSED(150, "Http stream closed unexpectedly"),
+    UNABLE_TO_FIND_CLASS_CONSTRUCTOR(151, "Unable to find class constructor");
 
     private Integer code;
     private String description;

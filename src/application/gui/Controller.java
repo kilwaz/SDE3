@@ -605,7 +605,7 @@ public class Controller implements Initializable {
                 selectedProgram.getFlowController().checkConnections(); // Renaming a node might make or break connections
 
                 nodeTabPane.getTabs().stream().filter(loopTab -> loopTab.getId() != null).forEach(loopTab -> {
-                    if (loopTab.getId().equals(nodeToUpdate.getUuidStringWithoutHyphen().toString())) {
+                    if (loopTab.getId().equals(nodeToUpdate.getUuidStringWithoutHyphen())) {
                         loopTab.setText(textField.getText());
                     }
                 });

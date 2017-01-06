@@ -208,8 +208,6 @@ public class AceTextArea extends VBox {
         }
 
         Platform.runLater(new OneShotTask(lineNumber));
-
-
     }
 
     public Boolean isInitialised() {

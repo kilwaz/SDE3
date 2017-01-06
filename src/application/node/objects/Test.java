@@ -4,12 +4,14 @@ import application.data.model.DatabaseObject;
 import application.node.implementations.InputNode;
 import application.node.implementations.TestNode;
 import application.test.core.TestCase;
+import application.test.core.TestStructure;
 
 import java.util.regex.Pattern;
 
 public class Test extends DatabaseObject {
     private TestNode parentTestNode;
     private String text = "";
+    private TestStructure testStructure;
     private Integer currentLine = 0;
     private Boolean continueTest = true;
     private Boolean clone = false;
@@ -22,6 +24,7 @@ public class Test extends DatabaseObject {
     public Test(TestNode testNode) {
         this.parentTestNode = testNode;
         this.text = "";
+        this.testStructure = new TestStructure();
     }
 
     public void setClone(Boolean clone) {

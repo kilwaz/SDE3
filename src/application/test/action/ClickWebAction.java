@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
  * The element can also be retrieved from the current loop as well.
  */
 public class ClickWebAction extends WebAction {
-
     private static Logger log = Logger.getLogger(ClickWebAction.class);
 
     // This class is used to click on an element
