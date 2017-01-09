@@ -6,6 +6,7 @@ import application.node.objects.Test;
 import application.test.TestCommand;
 import application.test.structure.BaseStructure;
 import application.test.structure.Click;
+import application.test.structure.URL;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
@@ -25,6 +26,7 @@ public class TestStructure {
      */
     static {
         structureClasses.put("click", Click.class);
+        structureClasses.put("url", URL.class);
     }
 
     private List<BaseStructure> baseStructures = new ArrayList<>();

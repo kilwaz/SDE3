@@ -4,9 +4,12 @@ import application.test.TestCommand;
 import application.utils.AppParams;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -14,11 +17,13 @@ import java.util.HashMap;
 
 public class BaseStructure {
     public static final Integer STRUCTURE_CLICK = 0;
+    public static final Integer STRUCTURE_URL = 1;
     private static HashMap<Integer, String> availableStructures = new HashMap<>();
     private static ObservableList<String> availableStructureNames = FXCollections.observableArrayList();
 
     static {
         availableStructures.put(0, "Click");
+        availableStructures.put(1, "URL");
 
         availableStructureNames.addAll(availableStructures.values());
     }
@@ -60,20 +65,27 @@ public class BaseStructure {
 
         VBox vBox = new VBox(5);
         HBox hBox = new HBox(5);
+        hBox.setAlignment(Pos.BASELINE_CENTER);
 
         Label hashNumber = new Label("#" + getLineNumber());
         hashNumber.setFont(AppParams.getFont(15));
+        //hashNumber.setPrefHeight(50d);
+        //hashNumber.setAlignment(Pos.CENTER_LEFT);
 
-        Label commandLabel = new Label("Command:");
-        commandLabel.setFont(AppParams.getFont(12));
+//        Label commandLabel = new Label("Command:");
+//        commandLabel.setFont(AppParams.getFont(12));
 
         ChoiceBox<String> cb = new ChoiceBox<>(availableStructureNames);
         cb.getSelectionModel().select(getStructureName());
 
-        hBox.getChildren().addAll(commandLabel, cb, createStructureInterface());
-        vBox.getChildren().addAll(hashNumber, hBox);
+        Separator vSeparator = new Separator();
+        vSeparator.setPrefHeight(50d);
+        vSeparator.setOrientation(Orientation.VERTICAL);
 
-        anchorPane.getChildren().add(vBox);
+        hBox.getChildren().addAll(hashNumber,vSeparator,cb, createStructureInterface());
+        //vBox.getChildren().addAll(hashNumber, vSeparator, hBox);
+
+        anchorPane.getChildren().add(hBox);
         return anchorPane;
     }
 

@@ -3,6 +3,7 @@ package application.test.structure;
 import application.test.TestCommand;
 import application.utils.AppParams;
 import javafx.collections.FXCollections;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -23,6 +24,7 @@ public class Click extends BaseStructure {
 
     public Node createStructureInterface() {
         HBox hBox = new HBox(5);
+        //hBox.setAlignment(Pos.BASELINE_CENTER);
 
         Label targetLabel = new Label("Target:");
         targetLabel.setFont(AppParams.getFont(12));
