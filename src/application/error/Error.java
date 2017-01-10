@@ -103,7 +103,7 @@ public enum Error {
     NODE_CLASS_NOT_FOUND(98, "Could not find node class"),
     DATABASE_MIGRATE_SQL_FAILED(99, "Flyway database migration failed from SQL"),
     DATABASE_REBUILD_FAILED(100, "Database rebuild failed"),
-    DATABASE_MIGRATE_FAILED(101, "Flyway database migration failed"),
+    DATABASE_MIGRATE_FAILED(101, "Flyway database migration failed - Database connection might not exist"),
     HTTP_PROXY_RECEIVE_MESSAGE(102, "Error receiving Http Proxy message"),
     SELENIUM_SELECT_ACTION_NOT_FOUND(103, "SelectAction is failing, selenium is not responding when finding the element"),
     NO_BROWSER_FOUND(104, "Trying to run test with browser that doesn't exist"),

@@ -76,7 +76,9 @@ public class TestNode extends DrawableNode {
                     @Override
                     public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
                         if ("Raw Script".equals(ov.getValue().getText()) && t != null) {
-                            test.setText(testStructure.toScript());
+                            if (test != null) {
+                                test.setText(testStructure.toScript());
+                            }
                             //aceTextArea.setText(test.getText());
                         } else if ("Helper".equals(ov.getValue().getText())) {
                             testStructure = TestStructure.create(test);

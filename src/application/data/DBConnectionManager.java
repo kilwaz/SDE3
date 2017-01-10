@@ -13,6 +13,7 @@ public class DBConnectionManager {
     private static Logger log = Logger.getLogger(DBConnectionManager.class);
     private List<DBConnection> DBConnectionList = new ArrayList<>();
     private DBConnection applicationConnection;
+    private Boolean isConnected = false;
 
     public DBConnectionManager() {
         instance = this;
@@ -28,7 +29,6 @@ public class DBConnectionManager {
     public void addConnection(DBConnection DBConnection) {
         DBConnectionList.add(DBConnection);
     }
-
 
     public void closeConnections() {
         DBConnectionList.forEach(DBConnection::close);
@@ -55,6 +55,8 @@ public class DBConnectionManager {
         addConnection(applicationConnection);
         if (!applicationConnection.connect()) {
             return false;
+        } else {
+            isConnected = true;
         }
         DatabaseConnectionWatcher.getInstance().setConnected(true);
 
@@ -69,4 +71,7 @@ public class DBConnectionManager {
         return applicationConnection;
     }
 
-} 
+    public Boolean isConnected() {
+        return isConnected;
+    }
+}

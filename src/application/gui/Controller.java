@@ -491,11 +491,14 @@ public class Controller implements Initializable {
                     canvasController.updateAStarNetwork();
                 });
 
-        User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
+        // We can't do this part if the database isn't connected
+        if (DBConnectionManager.getInstance().isConnected()) {
+            User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
 
-        if (currentUser != null && currentUser.getCurrentProgram() != null) {
-            programList.getSelectionModel().select(currentUser.getCurrentProgram());
-            programList.scrollTo(currentUser.getCurrentProgram());
+            if (currentUser != null && currentUser.getCurrentProgram() != null) {
+                programList.getSelectionModel().select(currentUser.getCurrentProgram());
+                programList.scrollTo(currentUser.getCurrentProgram());
+            }
         }
 
         leftAccordion.setExpandedPane(programTitlePane);
@@ -552,10 +555,13 @@ public class Controller implements Initializable {
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());
 
         // As a final step we draw the loaded program with a fully updated network
-        Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
-        if (selectedProgram != null) {
-            selectedProgram.loadNodesToFlowController();
-            updateFlowLockedStatus();
+        // We can't do this part if the database isn't connected
+        if (DBConnectionManager.getInstance().isConnected()) {
+            Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
+            if (selectedProgram != null) {
+                selectedProgram.loadNodesToFlowController();
+                updateFlowLockedStatus();
+            }
         }
 
         canvasController.drawProgram(); // Not 100% sure why we need to draw first and then update network after
@@ -891,14 +897,14 @@ public class Controller implements Initializable {
     public void reloadPrograms() {
         if (programList != null) {
             programList.getItems().clear();
-
-            User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
-
-            ProgramDAO programDAO = new ProgramDAO();
-            List<Program> programs = programDAO.getProgramsByUser(currentUser);
-
-            programList.getItems().addAll(programs);
-            reorderProgramList();
+            if (DBConnectionManager.getInstance().isConnected()) {
+                Session currentSession = SessionManager.getInstance().getCurrentSession();
+                User currentUser = currentSession.getUser();
+                ProgramDAO programDAO = new ProgramDAO();
+                List<Program> programs = programDAO.getProgramsByUser(currentUser);
+                programList.getItems().addAll(programs);
+                reorderProgramList();
+            }
         }
     }
 

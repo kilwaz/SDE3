@@ -1,6 +1,7 @@
 package application.data;
 
 import application.error.Error;
+import application.gui.window.SettingsPickerWindow;
 import application.utils.AppParams;
 import application.utils.SDEUtils;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
@@ -66,6 +67,8 @@ public class DBConnection {
             return true;
         } catch (SQLException ex) {
             Error.OPEN_DATABASE_CONNECTION.record().additionalInformation("Connection String:" + connectionString + " Username:" + username + " Password:" + password).create(ex);
+            // Opening the settings window as there is a connection issue to the database
+            new SettingsPickerWindow();
             return false;
         }
     }

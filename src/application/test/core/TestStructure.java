@@ -44,21 +44,23 @@ public class TestStructure {
         // Go through each command and create the required object
         for (String command : commands) {
             TestCommand testCommand = TestCommand.parseCommand(command);
-            testCommand.setCommandLineNumber(baseStructures.size() + 1); // Sets the command position via line number
+            if (testCommand != null) {
+                testCommand.setCommandLineNumber(baseStructures.size() + 1); // Sets the command position via line number
 
-            if (command.startsWith("//") || command.equals("") || testCommand == null) { // Ignore the command if it is a comment
-                continue;
-            }
-            if (structureClasses.containsKey(testCommand.getMainCommand())) {
-                Class commandClass = structureClasses.get(testCommand.getMainCommand());
-                try {
-                    BaseStructure baseStructure = (BaseStructure) commandClass.getConstructor(TestCommand.class).newInstance(testCommand);
-                    baseStructures.add(baseStructure);
-                } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
-                    Error.UNABLE_TO_FIND_CLASS_CONSTRUCTOR.record().create(ex);
+                if (command.startsWith("//") || command.equals("") || testCommand == null) { // Ignore the command if it is a comment
+                    continue;
                 }
-            } else {
-                log.info("Command " + command + " does not exist");
+                if (structureClasses.containsKey(testCommand.getMainCommand())) {
+                    Class commandClass = structureClasses.get(testCommand.getMainCommand());
+                    try {
+                        BaseStructure baseStructure = (BaseStructure) commandClass.getConstructor(TestCommand.class).newInstance(testCommand);
+                        baseStructures.add(baseStructure);
+                    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                        Error.UNABLE_TO_FIND_CLASS_CONSTRUCTOR.record().create(ex);
+                    }
+                } else {
+                    log.info("Command " + command + " does not exist");
+                }
             }
         }
     }

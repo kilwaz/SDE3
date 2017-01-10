@@ -1,5 +1,6 @@
 package application.gui.canvas;
 
+import application.data.DBConnectionManager;
 import application.gui.Controller;
 import application.gui.FlowController;
 import application.gui.NodeConnection;
@@ -180,6 +181,9 @@ public class CanvasController {
     }
 
     public void updateAStarNetwork() {
+        // If we aren't connected to the database don't draw anything
+        if (!DBConnectionManager.getInstance().isConnected()) return;
+
         Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
         network = null;
         if (selectedProgram != null) {
@@ -213,6 +217,9 @@ public class CanvasController {
     }
 
     public void drawProgram() {
+        // If we aren't connected to the database don't draw anything
+        if (!DBConnectionManager.getInstance().isConnected()) return;
+
         Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
         // Clears the screen
