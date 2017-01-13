@@ -24,9 +24,9 @@ public class Click extends BaseStructure {
 
     public Node createStructureInterface() {
         HBox hBox = new HBox(5);
-        //hBox.setAlignment(Pos.BASELINE_CENTER);
+        hBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label targetLabel = new Label("Target:");
+        Label targetLabel = new Label(" on element ");
         targetLabel.setFont(AppParams.getFont(12));
 
         ChoiceBox<String> cb = new ChoiceBox<>(FXCollections.observableArrayList(BaseTarget.getNamedListOfTargetTypes()));
@@ -34,7 +34,8 @@ public class Click extends BaseStructure {
 
         TextField targetField = new TextField();
         targetField.setText(targetElement.getValueInUse());
-        targetField.setOnAction(event -> {
+        targetField.setPrefWidth(400d);
+        targetField.setOnKeyReleased(event -> {
             TextField textField = (TextField) event.getSource();
             targetElement.setValueInUse(textField.getText());
         });

@@ -15,13 +15,8 @@ import application.utils.SDEThread;
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -40,6 +35,9 @@ public class TestNode extends DrawableNode {
     private List<Tab> runningTabs = new ArrayList<>();
     private TabPane testNodeTabPane = null;
     private TestStructure testStructure = null;
+    private VBox vBoxEdit;
+    private ScrollPane testHelperAnchorScrollPane;
+    private AnchorPane testHelperAnchorPane;
 
     // This will make a copy of the node passed to it
     public TestNode(TestNode testNode) {
@@ -67,24 +65,26 @@ public class TestNode extends DrawableNode {
         AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         // Setup helper interface tab
-        AnchorPane testHelperAnchorPane = new AnchorPane();
+        testHelperAnchorScrollPane = new ScrollPane();
+        testHelperAnchorPane = new AnchorPane();
 
         // Setup main tab pane
         testNodeTabPane = new TabPane();
         testNodeTabPane.getSelectionModel().selectedItemProperty().addListener(
-                new ChangeListener<Tab>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
-                        if ("Raw Script".equals(ov.getValue().getText()) && t != null) {
-                            if (test != null) {
-                                test.setText(testStructure.toScript());
-                            }
-                            //aceTextArea.setText(test.getText());
-                        } else if ("Helper".equals(ov.getValue().getText())) {
-                            testStructure = TestStructure.create(test);
-                            testHelperAnchorPane.getChildren().clear();
-                            testHelperAnchorPane.getChildren().add(testStructure.getInterface());
+                (ov, t, t1) -> {
+                    if ("Raw Script".equals(ov.getValue().getText()) && t != null) {
+                        if (test != null) {
+                            test.setText(testStructure.toScript());
+                            // Is this a really long winded way of doing this, creating a new browser view and populating it again?
+                            vBoxEdit.getChildren().remove(aceTextArea);
+                            aceTextArea = new AceTextArea("ace/mode/sde", test.getText());
+                            vBoxEdit.getChildren().add(aceTextArea);
                         }
+                    } else if ("Helper".equals(ov.getValue().getText())) {
+                        testStructure = TestStructure.create(test);
+                        testHelperAnchorPane.getChildren().clear();
+                        testHelperAnchorPane.getChildren().add(testStructure.getInterface());
+                        testHelperAnchorScrollPane.setContent(testHelperAnchorPane);
                     }
                 });
 
@@ -92,7 +92,7 @@ public class TestNode extends DrawableNode {
         testRawEditTab = new Tab("Raw Script");
         testRawEditTab.setClosable(false);
 
-        VBox vBoxEdit = new VBox(5);
+        vBoxEdit = new VBox(5);
         AnchorPane testEditAnchorPane = new AnchorPane();
 
         Button recordButton = new Button();
@@ -127,11 +127,9 @@ public class TestNode extends DrawableNode {
         testHelperEditTab.setClosable(false);
 
         UI.setAnchorMargins(testHelperAnchorPane, 0.0, 0.0, 0.0, 0.0);
-
-        testHelperEditTab.setContent(testHelperAnchorPane);
-//
-//        TestStructure testStructure = TestStructure.create(test);
-//        testHelperAnchorPane.getChildren().add(testStructure.getInterface());
+        UI.setAnchorMargins(testHelperAnchorScrollPane, 0.0, 0.0, 0.0, 0.0);
+        testHelperAnchorScrollPane.setContent(testHelperAnchorPane);
+        testHelperEditTab.setContent(testHelperAnchorScrollPane);
 
         UI.setAnchorMargins(testNodeTabPane, 50.0, 0.0, 0.0, 0.0);
 

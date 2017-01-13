@@ -4,6 +4,7 @@ import application.test.TestCommand;
 import application.utils.AppParams;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -59,21 +60,14 @@ public class BaseStructure {
         anchorPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(5.0), BorderWidths.DEFAULT)));
         anchorPane.setStyle("-fx-background-color: rgba(0,0,0,0.75),\n" +
                 "                           rgba(255,255,255,0.75),\n" +
-                "                           linear-gradient(to bottom,#dddddd 0%,#eeeeee 100%);\n" +
-                " ");
-//                " -fx-background-insets: 0 1 1 0, 1 0 0 1, 1;");
+                "                           linear-gradient(to bottom,#dddddd 0%,#eeeeee 100%);\n");
 
-        VBox vBox = new VBox(5);
         HBox hBox = new HBox(5);
-        hBox.setAlignment(Pos.BASELINE_CENTER);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        hBox.setPadding(new Insets(0, 0, 0, 5));
 
         Label hashNumber = new Label("#" + getLineNumber());
         hashNumber.setFont(AppParams.getFont(15));
-        //hashNumber.setPrefHeight(50d);
-        //hashNumber.setAlignment(Pos.CENTER_LEFT);
-
-//        Label commandLabel = new Label("Command:");
-//        commandLabel.setFont(AppParams.getFont(12));
 
         ChoiceBox<String> cb = new ChoiceBox<>(availableStructureNames);
         cb.getSelectionModel().select(getStructureName());
@@ -82,8 +76,7 @@ public class BaseStructure {
         vSeparator.setPrefHeight(50d);
         vSeparator.setOrientation(Orientation.VERTICAL);
 
-        hBox.getChildren().addAll(hashNumber,vSeparator,cb, createStructureInterface());
-        //vBox.getChildren().addAll(hashNumber, vSeparator, hBox);
+        hBox.getChildren().addAll(hashNumber, vSeparator, cb, createStructureInterface());
 
         anchorPane.getChildren().add(hBox);
         return anchorPane;

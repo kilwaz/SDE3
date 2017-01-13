@@ -2,8 +2,10 @@ package application.test.structure;
 
 import application.test.TestCommand;
 import application.test.TestParameter;
+import application.utils.AppParams;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import org.apache.log4j.Logger;
@@ -22,16 +24,20 @@ public class URL extends BaseStructure {
 
     public Node createStructureInterface() {
         HBox hBox = new HBox(5);
-        //hBox.setAlignment(Pos.BASELINE_CENTER);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label gotoLabel = new Label(" go to ");
+        gotoLabel.setFont(AppParams.getFont(12));
 
         TextField urlField = new TextField();
         urlField.setText(url);
-        urlField.setOnAction(event -> {
+        urlField.setPrefWidth(400d);
+        urlField.setOnKeyReleased(event -> {
             TextField textField = (TextField) event.getSource();
             url = textField.getText();
         });
 
-        hBox.getChildren().addAll(urlField);
+        hBox.getChildren().addAll(gotoLabel, urlField);
         return hBox;
     }
 
