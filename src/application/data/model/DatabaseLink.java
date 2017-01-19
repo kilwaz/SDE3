@@ -78,6 +78,7 @@ public class DatabaseLink {
         linkClasses.put(TimerNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(TriggerNode.class, DrawableNodeDatabaseLink.class);
         linkClasses.put(WindowsNode.class, DrawableNodeDatabaseLink.class);
+        linkClasses.put(ImportNode.class, DrawableNodeDatabaseLink.class);
     }
 
     private String tableName = "";

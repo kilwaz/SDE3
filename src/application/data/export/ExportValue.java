@@ -33,6 +33,8 @@ public class ExportValue extends ExportCell {
                 return ((String) var1).compareTo(var2.toString());
             } else if (var1 instanceof Integer && var2 instanceof Integer) {
                 return ((Integer) var1).compareTo((Integer) var2);
+            } else if (var1 instanceof Double && var2 instanceof Double) {
+                return ((Double) var1).compareTo((Double) var2);
             } else {
                 return (var1.toString()).compareTo(var2.toString());
             }

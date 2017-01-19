@@ -54,7 +54,12 @@ public class ExportBuilder {
             List<ExportSheet> exportSheets = export.getExportSheets();
 
             for (ExportSheet exportSheet : exportSheets) {
-                XSSFSheet sheet = workbook.createSheet(exportSheet.getSheetName());
+                XSSFSheet sheet;
+                if(!"sheet".equals(exportSheet.getSheetName())){
+                    sheet = workbook.createSheet(exportSheet.getSheetName());
+                } else {
+                    sheet = workbook.createSheet();
+                }
 
                 for (Integer row = 0; row < exportSheet.getRowCount(); row++) {
                     XSSFRow currentRow = sheet.createRow(row);
@@ -121,7 +126,7 @@ public class ExportBuilder {
             fos = new FileOutputStream(exportOutputFile);
             workbook.write(fos);
         } catch (IOException | NullPointerException ex) {
-            Error.RUN_EXPORT_NODE.record().create(ex);
+            Error.RUN_EXPORT_NODE.record().additionalInformation("File:" + saveLocation).create(ex);
         } catch (Exception ex) {
             Error.RUN_EXPORT_NODE.record().additionalInformation("Unexpected Error").create(ex);
         } finally {

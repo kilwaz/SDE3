@@ -98,7 +98,11 @@ public class ExportSheet {
         ExportCell[][] data = Arrays.copyOfRange(exportValues, headerRowCount, exportValues.length);
 
         Arrays.sort(data, (entry1, entry2) -> {
-            if (entry1 == null || entry2 == null || entry1[column] == null || entry2[column] == null) {
+            if ((entry1 == null || entry1[column] == null) && (entry2 == null || entry2[column] != null)) {
+                return -1;
+            } else if ((entry1 == null || entry1[column] != null) && (entry2 == null || entry2[column] == null)) {
+                return 1;
+            } else if ((entry1 == null || entry1[column] == null) && (entry2 == null || entry2[column] == null)) {
                 return 0;
             }
 

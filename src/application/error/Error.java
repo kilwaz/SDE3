@@ -153,7 +153,10 @@ public enum Error {
     STOP_JOB(148, "Error stopping a jobs"),
     BLOB_TO_STRING_CONVERT_FAILED(149, "Error converting BLOB to string"),
     HTTP_STREAM_CLOSED(150, "Http stream closed unexpectedly"),
-    UNABLE_TO_FIND_CLASS_CONSTRUCTOR(151, "Unable to find class constructor");
+    UNABLE_TO_FIND_CLASS_CONSTRUCTOR(151, "Unable to find class constructor"),
+    IMPORT_FILE_NOT_FOUND(152, "Import file was not found"),
+    IMPORT_FILE_NOT_SPECIFIED(153, "Import file was not specified"),
+    IMPORT_FILE_FORMAT_EXCEPTION(154, "Import file format was incorrect");
 
     private Integer code;
     private String description;
