@@ -67,7 +67,7 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
         try {
             returnList = (List<MetaRecordedRequest>) futureTask.get();
         } catch (InterruptedException | ExecutionException ex) {
-            Error.FUTURE_TASK_INTERRUPT.record().create(ex);
+            Error.FUTURE_TASK_INTERRUPT.record().additionalInformation("Getting request by URL: " + url).create(ex);
         }
         return returnList;
     }
@@ -174,8 +174,16 @@ public class RequestTrackerNode extends DrawableNode implements ProxyRequestList
             return;
         }
 
+        // Do this later so concurrency isn't an issue
         List<MetaRecordedRequest> returnList = threadSafeFilter(reference);
-        requestList.removeAll(returnList);
+        final FutureTask futureTask = new FutureTask(() -> requestList.removeAll(returnList));
+
+        Platform.runLater(futureTask);
+        try {
+            futureTask.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            Error.FUTURE_TASK_INTERRUPT.record().additionalInformation("Trying to clear requests by reference: " + reference).create(ex);
+        }
 
         updateTotalRequests();
     }
