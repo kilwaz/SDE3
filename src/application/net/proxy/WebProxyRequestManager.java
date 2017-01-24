@@ -14,6 +14,7 @@ public class WebProxyRequestManager {
     private ConcurrentHashMap<Integer, WebProxyRequest> completedRequests = new ConcurrentHashMap<>();
     private List<ProxyRequestListener> linkedRequestListeners = new ArrayList<>();
     private HashMap<String, String> redirectURLs = new HashMap<>();
+    private HashMap<String, BasicAuthUsernamePassword> basicAuthMapping = new HashMap<>();
     private Integer requestCount = 1;
 
     private RecordedProxy recordedProxy;
@@ -29,6 +30,10 @@ public class WebProxyRequestManager {
 
     public void removeRedirectURL(String url) {
         redirectURLs.remove(url);
+    }
+
+    public void addBasicAuth(String url, BasicAuthUsernamePassword basicAuthUsernamePassword) {
+        basicAuthMapping.put(url, basicAuthUsernamePassword);
     }
 
     public void addRedirectURL(String url, String redirect) {
@@ -62,6 +67,16 @@ public class WebProxyRequestManager {
         } else {
             return null;
         }
+    }
+
+    public BasicAuthUsernamePassword hasBasicAuth(String url) {
+        for (String authUrl : basicAuthMapping.keySet()) {
+            if (url.contains(authUrl)) {
+                return basicAuthMapping.get(authUrl);
+            }
+        }
+
+        return null;
     }
 
     public String applyRedirects(String url) {

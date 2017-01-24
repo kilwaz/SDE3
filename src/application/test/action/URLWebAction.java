@@ -1,5 +1,6 @@
 package application.test.action;
 
+import application.net.proxy.BasicAuthUsernamePassword;
 import application.test.TestParameter;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -25,9 +26,18 @@ public class URLWebAction extends WebAction {
         TestParameter newWindow = getTestCommand().getParameterByName("newWindow");
         TestParameter redirectFromURL = getTestCommand().getParameterByName("redirectFrom");
         TestParameter redirectToURL = getTestCommand().getParameterByName("redirectTo");
+        TestParameter username = getTestCommand().getParameterByName("username");
+        TestParameter password = getTestCommand().getParameterByName("password");
 
+        // Redirects from a specific URL if it is specified
         if (redirectFromURL.exists() && redirectToURL.exists()) {
             getHttpProxyServer().getWebProxyRequestManager().addRedirectURL(redirectFromURL.getParameterValue(), redirectToURL.getParameterValue());
+        }
+
+        // Adds basic authentication if it is specified
+        if (username.exists() && password.exists()) {
+            BasicAuthUsernamePassword basicAuthUsernamePassword = new BasicAuthUsernamePassword(username.getParameterValue(), password.getParameterValue());
+            getHttpProxyServer().getWebProxyRequestManager().addBasicAuth(url.getParameterValue(), basicAuthUsernamePassword);
         }
 
         if (url.exists()) { // Go to the url specified

@@ -1,12 +1,18 @@
 package application.net.proxy.snoop;
 
 import application.error.Error;
+import application.net.proxy.BasicAuthUsernamePassword;
 import application.net.proxy.WebProxyRequest;
 import application.net.proxy.WebProxyRequestManager;
 import application.utils.SDEUtils;
 import application.utils.Timer;
 import application.utils.managers.StatisticsManager;
 import org.apache.log4j.Logger;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.handler.codec.base64.Base64;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.jboss.netty.util.CharsetUtil;
 
 import javax.net.ssl.SSLException;
 import java.io.FileNotFoundException;
@@ -170,6 +176,15 @@ public class StandaloneHTTPRequest {
             if ("POST".equals(method) || "PUT".equals(method)) {
                 requestSize += connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 connection.setDoOutput(true);
+            }
+
+            // Check to see if we have Basic Auth info with this request
+            BasicAuthUsernamePassword basicAuthUsernamePassword = webProxyRequestManager.hasBasicAuth(redirectUrl);
+            if (basicAuthUsernamePassword != null) {
+                String authString = basicAuthUsernamePassword.getUsername() + ":" + basicAuthUsernamePassword.getPassword();
+                ChannelBuffer authChannelBuffer = ChannelBuffers.copiedBuffer(authString, CharsetUtil.UTF_8);
+                ChannelBuffer encodedAuthChannelBuffer = Base64.encode(authChannelBuffer, false);
+                requestHeaders.put(HttpHeaders.Names.AUTHORIZATION, "Basic " + encodedAuthChannelBuffer.toString(CharsetUtil.UTF_8));
             }
 
             // Sets the headers for the outgoing request
