@@ -77,7 +77,7 @@ public class TestNode extends DrawableNode {
                             test.setText(testStructure.toScript());
                             // Is this a really long winded way of doing this, creating a new browser view and populating it again?
                             vBoxEdit.getChildren().remove(aceTextArea);
-                            aceTextArea = new AceTextArea("ace/mode/sde", test.getText());
+                            aceTextArea = new AceTextArea(this, "ace/mode/sde");
                             vBoxEdit.getChildren().add(aceTextArea);
                         }
                     } else if ("Helper".equals(ov.getValue().getText())) {
