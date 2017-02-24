@@ -42,7 +42,7 @@ Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8
  5.jar javax.servlet-api-3.1.0.jar jcommander-1.48.jar jetty-continuat
  ion-9.2.13.v20150730.jar jetty-http-9.2.13.v20150730.jar jetty-io-9.2
  .13.v20150730.jar jetty-jmx-9.2.13.v20150730.jar jetty-security-9.2.1
- 3.v20150730.jar jetty-server-9.2.13.v20150730.jar jetty-servlet-9.2.1
+ 3.v20150730.jar jetty-listener-9.2.13.v20150730.jar jetty-servlet-9.2.1
  3.v20150730.jar jetty-servlets-9.2.13.v20150730.jar jetty-util-9.2.13
  .v20150730.jar jna-4.1.0.jar jna-platform-4.1.0.jar jsp-api-2.0.jar j
  unit-4.12.jar nekohtml-1.9.22.jar netty-3.5.7.Final.jar phantomjsdriv

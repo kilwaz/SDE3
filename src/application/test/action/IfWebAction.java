@@ -1,8 +1,8 @@
 package application.test.action;
 
 import application.test.TestParameter;
+import application.test.action.helpers.SmartSpecifiedElement;
 import application.test.action.helpers.Variable;
-import application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
 import org.openqa.selenium.WebElement;
@@ -41,8 +41,8 @@ public class IfWebAction extends WebAction {
         TestParameter elementVisible = getTestCommand().getParameterByPath("elementVisible");
 
         if (startElement.exists()) {
-            Element testElement = SDEUtils.getJSoupElementFromWebElement(specifiedElement(), getDocumentTracker().getCurrentDocument());
-            WebElement testWebElement = specifiedElement();
+            SmartSpecifiedElement smartSpecifiedElement = smartSpecifiedElement();
+            Element testElement = smartSpecifiedElement.getJSoupElement();
 
             String valueToCheck = "";
             if (elementAttribute.exists() && testElement != null) {
@@ -111,6 +111,7 @@ public class IfWebAction extends WebAction {
             }
 
             if (elementVisible.exists()) { // Test to see if the element is currently visible
+                WebElement testWebElement = smartSpecifiedElement.getSeleniumElement();
                 if (testElement != null && testWebElement != null && testWebElement.isDisplayed()) {  // TRUE
                     if (elementVisible.getParameterValue().equals("false")) {
                         skipIfStatement(true);

@@ -156,7 +156,12 @@ public enum Error {
     UNABLE_TO_FIND_CLASS_CONSTRUCTOR(151, "Unable to find class constructor"),
     IMPORT_FILE_NOT_FOUND(152, "Import file was not found"),
     IMPORT_FILE_NOT_SPECIFIED(153, "Import file was not specified"),
-    IMPORT_FILE_FORMAT_EXCEPTION(154, "Import file format was incorrect");
+    IMPORT_FILE_FORMAT_EXCEPTION(154, "Import file format was incorrect"),
+    WEBSOCKET_SERVER_STARTING(155, "Problem starting websocket server"),
+    WEBSOCKET_SERVER_CLIENT_CONNETING(156, "Problem encountered waiting for client to connect"),
+    WEBSOCKET_SERVER_NO_SUCH_ALGORITHM(157, "No available algorithm to handshake websocket connection"),
+    WEBSOCKET_CANNOT_CLOSE_INPUT(158, "Trouble closing the current inputstream"),
+    WEBSOCKET_EXCEPTION(159, "Exception with websocket");
 
     private Integer code;
     private String description;

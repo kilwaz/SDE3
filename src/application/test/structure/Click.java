@@ -1,6 +1,7 @@
 package application.test.structure;
 
 import application.test.TestCommand;
+import application.test.core.TestStructure;
 import application.utils.AppParams;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
@@ -16,8 +17,8 @@ public class Click extends BaseStructure {
 
     private BaseTarget targetElement;
 
-    public Click(TestCommand testCommand) {
-        super(testCommand);
+    public Click(TestCommand testCommand, TestStructure parentStructure) {
+        super(testCommand, parentStructure);
         this.targetElement = new BaseTarget(testCommand);
         this.setStructureType(STRUCTURE_CLICK);
     }

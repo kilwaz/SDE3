@@ -8,8 +8,10 @@ import application.error.Error;
 import application.gui.Controller;
 import application.gui.Program;
 import application.net.proxy.WebProxyManager;
+import application.net.websocket.Listener;
 import application.utils.AppParams;
 import application.utils.AppProperties;
+import application.utils.SDEThread;
 import application.utils.managers.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
@@ -116,6 +118,9 @@ public class Main extends Application {
         if (isHeadless) {
             log.info("Running in headless mode");
         }
+
+        Listener listener = new Listener();
+        SDEThread thread = new SDEThread(listener, "Websocket listener", null, true);
 
         if (printJavaProperties) {
             Set<String> systemProperties = System.getProperties().stringPropertyNames();
@@ -226,6 +231,8 @@ public class Main extends Application {
         new DatabaseTransactionManager();
         new SeleniumHubManager();
         new StatisticsManager();
+        new WebSocketListenerManager();
+        new WebSocketConnectionManager();
     }
 
     // Start the application in header mode
@@ -326,6 +333,8 @@ public class Main extends Application {
         JobManager.getInstance().stopAllJobs();
         SeleniumHubManager.getInstance().stopHub();
         StatisticsManager.getInstance().saveStatistics();
+        WebSocketListenerManager.getInstance().closeAllWebSocketListeners();
+        WebSocketConnectionManager.getInstance().closeAllWebSocketConnections();
 
         // Cleans up any class or java files previously compiled.
         String userHome = System.getProperty("user.home");

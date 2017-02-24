@@ -1,5 +1,10 @@
 package application.net.proxy;
 
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -16,6 +21,9 @@ public class WebProxyRequestManager {
     private HashMap<String, String> redirectURLs = new HashMap<>();
     private HashMap<String, BasicAuthUsernamePassword> basicAuthMapping = new HashMap<>();
     private Integer requestCount = 1;
+
+    private HttpClient httpClient = null;
+    private CookieStore httpCookieStore = null;
 
     private RecordedProxy recordedProxy;
 
@@ -157,5 +165,22 @@ public class WebProxyRequestManager {
 
     public RecordedProxy getRecordedProxy() {
         return recordedProxy;
+    }
+
+    // Get or create the HttpClient
+    public HttpClient getHttpClient() {
+        if (httpClient == null) {
+            RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).build();
+            httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).setDefaultCookieStore(getHttpCookieStore()).build();
+        }
+        return httpClient;
+    }
+
+    // Get or create the HttpCookieStore
+    public CookieStore getHttpCookieStore() {
+        if (httpCookieStore == null) {
+            httpCookieStore = new BasicCookieStore();
+        }
+        return httpCookieStore;
     }
 }

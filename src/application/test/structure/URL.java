@@ -2,6 +2,7 @@ package application.test.structure;
 
 import application.test.TestCommand;
 import application.test.TestParameter;
+import application.test.core.TestStructure;
 import application.utils.AppParams;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -15,8 +16,8 @@ public class URL extends BaseStructure {
 
     private String url = "";
 
-    public URL(TestCommand testCommand) {
-        super(testCommand);
+    public URL(TestCommand testCommand, TestStructure parentStructure) {
+        super(testCommand, parentStructure);
         TestParameter urlParam = testCommand.getParameterByName("url");
         this.url = urlParam.getParameterValue();
         this.setStructureType(STRUCTURE_URL);

@@ -49,8 +49,8 @@ import java.util.Map;
  */
 
 public class StandaloneHTTPRequest {
-    private static final String notFoundResponse = "HTTP/1.0 404 Not Found";
-    private static final String internalErrorResponse = "HTTP/1.0 500 Internal Server Error";
+    private static final String NOT_FOUND_RESPONSE = "HTTP/1.0 404 Not Found";
+    private static final String INTERNAL_ERROR_RESPONSE = "HTTP/1.0 500 Internal Listener Error";
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
     private static Integer maximumRetryCount = 2;
     private String method = "GET";
@@ -171,7 +171,7 @@ public class StandaloneHTTPRequest {
             //Create connection
             int requestSize = 0;
             URL url = new URL(destinationUrl);
-            connection = new ProxyConnectionWrapper(url, https, ProxyConnectionWrapper.HTTP_CLIENT_APACHE);
+            connection = new ProxyConnectionWrapper(url, https, ProxyConnectionWrapper.HTTP_CLIENT_APACHE, webProxyRequestManager);
             connection.setRequestMethod(method);
             if ("POST".equals(method) || "PUT".equals(method)) {
                 requestSize += connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -202,11 +202,11 @@ public class StandaloneHTTPRequest {
             // Sets the parameters for the outgoing request
             // THIS IS REPLICATED IN PROXYCONNETIONWRAPPER.java
             String urlParameters = "";
-            for (String parameter : requestParameters.keySet()) {
-                if (urlParameters.equals("")) {
-                    urlParameters = parameter + "=" + requestParameters.get(parameter);
+            for (Map.Entry<String, String> entry : requestParameters.entrySet()) {
+                if ("".equals(entry.getKey())) {
+                    urlParameters = entry.getKey() + "=" + entry.getValue();
                 } else {
-                    urlParameters += "&" + parameter + "=" + requestParameters.get(parameter);
+                    urlParameters += "&" + entry.getKey() + "=" + entry.getValue();
                 }
             }
 
@@ -283,15 +283,15 @@ public class StandaloneHTTPRequest {
                 //byte[] array = tmpOut.toByteArray();
                 //response = ByteBuffer.wrap(array);
             } catch (FileNotFoundException | MalformedURLException ex) { // 404
-                response = ByteBuffer.wrap(notFoundResponse.getBytes());
+                response = ByteBuffer.wrap(NOT_FOUND_RESPONSE.getBytes());
                 Error.PROXY_REQUEST_NOT_FOUND.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
                 StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(404);
                 StatisticsManager.getInstance().getSessionStatisticStore().incrementResponseCode(404);
             } catch (SSLException ex) { // SSL Exception
-                response = ByteBuffer.wrap(notFoundResponse.getBytes());
+                response = ByteBuffer.wrap(NOT_FOUND_RESPONSE.getBytes());
                 Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
             } catch (IOException ex) { // 500
-                response = ByteBuffer.wrap(internalErrorResponse.getBytes());
+                response = ByteBuffer.wrap(INTERNAL_ERROR_RESPONSE.getBytes());
                 //Error.PROXY_INTERNAL_SERVER_ERROR.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
                 Error.PROXY_INTERNAL_SERVER_ERROR.record().additionalInformation("URL: " + url).create(ex);
                 StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(500);

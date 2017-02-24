@@ -30,16 +30,18 @@ public class TestStructure {
     }
 
     private List<BaseStructure> baseStructures = new ArrayList<>();
+    private Test test;
 
 
     public TestStructure() {
 
     }
 
-    private TestStructure(String testText) {
+    private TestStructure(Test test) {
+        this.test = test;
         baseStructures.clear();
         List<String> commands = new ArrayList<>();
-        Collections.addAll(commands, testText.split("[\\r\\n]"));
+        Collections.addAll(commands, test.getText().split("[\\r\\n]"));
 
         // Go through each command and create the required object
         for (String command : commands) {
@@ -53,7 +55,7 @@ public class TestStructure {
                 if (structureClasses.containsKey(testCommand.getMainCommand())) {
                     Class commandClass = structureClasses.get(testCommand.getMainCommand());
                     try {
-                        BaseStructure baseStructure = (BaseStructure) commandClass.getConstructor(TestCommand.class).newInstance(testCommand);
+                        BaseStructure baseStructure = (BaseStructure) commandClass.getConstructor(TestCommand.class, TestStructure.class).newInstance(testCommand, this);
                         baseStructures.add(baseStructure);
                     } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
                         Error.UNABLE_TO_FIND_CLASS_CONSTRUCTOR.record().create(ex);
@@ -67,11 +69,20 @@ public class TestStructure {
 
     public static TestStructure create(Test test) {
         if (test == null) return null;
-        return create(test.getText());
+        return new TestStructure(test);
     }
 
-    public static TestStructure create(String textText) {
-        return new TestStructure(textText);
+    public void swapBaseStructures(Integer position1, Integer position2) {
+        getBaseStructureAtPosition(position1 - 1).setLineNumber(position2);
+        getBaseStructureAtPosition(position2 - 1).setLineNumber(position1);
+
+        Collections.swap(baseStructures, position1 - 1, position2 - 1);
+
+        test.setText(toScript());
+    }
+
+    public BaseStructure getBaseStructureAtPosition(Integer position) {
+        return baseStructures.get(position);
     }
 
     public Node getInterface() {

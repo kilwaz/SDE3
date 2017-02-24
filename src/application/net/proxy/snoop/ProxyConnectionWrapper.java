@@ -2,6 +2,7 @@ package application.net.proxy.snoop;
 
 
 import application.error.Error;
+import application.net.proxy.WebProxyRequestManager;
 import application.utils.Timer;
 import application.utils.managers.StatisticsManager;
 import org.apache.http.Header;
@@ -9,14 +10,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 
@@ -35,10 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ProxyConnectionWrapper {
-    public final static int HTTP_CLIENT_APACHE = 1;
-    public final static int HTTP_CLIENT_JAVA_API = 2;
+    final static int HTTP_CLIENT_APACHE = 1;
+    final static int HTTP_CLIENT_JAVA_API = 2;
     private static Logger log = Logger.getLogger(ProxyConnectionWrapper.class);
-    private static HttpClient httpClient;
+    private HttpClient httpClient = null;
     private Boolean https;
     private HttpURLConnection httpConnection;
     private HttpsURLConnection httpsConnection;
@@ -49,18 +47,21 @@ public class ProxyConnectionWrapper {
     private URL destinationURL;
     private HttpResponse httpResponse;
     private Long waitTimeToFirstByte = -1L;
-    private CookieStore httpCookieStore = new BasicCookieStore();
+    private CookieStore httpCookieStore = null;
 
-    public ProxyConnectionWrapper(URL destinationURL, Boolean https, int connectionMethod) throws IOException {
+    ProxyConnectionWrapper(URL destinationURL, Boolean https, int connectionMethod, WebProxyRequestManager webProxyRequestManager) throws IOException {
         this.https = https;
         this.connectionMethod = connectionMethod;
         this.destinationURL = destinationURL;
 
         if (connectionMethod == HTTP_CLIENT_APACHE) {
-            if (httpClient == null) {  // Only build this once as it can be reused multiple times
-                RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).build();
-                httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).setDefaultCookieStore(httpCookieStore).build();
-            }
+            // HttpClient and HttpCookieStore are handled by the web proxy and are shared between all requests in a proxy instance
+            httpClient = webProxyRequestManager.getHttpClient();
+            httpCookieStore = webProxyRequestManager.getHttpCookieStore();
+//            if (httpClient == null) {  // Only build this once as it can be reused multiple times
+//                RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).build();
+//                httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).setDefaultCookieStore(httpCookieStore).build();
+//            }
         } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
             if (https) {
                 httpsConnection = (HttpsURLConnection) destinationURL.openConnection();
@@ -70,12 +71,11 @@ public class ProxyConnectionWrapper {
         }
     }
 
-    public void setRequestMethod(String method) throws IOException {
+    void setRequestMethod(String method) throws IOException {
         this.method = method;
 
-        if (connectionMethod == HTTP_CLIENT_APACHE) {
-            // Nothing extra needs to be here
-        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
+        // We don't need to do anything for HTTP_CLIENT_APACHE mode, only HTTP_CLIENT_JAVA_API
+        if (connectionMethod == HTTP_CLIENT_JAVA_API) {
             if (https) {
                 httpsConnection.setRequestMethod(method);
             } else {
@@ -84,7 +84,7 @@ public class ProxyConnectionWrapper {
         }
     }
 
-    public int setRequestProperty(String propertyName, String propertyValue) throws IOException {
+    int setRequestProperty(String propertyName, String propertyValue) throws IOException {
         if (propertyName == null || propertyValue == null) {
             return 0;
         }
@@ -98,13 +98,12 @@ public class ProxyConnectionWrapper {
             }
         }
 
-        return propertyName.getBytes().length + propertyValue.getBytes().length + 2; // +2 for the ': ' between name and value
+        return propertyName.getBytes("UTF-8").length + propertyValue.getBytes("UTF-8").length + 2; // +2 for the ': ' between name and value
     }
 
-    public void setDoOutput(Boolean doOutput) throws IOException {
-        if (connectionMethod == HTTP_CLIENT_APACHE) {
-            // Nothing needs to be done in this case
-        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
+    // This only applies to HTTP_CLIENT_JAVA_API, nothing needs to be done for HTTP_CLIENT_APACHE
+    void setDoOutput(Boolean doOutput) throws IOException {
+        if (connectionMethod == HTTP_CLIENT_JAVA_API) {
             if (https) {
                 httpsConnection.setDoOutput(doOutput);
             } else {
@@ -134,9 +133,9 @@ public class ProxyConnectionWrapper {
                 request.setURI(destinationURI);
 
                 // Headers
-                for (String headerName : requestHeaders.keySet()) {
-                    if (!headerName.equals("Content-Length")) { // Content length is already supplied by http client
-                        request.addHeader(headerName, requestHeaders.get(headerName));
+                for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
+                    if (!entry.getKey().equals("Content-Length")) { // Content length is already supplied by http client
+                        request.addHeader(entry.getKey(), entry.getValue());
                     }
                 }
 
@@ -144,14 +143,14 @@ public class ProxyConnectionWrapper {
                 List<NameValuePair> urlParameters = new ArrayList<>();
 
                 if (request instanceof HttpGet) {
-                    for (String paramName : requestParameters.keySet()) {
-                        urlParameters.add(new BasicNameValuePair(paramName, requestParameters.get(paramName)));
+                    for (Map.Entry<String, String> entry : requestParameters.entrySet()) {
+                        urlParameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
                     }
                 } else if (request instanceof HttpPost) {
                     HttpPost postRequest = (HttpPost) request;
 
-                    for (String paramName : requestParameters.keySet()) {
-                        urlParameters.add(new BasicNameValuePair(paramName, requestParameters.get(paramName)));
+                    for (Map.Entry<String, String> entry : requestParameters.entrySet()) {
+                        urlParameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
                     }
                     postRequest.setEntity(new UrlEncodedFormEntity(urlParameters));
                 }
@@ -176,7 +175,7 @@ public class ProxyConnectionWrapper {
         return null;
     }
 
-    public void setRequestParameters(HashMap<String, String> requestParameters) {
+    void setRequestParameters(HashMap<String, String> requestParameters) {
         try {
             if (connectionMethod == HTTP_CLIENT_APACHE) {
                 this.requestParameters = requestParameters;
@@ -190,11 +189,11 @@ public class ProxyConnectionWrapper {
 
                 if (outputStream != null) {
                     String urlParameters = "";
-                    for (String parameter : requestParameters.keySet()) {
+                    for (Map.Entry<String, String> entry : requestParameters.entrySet()) {
                         if (urlParameters.equals("")) {
-                            urlParameters = parameter + "=" + requestParameters.get(parameter);
+                            urlParameters = entry.getKey() + "=" + entry.getValue();
                         } else {
-                            urlParameters += "&" + parameter + "=" + requestParameters.get(parameter);
+                            urlParameters += "&" + entry.getKey() + "=" + entry.getValue();
                         }
                     }
 
@@ -204,8 +203,8 @@ public class ProxyConnectionWrapper {
                         wr.writeBytes(urlParameters);
                         wr.close();
 
-                        StatisticsManager.getInstance().getTotalStatisticStore().addRequestSize(urlParameters.getBytes().length);
-                        StatisticsManager.getInstance().getSessionStatisticStore().addRequestSize(urlParameters.getBytes().length);
+                        StatisticsManager.getInstance().getTotalStatisticStore().addRequestSize(urlParameters.getBytes("UTF-8").length);
+                        StatisticsManager.getInstance().getSessionStatisticStore().addRequestSize(urlParameters.getBytes("UTF-8").length);
                     }
                 }
             }
@@ -214,7 +213,7 @@ public class ProxyConnectionWrapper {
         }
     }
 
-    public int getContentLength() throws IOException {
+    int getContentLength() throws IOException {
         if (connectionMethod == HTTP_CLIENT_APACHE && httpResponse != null) {
             Header[] headers = httpResponse.getHeaders("Content-Length");
             if (headers.length > 0 && headers[0] != null) {
@@ -235,7 +234,7 @@ public class ProxyConnectionWrapper {
         return -1;
     }
 
-    public Map<String, List<String>> getHeaderFields() throws IOException {
+    Map<String, List<String>> getHeaderFields() throws IOException {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             Map<String, List<String>> headers = new HashMap<>();
 
@@ -257,22 +256,17 @@ public class ProxyConnectionWrapper {
         return new HashMap<>();
     }
 
-    public String getProtocolVersion() {
+    // Only applies to HTTP_CLIENT_APACHE
+    String getProtocolVersion() {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             if (httpResponse != null) {
                 return httpResponse.getStatusLine().getProtocolVersion().toString();
             }
-        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
-//            if (https) {
-//                return httpsConnection.get();
-//            } else {
-//                return httpConnection.getResponseMessage();
-//            }
         }
         return "";
     }
 
-    public String getResponseStatusText() throws IOException {
+    String getResponseStatusText() throws IOException {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             if (httpResponse != null) {
                 return httpResponse.getStatusLine().getReasonPhrase();
@@ -287,22 +281,18 @@ public class ProxyConnectionWrapper {
         return "";
     }
 
+    // Only applies to HTTP_CLIENT_APACHE
     public List<Cookie> getCookies() {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             if (httpResponse != null && httpCookieStore != null) {
                 return httpCookieStore.getCookies();
             }
-        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
-//            if (https) {
-//                return httpsConnection.getResponseMessage();
-//            } else {
-//                return httpConnection.getResponseMessage();
-//            }
         }
+
         return new ArrayList<>();
     }
 
-    public int getResponseStatus() throws IOException {
+    int getResponseStatus() throws IOException {
         if (connectionMethod == HTTP_CLIENT_APACHE) {
             if (httpResponse != null) {
                 return httpResponse.getStatusLine().getStatusCode();
@@ -317,10 +307,9 @@ public class ProxyConnectionWrapper {
         return -1;
     }
 
-    public void disconnect() {
-        if (connectionMethod == HTTP_CLIENT_APACHE) {
-            // Nothing needs to be disconnected here
-        } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
+    // Only applies to HTTP_CLIENT_JAVA_API
+    void disconnect() {
+        if (connectionMethod == HTTP_CLIENT_JAVA_API) {
             if (https) {
                 httpsConnection.disconnect();
             } else {
@@ -329,7 +318,7 @@ public class ProxyConnectionWrapper {
         }
     }
 
-    public Long getWaitTimeToFirstByte() {
+    Long getWaitTimeToFirstByte() {
         return waitTimeToFirstByte;
     }
 }

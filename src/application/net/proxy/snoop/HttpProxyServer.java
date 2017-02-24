@@ -25,12 +25,12 @@ import java.security.cert.CertificateException;
 import java.util.concurrent.Callable;
 
 public final class HttpProxyServer extends SDERunnable {
-    public final static boolean SSL = false;
-    public static final Integer STATUS_INACTIVE = -1;
-    public static final Integer STATUS_STARTING = 0;
-    public static final Integer STATUS_CONNECTED = 1;
     public static final Integer STATUS_CLOSED = 2;
-    static int PORT = 8080;
+    final static boolean SSL = false;
+    private static final Integer STATUS_INACTIVE = -1;
+    private static final Integer STATUS_STARTING = 0;
+    private static final Integer STATUS_CONNECTED = 1;
+    private static int PORT = 8080;
     private static Logger log = Logger.getLogger(HttpProxyServer.class);
     private Integer status = STATUS_INACTIVE;
     private WebProxyRequestManager webProxyRequestManager = new WebProxyRequestManager();
@@ -68,7 +68,7 @@ public final class HttpProxyServer extends SDERunnable {
             }
 
             return true;
-        } catch (IOException e) {
+        } catch (IOException ex) {
         } finally {
             if (ds != null) {
                 ds.close();

@@ -263,6 +263,20 @@ public abstract class WebAction implements Action {
         return null;
     }
 
+    // Uses better element caching to hopefully speed up any tests
+    public SmartSpecifiedElement smartSpecifiedElement() {
+        TestParameter idElement = getTestCommand().getParameterByName("id");
+        TestParameter nameElement = getTestCommand().getParameterByName("name");
+        TestParameter xPathElement = getTestCommand().getParameterByName("xPath");
+        TestParameter loopElement = getTestCommand().getParameterByName("loop");
+
+        WebDriver webDriver = getDriver();
+        LoopTracker loopTracker = getLoopTracker();
+        DocumentTracker documentTracker = getDocumentTracker();
+
+        return new SmartSpecifiedElement(idElement, nameElement, xPathElement, loopElement, webDriver, loopTracker, documentTracker);
+    }
+
     public WebElement specifiedElement() {
         TestParameter idElement = getTestCommand().getParameterByName("id");
         TestParameter nameElement = getTestCommand().getParameterByName("name");
@@ -275,7 +289,7 @@ public abstract class WebAction implements Action {
         } else if (xPathElement.exists()) { // Get the element via xPath
             testElement = getDriver().findElement(findElement(xPathElement));
         } else if (loopElement.exists()) { // Get element via loop
-            if(getLoopTracker().getLoop(loopElement.getParameterValue()) != null){
+            if (getLoopTracker().getLoop(loopElement.getParameterValue()) != null) {
                 LoopedWebElement loopedWebElement = (LoopedWebElement) getLoopTracker().getLoop(loopElement.getParameterValue()).getCurrentLoopObject();
                 if (loopedWebElement != null) {
                     testElement = loopedWebElement.getWebElement(getDriver());
