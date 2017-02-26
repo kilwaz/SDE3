@@ -16,7 +16,7 @@ public class AppParams {
 
     // Database information - Defaults are displayed here and can be overridden by the SDE.xml file
     private static String REMOTE_DATABASE_CONNECTION = "jdbc:mysql://172.16.10.234/sde";
-    private static String SQL_LITE_FILE_NAME = "sqlite-3.13.0.exe";
+    private static String SQL_LITE_FILE_NAME = "sqlite-3.17.0.exe";
     private static String LOCAL_DATABASE_NAME = "sde";
     private static String REMOTE_DATABASE_USERNAME = "spiralinks";
     private static String REMOTE_DATABASE_PASSWORD = "spiralinks";
