@@ -6,8 +6,8 @@ alter table http_headers add column forDelete tinyint(1);
 alter table recorded_requests add column forDelete tinyint(1);
 alter table http_proxies add column forDelete tinyint(1);
 
-ALTER TABLE test_command ADD INDEX `ind_forDelete` (`forDelete`);
-ALTER TABLE test ADD INDEX `ind_forDelete` (`forDelete`);
-ALTER TABLE http_headers ADD INDEX `ind_forDelete` (`forDelete`);
-ALTER TABLE recorded_requests ADD INDEX `ind_forDelete` (`forDelete`);
-ALTER TABLE http_proxies ADD INDEX `ind_forDelete` (`forDelete`);
+create index ind_forDelete_test_command on test_command (forDelete);
+create index ind_forDelete_test on test (forDelete);
+create index ind_forDelete_http_headers on http_headers (forDelete);
+create index ind_forDelete_recorded_requests on recorded_requests (forDelete);
+create index ind_forDelete_http_proxies on http_proxies (forDelete);

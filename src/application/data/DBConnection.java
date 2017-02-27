@@ -4,7 +4,6 @@ import application.error.Error;
 import application.gui.window.SettingsPickerWindow;
 import application.utils.AppParams;
 import application.utils.SDEUtils;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
@@ -143,7 +142,7 @@ public class DBConnection {
                     currentQuery = query;
                     getPreparedStatement(query).execute();
                 }
-            } catch (IOException | MySQLSyntaxErrorException ex) {
+            } catch (IOException | SQLException ex) {
                 application.error.Error.DATABASE_REBUILD_FAILED.record().additionalInformation(currentQuery).create(ex);
             }
 

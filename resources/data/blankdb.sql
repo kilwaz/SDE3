@@ -190,4 +190,4 @@ create table test_command_screenshot (
     PRIMARY KEY (uuid));
 
 -- INDEXES
-ALTER TABLE http_headers ADD INDEX `ind_http_headers` (`request_id`,`header_type`);
+create index ind_http_headers on http_headers (request_id,header_type);
