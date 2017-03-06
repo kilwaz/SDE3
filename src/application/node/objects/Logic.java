@@ -4,10 +4,7 @@ import application.error.Error;
 import application.gui.Program;
 import application.node.design.DrawableNode;
 import application.node.implementations.LogicNode;
-import application.utils.CompileCode;
-import application.utils.NodeRunParams;
-import application.utils.SDERunnable;
-import application.utils.SDEThread;
+import application.utils.*;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -28,6 +25,7 @@ public class Logic {
     private DrawableNode parentLogicNode;
     private String compiledClassName = "UNKNOWN";
     private Integer type = UNKNOWN_LOGIC;
+    private CompileResult lastCompileResult = null;
 
     public Logic(DrawableNode parentLogicNode) {
         this.parentLogicNode = parentLogicNode;
@@ -101,12 +99,13 @@ public class Logic {
     public Boolean compile() {
         this.compiledInstance = null;
         this.compiled = false;
-        String className = CompileCode.compileCode(this);
-        if (className != null) {
+        lastCompileResult = CompileCode.compileCode(this);
+        if (lastCompileResult.getSuccessfulCompile()) {
             this.compiled = true;
-            this.compiledClassName = className;
+            this.compiledClassName = lastCompileResult.getClassName();
             return true;
         }
+        parentLogicNode.setAceTextAreaCompileErrors(lastCompileResult.getCompiledLineErrors());
         return false;
     }
 

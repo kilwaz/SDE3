@@ -2,9 +2,7 @@ package application.utils;
 
 import application.error.Error;
 import application.gui.dialog.ErrorDialog;
-import application.gui.dialog.ExceptionDialog;
 import application.node.objects.Logic;
-import javafx.scene.control.Alert;
 import org.apache.log4j.Logger;
 
 import javax.tools.JavaCompiler;
@@ -19,7 +17,8 @@ public class CompileCode {
 
     private static Logger log = Logger.getLogger(CompileCode.class);
 
-    public static String compileCode(Logic logic) {
+    public static CompileResult compileCode(Logic logic) {
+        CompileResult compileResult = new CompileResult();
         String className = "SDEClass" + logic.getUuidStringWithoutHyphen() + "C" + counter;
         counter++;
         String flowControllerReferenceId = "[Unloaded FlowController]";
@@ -58,45 +57,37 @@ public class CompileCode {
             String errString = new String(err.toByteArray(), Charset.defaultCharset());
 
             if (errString.length() > 1) {
-                String lineNumber = errString.substring(errString.indexOf(className) + className.length() + 6);
-                if (lineNumber.contains(":")) {
-                    lineNumber = lineNumber.substring(0, lineNumber.indexOf(":"));
+                String[] lines = errString.split("\n");
+
+                for (String line : lines) {
+                    if (line.contains(className)) {
+                        String errorLineNumber = line.substring(line.indexOf(className) + className.length() + 6, line.indexOf(": "));
+                        String error = line.substring(line.indexOf(":" + errorLineNumber + ":") + 2 + errorLineNumber.length());
+                        error = error.replace("\n", "").replace("\r", "");
+                        compileResult.addLineCompileError(Integer.parseInt(errorLineNumber), error);
+                    }
                 }
-                Error.CODE_COMPILE.record().additionalInformation(logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString).create();
-                new ErrorDialog()
-                        .content(errString)
-                        .title("Compile error on " + logic.getParentLogicNode().getContainedText())
-                        .header("Error at line " + lineNumber)
-                        .show();
+
+//                Error.CODE_COMPILE.record().additionalInformation(logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString).create();
                 className = null;
             }
             if (outString.length() > 1) {
                 Error.CODE_COMPILE.record().additionalInformation(outString).create();
 
-                new ErrorDialog()
-                        .content(outString)
-                        .header("Compile error on " + logic.getParentLogicNode().getContainedText())
-                        .show();
-
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("ERR");
-                errorAlert.setContentText(outString);
-                errorAlert.show();
+                compileResult.addCompileError(outString);
             }
             out.close();
             err.close();
         } catch (Exception ex) {
-            new ExceptionDialog()
-                    .title("Compile Error")
-                    .content("Exception encountered while trying to compile " + flowControllerReferenceId)
-                    .exception(ex)
-                    .show();
+            compileResult.addCompiledException(ex);
             Error.CODE_COMPILE.record().create(ex);
             className = null;
         }
 
-        // Returning null classname means that the compile did not succeed.
-        return className;
+        // Null classname means that the compile did not succeed.
+        compileResult.setSuccessfulCompile(className != null);
+        compileResult.setClassName(className);
+        return compileResult;
     }
 
     private static String getTestCaseNodeCode(Logic logic, String className) {

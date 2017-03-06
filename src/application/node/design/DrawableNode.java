@@ -9,10 +9,7 @@ import application.error.Error;
 import application.gui.Program;
 import application.gui.canvas.DrawablePoint;
 import application.node.objects.Trigger;
-import application.utils.AppParams;
-import application.utils.ClassFinder;
-import application.utils.NodeRunParams;
-import application.utils.SDEUtils;
+import application.utils.*;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.control.Tab;
@@ -306,6 +303,10 @@ public class DrawableNode extends DatabaseObject {
     }
 
     public void setAceTextAreaText(String logic) {
+    }
+
+    public void setAceTextAreaCompileErrors(List<CompileLineError> compileErrors) {
+
     }
 
     public List<String> getAvailableTriggers() {

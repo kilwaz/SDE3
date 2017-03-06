@@ -2,6 +2,7 @@ package application.gui;
 
 import application.error.Error;
 import application.node.design.DrawableNode;
+import application.utils.CompileLineError;
 import application.utils.SDEUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -16,6 +17,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class AceTextArea extends VBox {
     private static final String EDITOR_HTML = "/aceCodeEditor.html";
@@ -186,6 +188,41 @@ public class AceTextArea extends VBox {
                 jsObject.call("setText", text);
             }
         }
+    }
+
+    public void setCompileErrors(List<CompileLineError> compileLineErrors) {
+        class OneShotTask implements Runnable {
+            List<CompileLineError> compileLineErrors;
+
+            private OneShotTask(List<CompileLineError> compileLineErrors) {
+                this.compileLineErrors = compileLineErrors;
+            }
+
+            public void run() {
+                String errorArrayStr = "[{}]";
+                if (compileLineErrors.size() > 0) {
+                    StringBuilder errorArrayBuilder = new StringBuilder();
+                    errorArrayBuilder.append("[");
+                    Boolean firstElement = true;
+                    for (CompileLineError compileLineError : compileLineErrors) {
+                        if (!firstElement) {
+                            errorArrayBuilder.append(",");
+                        }
+                        errorArrayBuilder.append("{row: '").append(compileLineError.getLineNumber() - 1).append("', text: '").append(compileLineError.getOutError().replace("'", "\\'"));
+                        errorArrayBuilder.append("' ,type: 'error'}");
+                        firstElement = false;
+                    }
+                    errorArrayBuilder.append("]");
+                    errorArrayStr = errorArrayBuilder.toString();
+                }
+
+                if (jsObject != null) {
+                    jsObject.call("setAnnotation", errorArrayStr);
+                }
+            }
+        }
+
+        Platform.runLater(new OneShotTask(compileLineErrors));
     }
 
     public void beautify() {

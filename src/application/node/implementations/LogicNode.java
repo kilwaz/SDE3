@@ -6,6 +6,8 @@ import application.gui.Controller;
 import application.gui.UI;
 import application.node.design.DrawableNode;
 import application.node.objects.Logic;
+import application.utils.CompileError;
+import application.utils.CompileLineError;
 import application.utils.NodeRunParams;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
@@ -17,6 +19,7 @@ import java.util.List;
 public class LogicNode extends DrawableNode {
     private static Logger log = Logger.getLogger(LogicNode.class);
     private Logic logic = null;
+    private AceTextArea aceTextArea;
 
     public LogicNode(LogicNode logicNode) {
         this.logic = new Logic(this);
@@ -57,7 +60,7 @@ public class LogicNode extends DrawableNode {
         Tab tab = controller.createDefaultNodeTab(this, false);
         AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
-        AceTextArea aceTextArea = new AceTextArea(this, "ace/mode/java");
+        aceTextArea = new AceTextArea(this, "ace/mode/java");
 
         UI.setAnchorMargins(aceTextArea, 50.0, 0.0, 11.0, 0.0);
 
@@ -78,6 +81,12 @@ public class LogicNode extends DrawableNode {
             logic = new Logic(this);
         }
         logic.setLogic(logicString);
+    }
+
+    public void setAceTextAreaCompileErrors(List<CompileLineError> compileLineErrors) {
+        if (aceTextArea != null) {
+            aceTextArea.setCompileErrors(compileLineErrors);
+        }
     }
 
     public String getAceTextAreaText() {
