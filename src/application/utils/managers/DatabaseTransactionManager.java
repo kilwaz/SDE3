@@ -33,9 +33,9 @@ public class DatabaseTransactionManager {
         //JobDetail dataDataJob = JobBuilder.newJob(DeleteDataJob.class).build();
 
         SimpleScheduleBuilder transactionSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
-        SimpleScheduleBuilder deleteDataSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
+        //SimpleScheduleBuilder deleteDataSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
         TriggerBuilder transactionTriggerBuilder = TriggerBuilder.newTrigger();
-        TriggerBuilder deleteDataTriggerBuilder = TriggerBuilder.newTrigger();
+        //TriggerBuilder deleteDataTriggerBuilder = TriggerBuilder.newTrigger();
 
         transactionSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(1000);
         //deleteDataSimpleScheduleBuilder.repeatForever().withIntervalInMilliseconds(5000);

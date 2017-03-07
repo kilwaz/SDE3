@@ -4,6 +4,8 @@ import application.error.Error;
 import application.node.design.DrawableNode;
 import application.utils.CompileLineError;
 import application.utils.SDEUtils;
+import application.utils.managers.JobManager;
+import application.utils.timers.CompileLogicCodeJob;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.scene.layout.AnchorPane;
@@ -13,10 +15,12 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.quartz.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 
 public class AceTextArea extends VBox {
@@ -27,13 +31,15 @@ public class AceTextArea extends VBox {
     private DrawableNode node;
     private WebView browser;
     private WebEngine webEngine;
-    private VBox instance = this;
+    private AceTextArea instance = this;
     private JSObject jsObject;
     private String textMode;
     private Boolean initialised = false;
     private String textToBeSet;
     private String initialContent = null;
     private Boolean beautify = false;
+    private Boolean waitingToTriggerCompile = false;
+    private JobKey currentCompileJobKey = null;
 
     public AceTextArea(String textMode) {
         this.textMode = textMode;
@@ -255,12 +261,39 @@ public class AceTextArea extends VBox {
         return this;
     }
 
+    public void setWaitingToTriggerCompile(Boolean waitingToTriggerCompile) {
+        this.waitingToTriggerCompile = waitingToTriggerCompile;
+    }
+
+    public DrawableNode getNode() {
+        return node;
+    }
+
     // These methods are callable from within javascript using java.methodName
     public final class Bridge {
         public void setTextAreaValue(String value) {
             if (node != null) {
                 node.setAceTextAreaText(value);
             }
+
+            if (!waitingToTriggerCompile) {
+                waitingToTriggerCompile = true;
+            } else {
+                JobManager.getInstance().stopJob(currentCompileJobKey);
+            }
+
+            // Starts a job to compile the code after 1 second of inactivity
+            JobDataMap jobDataMap = new JobDataMap();
+            jobDataMap.put("aceTextArea", instance);
+
+            JobDetail compileCodeJob = JobBuilder.newJob(CompileLogicCodeJob.class).usingJobData(jobDataMap).build();
+            currentCompileJobKey = compileCodeJob.getKey();
+            SimpleScheduleBuilder compileCodeSimpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
+            TriggerBuilder compileCodeTriggerBuilder = TriggerBuilder.newTrigger();
+            long startTime = System.currentTimeMillis() + 1000L; // One second from now
+            compileCodeTriggerBuilder.startAt(new Date(startTime));
+
+            JobManager.getInstance().scheduleJob(compileCodeJob, compileCodeTriggerBuilder.withSchedule(compileCodeSimpleScheduleBuilder).build());
         }
     }
 }
