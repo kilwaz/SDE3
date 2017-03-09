@@ -241,7 +241,10 @@ public class TestRunner extends SDERunnable {
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
                     Date date = new Date();
                     String fileDate = dateFormat.format(date);
-                    if (test != null && test.getTestCase() != null && test.getTestCase().getTestSet() != null) {
+
+                    if (test.getFileOutputPath() != null) {
+                        fileName = test.getFileOutputPath();
+                    } else if (test != null && test.getTestCase() != null && test.getTestCase().getTestSet() != null) {
                         fileName = AppParams.getTestDocOutputDir() + test.getTestCase().getTestSet().getParentNode().getContainedText() + " - Test " + test.getTestCase().getTestSet().getTestID() + "-" + test.getTestCase().getTestIterationID() + " - " + fileDate + ".docx";
                     } else {
                         fileName = AppParams.getTestDocOutputDir() + test.getUuidString() + "-" + fileDate + ".docx";

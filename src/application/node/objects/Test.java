@@ -16,6 +16,7 @@ public class Test extends DatabaseObject {
     private Boolean continueTest = true;
     private Boolean clone = false;
     private TestCase testCase = null;
+    private String fileOutputPath = null;
 
     public Test() {
         super();
@@ -128,5 +129,13 @@ public class Test extends DatabaseObject {
             return parentTestNode.getUuidString();
         }
         return null;
+    }
+
+    public String getFileOutputPath() {
+        return fileOutputPath;
+    }
+
+    public void setFileOutputPath(String fileOutputPath) {
+        this.fileOutputPath = fileOutputPath;
     }
 }
