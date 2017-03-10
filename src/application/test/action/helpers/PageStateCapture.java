@@ -12,10 +12,7 @@ import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -95,6 +92,12 @@ public class PageStateCapture extends DatabaseObject {
                 log.info("Switching to frame " + iFrameId);
                 WebDriverWait wait = new WebDriverWait(driver, 10);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.id(iFrameId)));
+
+//                wait.until(webDriver -> {
+//                    WebElement webElement = webDriver.findElement(By.id(iFrameId));
+//                    return webElement != null;
+//                });
+
                 driver.switchTo().frame(iFrameId);
             }
         }

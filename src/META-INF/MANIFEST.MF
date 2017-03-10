@@ -16,9 +16,8 @@ Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8
  .3.0.jar bcmail-jdk15on-1.51.jar bcpkix-jdk15on-1.51.jar bcprov-jdk15
  on-1.51.jar c3p0-0.9.1.1.jar cdi-api-1.0.jar cglib-nodep-3.1.jar comm
  ons-cli-1.2.jar commons-codec-1.7.jar commons-io-2.4.jar commons-lang
- 3-3.1.jar dnsjava-2.1.3.jar dnssec4j-0.1.jar dom4j-1.6.1.jar guava-11
- .0.2.jar guava-14.0.1.jar hamcrest-core-1.3.jar hamcrest-library-1.3.
- jar javaee-api-6.0-5.jar javassist-3.16.1-GA.jar javax.inject-1.jar j
+ 3-3.1.jar dnsjava-2.1.3.jar dnssec4j-0.1.jar dom4j-1.6.1.jar guava-21.0.jar
+ hamcrest-core-1.3.jar hamcrest-library-1.3.jar javaee-api-6.0-5.jar javassist-3.16.1-GA.jar javax.inject-1.jar j
  common-1.0.23.jar jfreechart-1.0.19.jar jsr250-api-1.0.jar jsr305-1.3
  .9.jar junit-4.12-beta-1.jar log4j-1.2.17.jar mail-1.4.7.jar maven-ae
  ther-provider-3.2.1.jar maven-artifact-3.2.1.jar maven-core-3.2.1.jar
@@ -33,22 +32,21 @@ Class-Path: apache-poi dnsjava-2.1.7.jar autocomplete.jar controlsfx-8
  .7.2.jar xml-apis-1.0.b2.jar apache-mime4j-0.6.jar
  bsh-2.0b4.jar cglib-nodep-2.1_3.jar commons-codec-1
  .10.jar xsoup-0.3.1.jar commons-collections-3.2.2.jar commons-el-1.
- 0.jar assertj-core-1.5.0.jar commons-exec-1.3.jar commons-io-2.4.jar selen
- ium\commons-lang3-3.4.jar commons-logging-1.2.jar c
- ssparser-0.9.16.jar gson-2.3.1.jar guava-19.0.jar hamcrest-core-1.3.j
- ar hamcrest-library-1.3.jar htmlunit-2.18.jar htmlunit-core-js-2.17.j
+ 0.jar assertj-core-1.5.0.jar commons-exec-1.3.jar commons-io-2.4.jar selenium\commons-lang3-3.4.jar
+ commons-logging-1.2.jar cssparser-0.9.21.jar gson-2.8.0.jar guava-19.0.jar hamcrest-core-1.3.j
+ ar hamcrest-library-1.3.jar htmlunit-2.24.jar htmlunit-core-js-2.23.j
  ar httpclient-4.5.1.jar httpcore-4.4.3.jar httpmime-4.5.jar jasper-co
  mpiler-5.5.15.jar jasper-compiler-jdt-5.5.15.jar jasper-runtime-5.5.1
  5.jar javax.servlet-api-3.1.0.jar jcommander-1.48.jar jetty-continuat
  ion-9.2.13.v20150730.jar jetty-http-9.2.13.v20150730.jar jetty-io-9.2
  .13.v20150730.jar jetty-jmx-9.2.13.v20150730.jar jetty-security-9.2.1
  3.v20150730.jar jetty-listener-9.2.13.v20150730.jar jetty-servlet-9.2.1
- 3.v20150730.jar jetty-servlets-9.2.13.v20150730.jar jetty-util-9.2.13
- .v20150730.jar jna-4.1.0.jar jna-platform-4.1.0.jar jsp-api-2.0.jar j
+ 3.v20150730.jar jetty-servlets-9.2.13.v20150730.jar jetty-util-9.4.1
+ .v20170120.jar jna-4.1.0.jar jna-platform-4.1.0.jar jsp-api-2.0.jar j
  unit-4.12.jar nekohtml-1.9.22.jar netty-3.5.7.Final.jar phantomjsdriv
- er-1.2.1.jar sac-1.3.jar serializer-2.7.2.jar testng-6.9.9.jar websoc
- ket-api-9.2.13.v20150730.jar websocket-client-9.2.13.v20150730.jar we
- bsocket-common-9.2.13.v20150730.jar xalan-2.7.2.jar xercesImpl-2.11.0
+ er-1.4.0.jar sac-1.3.jar serializer-2.7.2.jar testng-6.9.9.jar websoc
+ ket-api-9.2.20.v20161216.jar websocket-client-9.2.20.v20161216.jar we
+ bsocket-common-9.2.20.v20161216.jar xalan-2.7.2.jar xercesImpl-2.11.0
  .jar xml-apis-1.4.01.jar sqlite-jdbc-3.8.11.2.jar
 Main-Class: application.Main
 
