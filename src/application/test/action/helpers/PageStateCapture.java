@@ -91,12 +91,10 @@ public class PageStateCapture extends DatabaseObject {
             for (String iFrameId : elementFrameTree) {
                 log.info("Switching to frame " + iFrameId);
                 WebDriverWait wait = new WebDriverWait(driver, 10);
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.id(iFrameId)));
-
-//                wait.until(webDriver -> {
-//                    WebElement webElement = webDriver.findElement(By.id(iFrameId));
-//                    return webElement != null;
-//                });
+                wait.until(webDriver -> {
+                    WebElement webElement = webDriver.findElement(By.id(iFrameId));
+                    return webElement != null;
+                });
 
                 driver.switchTo().frame(iFrameId);
             }

@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 public class WaitWebAction extends WebAction {
     private static Logger log = Logger.getLogger(WaitWebAction.class);
 
+    private TestParameter testParameterClickableElementReference = null;
+    private TestParameter testParameterPresentElementReference = null;
+
     public WaitWebAction() {
     }
 
@@ -40,8 +43,6 @@ public class WaitWebAction extends WebAction {
         TestParameter waitForRequests = getParameterByPath("finishAllRequests");
 
         try {
-            TestParameter testParameterClickableElementReference = null;
-
             // Wait for clickable element
             if (elementToBeClickableId.exists()) {
                 testParameterClickableElementReference = elementToBeClickableId;
@@ -53,16 +54,13 @@ public class WaitWebAction extends WebAction {
 
             if (testParameterClickableElementReference != null) {
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
-                wait.until(ExpectedConditions.elementToBeClickable(findElement(testParameterClickableElementReference)));
-
-//                wait.until(webDriver -> {
-//                    WebElement webElement = webDriver.findElement(findElement(elementToBeClickableId));
-//                    return webElement.isDisplayed();
-//                });
+                wait.until(webDriver -> {
+                    WebElement webElement = webDriver.findElement(findElement(testParameterClickableElementReference));
+                    return webElement.isDisplayed();
+                });
             }
 
             // Wait for presence of element
-            TestParameter testParameterPresentElementReference = null;
             if (elementToBePresentId.exists()) {
                 testParameterPresentElementReference = elementToBePresentId;
             } else if (elementToBePresentName.exists()) {
@@ -73,11 +71,10 @@ public class WaitWebAction extends WebAction {
 
             if (testParameterPresentElementReference != null) {
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
-                wait.until(ExpectedConditions.presenceOfElementLocated(findElement(testParameterPresentElementReference)));
-//                wait.until(webDriver -> {
-//                    WebElement webElement = webDriver.findElement(findElement(elementToBeClickableId));
-//                    return webElement != null;
-//                });
+                wait.until(webDriver -> {
+                    WebElement webElement = webDriver.findElement(findElement(testParameterPresentElementReference));
+                    return webElement != null;
+                });
             }
 
             if (javaScriptToBeTrue.exists()) { // If it is specified, wait for this javascript to be true

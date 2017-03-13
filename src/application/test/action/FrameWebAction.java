@@ -33,11 +33,10 @@ public class FrameWebAction extends WebAction {
         if (specifiedBy != null) { // Wait if we have something we can wait for
             try {
                 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
-                wait.until(ExpectedConditions.presenceOfElementLocated(specifiedBy));
-//                wait.until(webDriver -> {
-//                    WebElement webElement = webDriver.findElement(specifiedBy);
-//                    return webElement != null;
-//                });
+                wait.until(webDriver -> {
+                    WebElement webElement = webDriver.findElement(specifiedBy);
+                    return webElement != null;
+                });
             } catch (org.openqa.selenium.TimeoutException ex) {
                 Error.SELENIUM_FRAME_NOT_FOUND.record().additionalInformation("Frame '" + specifiedBy.toString() + "' could not be located in time").create(ex);
             }
