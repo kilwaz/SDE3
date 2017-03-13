@@ -103,9 +103,9 @@ public class TestNode extends DrawableNode {
         recordButton.setId("recordButton-" + getUuidString());
         recordButton.setOnAction(event -> {
             HttpProxyServer httpProxyServer = new HttpProxyServer();
-            SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server - http://jboss-alex:8080/spl/focal/Login", null, true);
+            SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server - for recording browser", null, true);
             WebDriver driver = BrowserHelper.getChrome();
-            driver.get("http://jboss-alex:8080/spl/focal/Login");
+            driver.get("about:blank");
         });
 
         aceTextArea = new AceTextArea(this, "ace/mode/sde");
