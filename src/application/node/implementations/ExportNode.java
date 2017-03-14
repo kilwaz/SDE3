@@ -59,11 +59,6 @@ public class ExportNode extends DrawableNode {
         if (nodeRunParams.getOneTimeVariable() instanceof Export) {
             Export export = (Export) nodeRunParams.getOneTimeVariable();
 
-            // Setup and create the file location we are going to use
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-            Date date = new Date();
-            dateFormat.format(date);
-
             String fileNameToUse;
             if (nodeRunParams.getVariable("fullFileName") != null) {
                 fileNameToUse = (String) nodeRunParams.getVariable("fullFileName");
