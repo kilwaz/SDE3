@@ -244,6 +244,7 @@ public class TestRunner extends SDERunnable {
 
                     if (test.getFileOutputPath() != null) {
                         fileName = test.getFileOutputPath();
+                        fileName = fileName.replace("[DATE]", fileDate);
                     } else if (test != null && test.getTestCase() != null && test.getTestCase().getTestSet() != null) {
                         fileName = AppParams.getTestDocOutputDir() + test.getTestCase().getTestSet().getParentNode().getContainedText() + " - Test " + test.getTestCase().getTestSet().getTestID() + "-" + test.getTestCase().getTestIterationID() + " - " + fileDate + ".docx";
                     } else {
