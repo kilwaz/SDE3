@@ -29,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -133,7 +135,13 @@ public class TestRunner extends SDERunnable {
                 }
             } else {
                 if ("chrome".equals(browser)) {
-                    driver = BrowserHelper.getRemoteChrome("172.16.10.208:" + httpProxyServer.getRunningPort(), remoteDriverURL);
+                    String remoteAddress = "localhost";
+                    try {
+                        remoteAddress = InetAddress.getLocalHost().getHostAddress();
+                    } catch (UnknownHostException ex) {
+                        Error.LOCAL_HOST_NOT_FOUND.record().create(ex);
+                    }
+                    driver = BrowserHelper.getRemoteChrome(remoteAddress + ":" + httpProxyServer.getRunningPort(), remoteDriverURL);
                 } else if ("firefox".equals(browser)) {
                     log.info("No remote firefox has been configured");
                 } else if ("ie".equals(browser)) {

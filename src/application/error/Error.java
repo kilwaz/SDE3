@@ -161,7 +161,8 @@ public enum Error {
     WEBSOCKET_SERVER_CLIENT_CONNETING(156, "Problem encountered waiting for client to connect"),
     WEBSOCKET_SERVER_NO_SUCH_ALGORITHM(157, "No available algorithm to handshake websocket connection"),
     WEBSOCKET_CANNOT_CLOSE_INPUT(158, "Trouble closing the current inputstream"),
-    WEBSOCKET_EXCEPTION(159, "Exception with websocket");
+    WEBSOCKET_EXCEPTION(159, "Exception with websocket"),
+    LOCAL_HOST_NOT_FOUND(160, "Unable to get local network address of current machine");
 
     private Integer code;
     private String description;
