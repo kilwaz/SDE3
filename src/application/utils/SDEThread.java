@@ -5,7 +5,7 @@ import application.utils.managers.ThreadManager;
 import org.apache.log4j.Logger;
 
 public class SDEThread {
-    private static Integer threadCounter = 0;
+    public static Integer threadCounter = 0;
     private static Logger log = Logger.getLogger(SDEThread.class);
     private Thread thread;
     private Runnable runnable;
@@ -27,10 +27,16 @@ public class SDEThread {
     }
 
     public void start() {
-        threadCounter++;
-        ThreadManager.getInstance().addThread(this);
-        if (threadReference != null) {
-            ThreadManager.getInstance().addThreadToCollection(threadReference, this);
+        // Create a new thread to setup this thread
+        SDEThreadSetup sdeThreadSetup = new SDEThreadSetup(this);
+        Thread startupThread = new Thread(sdeThreadSetup);
+        startupThread.start();
+
+        // Make sure all the setup is done before we start the actual SDEThread
+        try {
+            startupThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         thread.start();
     }

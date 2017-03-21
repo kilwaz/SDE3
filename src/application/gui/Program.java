@@ -80,6 +80,7 @@ public class Program extends DatabaseObject implements Comparable<Program> {
             sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()), null, startImmediately);
         } else { // If something else then add reference if it is there
             sdeThread = new SDEThread(new OneShotTask(), "Running " + (sourceNode == null ? "Program - " + SessionManager.getInstance().getCurrentSession().getSelectedProgram().getName() : " Node - " + sourceNode.getContainedText()), threadReference, startImmediately);
+            sdeThread.join(); // Wait here for the thread setup to be done
         }
 
         // If we need to wait for this thread to finish first we join to the current thread, this is used for runAndWait

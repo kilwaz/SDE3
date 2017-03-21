@@ -5,28 +5,31 @@ import application.utils.SDEThread;
 import application.utils.SDEThreadCollection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ThreadManager {
-    private static ThreadManager instnace;
+    private static ThreadManager instance;
     private ObservableList<SDEThread> runningThreads;
     private Integer activeThreads = 0;
     private HashMap<String, SDEThreadCollection> threadCollections = new HashMap<>();
 
+    private static Logger log = Logger.getLogger(ThreadManager.class);
+
     public ThreadManager() {
-        instnace = this;
+        instance = this;
         runningThreads = FXCollections.observableArrayList();
     }
 
     public synchronized static ThreadManager getInstance() {
-        if (instnace == null) {
-            instnace = new ThreadManager();
+        if (instance == null) {
+            instance = new ThreadManager();
         }
 
-        return instnace;
+        return instance;
     }
 
     // Synchronized method as we are accessing runningThreads list
@@ -42,7 +45,7 @@ public class ThreadManager {
         runningThreads.removeAll(threadsToRemove);
     }
 
-    public synchronized void addThreadToCollection(String threadReference, SDEThread sdeThread) {
+    public void addThreadToCollection(String threadReference, SDEThread sdeThread) {
         if (threadCollections.get(threadReference) == null) {
             SDEThreadCollection sdeThreadCollection = new SDEThreadCollection(threadReference);
             sdeThreadCollection.addThread(sdeThread);

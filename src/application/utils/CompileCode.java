@@ -209,7 +209,7 @@ public class CompileCode {
                 "   public void threadRun() {" +
                 "       FlowController.sourceStarted(this.logicReferenceUuid);" +
                 "       function();" +
-                "       threadWait();" +
+                "       threadWait();" + // Wait for any threads that we might have joined to to finish
                 "       FlowController.sourceFinished(this.logicReferenceUuid);" +
                 "   }" +
                 "   public void threadWait() {" +
