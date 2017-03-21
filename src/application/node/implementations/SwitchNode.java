@@ -10,10 +10,14 @@ import application.gui.update.switchnode.RemoveSwitchRow;
 import application.gui.update.switchnode.ToggleButtonImage;
 import application.node.design.DrawableNode;
 import application.node.objects.Switch;
+import application.node.objects.comparators.SwitchTargetComparator;
 import application.utils.NodeRunParams;
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -22,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +37,15 @@ public class SwitchNode extends DrawableNode {
     private HashMap<Switch, HBox> switchUI = new HashMap<>();
     private VBox switchRows;
     private ContextMenu programListContextMenu;
+    private Boolean listIsSorted = false;
+    private Boolean listIsDescSorted = false;
+    private SwitchNode instance;
+    private AnchorPane anchorPane;
+    private VBox rows;
 
+    private static final String SORT_NONE = "None";
+    private static final String SORT_ASCENDING = "Ascending";
+    private static final String SORT_DESCENDING = "Descending";
 
     // This will make a copy of the node passed to it
     public SwitchNode(SwitchNode switchNode) {
@@ -99,6 +112,14 @@ public class SwitchNode extends DrawableNode {
     public List<SavableAttribute> getDataToSave() {
         List<SavableAttribute> savableAttributes = new ArrayList<>();
 
+        SavableAttribute listIsSortedAttribute = SavableAttribute.create(SavableAttribute.class);
+        listIsSortedAttribute.init("ListIsSorted", listIsSorted.getClass().getName(), listIsSorted, this);
+        savableAttributes.add(listIsSortedAttribute);
+
+        SavableAttribute listIsDescSortedAttribute = SavableAttribute.create(SavableAttribute.class);
+        listIsDescSortedAttribute.init("ListIsDescSorted", listIsDescSorted.getClass().getName(), listIsDescSorted, this);
+        savableAttributes.add(listIsDescSortedAttribute);
+
         savableAttributes.addAll(super.getDataToSave());
 
         return savableAttributes;
@@ -127,11 +148,13 @@ public class SwitchNode extends DrawableNode {
     }
 
     public Tab createInterface() {
+        instance = this;
+
         Controller controller = Controller.getInstance();
         switchUI.clear(); // Remove any previous UI elements
 
         Tab tab = controller.createDefaultNodeTab(this);
-        AnchorPane anchorPane = controller.getContentAnchorPaneOfTab(tab);
+        anchorPane = controller.getContentAnchorPaneOfTab(tab);
 
         // Hide the context menu if it is showing
         anchorPane.setOnMouseClicked(event -> {
@@ -168,19 +191,76 @@ public class SwitchNode extends DrawableNode {
             programListContextMenu.show(anchorPane, event.getScreenX(), event.getScreenY());
         });
 
-        switchRows = new VBox(5);
-        VBox rows = new VBox(5);
-        rows.setLayoutY(55);
-        rows.setLayoutX(11);
-
-        getSwitches().forEach(this::createHBoxUI);
-
-        rows.getChildren().add(switchRows);
-        rows.getChildren().add(createAddSwitchNodeRow());
-        anchorPane.getChildren().add(rows);
+        buildEntireSwitchNodeGUI();
 
         // Go back to the beginning and run the code to show the tab, it should now exist
         return tab;
+    }
+
+    public HBox createSortRow() {
+        // Choose a display order for the switches
+        Label sortLabel = new Label("Sort Order:");
+
+        HBox sortHBox = new HBox(5);
+        ChoiceBox<String> startWhenChoice = new ChoiceBox<>();
+
+        List<String> sortedChoiceList = new ArrayList<>();
+        sortedChoiceList.add(SORT_NONE);
+        sortedChoiceList.add(SORT_ASCENDING);
+        sortedChoiceList.add(SORT_DESCENDING);
+
+        startWhenChoice.setItems(FXCollections.observableList(sortedChoiceList));
+        if (!listIsSorted) {
+            startWhenChoice.setValue(SORT_NONE);
+        } else {
+            if (listIsDescSorted) {
+                startWhenChoice.setValue(SORT_DESCENDING);
+            } else {
+                startWhenChoice.setValue(SORT_ASCENDING);
+            }
+        }
+        startWhenChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (SORT_NONE.equals(newValue)) {
+                listIsSorted = false;
+            } else if (SORT_ASCENDING.equals(newValue)) {
+                listIsSorted = true;
+                listIsDescSorted = false;
+                buildEntireSwitchNodeGUI();
+            } else if (SORT_DESCENDING.equals(newValue)) {
+                listIsSorted = true;
+                listIsDescSorted = true;
+                buildEntireSwitchNodeGUI();
+            }
+
+            instance.save();
+        });
+
+        sortHBox.getChildren().addAll(sortLabel, startWhenChoice);
+        return sortHBox;
+    }
+
+    public void buildEntireSwitchNodeGUI() {
+        switchUI.clear();
+        switchRows = new VBox(5);
+
+        List<Switch> switches = getSwitches();
+        switches.sort(new SwitchTargetComparator());
+        if (listIsDescSorted) {
+            Collections.reverse(switches);
+        }
+        switches.forEach(this::createHBoxUI);
+
+        VBox newRows = new VBox(5);
+        newRows.setLayoutY(55);
+        newRows.setLayoutX(11);
+
+        newRows.getChildren().add(createSortRow());
+        newRows.getChildren().add(switchRows);
+        newRows.getChildren().add(createAddSwitchNodeRow());
+
+        anchorPane.getChildren().remove(rows);
+        anchorPane.getChildren().add(newRows);
+        rows = newRows;
     }
 
     public HBox createSwitchNodeRow(Switch aSwitch) {
@@ -250,6 +330,14 @@ public class SwitchNode extends DrawableNode {
             Controller.getInstance().updateCanvasControllerNow();
         });
 
+        switchField.focusedProperty().addListener((arg0, oldPropertyValue, newPropertyValue) -> {
+            if (!newPropertyValue) { // On lose focus
+                if (listIsSorted) {
+                    buildEntireSwitchNodeGUI();
+                }
+            }
+        });
+
         switchRow.getChildren().add(switchField);
 
         return switchRow;
@@ -299,5 +387,21 @@ public class SwitchNode extends DrawableNode {
         }
 
         return null;
+    }
+
+    public Boolean getListIsSorted() {
+        return listIsSorted;
+    }
+
+    public void setListIsSorted(Boolean listIsSorted) {
+        this.listIsSorted = listIsSorted;
+    }
+
+    public Boolean getListIsDescSorted() {
+        return listIsDescSorted;
+    }
+
+    public void setListIsDescSorted(Boolean listIsDescSorted) {
+        this.listIsDescSorted = listIsDescSorted;
     }
 }

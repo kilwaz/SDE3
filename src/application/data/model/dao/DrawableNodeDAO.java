@@ -109,6 +109,19 @@ public class DrawableNodeDAO {
 
                     method = drawableNode.getClass().getMethod("set" + savableAttribute.getVariableName(), Class.forName(savableAttribute.getClassName()));
                     method.invoke(drawableNode, integerValue);
+                } else if ("java.lang.Boolean".equals(savableAttribute.getClassName())) {
+                    Boolean booleanValue = false;
+                    Object variableObject = savableAttribute.getVariable();
+                    if (variableObject instanceof Boolean) {
+                        booleanValue = (Boolean) variableObject;
+                    } else if (variableObject instanceof byte[]) {
+                        String booleanStr = new String((byte[]) variableObject);
+                        // Here 1 = true and 0 = false
+                        booleanValue = "1".equals(booleanStr);
+                    }
+
+                    method = drawableNode.getClass().getMethod("set" + savableAttribute.getVariableName(), Class.forName(savableAttribute.getClassName()));
+                    method.invoke(drawableNode, booleanValue);
                 }
             } catch (Exception ex) {
                 String additionalInfo = "";
