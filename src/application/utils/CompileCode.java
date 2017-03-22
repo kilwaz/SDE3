@@ -21,7 +21,6 @@ public class CompileCode {
         CompileResult compileResult = new CompileResult();
         String className = "SDEClass" + logic.getUuidStringWithoutHyphen() + "C" + counter;
         counter++;
-        String flowControllerReferenceId = "[Unloaded FlowController]";
         try {
             String logicString = "";
             if (logic.getType().equals(Logic.TEST_NODE_LOGIC)) {
@@ -61,10 +60,12 @@ public class CompileCode {
 
                 for (String line : lines) {
                     if (line.contains(className)) {
-                        String errorLineNumber = line.substring(line.indexOf(className) + className.length() + 6, line.indexOf(": "));
-                        String error = line.substring(line.indexOf(":" + errorLineNumber + ":") + 2 + errorLineNumber.length());
-                        error = error.replace("\n", "").replace("\r", "");
-                        compileResult.addLineCompileError(Integer.parseInt(errorLineNumber), error);
+                        if(line.contains(": ")) {
+                            String errorLineNumber = line.substring(line.indexOf(className) + className.length() + 6, line.indexOf(": "));
+                            String error = line.substring(line.indexOf(":" + errorLineNumber + ":") + 2 + errorLineNumber.length());
+                            error = error.replace("\n", "").replace("\r", "");
+                            compileResult.addLineCompileError(Integer.parseInt(errorLineNumber), error);
+                        }
                     }
                 }
 

@@ -40,6 +40,7 @@ public class AceTextArea extends VBox {
     private Boolean beautify = false;
     private Boolean waitingToTriggerCompile = false;
     private JobKey currentCompileJobKey = null;
+    private Bridge webBridge = null;
 
     public AceTextArea(String textMode) {
         this.textMode = textMode;
@@ -123,10 +124,12 @@ public class AceTextArea extends VBox {
 
         webEngine.loadContent(content);
 
+        webBridge = new Bridge();
+
         browser.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals(Worker.State.SUCCEEDED)) {
                 jsObject = (JSObject) webEngine.executeScript("window");
-                jsObject.setMember("java", new Bridge());
+                jsObject.setMember("java", webBridge);
                 instance.getChildren().add(browser);
 
                 // The reason this is here is because it is possible for the jsobject to not be initialised before calling set text
@@ -137,35 +140,15 @@ public class AceTextArea extends VBox {
             }
         });
 
-//        this.setOnKeyReleased(event -> {
-//            if (event.isControlDown()) {
-//                if (event.getCode() == KeyCode.C) {
-//                    log.info("Copying text!");
-//                    String selectedText = (String) jsObject.call("getSelectedText");
-//                    StringSelection selection = new StringSelection(selectedText);
-//                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-//                    clipboard.setContents(selection, selection);
-//                    event.consume();
-//                } else if (event.getCode() == KeyCode.V) {
-//                    log.info("Pasting text!");
-//                    String pasteText = "";
-//                    try {
-//                        pasteText = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-//                        log.info("Paste text is " + pasteText);
-//                    } catch (UnsupportedFlavorException | IOException ex) {
-//                        Error.ACE_TEXT_PASTE.record().create(ex);
-//                    }
-//                    jsObject.call("pasteText", pasteText);
-//                    event.consume();
-//                }
-//            }
-//        });
-
         browser.setPrefHeight(Integer.MAX_VALUE);
         browser.setPrefWidth(Integer.MAX_VALUE);
 
         browser.setMaxHeight(Integer.MAX_VALUE);
         browser.setMaxWidth(Integer.MAX_VALUE);
+
+        webEngine.setOnError(event -> {
+            Error.ACE_EDITOR_ERROR.record().additionalInformation(event.getMessage()).create();
+        });
 
         webEngine.setOnAlert(event -> {
             log.info("Alert from webview = " + event.getData());

@@ -162,7 +162,8 @@ public enum Error {
     WEBSOCKET_SERVER_NO_SUCH_ALGORITHM(157, "No available algorithm to handshake websocket connection"),
     WEBSOCKET_CANNOT_CLOSE_INPUT(158, "Trouble closing the current inputstream"),
     WEBSOCKET_EXCEPTION(159, "Exception with websocket"),
-    LOCAL_HOST_NOT_FOUND(160, "Unable to get local network address of current machine");
+    LOCAL_HOST_NOT_FOUND(160, "Unable to get local network address of current machine"),
+    ACE_EDITOR_ERROR(161, "Error from ace editor web pane");
 
     private Integer code;
     private String description;
