@@ -158,7 +158,7 @@ public enum Error {
     IMPORT_FILE_NOT_SPECIFIED(153, "Import file was not specified"),
     IMPORT_FILE_FORMAT_EXCEPTION(154, "Import file format was incorrect"),
     WEBSOCKET_SERVER_STARTING(155, "Problem starting websocket server"),
-    WEBSOCKET_SERVER_CLIENT_CONNETING(156, "Problem encountered waiting for client to connect"),
+    WEBSOCKET_SERVER_CLIENT_CONNECTING(156, "Problem encountered waiting for client to connect"),
     WEBSOCKET_SERVER_NO_SUCH_ALGORITHM(157, "No available algorithm to handshake websocket connection"),
     WEBSOCKET_CANNOT_CLOSE_INPUT(158, "Trouble closing the current inputstream"),
     WEBSOCKET_EXCEPTION(159, "Exception with websocket"),
