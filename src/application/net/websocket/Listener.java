@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class Listener implements Runnable {
     private static Logger log = Logger.getLogger(Listener.class);
 
-    private static int port = 80;
+    private static int port = 1122;
     private InputStream inputStream = null;
     private ServerSocket serverSocket = null;
 

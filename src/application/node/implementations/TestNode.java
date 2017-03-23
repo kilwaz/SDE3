@@ -5,6 +5,7 @@ import application.gui.AceTextArea;
 import application.gui.Controller;
 import application.gui.UI;
 import application.net.proxy.snoop.HttpProxyServer;
+import application.net.websocket.Listener;
 import application.node.design.DrawableNode;
 import application.node.objects.Test;
 import application.test.TestRunner;
@@ -102,6 +103,8 @@ public class TestNode extends DrawableNode {
         recordButton.setTooltip(new Tooltip("Record from browser"));
         recordButton.setId("recordButton-" + getUuidString());
         recordButton.setOnAction(event -> {
+            Listener listener = new Listener();
+            SDEThread thread = new SDEThread(listener, "Websocket listener", null, true);
             HttpProxyServer httpProxyServer = new HttpProxyServer();
             SDEThread webProxyThread = new SDEThread(httpProxyServer, "Running proxy server - for recording browser", null, true);
             WebDriver driver = BrowserHelper.getChrome();

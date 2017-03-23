@@ -119,9 +119,6 @@ public class Main extends Application {
             log.info("Running in headless mode");
         }
 
-        Listener listener = new Listener();
-        SDEThread thread = new SDEThread(listener, "Websocket listener", null, true);
-
         if (printJavaProperties) {
             Set<String> systemProperties = System.getProperties().stringPropertyNames();
             log.info("***** START JVM Properties *****");

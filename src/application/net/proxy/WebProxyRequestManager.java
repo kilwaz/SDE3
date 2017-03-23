@@ -171,7 +171,11 @@ public class WebProxyRequestManager {
     public HttpClient getHttpClient() {
         if (httpClient == null) {
             RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).build();
-            httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).setDefaultCookieStore(getHttpCookieStore()).build();
+            httpClient = HttpClientBuilder.create()
+                    .setRetryHandler(new HttpClientRetryHandler(3)) // Max retries 3
+                    .setDefaultRequestConfig(requestConfig)
+                    .setDefaultCookieStore(getHttpCookieStore())
+                    .build();
         }
         return httpClient;
     }

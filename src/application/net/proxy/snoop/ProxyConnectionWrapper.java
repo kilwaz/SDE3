@@ -55,13 +55,8 @@ public class ProxyConnectionWrapper {
         this.destinationURL = destinationURL;
 
         if (connectionMethod == HTTP_CLIENT_APACHE) {
-            // HttpClient and HttpCookieStore are handled by the web proxy and are shared between all requests in a proxy instance
             httpClient = webProxyRequestManager.getHttpClient();
             httpCookieStore = webProxyRequestManager.getHttpCookieStore();
-//            if (httpClient == null) {  // Only build this once as it can be reused multiple times
-//                RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).build();
-//                httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).setDefaultCookieStore(httpCookieStore).build();
-//            }
         } else if (connectionMethod == HTTP_CLIENT_JAVA_API) {
             if (https) {
                 httpsConnection = (HttpsURLConnection) destinationURL.openConnection();

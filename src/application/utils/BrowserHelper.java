@@ -55,7 +55,8 @@ public class BrowserHelper {
         Proxy proxy = new Proxy();
         proxy.setHttpProxy(proxyConnectionString)
                 .setFtpProxy(proxyConnectionString)
-                .setSslProxy(proxyConnectionString);
+                .setSslProxy(proxyConnectionString)
+                .setSocksProxy(proxyConnectionString);
         capabilities.setCapability(CapabilityType.PROXY, proxy);
 
         WebDriver driver = new ChromeDriver(capabilities);

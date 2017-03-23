@@ -4,11 +4,8 @@ import application.net.proxy.WebProxyRequestManager;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslHandler;
+import org.apache.log4j.Logger;
 
 import javax.net.ssl.SSLEngine;
 
@@ -20,6 +17,7 @@ public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel
 
     private final SslContext sslCtx;
     private WebProxyRequestManager webProxyRequestManager;
+    private static Logger log = Logger.getLogger(HttpProxyServerInitializer.class);
 
     public HttpProxyServerInitializer(SslContext sslCtx, WebProxyRequestManager webProxyRequestManager) {
         this.webProxyRequestManager = webProxyRequestManager;
@@ -30,21 +28,7 @@ public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel
     public void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
 
-        if (HttpProxyServer.SSL) {
-            SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
-            sslEngine.setUseClientMode(false); // We are a server
-            sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
-
-            pipeline.addLast("ssl", new SslHandler(sslEngine));
-        }
-
-        pipeline.addLast(new HttpRequestDecoder());
-        pipeline.addLast(new HttpObjectAggregator(1048576));
-        pipeline.addLast(new HttpResponseEncoder());
-
-        // Remove the following line if you don't want automatic content compression.
-        //p.addLast(new HttpContentCompressor());
-
-        pipeline.addLast(new HttpProxyServerHandler(pipeline, webProxyRequestManager));
+        // Here we create a protocol detector to try and figure out what we are receiving
+        pipeline.addFirst(new UnifiedPortProtocolDetector(sslCtx, webProxyRequestManager));
     }
 }
