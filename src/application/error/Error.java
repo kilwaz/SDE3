@@ -164,8 +164,8 @@ public enum Error {
     WEBSOCKET_EXCEPTION(159, "Exception with websocket"),
     LOCAL_HOST_NOT_FOUND(160, "Unable to get local network address of current machine"),
     ACE_EDITOR_ERROR(161, "Error from ace editor web pane"),
-    HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Error from ace editor web pane"),
-    HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Error from ace editor web pane");
+    HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Git did something else"),
+    HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Git did something else");
 
     private Integer code;
     private String description;
