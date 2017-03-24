@@ -164,8 +164,8 @@ public enum Error {
     WEBSOCKET_EXCEPTION(159, "Exception with websocket"),
     LOCAL_HOST_NOT_FOUND(160, "Unable to get local network address of current machine"),
     ACE_EDITOR_ERROR(161, "Error from ace editor web pane"),
-    HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Error from ace editor web pane"),
-    HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Error from ace editor web pane");
+    HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Retrying connection"),
+    HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Aborting connection, max attempts reached");
 
     private Integer code;
     private String description;
