@@ -158,14 +158,14 @@ public enum Error {
     IMPORT_FILE_NOT_SPECIFIED(153, "Import file was not specified"),
     IMPORT_FILE_FORMAT_EXCEPTION(154, "Import file format was incorrect"),
     WEBSOCKET_SERVER_STARTING(155, "Problem starting websocket server"),
-    WEBSOCKET_SERVER_CLIENT_CONNETING(156, "Problem encountered waiting for client to connect"),
+    WEBSOCKET_SERVER_CLIENT_CONNECTING(156, "Problem encountered waiting for client to connect"),
     WEBSOCKET_SERVER_NO_SUCH_ALGORITHM(157, "No available algorithm to handshake websocket connection"),
     WEBSOCKET_CANNOT_CLOSE_INPUT(158, "Trouble closing the current inputstream"),
     WEBSOCKET_EXCEPTION(159, "Exception with websocket"),
     LOCAL_HOST_NOT_FOUND(160, "Unable to get local network address of current machine"),
     ACE_EDITOR_ERROR(161, "Error from ace editor web pane"),
-    HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Git did something else"),
-    HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Git did something else");
+    HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Retrying connection"),
+    HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Aborting connection, max attempts reached");
 
     private Integer code;
     private String description;
