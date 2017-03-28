@@ -143,6 +143,11 @@ public class ImportNodes extends SDERunnable {
 
                                 method = importedNode.getClass().getMethod("set" + variableName, Class.forName(className));
                                 method.invoke(importedNode, integerValue);
+                            } else if ("java.lang.Boolean".equals(className)) {
+                                Boolean booleanValue = Boolean.parseBoolean(variableValue);
+
+                                method = importedNode.getClass().getMethod("set" + variableName, Class.forName(className));
+                                method.invoke(importedNode, booleanValue);
                             }
                         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException ex) {
                             Error.IMPORT_NODE.record().additionalInformation("Method: " + "set" + variableName).create(ex);
