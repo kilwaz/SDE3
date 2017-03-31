@@ -21,6 +21,7 @@ public class WebProxyRequestManager {
     private HashMap<String, String> redirectURLs = new HashMap<>();
     private HashMap<String, BasicAuthUsernamePassword> basicAuthMapping = new HashMap<>();
     private Integer requestCount = 1;
+    private Boolean isSSL = false;
 
     private HttpClient httpClient = null;
     private CookieStore httpCookieStore = null;
@@ -186,5 +187,13 @@ public class WebProxyRequestManager {
             httpCookieStore = new BasicCookieStore();
         }
         return httpCookieStore;
+    }
+
+    public Boolean getSSL() {
+        return isSSL;
+    }
+
+    public void setSSL(Boolean SSL) {
+        isSSL = SSL;
     }
 }

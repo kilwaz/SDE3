@@ -50,6 +50,7 @@ import java.util.Map;
 
 public class StandaloneHTTPRequest {
     private static final String NOT_FOUND_RESPONSE = "HTTP/1.0 404 Not Found";
+    private static final String SSL_EXCEPTION = "SSL could not be verified";
     private static final String INTERNAL_ERROR_RESPONSE = "HTTP/1.0 500 Internal Listener Error";
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
     private static Integer maximumRetryCount = 2;
@@ -173,7 +174,7 @@ public class StandaloneHTTPRequest {
             URL url = new URL(destinationUrl);
             connection = new ProxyConnectionWrapper(url, https, ProxyConnectionWrapper.HTTP_CLIENT_APACHE, webProxyRequestManager);
             connection.setRequestMethod(method);
-            if ("POST".equals(method) || "PUT".equals(method)) {
+            if ("POST".equals(method) || "PUT".equals(method) || "OPTIONS".equals(method)) {
                 requestSize += connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 connection.setDoOutput(true);
             }
@@ -288,7 +289,7 @@ public class StandaloneHTTPRequest {
                 StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(404);
                 StatisticsManager.getInstance().getSessionStatisticStore().incrementResponseCode(404);
             } catch (SSLException ex) { // SSL Exception
-                response = ByteBuffer.wrap(NOT_FOUND_RESPONSE.getBytes());
+                response = ByteBuffer.wrap(SSL_EXCEPTION.getBytes());
                 Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
             } catch (IOException ex) { // 500
                 response = ByteBuffer.wrap(INTERNAL_ERROR_RESPONSE.getBytes());

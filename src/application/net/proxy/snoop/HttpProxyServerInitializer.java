@@ -7,8 +7,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
 import org.apache.log4j.Logger;
 
-import javax.net.ssl.SSLEngine;
-
 public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel> {
 
     // Commands to keep
@@ -29,6 +27,6 @@ public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel
         ChannelPipeline pipeline = ch.pipeline();
 
         // Here we create a protocol detector to try and figure out what we are receiving
-        pipeline.addFirst(new UnifiedPortProtocolDetector(sslCtx, webProxyRequestManager));
+        pipeline.addFirst("unifiedDetector", new UnifiedPortProtocolDetector(sslCtx, webProxyRequestManager, false, false));
     }
 }

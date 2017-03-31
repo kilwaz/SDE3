@@ -1,6 +1,7 @@
 <html>
 <body>
 <input type="button" id="Connect" value="Connect" onclick="webSocketConnect()"/><br/>
+<input type="button" id="Close" value="Close" onclick="webSocketClose()"/><br/>
 
 <input id="message"/>
 <input type="button" id="Send" value="Send" onclick="sendMessage()"/>
@@ -25,12 +26,17 @@
         };
     };
 
+    function webSocketClose() {
+        webSocket.close();
+    };
+
     function sendMessage() {
         if(webSocket) {
             var inputElement = document.getElementById('message');
             webSocket.send(inputElement.value);
         }
     }
+
 
 </script>
 
