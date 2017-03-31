@@ -361,6 +361,9 @@ public class RecordedRequest extends DatabaseObject {
     }
 
     public String getMethod() {
+        if ("".equals(method)) {
+
+        }
         return method;
     }
 

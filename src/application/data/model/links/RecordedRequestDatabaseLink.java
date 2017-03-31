@@ -24,5 +24,6 @@ public class RecordedRequestDatabaseLink extends DatabaseLink {
         link("statusText", method("getStatusText"), method("setStatusText", String.class)); // 11
         link("test_case_parent_id", method("getParentTestCaseUuid"), method("setParentTestCase", TestCase.class)); // 12
         link("reference", method("getReference"), method("setReference", String.class)); // 13
+        link("method", method("getMethod"), method("setMethod", String.class)); // 14
     }
 }

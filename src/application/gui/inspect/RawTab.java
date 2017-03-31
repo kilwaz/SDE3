@@ -1,5 +1,6 @@
 package application.gui.inspect;
 
+import application.data.model.dao.RecordedRequestDAO;
 import application.gui.UI;
 import application.gui.window.InspectWindow;
 import application.net.proxy.RecordedHeader;
@@ -61,6 +62,10 @@ public class RawTab extends Tab {
 
     public String createRawRequest() {
         StringBuilder requestRaw = new StringBuilder();
+
+        requestRaw.append(recordedRequest.getMethod()).append(" "); // Method
+        requestRaw.append(recordedRequest.getUrl()).append(" "); // Method
+        requestRaw.append(recordedRequest.getProtocolVersion()).append("\n\r"); // Protocol Version
 
         // Response headers
         List<RecordedHeader> requestHeaders = recordedRequest.getRequestHeaders();
