@@ -1,4 +1,4 @@
-define("ace/mode/sde_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require, exports, module) {
+ace.define("ace/mode/sde_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require, exports, module) {
     "use strict";
 
     var oop = require("../lib/oop");
@@ -40,7 +40,7 @@ define("ace/mode/sde_highlight_rules", ["require", "exports", "module", "ace/lib
     exports.GitignoreHighlightRules = GitignoreHighlightRules;
 });
 
-define("ace/mode/sde", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/sde_highlight_rules"], function (require, exports, module) {
+ace.define("ace/mode/sde", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/sde_highlight_rules"], function (require, exports, module) {
     "use strict";
 
     var oop = require("../lib/oop");
