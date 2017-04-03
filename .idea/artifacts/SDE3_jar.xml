@@ -27,7 +27,6 @@
           <element id="module-output" name="SDE3" />
           <element id="archive" name="archive.jar" />
         </element>
-        <element id="library" level="project" name="lib" />
       </element>
     </root>
   </artifact>
