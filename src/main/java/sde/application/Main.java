@@ -1,15 +1,5 @@
 package sde.application;
 
-import sde.application.data.DBConnectionManager;
-import sde.application.data.DataBank;
-import sde.application.data.DatabaseConnectionWatcher;
-import sde.application.data.model.dao.ProgramDAO;
-import sde.application.error.Error;
-import sde.application.gui.Controller;
-import sde.application.gui.Program;
-import sde.application.net.proxy.WebProxyManager;
-import sde.application.utils.AppParams;
-import sde.application.utils.AppProperties;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +19,16 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.apache.log4j.Logger;
+import sde.application.data.DBConnectionManager;
+import sde.application.data.DataBank;
+import sde.application.data.DatabaseConnectionWatcher;
+import sde.application.data.model.dao.ProgramDAO;
+import sde.application.error.Error;
+import sde.application.gui.Controller;
+import sde.application.gui.Program;
+import sde.application.net.proxy.WebProxyManager;
+import sde.application.utils.AppParams;
+import sde.application.utils.AppProperties;
 import sde.application.utils.managers.*;
 
 import java.io.File;
