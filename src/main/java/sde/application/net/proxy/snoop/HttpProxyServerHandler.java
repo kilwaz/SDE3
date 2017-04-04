@@ -63,7 +63,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
 
                     return;
                 } else if ("websocket".equals(request.headers().get("Upgrade"))) { // Upgrade to websocket support if requested
-                    WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory("ws://" + request.headers().get(org.jboss.netty.handler.codec.http.HttpHeaders.Names.HOST) + request.uri(), null, true);
+                    WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory("ws://" + request.headers().get(HttpHeaderNames.HOST) + request.uri(), null, true);
                     handshaker = wsFactory.newHandshaker(request);
 
                     if (handshaker == null) {
