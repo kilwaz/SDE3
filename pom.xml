@@ -51,6 +51,7 @@
                             <goal>proguard</goal>
                         </goals>
                         <configuration>
+                            <skip>true</skip>
                             <maxMemory>2048m</maxMemory>
                             <injar>${project.build.finalName}.jar</injar>
                             <outjar>${project.build.finalName}-small.jar</outjar>
