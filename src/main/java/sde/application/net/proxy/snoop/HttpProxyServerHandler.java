@@ -13,10 +13,9 @@ import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.codec.http.websocketx.*;
 import org.apache.log4j.Logger;
 
-import javax.net.ssl.SSLEngine;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -29,13 +28,11 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> {
     private static Logger log = Logger.getLogger(HttpProxyServerHandler.class);
-    private ChannelPipeline pipeline;
-    private Boolean SSL = false;
     private WebProxyRequestManager webProxyRequestManager;
     private HttpRequest request;
+    private WebSocketServerHandshaker handshaker;
 
-    public HttpProxyServerHandler(ChannelPipeline pipeline, WebProxyRequestManager webProxyRequestManager) {
-        this.pipeline = pipeline;
+    public HttpProxyServerHandler(WebProxyRequestManager webProxyRequestManager) {
         this.webProxyRequestManager = webProxyRequestManager;
     }
 
@@ -59,26 +56,50 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                     send100Continue(ctx);
                 }
 
+                // Move this to the UnifiedProtocolDetector
                 if ("CONNECT".equals(request.method().toString())) {
                     FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
                     ctx.write(response);
 
-                    SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
-                    sslEngine.setUseClientMode(false); // We are a server
-                    sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
+                    return;
+                } else if ("websocket".equals(request.headers().get("Upgrade"))) { // Upgrade to websocket support if requested
+                    WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory("ws://" + request.headers().get(org.jboss.netty.handler.codec.http.HttpHeaders.Names.HOST) + request.uri(), null, true);
+                    handshaker = wsFactory.newHandshaker(request);
 
-                    pipeline.addFirst("ssl", new SslHandler(sslEngine));
-                    SSL = true;
+                    if (handshaker == null) {
+                        WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+                    } else {
+                        handshaker.handshake(ctx.channel(), request);
+                    }
 
+                    ChannelPipeline pipeline = ctx.pipeline();
+
+                    pipeline.replace("wsdecoder", "wsdecoder", new WebSocket13FrameDecoder(true, true, 100000));
+                    pipeline.replace("wsencoder", "wsencoder", new WebSocket13FrameEncoder(false));
                     return;
                 }
-            }
 
-            if (msg instanceof LastHttpContent) {
-                LastHttpContent trailer = (LastHttpContent) msg;
-                if (!writeResponse(trailer, ctx)) {
-                    // If keep-alive is off, close the connection once the content is fully written.
-                    ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+                if (msg instanceof LastHttpContent) {
+                    LastHttpContent trailer = (LastHttpContent) msg;
+
+                    if (!writeResponse(trailer, ctx)) {
+                        // If keep-alive is off, close the connection once the content is fully written.
+                        ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+                    }
+                }
+            } else if (msg instanceof WebSocketFrame) {
+                if (msg instanceof TextWebSocketFrame) {
+                    TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
+                    log.info("Got text from of " + textWebSocketFrame.text());
+                    //return;
+                } else if (msg instanceof CloseWebSocketFrame) {
+                    log.info("Closing web socket connection");
+                    if (handshaker != null) {
+                        handshaker.close(ctx.channel(), (CloseWebSocketFrame) msg);
+                    }
+                    //return;
+                } else {
+                    log.info("We got a frame but we don't know how to handle it yet");
                 }
             }
         } catch (IllegalStateException ex) {
@@ -119,9 +140,13 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
         }
 
         String uri = request.uri();
-        if (SSL) {
-            uri = "https://" + requestHeaders.get("Host") + request.uri();
+        if (webProxyRequestManager.getSSL()) {
+            if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
+                uri = "https://" + requestHeaders.get("Host") + request.uri();
+            }
         }
+
+        log.info("Loading " + uri);
 
         // Performs and returns the request we want to make from proxy server to outside world
         StandaloneHTTPRequest standaloneHTTPRequest = new StandaloneHTTPRequest()
@@ -130,7 +155,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                 .setMethod(request.method().toString())
                 .setRequestHeaders(requestHeaders)
                 .setRequestParameters(requestParameters)
-                .setHttps(SSL)
+                .setHttps(webProxyRequestManager.getSSL())
                 .execute();
 
         // This can happen if we get an exception when executing the request, for example a bad URL

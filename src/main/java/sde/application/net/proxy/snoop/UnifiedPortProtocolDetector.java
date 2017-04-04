@@ -21,9 +21,14 @@ public class UnifiedPortProtocolDetector extends ByteToMessageDecoder {
     private final WebProxyRequestManager webProxyRequestManager;
     private static Logger log = Logger.getLogger(UnifiedPortProtocolDetector.class);
 
-    public UnifiedPortProtocolDetector(SslContext sslCtx, WebProxyRequestManager webProxyRequestManager) {
+    private Boolean sslEnabled = false;
+    private Boolean httpEnabled = false;
+
+    public UnifiedPortProtocolDetector(SslContext sslCtx, WebProxyRequestManager webProxyRequestManager, Boolean sslEnabled, Boolean httpEnabled) {
         this.sslCtx = sslCtx;
         this.webProxyRequestManager = webProxyRequestManager;
+        this.sslEnabled = sslEnabled;
+        this.httpEnabled = httpEnabled;
     }
 
     private boolean isSsl(ByteBuf byteBuf) {
@@ -43,49 +48,57 @@ public class UnifiedPortProtocolDetector extends ByteToMessageDecoder {
                         char1 == 'C' && char2 == 'O';   // CONNECT
     }
 
-    private boolean isWebSocket() {
-        return false;
-    }
-
     @Override
-    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> out) throws Exception {
         if (byteBuf.readableBytes() < 5) { // Can't read it if there are less than 5 bytes
             return;
         }
 
-        if (isSsl(byteBuf)) {
+        if (!sslEnabled && isSsl(byteBuf)) {
             enabledSsl(channelHandlerContext);
         } else {
             final byte char1 = byteBuf.getByte(byteBuf.readerIndex());
             final byte char2 = byteBuf.getByte(byteBuf.readerIndex() + 1);
-            if (isHttp(char1, char2)) {
+            if (!httpEnabled && isHttp(char1, char2)) {
                 enableHttp(channelHandlerContext);
             }
+        }
+
+        // Pass the buffer onto the next handler
+        if (byteBuf.refCnt() > 0) {
+            byteBuf.resetReaderIndex();
+            out.add(byteBuf.readBytes(byteBuf.readableBytes()));
         }
     }
 
     // Switch to interpreting HTTP
     private void enableHttp(ChannelHandlerContext ctx) {
+        httpEnabled = true;
+
         ChannelPipeline pipeline = ctx.pipeline();
 
-        pipeline.addLast(new HttpRequestDecoder());
-        pipeline.addLast(new HttpObjectAggregator(1048576));
-        pipeline.addLast(new HttpResponseEncoder());
-        pipeline.addLast(new HttpProxyServerHandler(pipeline, webProxyRequestManager));
+        //pipeline.addLast("webSocketDetector", new WebSocketDetector()); // Switches to web socket if an upgrade request is sent
+        pipeline.addLast("unifiedDetectorHttp", new UnifiedPortProtocolDetector(sslCtx, webProxyRequestManager, sslEnabled, httpEnabled));
+        pipeline.addLast("decoder", new HttpRequestDecoder());
+        pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
+        pipeline.addLast("encoder", new HttpResponseEncoder());
+        pipeline.addLast("httpHandler", new HttpProxyServerHandler(webProxyRequestManager));
 
         pipeline.remove(this);
     }
 
     // Turn SSL on
     private void enabledSsl(ChannelHandlerContext ctx) {
+        sslEnabled = true;
+
         ChannelPipeline pipeline = ctx.pipeline();
 
         SSLEngine sslEngine = SSLContextProvider.get().createSSLEngine();
         sslEngine.setUseClientMode(false); // We are a server
         sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
 
-        pipeline.addLast("ssl", new SslHandler(sslEngine));
-        pipeline.addLast(new UnifiedPortProtocolDetector(sslCtx, webProxyRequestManager));
+        pipeline.addAfter("unifiedDetectorHttp", "ssl", new SslHandler(sslEngine));
+        webProxyRequestManager.setSSL(true);
 
         pipeline.remove(this);
     }

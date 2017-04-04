@@ -27,6 +27,6 @@ public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel
         ChannelPipeline pipeline = ch.pipeline();
 
         // Here we create a protocol detector to try and figure out what we are receiving
-        pipeline.addFirst(new UnifiedPortProtocolDetector(sslCtx, webProxyRequestManager));
+        pipeline.addFirst("unifiedDetector", new UnifiedPortProtocolDetector(sslCtx, webProxyRequestManager, false, false));
     }
 }
