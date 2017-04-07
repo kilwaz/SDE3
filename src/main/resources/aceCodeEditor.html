@@ -46,15 +46,15 @@
     function setAnnotation(annotations) {
         editor.getSession().setAnnotations(eval(annotations));
     };
-    // thing
+
     editor.setScrollSpeed(0.03);
 
-    function beautify(){
-        var editor = ace.edit("editor");
-        var beautify = ace.require("ace/ext/beautify"); // get reference to extension
-        beautify.beautify(editor.session);
-    };
-
+    // Javascript won't run below this comment, the comment breaks it..
+    <!--function beautify(){-->
+        <!--var editor = ace.edit("editor");-->
+        <!--var beautify = ace.require("ace/ext/beautify"); // get reference to extension-->
+        <!--beautify.beautify(editor.session);-->
+    <!--};-->
 </script>
 </body>
 </html>
