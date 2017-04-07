@@ -39,16 +39,14 @@
         java.setTextAreaValue(editor.getValue());
     });
 
-    // Used to set the text from a call within Java
     function setText(text) {
         editor.session.setValue(text);
     };
 
-    // Set error annotation
     function setAnnotation(annotations) {
         editor.getSession().setAnnotations(eval(annotations));
     };
-
+    // thing
     editor.setScrollSpeed(0.03);
 
     function beautify(){

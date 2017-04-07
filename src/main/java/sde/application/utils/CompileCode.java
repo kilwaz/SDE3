@@ -58,18 +58,33 @@ public class CompileCode {
             if (errString.length() > 1) {
                 String[] lines = errString.split("\n");
 
+                Boolean withinError = false;
+                String currentErrorLineNumber = "1";
+                String classFileName = className + ".java";
                 for (String line : lines) {
-                    if (line.contains(className)) {
-                        if(line.contains(": ")) {
-                            String errorLineNumber = line.substring(line.indexOf(className) + className.length() + 6, line.indexOf(": "));
+                    line = line.replace("\r", "").replace("\n", "");
+                    if (!withinError && line.contains(classFileName)) { // Find an error message by looking for the classname of the current file
+                        if (line.contains(": ")) {
+                            String errorLineNumber = line.substring(line.indexOf(classFileName) + classFileName.length() + 1, line.indexOf(": "));
                             String error = line.substring(line.indexOf(":" + errorLineNumber + ":") + 2 + errorLineNumber.length());
-                            error = error.replace("\n", "").replace("\r", "");
                             compileResult.addLineCompileError(Integer.parseInt(errorLineNumber), error);
+                            withinError = true;
+                            currentErrorLineNumber = errorLineNumber;
+                        }
+                    } else { // Continue adding subsequent lines as they still relate to the same error message
+                        if (withinError) {
+                            if (line.trim().equals("^")) { // Shows where the error is against the line above
+                                withinError = false;
+                                compileResult.addLineCompileError(Integer.parseInt(currentErrorLineNumber), line);
+                            } else if (line.contains(className)) { // Checks for "location: <class name> for ending of the error part
+                                withinError = false;
+                            } else {
+                                compileResult.addLineCompileError(Integer.parseInt(currentErrorLineNumber), line);
+                            }
                         }
                     }
                 }
 
-//                Error.CODE_COMPILE.record().additionalInformation(logic.getParentLogicNode().getContainedText() + " - " + lineNumber + " - " + errString).create();
                 className = null;
             }
             if (outString.length() > 1) {

@@ -35,7 +35,20 @@ public class CompileResult {
     }
 
     public void addLineCompileError(Integer lineNumber, String errString) {
+        while (lineAlreadyExists(lineNumber, errString)) {
+            errString = errString + " ";
+        }
         compiledLineErrors.add(new CompileLineError(lineNumber, errString));
+    }
+
+    // Used to check if the line already exists as in within the errors, this is a problem for ace editor if the same line exists within the same line number
+    private Boolean lineAlreadyExists(Integer lineNumber, String errString) {
+        for (CompileLineError compileLineError : compiledLineErrors) {
+            if (lineNumber.equals(compileLineError.getLineNumber()) && compileLineError.getOutError().equals(errString)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void addCompileError(String outString) {
