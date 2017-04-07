@@ -3,22 +3,22 @@
     <output-path>$PROJECT_DIR$/out/artifacts/SDE3</output-path>
     <root id="root">
       <element id="directory" name="resources">
-        <element id="file-copy" path="$PROJECT_DIR$/resources/aceCodeEditor.html" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/aceCodeEditor.html" />
         <element id="directory" name="ace-editor">
           <element id="dir-copy" path="$PROJECT_DIR$/resources/ace-editor" />
         </element>
         <element id="directory" name="SQL-Migration">
-          <element id="dir-copy" path="$PROJECT_DIR$/resources/SQL-Migration" />
+          <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources/SQL-Migration" />
         </element>
         <element id="directory" name="data">
-          <element id="dir-copy" path="$PROJECT_DIR$/resources/data" />
+          <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources/data" />
         </element>
         <element id="directory" name="WebDrivers">
-          <element id="dir-copy" path="$PROJECT_DIR$/resources/WebDrivers" />
+          <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources/WebDrivers" />
         </element>
-        <element id="file-copy" path="$PROJECT_DIR$/resources/keystore.jks" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/keystore.jks" />
       </element>
-      <element id="file-copy" path="$PROJECT_DIR$/resources/SDE3 - No Console.bat" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/SDE3 - No Console.bat" />
       <element id="directory" name="logs">
         <element id="dir-copy" path="$PROJECT_DIR$/logs" />
       </element>
@@ -27,7 +27,6 @@
           <element id="module-output" name="SDE3" />
           <element id="archive" name="archive.jar" />
         </element>
-        <element id="library" level="project" name="lib" />
       </element>
     </root>
   </artifact>
