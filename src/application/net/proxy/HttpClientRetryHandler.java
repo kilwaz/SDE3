@@ -15,14 +15,16 @@ public class HttpClientRetryHandler implements HttpRequestRetryHandler {
 
     @Override
     public boolean retryRequest(IOException exception, int executionCount, HttpContext httpContext) {
-        if (executionCount > maxRetryCount) {
+        if (executionCount >= maxRetryCount) {
             Error.HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED.record().create();
             return false;
         }
         if (exception instanceof org.apache.http.NoHttpResponseException) {
+            Error.HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT.record().additionalInformation("NoHttpResponse - Attempt number " + executionCount).create();
+            return true;
+        } else {
             Error.HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT.record().additionalInformation("Attempt number " + executionCount).create();
             return true;
         }
-        return false;
     }
 }
