@@ -273,7 +273,7 @@ public class Controller implements Initializable {
                         DrawableNode copyNode = program.getFlowController().getNodeByUuidWithoutHyphen(((Button) actionEvent.getSource()).getId().replace("CopyNode-", ""));
 
                         try {
-                            Class<?> clazz = Class.forName("application.node.implementations." + copyNode.getClass().getSimpleName());
+                            Class<?> clazz = Class.forName("sde.application.node.implementations." + copyNode.getClass().getSimpleName());
                             Constructor<?> ctor = clazz.getConstructor(copyNode.getClass());
                             DrawableNode newNode = (DrawableNode) ctor.newInstance(copyNode);
 
@@ -574,7 +574,7 @@ public class Controller implements Initializable {
             Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 
             try {
-                Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("application.node.implementations." + className);
+                Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("sde.application.node.implementations." + className);
                 DrawableNode newNode = BatchNode.create(clazz);
                 newNode.setContainedText("New " + className);
                 newNode.setX(lastCanvasContextMenuX - canvasController.getOffsetWidth());

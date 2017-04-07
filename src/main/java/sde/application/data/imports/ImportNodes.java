@@ -107,7 +107,7 @@ public class ImportNodes extends SDERunnable {
     private void importNode(Program program, Element element) {
         DrawableNode importedNode = null;
         try {
-            Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("application.node.implementations." + element.getTagName());
+            Class<DrawableNode> clazz = (Class<DrawableNode>) Class.forName("sde.application.node.implementations." + element.getTagName());
 
             importedNode = DrawableNode.create(clazz);
             importedNode.setProgram(program);
