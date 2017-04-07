@@ -101,8 +101,10 @@ public class EmailMessage {
             props.put("mail.smtp.starttls.enable", "true");
             props.put("mail.smtp.host", host);
             props.put("mail.smtp.port", port); // 587
+            props.put("mail.smtp.connectiontimeout", "10000");
+            props.put("mail.smtp.timeout", "10000");
 
-            Session session = Session.getInstance(props,
+            Session session = Session.getDefaultInstance(props,
                     new javax.mail.Authenticator() {
                         protected PasswordAuthentication getPasswordAuthentication() {
                             return new PasswordAuthentication(username, password);
