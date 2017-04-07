@@ -40,7 +40,7 @@ public class DrawableNode extends DatabaseObject {
     static {
         // This section of code finds all of the node classes apart from DrawableNode and collects the names as a lookup reference.
         String path = SDEUtils.getNodeImplementationsClassPath();
-        List<Class<?>> classes = ClassFinder.find(new File(path), "application.node.implementations");
+        List<Class<?>> classes = ClassFinder.find(new File(path), "sde.application.node.implementations");
 
         // Used for finding node class name when we are running from an exploded jar
         for (Class clazz : classes) {
