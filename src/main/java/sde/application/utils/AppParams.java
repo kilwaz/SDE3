@@ -28,10 +28,13 @@ public class AppParams {
     private static Boolean IN_APP_LOG_VIEW = false;
     private static String LOG_DIRECTORY = "";
 
-    // Document recording
+    // Document recording settings
     private static String TEST_DOC_OUTPUT_DIR = "C:\\Users\\alex\\Downloads\\";
     private static Boolean CREATE_TEST_DOCUMENT = true;
     private static Boolean RECORD_SCREENSHOTS = true;
+
+    // Browser settings
+    private static Integer BROWSER_DEFAULT_RETRY_COUNT = 3;
 
     // Database
     private static Integer DATABASE_DELETE_LIMIT = 100;
@@ -154,6 +157,14 @@ public class AppParams {
 
     public static void setLogDirectory(String logDirectory) {
         LOG_DIRECTORY = logDirectory;
+    }
+
+    public static void setBrowserDefaultRetryCount(Integer browserDefaultRetryCount) {
+        BROWSER_DEFAULT_RETRY_COUNT = browserDefaultRetryCount;
+    }
+
+    public static Integer getBrowserDefaultRetryCount() {
+        return BROWSER_DEFAULT_RETRY_COUNT;
     }
 
     public static String getMachineName() {

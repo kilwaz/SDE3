@@ -57,6 +57,7 @@ public class AppProperties {
             AppParams.setAutoManageSeleniumHub(Boolean.parseBoolean(getTextValue(AppParams.getAutoManageSeleniumHub().toString(), documentElement, "AutoManageSeleniumHub")));
             AppParams.setInAppLogView(Boolean.parseBoolean(getTextValue(AppParams.getInAppLogView().toString(), documentElement, "InAppLogView")));
             AppParams.setLogDirectory(getTextValue(AppParams.getConfiguredLogDirectory(), documentElement, "LogDirectory"));
+            AppParams.setBrowserDefaultRetryCount(Integer.parseInt(getTextValue(AppParams.getBrowserDefaultRetryCount().toString(), documentElement, "BrowserDefaultRetryCount")));
 
             return true;
 
@@ -133,8 +134,12 @@ public class AppProperties {
             e.appendChild(document.createTextNode(AppParams.getInAppLogView().toString()));
             rootEle.appendChild(e);
 
-            e = document.createElement("LogDirectory");
+            e = document.createElement("LogDirectoryLogDirectory");
             e.appendChild(document.createTextNode(AppParams.getConfiguredLogDirectory()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("BrowserDefaultRetryCount");
+            e.appendChild(document.createTextNode(AppParams.getBrowserDefaultRetryCount().toString()));
             rootEle.appendChild(e);
 
             document.appendChild(rootEle);

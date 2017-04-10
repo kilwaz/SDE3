@@ -1,5 +1,6 @@
 package sde.application.gui.window.setting;
 
+import javafx.geometry.Pos;
 import sde.application.utils.AppParams;
 import sde.application.utils.AppProperties;
 import javafx.geometry.Insets;
@@ -24,6 +25,7 @@ public class SeleniumHubControl extends SettingsPage {
         rows.setPadding(new Insets(10, 10, 10, 10));
 
         HBox manageSeleniumHubRow = new HBox(5);
+        manageSeleniumHubRow.setAlignment(Pos.CENTER_LEFT);
         Label manageSeleniumHubLabel = new Label("Auto manage Selenium hub?");
         CheckBox manageSeleniumHubCheckBox = new CheckBox();
         manageSeleniumHubCheckBox.setSelected(AppParams.getAutoManageSeleniumHub());

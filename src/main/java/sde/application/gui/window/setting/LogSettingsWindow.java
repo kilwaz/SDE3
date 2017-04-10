@@ -1,5 +1,6 @@
 package sde.application.gui.window.setting;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import sde.application.gui.Controller;
 import sde.application.utils.AppParams;
@@ -31,6 +32,7 @@ public class LogSettingsWindow extends SettingsPage {
 
         // Current log file
         HBox currentLogFileRow = new HBox(5);
+        currentLogFileRow.setAlignment(Pos.CENTER_LEFT);
         Label currentLogFileLabel = new Label("Current log file:");
         Label currentLogFileValue = new Label(sde.application.utils.managers.LogManager.getInstance().getLogOutputCanonicalPath());
 
@@ -41,6 +43,7 @@ public class LogSettingsWindow extends SettingsPage {
 
         // Log file directory
         HBox logFileDirectoryRow = new HBox(5);
+        logFileDirectoryRow.setAlignment(Pos.CENTER_LEFT);
         Label logFileDirectoryLabel = new Label("Log Directory:");
         TextField logFileDirectoryValue = new TextField();
         logFileDirectoryValue.setText(AppParams.getConfiguredLogDirectory());
@@ -55,6 +58,7 @@ public class LogSettingsWindow extends SettingsPage {
 
         // In app log viewer
         HBox inAppLogViewRow = new HBox(5);
+        inAppLogViewRow.setAlignment(Pos.CENTER_LEFT);
         Label inAppLogViewLabel = new Label("In App Log view?");
         CheckBox inAppLogViewCheckBox = new CheckBox();
         inAppLogViewCheckBox.setSelected(AppParams.getInAppLogView());

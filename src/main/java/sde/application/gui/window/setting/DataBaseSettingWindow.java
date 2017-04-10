@@ -1,5 +1,6 @@
 package sde.application.gui.window.setting;
 
+import javafx.geometry.Pos;
 import sde.application.data.DBConnectionManager;
 import sde.application.data.DataBank;
 import sde.application.gui.Controller;
@@ -70,6 +71,7 @@ public class DataBaseSettingWindow extends SettingsPage {
 
         // LOCAL DB NAME
         HBox localDBNameRow = new HBox(5);
+        localDBNameRow.setAlignment(Pos.CENTER_LEFT);
         localDBNameRow.setPadding(new Insets(0, 0, 0, 40));
 
         Label localDBNameLabel = new Label();
@@ -86,6 +88,7 @@ public class DataBaseSettingWindow extends SettingsPage {
 
         // REMOTE DB CONNECTION STRING
         HBox dbConnectionStringRow = new HBox(5);
+        dbConnectionStringRow.setAlignment(Pos.CENTER_LEFT);
         dbConnectionStringRow.setPadding(new Insets(0, 0, 0, 40));
 
         Label dbConnectionStringLabel = new Label();
@@ -102,6 +105,7 @@ public class DataBaseSettingWindow extends SettingsPage {
 
         // DB USERNAME
         HBox dbUsernameRow = new HBox(5);
+        dbUsernameRow.setAlignment(Pos.CENTER_LEFT);
         dbUsernameRow.setPadding(new Insets(0, 0, 0, 40));
 
         Label dbUsernameLabel = new Label();
@@ -118,6 +122,7 @@ public class DataBaseSettingWindow extends SettingsPage {
 
         // DB PASSWORD
         HBox dbPasswordRow = new HBox(5);
+        dbPasswordRow.setAlignment(Pos.CENTER_LEFT);
         dbPasswordRow.setPadding(new Insets(0, 0, 0, 40));
 
         Label dbPasswordLabel = new Label();
@@ -196,6 +201,7 @@ public class DataBaseSettingWindow extends SettingsPage {
         rows.getChildren().add(dbPasswordRow);
 
         HBox buttonRow = new HBox(5);
+        buttonRow.setAlignment(Pos.CENTER_LEFT);
         buttonRow.getChildren().add(createNewDatabaseButton);
         buttonRow.getChildren().add(switchDatabaseButton);
         buttonRow.getChildren().add(rebuildDatabaseButton);

@@ -6,6 +6,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
+import sde.application.utils.AppParams;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -173,7 +174,7 @@ public class WebProxyRequestManager {
         if (httpClient == null) {
             RequestConfig requestConfig = RequestConfig.custom().setCircularRedirectsAllowed(true).build();
             httpClient = HttpClientBuilder.create()
-                    .setRetryHandler(new HttpClientRetryHandler(3)) // Max retries 3
+                    .setRetryHandler(new HttpClientRetryHandler(AppParams.getBrowserDefaultRetryCount())) // Get Default max retries
                     .setDefaultRequestConfig(requestConfig)
                     .setDefaultCookieStore(getHttpCookieStore())
                     .build();

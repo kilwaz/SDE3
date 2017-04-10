@@ -1,5 +1,6 @@
 package sde.application.gui.window.setting;
 
+import javafx.geometry.Pos;
 import sde.application.utils.AppParams;
 import sde.application.utils.AppProperties;
 import javafx.geometry.Insets;
@@ -29,6 +30,7 @@ public class DocumentCreationSettingWindow extends SettingsPage {
         rows.setPadding(new Insets(10, 10, 10, 10));
 
         HBox testDocOutputRow = new HBox(5);
+        testDocOutputRow.setAlignment(Pos.CENTER_LEFT);
         Label testDocOutputLabel = new Label("Test document output path:");
         TextField testDocOutputField = new TextField();
         testDocOutputField.setText(AppParams.getTestDocOutputDir());
@@ -43,6 +45,7 @@ public class DocumentCreationSettingWindow extends SettingsPage {
 
 
         HBox createTestDocRow = new HBox(5);
+        createTestDocRow.setAlignment(Pos.CENTER_LEFT);
         CheckBox createTestDocCheck = new CheckBox("Create test documentation");
         createTestDocCheck.setSelected(AppParams.getCreateTestDocument());
         createTestDocCheck.setOnAction(event -> {
@@ -53,6 +56,7 @@ public class DocumentCreationSettingWindow extends SettingsPage {
         createTestDocRow.getChildren().add(createTestDocCheck);
 
         HBox recordScreenshotsRow = new HBox(5);
+        recordScreenshotsRow.setAlignment(Pos.CENTER_LEFT);
         CheckBox recordScreenshotsCheck = new CheckBox("Record test screenshots");
         recordScreenshotsCheck.setSelected(AppParams.getRecordScreenshots());
         recordScreenshotsCheck.setOnAction(event -> {
