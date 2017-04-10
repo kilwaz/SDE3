@@ -2,6 +2,7 @@ package sde.application.utils;
 
 import sde.application.error.Error;
 import javafx.scene.text.Font;
+import sde.application.utils.managers.LogManager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -22,7 +23,10 @@ public class AppParams {
     private static String REMOTE_DATABASE_PASSWORD = "spiralinks";
     private static Boolean LOCAL_DATABASE = true;
     private static Boolean AUTO_MANAGE_SELENIUM_HUB = false;
+
+    // Log settings
     private static Boolean IN_APP_LOG_VIEW = false;
+    private static String LOG_DIRECTORY = "";
 
     // Document recording
     private static String TEST_DOC_OUTPUT_DIR = "C:\\Users\\alex\\Downloads\\";
@@ -135,6 +139,21 @@ public class AppParams {
 
     public static String getSqlLiteFileName() {
         return SQL_LITE_FILE_NAME;
+    }
+
+    public static String getLogDirectory() {
+        return LOG_DIRECTORY;
+    }
+
+    public static String getConfiguredLogDirectory() {
+        if ("".equals(LOG_DIRECTORY)) {
+            LOG_DIRECTORY = LogManager.getInstance().getLogOutputDirectoryCanonicalPath();
+        }
+        return LOG_DIRECTORY;
+    }
+
+    public static void setLogDirectory(String logDirectory) {
+        LOG_DIRECTORY = logDirectory;
     }
 
     public static String getMachineName() {

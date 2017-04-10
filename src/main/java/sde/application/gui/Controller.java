@@ -924,7 +924,7 @@ public class Controller implements Initializable {
         }
     }
 
-    private Label makeSelectable(Label label) {
+    public Label makeSelectable(Label label) {
         StackPane textStack = new StackPane();
         TextField textField = new TextField(label.getText());
         textField.setEditable(false);

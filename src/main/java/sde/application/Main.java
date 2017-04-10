@@ -90,9 +90,15 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
+        new AppProperties(); // Set the location of where to find the properties xml file
+        if (!AppProperties.readXML()) {
+            AppProperties.saveToXML();
+        }
+
         // This lets all logging be captured and then displayed
         new LogManager();
         log.info(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+        log.info("Log location = " + LogManager.getInstance().getLogOutputCanonicalPath());
 
         // Load any command line parameters that have been included
         Integer parameterIndex = 0;
@@ -130,11 +136,6 @@ public class Main extends Application {
         if (!isHeadless) {
             this.splashStage = stage;
             showSplash();
-        }
-
-        new AppProperties(); // Set the location of where to find the properties xml file
-        if (!AppProperties.readXML()) {
-            AppProperties.saveToXML();
         }
 
         Boolean connectionSuccessful = startDatabase();

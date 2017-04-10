@@ -12,8 +12,10 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import sde.application.utils.AppParams;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
@@ -44,14 +46,36 @@ public class LogManager {
     }
 
     public String getLogOutputDirectoryPath() {
-        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        try {
-            path = URLDecoder.decode(path + "../../../logs/", "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            Error.LOG_OUTPUT.record().create(ex);
-        }
+        if ("".equals(AppParams.getLogDirectory())) {
+            String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            try {
+                path = URLDecoder.decode(path + "../../../logs/", "UTF-8");
+            } catch (UnsupportedEncodingException ex) {
+                Error.LOG_OUTPUT.record().create(ex);
+            }
 
-        return path;
+            return path;
+        } else {
+            return AppParams.getLogDirectory();
+        }
+    }
+
+    public String getLogOutputDirectoryCanonicalPath() {
+        try {
+            return new File(getLogOutputDirectoryPath()).getCanonicalPath();
+        } catch (IOException ex) {
+            Error.SDE_FILE_NOT_FOUND.record().additionalInformation("Unable to find log directory path").create(ex);
+        }
+        return "Unable to find log file directory";
+    }
+
+    public String getLogOutputCanonicalPath() {
+        try {
+            return new File(getLogOutputFilePath()).getCanonicalPath();
+        } catch (IOException ex) {
+            Error.SDE_FILE_NOT_FOUND.record().additionalInformation("Unable to find log file path").create(ex);
+        }
+        return "Unable to find log file path";
     }
 
     public String getLogOutputFilePath() {

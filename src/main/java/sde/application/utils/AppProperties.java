@@ -56,6 +56,7 @@ public class AppProperties {
             AppParams.setRecordScreenshots(Boolean.parseBoolean(getTextValue(AppParams.getRecordScreenshots().toString(), documentElement, "RecordScreenshots")));
             AppParams.setAutoManageSeleniumHub(Boolean.parseBoolean(getTextValue(AppParams.getAutoManageSeleniumHub().toString(), documentElement, "AutoManageSeleniumHub")));
             AppParams.setInAppLogView(Boolean.parseBoolean(getTextValue(AppParams.getInAppLogView().toString(), documentElement, "InAppLogView")));
+            AppParams.setLogDirectory(getTextValue(AppParams.getConfiguredLogDirectory(), documentElement, "LogDirectory"));
 
             return true;
 
@@ -130,6 +131,10 @@ public class AppProperties {
 
             e = document.createElement("InAppLogView");
             e.appendChild(document.createTextNode(AppParams.getInAppLogView().toString()));
+            rootEle.appendChild(e);
+
+            e = document.createElement("LogDirectory");
+            e.appendChild(document.createTextNode(AppParams.getConfiguredLogDirectory()));
             rootEle.appendChild(e);
 
             document.appendChild(rootEle);
