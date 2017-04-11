@@ -10,6 +10,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 import sde.application.error.Error;
+import sde.application.gui.window.setting.browsers.ChromeSettings;
+import sde.application.gui.window.setting.browsers.FirefoxSettings;
+import sde.application.gui.window.setting.browsers.InternetExplorerSettings;
+import sde.application.gui.window.setting.browsers.OperaSettings;
 import sde.application.utils.AppParams;
 import sde.application.utils.AppProperties;
 
@@ -21,6 +25,10 @@ public class BrowserSettingWindow extends SettingsPage {
     }
 
     public void setupChildren() {
+        getChildren().add(new ChromeSettings());
+        getChildren().add(new InternetExplorerSettings());
+        getChildren().add(new FirefoxSettings());
+        getChildren().add(new OperaSettings());
     }
 
     public AnchorPane getInterface() {
