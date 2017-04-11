@@ -1,5 +1,7 @@
 package sde.application.test.action;
 
+import org.apache.log4j.Logger;
+import org.openqa.selenium.*;
 import sde.application.error.Error;
 import sde.application.gui.Program;
 import sde.application.net.proxy.snoop.HttpProxyServer;
@@ -7,11 +9,10 @@ import sde.application.node.objects.Test;
 import sde.application.test.TestCommand;
 import sde.application.test.TestCommandScreenshot;
 import sde.application.test.TestParameter;
+import sde.application.test.TestRunner;
 import sde.application.test.action.helpers.*;
 import sde.application.utils.AppParams;
 import sde.application.utils.SDEUtils;
-import org.apache.log4j.Logger;
-import org.openqa.selenium.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -69,6 +70,7 @@ public abstract class WebAction implements Action {
     private FunctionTracker functionTracker = null;
     private StateTracker stateTracker = null;
     private DocumentTracker documentTracker = null;
+    private TestRunner testRunner = null;
 
     public WebAction() {
     }
@@ -91,7 +93,7 @@ public abstract class WebAction implements Action {
      * @param testCommand The full test command to process.
      * @param program     Reference to the program this test is a spawn of.
      */
-    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker, StateTracker stateTracker, DocumentTracker documentTracker) {
+    public void initialise(HttpProxyServer webProxy, WebDriver driver, TestCommand testCommand, Program program, Test runningTest, IfTracker ifTracker, FunctionTracker functionTracker, LoopTracker loopTracker, VariableTracker variableTracker, StateTracker stateTracker, DocumentTracker documentTracker, TestRunner testRunner) {
         this.program = program;
         this.httpProxyServer = webProxy;
         this.driver = driver;
@@ -103,6 +105,7 @@ public abstract class WebAction implements Action {
         this.loopTracker = loopTracker;
         this.variableTracker = variableTracker;
         this.documentTracker = documentTracker;
+        this.testRunner = testRunner;
     }
 
     public void takeScreenshotOfPage() {
@@ -314,7 +317,6 @@ public abstract class WebAction implements Action {
         }
 
         return by;
-
     }
 
     public Test getRunningTest() {
@@ -343,5 +345,9 @@ public abstract class WebAction implements Action {
 
     public DocumentTracker getDocumentTracker() {
         return documentTracker;
+    }
+
+    public TestRunner getTestRunner() {
+        return testRunner;
     }
 }

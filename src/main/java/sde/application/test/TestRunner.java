@@ -1,17 +1,5 @@
 package sde.application.test;
 
-import sde.application.error.Error;
-import sde.application.gui.Program;
-import sde.application.net.proxy.RecordedRequest;
-import sde.application.net.proxy.snoop.HttpProxyServer;
-import sde.application.node.objects.Test;
-import sde.application.test.action.WebAction;
-import sde.application.test.action.helpers.*;
-import sde.application.utils.AppParams;
-import sde.application.utils.BrowserHelper;
-import sde.application.utils.SDERunnable;
-import sde.application.utils.SDEThread;
-import sde.application.utils.managers.StatisticsManager;
 import com.jayway.awaitility.Awaitility;
 import javafx.collections.ObservableList;
 import org.apache.log4j.Logger;
@@ -23,6 +11,22 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
+import sde.application.error.Error;
+import sde.application.gui.Program;
+import sde.application.net.proxy.RecordedRequest;
+import sde.application.net.proxy.snoop.HttpProxyServer;
+import sde.application.node.objects.BrowserLog;
+import sde.application.node.objects.BrowserLogListener;
+import sde.application.node.objects.Test;
+import sde.application.test.action.WebAction;
+import sde.application.test.action.helpers.*;
+import sde.application.utils.AppParams;
+import sde.application.utils.BrowserHelper;
+import sde.application.utils.SDERunnable;
+import sde.application.utils.SDEThread;
+import sde.application.utils.managers.StatisticsManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +52,7 @@ public class TestRunner extends SDERunnable {
     private Test test;
     private Program program;
     private Integer status = 0;
+    private List<BrowserLogListener> linkedBrowserLogListeners = new ArrayList<>();
 
     public TestRunner(Test test, Program program) {
         this.test = test;
@@ -209,8 +214,16 @@ public class TestRunner extends SDERunnable {
                             StatisticsManager.getInstance().getTotalStatisticStore().incrementCommands();
                             StatisticsManager.getInstance().getSessionStatisticStore().incrementCommands();
                             WebAction webAction = (WebAction) actionClass.getDeclaredConstructor().newInstance();
-                            webAction.initialise(httpProxyServer, driver, testCommand, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker, documentTracker);
+                            webAction.initialise(httpProxyServer, driver, testCommand, program, test, ifTracker, functionTracker, loopTracker, variableTracker, stateTracker, documentTracker, this);
                             webAction.performAction();
+
+                            // Check for any new browser logs and pass them out to any browser log listeners
+                            List<LogEntry> entries = driver.manage().logs().get(LogType.BROWSER).getAll();
+                            for (LogEntry logEntry : entries) {
+                                for (BrowserLogListener browserLogListener : linkedBrowserLogListeners) {
+                                    browserLogListener.addBrowserLog(new BrowserLog(logEntry));
+                                }
+                            }
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                             Error.TEST_NODE_ACTION.record().create(ex);
                         } catch (WebDriverException ex) {
@@ -227,9 +240,22 @@ public class TestRunner extends SDERunnable {
                 commandCounter++;
             }
 
-            // Tidy up any resources if they are still in use
             try {
                 if (driver != null) {
+                    // Handle any logging that might have been recorded
+                    List<LogEntry> entries = driver.manage().logs().get(LogType.BROWSER).getAll();
+                    for (LogEntry logEntry : entries) {
+                        for (BrowserLogListener browserLogListener : linkedBrowserLogListeners) {
+                            browserLogListener.addBrowserLog(new BrowserLog(logEntry));
+                        }
+                    }
+
+//                    entries = driver.manage().logs().get(LogType.PERFORMANCE).getAll();
+//                    for (LogEntry logEntry : entries) {
+//                        log.info("BROWSER PERFORMANCE: " + new Date(logEntry.getTimestamp()) + " " + logEntry.getLevel() + " " + logEntry.getMessage());
+//                    }
+
+                    // Tidy up any resources if they are still in use
                     driver.close();
                     driver.quit();
                 }
@@ -329,5 +355,9 @@ public class TestRunner extends SDERunnable {
 
     public Test getTest() {
         return test;
+    }
+
+    public void addBrowserLogListener(BrowserLogListener browserLogListener) {
+        linkedBrowserLogListeners.add(browserLogListener);
     }
 }
