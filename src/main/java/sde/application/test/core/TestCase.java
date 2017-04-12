@@ -1,5 +1,9 @@
 package sde.application.test.core;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import org.apache.log4j.Logger;
 import sde.application.data.model.DatabaseObject;
 import sde.application.error.Error;
 import sde.application.net.proxy.ProxyRequestListener;
@@ -7,6 +11,8 @@ import sde.application.net.proxy.RecordedRequest;
 import sde.application.node.design.DrawableNode;
 import sde.application.node.implementations.InputNode;
 import sde.application.node.implementations.TestNode;
+import sde.application.node.objects.BrowserLog;
+import sde.application.node.objects.BrowserLogListener;
 import sde.application.node.objects.Input;
 import sde.application.node.objects.Test;
 import sde.application.test.PageStateCompare;
@@ -15,10 +21,6 @@ import sde.application.test.TestLogMessage;
 import sde.application.test.TestRunner;
 import sde.application.test.action.helpers.PageStateCapture;
 import sde.application.utils.SDEThread;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject implements ProxyRequestListener {
+public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject implements ProxyRequestListener, BrowserLogListener {
     private static Logger log = Logger.getLogger(TestCase.class);
     private String testIterationID = "";
     private TestSet testSet;
@@ -45,6 +47,7 @@ public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject 
     private TestTemplate templateObject;
     private ObservableList<TestCommand> testCommands = FXCollections.observableArrayList();
     private ObservableList<RecordedRequest> testRequests = FXCollections.observableArrayList();
+    private ObservableList<BrowserLog> testBrowserLogs = FXCollections.observableArrayList();
     private SimpleIntegerProperty passedTestCases = new SimpleIntegerProperty();
 
     public TestCase() {
@@ -75,6 +78,10 @@ public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject 
 
     public ObservableList<RecordedRequest> getTestRequests() {
         return testRequests;
+    }
+
+    public ObservableList<BrowserLog> getTestBrowserLogs() {
+        return testBrowserLogs;
     }
 
     public String getLogMessages() {
@@ -331,13 +338,16 @@ public class TestCase<TemplateCase extends TestTemplate> extends DatabaseObject 
     public void storePageState(PageStateCapture capture) {
         pageCaptures.put(capture.getStateName(), capture);
     }
-
-    @Override
+    
     public void addRequest(RecordedRequest recordedRequest) {
 //        testRequests.add(recordedRequest);
 //        recordedRequest.setParentTestCase(this);
 //        recordedRequest.save();
 //        recordedRequest.lighten();
+    }
+
+    public void addBrowserLog(BrowserLog browserLog) {
+        testBrowserLogs.add(browserLog);
     }
 
     public HashMap<String, PageStateCapture> getPageCaptures() {
