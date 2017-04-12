@@ -313,6 +313,7 @@ public class SwitchNode extends DrawableNode {
         //TextFields.bindAutoCompletion(switchField, getProgram().getFlowController().getNodes());
 
         switchField.setId("switchField-" + aSwitch.getUuidStringWithoutHyphen() + "-" + getUuidStringWithoutHyphen());
+        switchField.setPrefWidth(400.0);
         switchField.setOnKeyReleased(event -> {
             TextField textField = (TextField) event.getSource();
             String[] fieldId = textField.getId().split("-");
