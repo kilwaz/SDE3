@@ -20,12 +20,13 @@ public class HeadersTab extends Tab {
     public HeadersTab(RecordedRequest recordedRequest, int type) {
         TableView<RecordedHeader> headerTableView = new TableView<>();
 
-        this.setText("Headers (" + recordedRequest.getRequestHeaders().size() + ")");
         this.setClosable(false);
 
         if (type == InspectWindow.TYPE_REQUEST) {
+            this.setText("Headers (" + recordedRequest.getRequestHeaders().size() + ")");
             headerList.addAll(recordedRequest.getRequestHeaders());
         } else if (type == InspectWindow.TYPE_RESPONSE) {
+            this.setText("Headers (" + recordedRequest.getResponseHeaders().size() + ")");
             headerList.addAll(recordedRequest.getResponseHeaders());
         }
 
