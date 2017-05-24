@@ -1,10 +1,10 @@
 package sde.application.utils.managers;
 
 
-import sde.application.error.Error;
 import org.apache.log4j.Logger;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import sde.application.error.Error;
 
 public class JobManager {
     private static Scheduler scheduler;
@@ -24,6 +24,9 @@ public class JobManager {
     }
 
     public static JobManager getInstance() {
+        if (instance == null) {
+            instance = new JobManager();
+        }
         return instance;
     }
 

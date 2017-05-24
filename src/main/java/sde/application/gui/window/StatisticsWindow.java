@@ -37,14 +37,14 @@ public class StatisticsWindow extends SDEWindow {
             VBox vBox = new VBox(5);
             vBox.setPadding(new Insets(10, 10, 10, 10));
 
-            vBox.getChildren().add(buildStatisticRow("Session Requests", Bindings.format("%,d", statisticsManager.getSessionStatisticStore().requestsProperty())));
+            vBox.getChildren().add(buildStatisticRow("Session Requests", Bindings.format("%,d", statisticsManager.getSessionStatisticStore().totalRequestsProperty())));
             vBox.getChildren().add(buildStatisticRow("Session Up Time", Bindings.format("%s", statisticsManager.getSessionStatisticStore().upTimeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Session Request Size", Bindings.format("%s", statisticsManager.getSessionStatisticStore().requestSizeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Session Response Size", Bindings.format("%s", statisticsManager.getSessionStatisticStore().responseSizeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Session Total Commands", Bindings.format("%,d", statisticsManager.getSessionStatisticStore().commandsProperty())));
             vBox.getChildren().add(buildStatisticRow("Session Programs Starts", Bindings.format("%,d", statisticsManager.getSessionStatisticStore().programsStartedProperty())));
             vBox.getChildren().add(new Label()); // Spacer
-            vBox.getChildren().add(buildStatisticRow("Total Requests", Bindings.format("%,d", statisticsManager.getTotalStatisticStore().requestsProperty())));
+            vBox.getChildren().add(buildStatisticRow("Total Requests", Bindings.format("%,d", statisticsManager.getTotalStatisticStore().totalRequestsProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Up Time", Bindings.format("%s", statisticsManager.getTotalStatisticStore().upTimeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Request Size", Bindings.format("%s", statisticsManager.getTotalStatisticStore().requestSizeFormattedProperty())));
             vBox.getChildren().add(buildStatisticRow("Total Response Size", Bindings.format("%s", statisticsManager.getTotalStatisticStore().responseSizeFormattedProperty())));

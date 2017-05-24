@@ -1,14 +1,5 @@
 package sde.application.gui.canvas;
 
-import sde.application.data.DBConnectionManager;
-import sde.application.gui.Controller;
-import sde.application.gui.FlowController;
-import sde.application.gui.NodeConnection;
-import sde.application.gui.Program;
-import sde.application.node.design.DrawableNode;
-import sde.application.node.implementations.LinuxNode;
-import sde.application.utils.AppParams;
-import sde.application.utils.managers.SessionManager;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
@@ -17,6 +8,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.apache.log4j.Logger;
+import sde.application.data.DBConnection;
+import sde.application.gui.Controller;
+import sde.application.gui.FlowController;
+import sde.application.gui.NodeConnection;
+import sde.application.gui.Program;
+import sde.application.node.design.DrawableNode;
+import sde.application.node.implementations.LinuxNode;
+import sde.application.utils.AppParams;
+import sde.application.utils.managers.DataSourceManager;
+import sde.application.utils.managers.SessionManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -182,7 +183,9 @@ public class CanvasController {
 
     public void updateAStarNetwork() {
         // If we aren't connected to the database don't draw anything
-        if (!DBConnectionManager.getInstance().isConnected()) return;
+        if (!DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP).isConnected()) {
+            return;
+        }
 
         Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
         network = null;
@@ -218,7 +221,9 @@ public class CanvasController {
 
     public void drawProgram() {
         // If we aren't connected to the database don't draw anything
-        if (!DBConnectionManager.getInstance().isConnected()) return;
+        if (!DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP).isConnected()) {
+            return;
+        }
 
         Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
 

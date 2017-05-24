@@ -31,6 +31,8 @@ public class CompileCode {
 
             String userHome = System.getProperty("user.home");
 
+            // TODO: Clean up old class files when new ones are recompiled.
+            // TODO: Make the class files temporary files so that they are auto cleaned up on exit.
             // Save source in .java file.
             File root = new File(userHome, "/SDE"); // On Windows running on C:\, this is C:\java.
             File sourceFile = new File(root, "programs/" + className + ".java");

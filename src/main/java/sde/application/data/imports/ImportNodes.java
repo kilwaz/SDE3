@@ -15,7 +15,7 @@ import sde.application.node.objects.datatable.DataTableRow;
 import sde.application.node.objects.datatable.DataTableValue;
 import sde.application.utils.SDERunnable;
 import sde.application.utils.SDEUtils;
-import sde.application.utils.managers.DatabaseTransactionManager;
+import sde.application.utils.managers.DataSourceManager;
 import sde.application.utils.managers.SessionManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -251,6 +251,6 @@ public class ImportNodes extends SDERunnable {
             importedNode.save();
         }
 
-        DatabaseTransactionManager.getInstance().finaliseTransactions();
+        DataSourceManager.getInstance().finaliseTransactions();
     }
 }

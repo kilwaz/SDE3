@@ -19,9 +19,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.apache.log4j.Logger;
-import sde.application.data.DBConnectionManager;
-import sde.application.data.DataBank;
-import sde.application.data.DatabaseConnectionWatcher;
+import sde.application.data.*;
 import sde.application.data.model.dao.ProgramDAO;
 import sde.application.error.Error;
 import sde.application.gui.Controller;
@@ -138,6 +136,9 @@ public class Main extends Application {
             showSplash();
         }
 
+        SQLiteProcess sqLiteProcess = new SQLiteProcess();
+        sqLiteProcess.start();
+
         Boolean connectionSuccessful = startDatabase();
         if (!isHeadless) {
             loadProgress.setProgress(0.5);
@@ -204,27 +205,26 @@ public class Main extends Application {
     }
 
     private Boolean startDatabase() {
-        new DBConnectionManager();
-        new DatabaseConnectionWatcher();  // Creates the database watcher which will let the user know when the database disconnects
-        Boolean connectionSuccessful = DBConnectionManager.getInstance().createApplicationConnection();
-        DBConnectionManager.getInstance().getApplicationConnection().migrateFlyway();
-        return connectionSuccessful;
+        DatabaseConnectionWatcher.getInstance(); // Creates the database watcher which will let the user know when the database disconnects
+        DataSource applicationDataSource = DataSourceFactory.createApplicationDataSource();
+        applicationDataSource.getDbConnection().migrateFlyway();
+        return applicationDataSource.isConnected();
     }
 
     private void startManagers() {
         // Load all managers
+        DataSourceManager.getInstance();
         new ThreadManager();
         new WindowManager();
         new SSHConnectionManager();
         new BrowserManager();
         new WebProxyManager();
-        new JobManager();
+        JobManager.getInstance();
         new TabManager();
         new ErrorManager();
         new NetworkManager();
         new SessionManager();
         new DatabaseObjectManager();
-        new DatabaseTransactionManager();
         new SeleniumHubManager();
         new StatisticsManager();
         new WebSocketListenerManager();
@@ -320,12 +320,11 @@ public class Main extends Application {
     public void shutdownApplication() {
         // On Application Close we try and clean up all the open connections and running threads
         WindowManager.getInstance().closeAllWindows();
-        DatabaseTransactionManager.getInstance().finaliseTransactions();
         SSHConnectionManager.getInstance().closeConnections();
         ThreadManager.getInstance().removeInactiveThreads();
         BrowserManager.getInstance().closeBrowsers();
         WebProxyManager.getInstance().closeProxies();
-        DBConnectionManager.getInstance().closeConnections();
+        DataSourceManager.getInstance().closeAllDataSources();
         JobManager.getInstance().stopAllJobs();
         SeleniumHubManager.getInstance().stopHub();
         StatisticsManager.getInstance().saveStatistics();

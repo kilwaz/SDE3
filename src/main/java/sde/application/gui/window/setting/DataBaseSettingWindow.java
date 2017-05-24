@@ -1,22 +1,25 @@
 package sde.application.gui.window.setting;
 
-import javafx.geometry.Pos;
-import sde.application.data.DBConnectionManager;
-import sde.application.data.DataBank;
-import sde.application.gui.Controller;
-import sde.application.gui.dialog.*;
-import sde.application.utils.AppParams;
-import sde.application.utils.AppProperties;
-import sde.application.gui.dialog.Dialog;
-import sde.application.utils.managers.DatabaseObjectManager;
-import sde.application.utils.managers.SessionManager;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
+import sde.application.data.DBConnection;
+import sde.application.data.DataBank;
+import sde.application.data.DataSource;
+import sde.application.data.DataSourceFactory;
+import sde.application.gui.Controller;
+import sde.application.gui.dialog.ConfirmDialog;
+import sde.application.gui.dialog.Dialog;
+import sde.application.utils.AppParams;
+import sde.application.utils.AppProperties;
+import sde.application.utils.managers.DataSourceManager;
+import sde.application.utils.managers.DatabaseObjectManager;
+import sde.application.utils.managers.SessionManager;
 
 public class DataBaseSettingWindow extends SettingsPage {
     private static Logger log = Logger.getLogger(DataBaseSettingWindow.class);
@@ -143,7 +146,11 @@ public class DataBaseSettingWindow extends SettingsPage {
             AppProperties.saveToXML();
             DatabaseObjectManager.getInstance().clearAllObjects();
             Controller.getInstance().closeAllNodeTabs();
-            DBConnectionManager.getInstance().createApplicationConnection();
+            DataSource currentApplicationDataSource = DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP);
+            if (currentApplicationDataSource != null) {
+                currentApplicationDataSource.closeDownGracefully();
+                DataSourceFactory.createApplicationDataSource();
+            }
             SessionManager.getInstance().clearAllSessions();
             DataBank.createCurrentSession();
             DataBank.getNodeColours().reloadNodeColours();
@@ -154,15 +161,19 @@ public class DataBaseSettingWindow extends SettingsPage {
         rebuildDatabaseButton = new Button();
         rebuildDatabaseButton.setText("Rebuild this Database");
         rebuildDatabaseButton.setOnAction(event -> {
+            DataSource currentApplicationDataSource = DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP);
             sde.application.gui.dialog.Dialog confirmDialog = new ConfirmDialog()
-                    .content("Are you sure you want to rebuild " + DBConnectionManager.getInstance().getApplicationConnection().getConnectionString() + "?  This will delete all existing data.")
+                    .content("Are you sure you want to rebuild " + currentApplicationDataSource.getDbConnection().getConnectionString() + "?  This will delete all existing data.")
                     .title("Rebuild Database")
                     .onYesAction(() -> {
-                        DBConnectionManager.getInstance().getApplicationConnection().rebuildDatabase();
+                        currentApplicationDataSource.getDbConnection().rebuildDatabase();
                         AppProperties.saveToXML();
                         DatabaseObjectManager.getInstance().clearAllObjects();
                         Controller.getInstance().closeAllNodeTabs();
-                        DBConnectionManager.getInstance().createApplicationConnection();
+
+                        currentApplicationDataSource.closeDownGracefully();
+                        DataSourceFactory.createApplicationDataSource();
+
                         SessionManager.getInstance().clearAllSessions();
                         DataBank.createCurrentSession();
                         DataBank.getNodeColours().reloadNodeColours();
@@ -175,15 +186,18 @@ public class DataBaseSettingWindow extends SettingsPage {
         createNewDatabaseButton = new Button();
         createNewDatabaseButton.setText("Create new Database");
         createNewDatabaseButton.setOnAction(event -> {
+            DataSource currentApplicationDataSource = DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP);
             Dialog confirmDialog = new ConfirmDialog()
-                    .content("Are you sure you want to create " + DBConnectionManager.getInstance().getApplicationConnection().getConnectionString() + "?  This will delete all existing data.")
+                    .content("Are you sure you want to create " + currentApplicationDataSource.getDbConnection().getConnectionString() + "?  This will delete all existing data.")
                     .title("Create Database")
                     .onYesAction(() -> {
                         AppProperties.saveToXML();
                         DatabaseObjectManager.getInstance().clearAllObjects();
                         Controller.getInstance().closeAllNodeTabs();
-                        DBConnectionManager.getInstance().createApplicationConnection();
-                        DBConnectionManager.getInstance().getApplicationConnection().rebuildDatabase();
+
+                        currentApplicationDataSource.closeDownGracefully();
+                        DataSourceFactory.createApplicationDataSource();
+
                         SessionManager.getInstance().clearAllSessions();
                         DataBank.createCurrentSession();
                         DataBank.getNodeColours().reloadNodeColours();

@@ -1,17 +1,19 @@
 package sde.application.data;
 
-import sde.application.error.Error;
-import sde.application.gui.window.SettingsPickerWindow;
-import sde.application.utils.AppParams;
-import sde.application.utils.SDEUtils;
 import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
+import sde.application.error.Error;
+import sde.application.gui.window.SettingsPickerWindow;
+import sde.application.utils.AppParams;
+import sde.application.utils.SDEUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -20,24 +22,34 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DBConnection {
+    public static final int CONNECTION_STATS = 1;
+    public static final int CONNECTION_APP = 2;
+    public static final int CONNECTION_OTHER = 3;
+
     private static Logger log = Logger.getLogger(DBConnection.class);
+    private int connectionType = -1;
     private String username = "";
     private String password = "";
     private String connectionString = "";
     private Boolean isApplicationConnection = false;
     private Connection connection = null;
 
-    public DBConnection(String connectionString) {
+    private static String baseAppSQLPath = "data/baseAppDB.sql";
+
+    public DBConnection(String connectionString, int connectionType) {
+        this.connectionType = connectionType;
         this.connectionString = connectionString;
     }
 
-    public DBConnection(String connectionString, String username, String password) {
+    public DBConnection(String connectionString, String username, String password, int connectionType) {
+        this.connectionType = connectionType;
         this.password = password;
         this.username = username;
         this.connectionString = connectionString;
     }
 
-    public DBConnection(String connectionString, String username, String password, Boolean isApplicationConnection) {
+    public DBConnection(String connectionString, String username, String password, Boolean isApplicationConnection, int connectionType) {
+        this.connectionType = connectionType;
         this.password = password;
         this.username = username;
         this.connectionString = connectionString;
@@ -50,6 +62,7 @@ public class DBConnection {
             if (connectionString.contains("sqlite")) {
                 try {
                     Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/" + AppParams.getSqlLiteFileName(), "sde.db").start();
+                    // Here we don't actually do anything with the input from SQLite
                     BufferedReader input = new BufferedReader(new InputStreamReader(sqlite.getInputStream()));
                 } catch (IOException ex) {
                     Error.SQLITE_START_EXE.record().create(ex);
@@ -127,13 +140,24 @@ public class DBConnection {
         try {
             getConnection().setAutoCommit(false);
 
-            String resourcesPath = SDEUtils.getResourcePath();
-            String bashEditorPath = resourcesPath + "/data/blankdb.sql";
+            String path = "";
+
+            if (SDEUtils.isJar()) {
+                try {
+                    URI uri = SDEUtils.getFile(SDEUtils.getJarURI(), baseAppSQLPath);
+                    path = uri.getPath().substring(1); // Substring here to remove the first / from the beginning
+                } catch (IOException | URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                String resourcesPath = SDEUtils.getResourcePath();
+                path = resourcesPath + baseAppSQLPath;
+            }
 
             String content = "";
             String currentQuery = "";
             try {
-                byte[] encoded = Files.readAllBytes(Paths.get(bashEditorPath));
+                byte[] encoded = Files.readAllBytes(Paths.get(path));
                 content = new String(encoded, "UTF8");
 
                 String[] sqlQuery = content.split(";");
@@ -162,9 +186,19 @@ public class DBConnection {
             log.info("Migrating " + connectionString);
             flyway.setDataSource(connectionString, username, password);
 
-            String sqlMigrationPath = "filesystem:" + SDEUtils.getResourcePath() + "/SQL-Migration/";
+            String path = "";
+            if (SDEUtils.isJar()) {
+                try {
+                    URI uri = SDEUtils.getDirectory(SDEUtils.getJarURI(), "SQL-Migration/");
+                    path = "filesystem:" + uri.getPath().substring(1); // Substring here to remove the first / from the beginning
+                } catch (IOException | URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                path = "filesystem:" + SDEUtils.getResourcePath() + "/SQL-Migration/";
+            }
 
-            flyway.setLocations(sqlMigrationPath);
+            flyway.setLocations(path);
 
             String[] flywayLocations = flyway.getLocations();
             for (String aLoc : flywayLocations) {
@@ -178,5 +212,9 @@ public class DBConnection {
         } catch (FlywayException ex) {
             Error.DATABASE_MIGRATE_FAILED.record().create(ex);
         }
+    }
+
+    public int getConnectionType() {
+        return connectionType;
     }
 }

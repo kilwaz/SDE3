@@ -1,16 +1,16 @@
 package sde.application.data.imports;
 
-import sde.application.data.DataBank;
-import sde.application.data.NodeColour;
-import sde.application.gui.Controller;
-import sde.application.utils.SDERunnable;
-import sde.application.utils.SDEUtils;
-import sde.application.utils.managers.DatabaseTransactionManager;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import sde.application.data.DataBank;
+import sde.application.data.NodeColour;
+import sde.application.gui.Controller;
+import sde.application.utils.SDERunnable;
+import sde.application.utils.SDEUtils;
+import sde.application.utils.managers.DataSourceManager;
 
 public class ImportNodeColours extends SDERunnable {
     private static Logger log = Logger.getLogger(ImportNodes.class);
@@ -62,7 +62,7 @@ public class ImportNodeColours extends SDERunnable {
             }
         }
 
-        DatabaseTransactionManager.getInstance().finaliseTransactions();
+        DataSourceManager.getInstance().finaliseTransactions();
         DataBank.getNodeColours().reloadNodeColours();
         Controller.getInstance().updateCanvasControllerLater();
 

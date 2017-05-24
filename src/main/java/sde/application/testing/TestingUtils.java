@@ -1,12 +1,13 @@
 package sde.application.testing;
 
-import sde.application.Main;
-import sde.application.data.DBConnectionManager;
-import sde.application.gui.Program;
-import sde.application.node.design.DrawableNode;
 import com.jayway.awaitility.Awaitility;
 import javafx.application.Application;
 import javafx.application.Platform;
+import sde.application.Main;
+import sde.application.data.DataSourceFactory;
+import sde.application.gui.Program;
+import sde.application.node.design.DrawableNode;
+import sde.application.utils.managers.DataSourceManager;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -73,14 +74,14 @@ public class TestingUtils {
      * Creates the application database connection and assigns the user.
      */
     public static void initDatabase() {
-        DBConnectionManager.getInstance().createApplicationConnection();
+        DataSourceFactory.createApplicationDataSource();
     }
 
     /**
      * This can be called at the end of a test during the after class section in order to close down the current test application database connection and clean up the test properly.
      */
     public static void closeDatabase() {
-        DBConnectionManager.getInstance().closeConnections();
+        DataSourceManager.getInstance().closeAllDataSources();
     }
 
     /**

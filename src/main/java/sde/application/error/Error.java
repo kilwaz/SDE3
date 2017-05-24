@@ -166,7 +166,9 @@ public enum Error {
     ACE_EDITOR_ERROR(161, "Error from ace editor web pane"),
     HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Retrying connection"),
     HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Aborting connection, max attempts reached"),
-    NUMBER_FORMAT_ERROR(164, "Unable to format expected number");
+    NUMBER_FORMAT_ERROR(164, "Unable to format expected number"),
+    TEMP_DIRECTORY(165, "Could not create temp directory"),
+    ZIP_FILE_NOT_FOUND(166, "Zip file not found");
 
     private Integer code;
     private String description;

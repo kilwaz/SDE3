@@ -4,15 +4,16 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.apache.log4j.Logger;
+import sde.application.data.model.DatabaseObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class StatisticStore {
+public class StatisticStore extends DatabaseObject {
     private static Logger log = Logger.getLogger(StatisticStore.class);
 
-    private SimpleLongProperty requests;
+    private SimpleLongProperty totalRequests;
     private SimpleLongProperty applicationStarts;
     private SimpleLongProperty programsStarted;
     private SimpleLongProperty upTime;
@@ -32,16 +33,16 @@ public class StatisticStore {
         resetStatistics();
     }
 
-    public long getRequests() {
-        return requests.get();
+    public long getTotalRequests() {
+        return totalRequests.get();
     }
 
-    public void setRequests(long requests) {
-        this.requests.set(requests);
+    public void setTotalRequests(long totalRequests) {
+        this.totalRequests.set(totalRequests);
     }
 
-    public SimpleLongProperty requestsProperty() {
-        return requests;
+    public SimpleLongProperty totalRequestsProperty() {
+        return totalRequests;
     }
 
     public long getApplicationStarts() {
@@ -153,7 +154,7 @@ public class StatisticStore {
     }
 
     public void resetStatistics() {
-        requests = new SimpleLongProperty();
+        totalRequests = new SimpleLongProperty();
         applicationStarts = new SimpleLongProperty();
         programsStarted = new SimpleLongProperty();
         upTime = new SimpleLongProperty();
@@ -197,7 +198,7 @@ public class StatisticStore {
     }
 
     public void incrementRequests() {
-        Platform.runLater(new StatisticLongUpdate(requestsProperty(), 1));
+        Platform.runLater(new StatisticLongUpdate(totalRequestsProperty(), 1));
     }
 
     public void incrementCommands() {

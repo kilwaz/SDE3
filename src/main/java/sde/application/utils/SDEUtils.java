@@ -26,13 +26,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public class SDEUtils {
@@ -170,7 +172,80 @@ public class SDEUtils {
         return (uri);
     }
 
-    public static URI getFile(final URI where, final String fileName) throws ZipException, IOException {
+    public static URI getDirectory(final URI where, final String fileName) throws IOException {
+        final File location;
+        final URI fileURI;
+
+        location = new File(where);
+
+        // not in a JAR, just return the path on disk
+        if (location.isDirectory()) {
+            fileURI = URI.create(where.toString() + fileName);
+        } else {
+            final ZipFile zipFile;
+
+            zipFile = new ZipFile(location);
+
+            try {
+                fileURI = extractDirectory(zipFile, fileName);
+            } finally {
+                zipFile.close();
+            }
+        }
+
+        return fileURI;
+    }
+
+    private static URI extractDirectory(final ZipFile zipFile, final String fileName) throws IOException {
+        final File tempDirectory;
+        ZipEntry entry;
+        InputStream zipStream;
+        OutputStream fileStream;
+
+        Path tempDirectoryPath = Files.createTempDirectory("SDE" + Long.toString(System.currentTimeMillis()));
+
+        tempDirectory = new File(tempDirectoryPath.toString());
+        tempDirectory.deleteOnExit();
+        entry = zipFile.getEntry(fileName);
+
+        if (entry == null) {
+            Error.ZIP_FILE_NOT_FOUND.record().additionalInformation("Cannot find file: " + fileName + " in archive: " + zipFile.getName()).create();
+            throw new IOException();
+        }
+
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry currentEntry = entries.nextElement();
+            if (!currentEntry.isDirectory() && currentEntry.getName().startsWith(fileName)) {
+                File childFile = new File(tempDirectory.getPath() + currentEntry.getName().substring(currentEntry.getName().lastIndexOf("/")));
+                childFile.createNewFile();
+                childFile.deleteOnExit();
+
+                zipStream = zipFile.getInputStream(currentEntry);
+                fileStream = null;
+
+                try {
+                    final byte[] buf;
+                    int i;
+
+                    fileStream = new FileOutputStream(childFile);
+                    buf = new byte[1024];
+                    i = 0;
+
+                    while ((i = zipStream.read(buf)) != -1) {
+                        fileStream.write(buf, 0, i);
+                    }
+                } finally {
+                    close(zipStream);
+                    close(fileStream);
+                }
+            }
+        }
+
+        return tempDirectory.toURI();
+    }
+
+    public static URI getFile(final URI where, final String fileName) throws IOException {
         final File location;
         final URI fileURI;
 
@@ -191,7 +266,7 @@ public class SDEUtils {
             }
         }
 
-        return (fileURI);
+        return fileURI;
     }
 
     private static URI extract(final ZipFile zipFile, final String fileName) throws IOException {
@@ -227,7 +302,7 @@ public class SDEUtils {
             close(fileStream);
         }
 
-        return (tempFile.toURI());
+        return tempFile.toURI();
     }
 
     private static void close(final Closeable stream) {

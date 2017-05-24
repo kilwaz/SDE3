@@ -1,5 +1,7 @@
 package sde.application.data;
 
+import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import sde.application.data.model.dao.UserDAO;
 import sde.application.error.Error;
 import sde.application.node.implementations.CustomObjectNode;
@@ -7,8 +9,6 @@ import sde.application.node.implementations.FileStoreNode;
 import sde.application.node.objects.SDEFile;
 import sde.application.utils.AppParams;
 import sde.application.utils.managers.SessionManager;
-import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.InputStream;
@@ -79,11 +79,9 @@ public class DataBank {
         SessionManager.getInstance().addSession(session);
     }
 
-    public static SelectResult runSelectQuery(SelectQuery selectQuery) {
-        return runSelectQuery(DBConnectionManager.getInstance().getApplicationConnection(), selectQuery);
-    }
 
-    public static SelectResult runSelectQuery(DBConnection dbConnection, SelectQuery selectQuery) {
+    public static SelectResult runSelectQuery(SelectQuery selectQuery) {
+        DBConnection dbConnection = selectQuery.getDataSource().getDbConnection();
         SelectResult selectResult = new SelectResult();
         try {
             if (dbConnection.isConnected()) {
@@ -131,10 +129,7 @@ public class DataBank {
     }
 
     public static UpdateResult runUpdateQuery(UpdateQuery updateQuery) {
-        return runUpdateQuery(DBConnectionManager.getInstance().getApplicationConnection(), updateQuery);
-    }
-
-    public static UpdateResult runUpdateQuery(DBConnection dbConnection, UpdateQuery updateQuery) {
+        DBConnection dbConnection = updateQuery.getDataSource().getDbConnection();
         UpdateResult updateResult = new UpdateResult();
         try {
             if (dbConnection.isConnected()) {
@@ -147,7 +142,7 @@ public class DataBank {
             } else {
                 if (dbConnection.isApplicationConnection()) {
                     DatabaseConnectionWatcher.getInstance().setConnected(false);
-                    DBConnectionManager.getInstance().getApplicationConnection().getConnection().setAutoCommit(false);
+                    dbConnection.getConnection().setAutoCommit(false);
                     // Reconnect to the DB
                     log.info("Trying to reconnect after seeing  the exception");
                     dbConnection.connect();

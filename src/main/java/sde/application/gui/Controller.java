@@ -1,18 +1,5 @@
 package sde.application.gui;
 
-import sde.application.Main;
-import sde.application.data.model.dao.ProgramDAO;
-import sde.application.error.Error;
-import sde.application.gui.canvas.CanvasController;
-import sde.application.gui.dialog.ConfirmDialog;
-import sde.application.gui.window.*;
-import sde.application.node.design.DrawableNode;
-import sde.application.node.implementations.BatchNode;
-import sde.application.node.implementations.TestManagerNode;
-import sde.application.utils.AppParams;
-import sde.application.utils.managers.SessionManager;
-import sde.application.utils.managers.StatisticsManager;
-import sde.application.utils.managers.ThreadManager;
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -44,7 +31,21 @@ import org.apache.log4j.Logger;
 import org.controlsfx.control.Notifications;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.StatusBar;
+import sde.application.Main;
 import sde.application.data.*;
+import sde.application.data.model.dao.ProgramDAO;
+import sde.application.error.Error;
+import sde.application.gui.canvas.CanvasController;
+import sde.application.gui.dialog.ConfirmDialog;
+import sde.application.gui.window.*;
+import sde.application.node.design.DrawableNode;
+import sde.application.node.implementations.BatchNode;
+import sde.application.node.implementations.TestManagerNode;
+import sde.application.utils.AppParams;
+import sde.application.utils.managers.DataSourceManager;
+import sde.application.utils.managers.SessionManager;
+import sde.application.utils.managers.StatisticsManager;
+import sde.application.utils.managers.ThreadManager;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -492,7 +493,7 @@ public class Controller implements Initializable {
                 });
 
         // We can't do this part if the database isn't connected
-        if (DBConnectionManager.getInstance().isConnected()) {
+        if (DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP).isConnected()) {
             User currentUser = SessionManager.getInstance().getCurrentSession().getUser();
 
             if (currentUser != null && currentUser.getCurrentProgram() != null) {
@@ -556,7 +557,7 @@ public class Controller implements Initializable {
 
         // As a final step we draw the loaded program with a fully updated network
         // We can't do this part if the database isn't connected
-        if (DBConnectionManager.getInstance().isConnected()) {
+        if (DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP).isConnected()) {
             Program selectedProgram = SessionManager.getInstance().getCurrentSession().getSelectedProgram();
             if (selectedProgram != null) {
                 selectedProgram.loadNodesToFlowController();
@@ -897,7 +898,7 @@ public class Controller implements Initializable {
     public void reloadPrograms() {
         if (programList != null) {
             programList.getItems().clear();
-            if (DBConnectionManager.getInstance().isConnected()) {
+            if (DataSourceManager.getInstance().findDataSourceByType(DBConnection.CONNECTION_APP).isConnected()) {
                 Session currentSession = SessionManager.getInstance().getCurrentSession();
                 User currentUser = currentSession.getUser();
                 ProgramDAO programDAO = new ProgramDAO();

@@ -1,11 +1,5 @@
 package sde.application.utils.managers;
 
-import sde.application.Main;
-import sde.application.error.Error;
-import sde.application.utils.StatisticStore;
-import sde.application.utils.XMLTransform;
-import sde.application.utils.timers.AppUpTimeJob;
-import sde.application.utils.timers.SaveStatisticsJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.SimpleScheduleBuilder;
@@ -14,6 +8,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import sde.application.Main;
+import sde.application.error.Error;
+import sde.application.utils.StatisticStore;
+import sde.application.utils.XMLTransform;
+import sde.application.utils.timers.AppUpTimeJob;
+import sde.application.utils.timers.SaveStatisticsJob;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -109,7 +109,7 @@ public class StatisticsManager {
 
             Element documentElement = document.getDocumentElement();
 
-            totalStatisticStore.requestsProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalRequests")));
+            totalStatisticStore.totalRequestsProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalRequests")));
             totalStatisticStore.upTimeProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalUpTime")));
             totalStatisticStore.requestSizeProperty().set(Long.parseLong(getTextValue("0", documentElement, "TotalRequestSize")));
             totalStatisticStore.applicationStartsProperty().set(Integer.parseInt(getTextValue("0", documentElement, "TotalApplicationStarts")));
@@ -121,7 +121,7 @@ public class StatisticsManager {
             totalStatisticStore.addRequestSize(0);
             totalStatisticStore.addResponseSize(0);
 
-            sessionStatisticStore.requestsProperty().set(0); // Only relates to current session
+            sessionStatisticStore.totalRequestsProperty().set(0); // Only relates to current session
             sessionStatisticStore.upTimeProperty().set(0); // Only relates to current session
             sessionStatisticStore.requestSizeProperty().set(0); // Only relates to current session
 
@@ -156,7 +156,7 @@ public class StatisticsManager {
             Element rootEle = document.createElement("Statistics");
 
             // create data elements and place them under root
-            rootEle.appendChild(buildSaveElement("TotalRequests", totalStatisticStore.requestsProperty().getValue().toString(), document));
+            rootEle.appendChild(buildSaveElement("TotalRequests", totalStatisticStore.totalRequestsProperty().getValue().toString(), document));
             rootEle.appendChild(buildSaveElement("TotalUpTime", totalStatisticStore.upTimeProperty().getValue().toString(), document));
             rootEle.appendChild(buildSaveElement("TotalRequestSize", totalStatisticStore.requestSizeProperty().getValue().toString(), document));
             rootEle.appendChild(buildSaveElement("TotalResponseSize", totalStatisticStore.responseSizeProperty().getValue().toString(), document));
@@ -170,6 +170,14 @@ public class StatisticsManager {
         } catch (ParserConfigurationException ex) {
             Error.APP_STATISTICS_SAVE_XML.record().create(ex);
         }
+    }
+
+    private void saveSQLiteStatistics() {
+
+    }
+
+    private void createSQLiteStatistics() {
+
     }
 
     private Element buildSaveElement(String reference, String text, Document document) {

@@ -1,11 +1,5 @@
 package sde.application.node.implementations;
 
-import sde.application.data.DBConnection;
-import sde.application.data.SavableAttribute;
-import sde.application.gui.Controller;
-import sde.application.gui.UI;
-import sde.application.node.design.DrawableNode;
-import sde.application.utils.NodeRunParams;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -14,6 +8,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
+import sde.application.data.DBConnection;
+import sde.application.data.SavableAttribute;
+import sde.application.gui.Controller;
+import sde.application.gui.UI;
+import sde.application.node.design.DrawableNode;
+import sde.application.utils.NodeRunParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class DataBaseNode extends DrawableNode {
     }
 
     private void connectToDatabase() {
-        DBConnection dbConnection = new DBConnection(connectionString, username, password);
+        DBConnection dbConnection = new DBConnection(connectionString, username, password, DBConnection.CONNECTION_OTHER);
         dbConnection.connect();
         dbConnections.add(dbConnection);
     }
