@@ -191,3 +191,6 @@ create table test_command_screenshot (
 
 -- INDEXES
 create index ind_http_headers on http_headers (request_id,header_type);
+create index ind_http_proxy_id on recorded_requests (http_proxy_id);
+create index ind_test_id on test_command (test_id);
+create index ind_test_command_parent_id on test_command_screenshot (test_command_parent_id);

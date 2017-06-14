@@ -1,8 +1,8 @@
 package sde.application.data.model;
 
+import org.apache.log4j.Logger;
 import sde.application.error.Error;
 import sde.application.utils.managers.DatabaseObjectManager;
-import org.apache.log4j.Logger;
 
 import java.util.UUID;
 
@@ -85,30 +85,18 @@ public class DatabaseObject {
     }
 
     public void save() {
-        try {
-            new DatabaseAction<>().save(this, (DatabaseLink) DatabaseLink.getLinkClass(this.getClass()).newInstance());
-        } catch (InstantiationException | IllegalAccessException ex) {
-            Error.DATABASE_SAVE_CLASS_INIT.record().additionalInformation("Class " + this.getClass()).create(ex);
-        } catch (NullPointerException ex) {
-            Error.DATABASE_SAVE_CLASS_INIT.record()
-                    .additionalInformation("Class/DBLink likely not defined")
-                    .additionalInformation("Class " + this.getClass()).create(ex);
-        }
+        new DatabaseAction<>().save(this, DatabaseLink.getNewInstanceFromBaseClass(this.getClass()));
     }
 
     public void delete() {
-        try {
-            new DatabaseAction<>().delete(this, (DatabaseLink) DatabaseLink.getLinkClass(this.getClass()).newInstance());
-        } catch (NullPointerException | InstantiationException | IllegalAccessException ex) {
-            Error.DATABASE_DELETE_CLASS_INIT.record().additionalInformation("Class " + this.getClass()).create(ex);
-        }
+        new DatabaseAction<>().delete(this, DatabaseLink.getNewInstanceFromBaseClass(this.getClass()));
+    }
+
+    public void deleteCascade() {
+        new DatabaseAction<>().deleteCascade(this, DatabaseLink.getNewInstanceFromBaseClass(this.getClass()));
     }
 
     public void load() {
-        try {
-            new DatabaseAction<>().load(this, (DatabaseLink) DatabaseLink.getLinkClass(this.getClass()).newInstance());
-        } catch (NullPointerException | InstantiationException | IllegalAccessException ex) {
-            Error.DATABASE_LOAD_CLASS_INIT.record().additionalInformation("Class " + this.getClass()).create(ex);
-        }
+        new DatabaseAction<>().load(this, DatabaseLink.getNewInstanceFromBaseClass(this.getClass()));
     }
 }

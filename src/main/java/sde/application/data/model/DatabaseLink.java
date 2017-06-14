@@ -3,12 +3,14 @@ package sde.application.data.model;
 import sde.application.data.NodeColour;
 import sde.application.data.SavableAttribute;
 import sde.application.data.User;
-import sde.application.gui.Program;
+import sde.application.data.model.links.*;
 import sde.application.error.Error;
+import sde.application.gui.Program;
 import sde.application.net.proxy.RecordedHeader;
 import sde.application.net.proxy.RecordedProxy;
 import sde.application.net.proxy.RecordedRequest;
 import sde.application.node.design.DrawableNode;
+import sde.application.node.implementations.*;
 import sde.application.node.objects.*;
 import sde.application.node.objects.datatable.DataTableRow;
 import sde.application.node.objects.datatable.DataTableValue;
@@ -19,8 +21,6 @@ import sde.application.test.core.TestCase;
 import sde.application.test.core.TestSet;
 import sde.application.test.core.TestSetBatch;
 import sde.application.utils.CustomObject;
-import sde.application.data.model.links.*;
-import sde.application.node.implementations.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -85,6 +85,7 @@ public class DatabaseLink {
 
     private String tableName = "";
     private List<ModelColumn> modelColumns = new ArrayList<>();
+    private List<ModelChild> modelChildLinks = new ArrayList<>();
     private List<DeleteColumn> onDeleteColumns = new ArrayList<>();
     private Class linkClass;
 
@@ -93,8 +94,30 @@ public class DatabaseLink {
         this.linkClass = linkClass;
     }
 
-    public static Class getLinkClass(Class clazz) {
-        return linkClasses.get(clazz);
+    public static DatabaseLink getNewInstance(Class clazz) {
+        try {
+            return (DatabaseLink) clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            Error.DATABASE_SAVE_CLASS_INIT.record().additionalInformation("Class " + clazz).create(ex);
+        } catch (NullPointerException ex) {
+            Error.DATABASE_SAVE_CLASS_INIT.record()
+                    .additionalInformation("New instance class was null")
+                    .additionalInformation("Class " + clazz).create(ex);
+        }
+
+        return null;
+    }
+
+    public static DatabaseLink getNewInstanceFromBaseClass(Class clazz) {
+        try {
+            return getNewInstance(linkClasses.get(clazz));
+        } catch (NullPointerException ex) {
+            Error.DATABASE_SAVE_CLASS_INIT.record()
+                    .additionalInformation("Class/DBLink likely not defined")
+                    .additionalInformation("Class " + clazz).create(ex);
+        }
+
+        return null;
     }
 
     public String getTableName() {
@@ -111,6 +134,14 @@ public class DatabaseLink {
 
     public void link(String databaseColumn, Method objectSaveMethod, Method objectLoadMethod) {
         modelColumns.add(new ModelColumn(databaseColumn, objectSaveMethod, objectLoadMethod, ModelColumn.STANDARD_COLUMN));
+    }
+
+    public void child(Class databaseLinkClass, String referenceID) {
+        modelChildLinks.add(new ModelChild(databaseLinkClass, referenceID));
+    }
+
+    public List<ModelChild> getModelChildLinks() {
+        return modelChildLinks;
     }
 
     public void linkBlob(String databaseColumn, Method objectSaveMethod, Method objectLoadMethod) {

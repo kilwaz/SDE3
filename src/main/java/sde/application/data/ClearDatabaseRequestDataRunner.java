@@ -1,12 +1,16 @@
 package sde.application.data;
 
-import sde.application.data.model.dao.RecordedHeaderDAO;
+import org.apache.log4j.Logger;
 import sde.application.data.model.dao.RecordedProxyDAO;
-import sde.application.data.model.dao.RecordedRequestDAO;
+import sde.application.net.proxy.RecordedProxy;
 import sde.application.utils.SDERunnable;
 import sde.application.utils.SDEThread;
 
+import java.util.List;
+
 public class ClearDatabaseRequestDataRunner extends SDERunnable {
+    private static Logger log = Logger.getLogger(ClearDatabaseRequestDataRunner.class);
+
     public ClearDatabaseRequestDataRunner() {
 
     }
@@ -16,12 +20,24 @@ public class ClearDatabaseRequestDataRunner extends SDERunnable {
     }
 
     public void threadRun() {
-        RecordedHeaderDAO recordedHeaderDAO = new RecordedHeaderDAO();
-        RecordedRequestDAO recordedRequestDAO = new RecordedRequestDAO();
+        log.info("Cleaning up old proxies");
         RecordedProxyDAO recordedProxyDAO = new RecordedProxyDAO();
 
-        recordedHeaderDAO.deleteAllRecordedHeaders();
-        recordedRequestDAO.deleteAllRecordedRequests();
-        recordedProxyDAO.deleteAllRecordedProxies();
+        Boolean hasMoreToDelete = true;
+        Integer removedCounter = 0;
+        while (hasMoreToDelete) {
+            log.info("Loading next 10...");
+            List<RecordedProxy> recordedProxies = recordedProxyDAO.getAllProxies(10);
+            if (recordedProxies.size() == 0) {
+                hasMoreToDelete = false;
+            }
+            for (RecordedProxy recordedProxy : recordedProxies) {
+                recordedProxy.deleteCascade();
+                removedCounter++;
+                log.info("Removed: " + recordedProxy.getUuidString());
+            }
+        }
+
+        log.info("Cleaned up " + removedCounter + " proxies");
     }
 }

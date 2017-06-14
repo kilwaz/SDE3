@@ -14,5 +14,7 @@ public class TestDatabaseLink extends DatabaseLink {
         link("uuid", method("getUuidString"), method("setUuid", UUID.class)); // 1
         link("node_id", method("getParentUuid"), method("setParentTestNode", TestNode.class)); // 2
         link("text", method("getText"), method("setText", String.class)); // 3
+
+        child(TestCommandDatabaseLink.class, "test_id");
     }
 }

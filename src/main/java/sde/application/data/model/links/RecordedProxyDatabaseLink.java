@@ -2,6 +2,7 @@ package sde.application.data.model.links;
 
 import sde.application.data.model.DatabaseLink;
 import sde.application.net.proxy.RecordedProxy;
+import sde.application.net.proxy.RecordedRequest;
 
 public class RecordedProxyDatabaseLink extends DatabaseLink {
     public RecordedProxyDatabaseLink() {
@@ -11,5 +12,7 @@ public class RecordedProxyDatabaseLink extends DatabaseLink {
         link("uuid", method("getUuidString"), method("setUuidFromString", String.class)); // 1
         link("request_count", method("getRequestCount"), method("setRequestCount", Integer.class)); // 2
         link("connection_string", method("getConnectionString"), method("setConnectionString", String.class)); // 3
+
+        child(RecordedRequestDatabaseLink.class,"http_proxy_id");
     }
 }

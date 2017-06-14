@@ -1,5 +1,7 @@
 package sde.application.data.model;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import sde.application.data.*;
 import sde.application.data.model.dao.DAO;
 import sde.application.data.model.dao.DrawableNodeDAO;
@@ -9,10 +11,9 @@ import sde.application.node.design.DrawableNode;
 import sde.application.node.objects.LinkedTestCase;
 import sde.application.node.objects.datatable.DataTableRow;
 import sde.application.utils.managers.DatabaseObjectManager;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -100,6 +101,63 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
             // Run the insert query
             insertQuery.execute();
         }
+    }
+
+    private void deleteCascadeChild(ModelChildChain modelChildChain) {
+        ModelChild lastModelChild = modelChildChain.getLastInChain();
+
+        DatabaseLink dbLink = DatabaseLink.getNewInstance(lastModelChild.getDatabaseLinkClass());
+        // Get the list of linked model child links
+        List<ModelChild> modelChildLinks = dbLink.getModelChildLinks();
+
+        // Go through each child and delete records
+        for (ModelChild modelChild : modelChildLinks) {
+            ModelChildChain modelChildChainDuplicate = modelChildChain.duplicate();
+            modelChildChainDuplicate.addChild(modelChild);
+            deleteCascadeChild(modelChildChainDuplicate);
+        }
+
+        StringBuilder queryString = new StringBuilder();
+
+        // Delete <table name>.* from <table name>
+        queryString.append("delete ").append(lastModelChild.getDatabaseLink().getTableName()).append(".* from ").append(lastModelChild.getDatabaseLink().getTableName());
+
+        // Keep going until we reach the top of the child chain
+        while (modelChildChain.getParentChild(lastModelChild) != null) {
+            ModelChild parentModelChild = modelChildChain.getParentChild(lastModelChild);
+
+            // (select * from <parent table> where <reference column> in
+            String lastModelChildTableName = parentModelChild.getDatabaseLink().getTableName();
+            queryString.append(" inner join ").append(lastModelChildTableName).append(" on ");
+            queryString.append(lastModelChild.getDatabaseLink().getTableName()).append(".").append(lastModelChild.getReferenceColumn()).append("=").append(lastModelChildTableName).append(".uuid");
+            lastModelChild = parentModelChild;
+        }
+
+        // where <base object>.uuid = '<object_id>')
+        queryString.append(" where ").append(lastModelChild.getDatabaseLink().getTableName()).append(".").append(lastModelChild.getReferenceColumn()).append(" = ?");
+
+        //log.info(queryString);
+
+        UpdateQuery deleteQuery = new UpdateQuery(queryString.toString());
+        deleteQuery.addParameter(modelChildChain.getBaseObject().getUuidString());
+
+//        // Run the delete query
+        deleteQuery.execute();
+    }
+
+    public void deleteCascade(DBObject dbObject, DBLink dbLink) {
+        // Get the list of linked model child links
+        List<ModelChild> modelChildLinks = dbLink.getModelChildLinks();
+
+        // Go through each child and delete records
+        for (ModelChild modelChild : modelChildLinks) {
+            ModelChildChain modelChildChain = new ModelChildChain(dbObject);
+            modelChildChain.addChild(modelChild);
+            deleteCascadeChild(modelChildChain);
+        }
+
+        // Finally delete the parent object
+        delete(dbObject, dbLink);
     }
 
     public void delete(DBObject dbObject, DBLink dbLink) {

@@ -19,5 +19,7 @@ public class TestCommandDatabaseLink extends DatabaseLink {
         link("command_line_number", method("getCommandLineNumber"), method("setCommandLineNumber", Integer.class)); // 5
         link("command_order", method("getCommandOrder"), method("setCommandOrder", Integer.class)); // 6
         link("test_case_parent_id", method("getParentTestCaseUuid"), method("setParentTestCase", TestCase.class)); // 7
+
+        child(TestCommandScreenshotDatabaseLink.class, "test_command_parent_id");
     }
 }

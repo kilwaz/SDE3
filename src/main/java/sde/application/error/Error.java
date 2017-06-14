@@ -168,7 +168,9 @@ public enum Error {
     HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Aborting connection, max attempts reached"),
     NUMBER_FORMAT_ERROR(164, "Unable to format expected number"),
     TEMP_DIRECTORY(165, "Could not create temp directory"),
-    ZIP_FILE_NOT_FOUND(166, "Zip file not found");
+    ZIP_FILE_NOT_FOUND(166, "Zip file not found"),
+    DATABASE_DELETE_CASCADE_CLASS_INIT(167, "Unable to delete object via cascade"),
+    DATABASE_DELETE_CASCADE_DATABASE_LINK(168, "Unable to find database link when doing a cascade delete");
 
     private Integer code;
     private String description;

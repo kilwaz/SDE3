@@ -24,6 +24,7 @@ import sde.application.data.model.dao.ProgramDAO;
 import sde.application.error.Error;
 import sde.application.gui.Controller;
 import sde.application.gui.Program;
+import sde.application.net.proxy.RecordedProxy;
 import sde.application.net.proxy.WebProxyManager;
 import sde.application.utils.AppParams;
 import sde.application.utils.AppProperties;
@@ -143,6 +144,7 @@ public class Main extends Application {
         if (!isHeadless) {
             loadProgress.setProgress(0.5);
         }
+
         startManagers();
 
         StatisticsManager.getInstance().getTotalStatisticStore().incrementApplicationStart();
@@ -202,6 +204,14 @@ public class Main extends Application {
                 }
             }
         }
+
+        // Clean up old unreachable proxies
+        //ClearDatabaseRequestDataRunner.execute();
+        //ClearDatabaseTestDataRunner.execute();
+
+        //*** ADD TEST CODE HERE ***//
+
+        //**************************//
     }
 
     private Boolean startDatabase() {
