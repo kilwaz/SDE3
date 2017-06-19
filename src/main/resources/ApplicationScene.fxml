@@ -91,6 +91,9 @@
                                                             shortcut="UP"/>
                                     </accelerator>
                                 </MenuItem>
+                                <MenuItem fx:id="menuBarMenuItemOptimiseTables" mnemonicParsing="false"
+                                          text="Optimise Tables">
+                                </MenuItem>
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Proxy">

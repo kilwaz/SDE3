@@ -24,7 +24,6 @@ import sde.application.data.model.dao.ProgramDAO;
 import sde.application.error.Error;
 import sde.application.gui.Controller;
 import sde.application.gui.Program;
-import sde.application.net.proxy.RecordedProxy;
 import sde.application.net.proxy.WebProxyManager;
 import sde.application.utils.AppParams;
 import sde.application.utils.AppProperties;
@@ -208,8 +207,14 @@ public class Main extends Application {
         // Clean up old unreachable proxies
         //ClearDatabaseRequestDataRunner.execute();
         //ClearDatabaseTestDataRunner.execute();
+        //OptimiseTables.optimiseAllTables();
 
         //*** ADD TEST CODE HERE ***//
+
+//        SSHManager sshManager = SDEUtils.openSSHSession("uk-mysql","spiralinks","C0deFreeze09",null);
+//        sshManager.createShellChannel();
+//        sshManager.runSSHCommand(new SSHCommand("ping www.google.com","]$",1000));
+//        sshManager.close();
 
         //**************************//
     }

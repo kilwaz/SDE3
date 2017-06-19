@@ -71,7 +71,7 @@ public class TestRunner extends SDERunnable {
             VariableTracker variableTracker = new VariableTracker();
             StateTracker stateTracker = new StateTracker();
 
-            String remoteDriverURL = "";
+            RemoteTestNodeURL remoteTestNodeURL = new RemoteTestNodeURL();
             String browser = "chrome";
             Boolean useLocalDriver = true;
 
@@ -96,7 +96,7 @@ public class TestRunner extends SDERunnable {
                     TestParameter driverBrowser = testCommand.getParameterByPath("browser");
                     if (driverRemoteURL.exists()) {
                         useLocalDriver = false;
-                        remoteDriverURL = driverRemoteURL.getParameterValue();
+                        remoteTestNodeURL.setHost(driverRemoteURL.getParameterValue());
                     }
                     if (driverBrowser.exists()) {
                         browser = driverBrowser.getParameterValue();
@@ -121,12 +121,13 @@ public class TestRunner extends SDERunnable {
                     test.getTestCase().log("Using local driver with browser " + browser);
                 }
             } else {
-                log.info("Using remote driver at " + remoteDriverURL + " with browser " + browser);
+                log.info("Using remote driver at " + remoteTestNodeURL.getRegistrationURL() + " with browser " + browser);
                 if (test != null && test.getTestCase() != null) {
-                    test.getTestCase().log("Using remote driver at " + remoteDriverURL + " with browser " + browser);
+                    test.getTestCase().log("Using remote driver at " + remoteTestNodeURL.getRegistrationURL() + " with browser " + browser);
                 }
             }
 
+            RemoteTestNode remoteTestNode = null;
             WebDriver driver = null;
             if (useLocalDriver) {
                 if ("chrome".equals(browser)) {
@@ -146,7 +147,8 @@ public class TestRunner extends SDERunnable {
                     } catch (UnknownHostException ex) {
                         Error.LOCAL_HOST_NOT_FOUND.record().create(ex);
                     }
-                    driver = BrowserHelper.getRemoteChrome(remoteAddress + ":" + httpProxyServer.getRunningPort(), remoteDriverURL);
+                    remoteTestNode = BrowserHelper.getRemoteChrome(remoteAddress + ":" + httpProxyServer.getRunningPort(), remoteTestNodeURL);
+                    driver = remoteTestNode.getWebDriver();
                 } else if ("firefox".equals(browser)) {
                     log.info("No remote firefox has been configured");
                 } else if ("ie".equals(browser)) {
@@ -154,6 +156,10 @@ public class TestRunner extends SDERunnable {
                 } else if ("opera".equals(browser)) {
                     log.info("No remote opera has been configured");
                 }
+            }
+
+            if (remoteTestNode != null) {
+                log.info("Running remote test on node " + remoteTestNode.getNodeId());
             }
 
             log.info("Number of commands in test " + commands.size());

@@ -34,6 +34,9 @@ import org.controlsfx.control.StatusBar;
 import sde.application.Main;
 import sde.application.data.*;
 import sde.application.data.model.dao.ProgramDAO;
+import sde.application.data.processes.ClearDatabaseRequestDataRunner;
+import sde.application.data.processes.ClearDatabaseTestDataRunner;
+import sde.application.data.processes.OptimiseTables;
 import sde.application.error.Error;
 import sde.application.gui.canvas.CanvasController;
 import sde.application.gui.dialog.ConfirmDialog;
@@ -87,6 +90,8 @@ public class Controller implements Initializable {
     private MenuItem menuBarMenuItemClearRequestData;
     @FXML
     private MenuItem menuBarMenuItemClearTestData;
+    @FXML
+    private MenuItem menuBarMenuItemOptimiseTables;
     @FXML
     private MenuItem menuBarMenuItemOpenManualProxy;
     @FXML
@@ -551,6 +556,7 @@ public class Controller implements Initializable {
         menuBarMenuItemOpenManualProxy.setOnAction(event -> new ManualProxyWindow());
         menuBarMenuItemClearRequestData.setOnAction(event -> ClearDatabaseRequestDataRunner.execute());
         menuBarMenuItemClearTestData.setOnAction(event -> ClearDatabaseTestDataRunner.execute());
+        menuBarMenuItemOptimiseTables.setOnAction(event -> OptimiseTables.execute());
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());

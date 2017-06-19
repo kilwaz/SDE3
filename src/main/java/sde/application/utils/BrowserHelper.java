@@ -16,6 +16,8 @@ import org.openqa.selenium.opera.OperaOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import sde.application.test.RemoteTestNode;
+import sde.application.test.RemoteTestNodeURL;
 import sde.application.utils.managers.BrowserManager;
 
 import java.awt.*;
@@ -84,7 +86,7 @@ public class BrowserHelper {
         return driver;
     }
 
-    public static WebDriver getRemoteChrome(String proxyConnectionString, String seleniumGridUrl) {
+    public static RemoteTestNode getRemoteChrome(String proxyConnectionString, RemoteTestNodeURL remoteTestNodeURL) {
         try {
             DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 
@@ -98,11 +100,15 @@ public class BrowserHelper {
                     .setSslProxy(proxyConnectionString);
             capabilities.setCapability(CapabilityType.PROXY, proxy);
 
-            WebDriver driver = new RemoteWebDriver(new URL(seleniumGridUrl), capabilities);
+            WebDriver driver = new RemoteWebDriver(new URL(remoteTestNodeURL.getRegistrationURL()), capabilities);
             setupBrowser(driver);
 
+            RemoteTestNode remoteTestNode = new RemoteTestNode()
+                    .setRemoteTestNodeURL(remoteTestNodeURL)
+                    .setWebDriver(driver);
+
             BrowserManager.getInstance().addBrowser(driver);
-            return driver;
+            return remoteTestNode;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
