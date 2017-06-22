@@ -61,10 +61,18 @@ public class DBConnection {
             // If the database connection is using sqlite then we need to start the sqlite.exe
             if (connectionString.contains("sqlite")) {
                 try {
-                    Process sqlite = new ProcessBuilder(SDEUtils.getResourcePath() + "/data/" + AppParams.getSqlLiteFileName(), "sde.db").start();
+                    // Loads the driver needed to make this work if we are using SQLite
+                    try {
+                        Class.forName("org.sqlite.JDBC");
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    URI uri = SDEUtils.getFile(SDEUtils.getJarURI(), "data/" + AppParams.getSqlLiteFileName());
+                    Process sqlite = new ProcessBuilder(uri.getPath(), "sde.db").start();
                     // Here we don't actually do anything with the input from SQLite
                     BufferedReader input = new BufferedReader(new InputStreamReader(sqlite.getInputStream()));
-                } catch (IOException ex) {
+                } catch (IOException | URISyntaxException ex) {
                     Error.SQLITE_START_EXE.record().create(ex);
                 }
             }

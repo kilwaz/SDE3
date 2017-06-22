@@ -1,6 +1,6 @@
 package sde.application.node.design;
 
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.data.DataBank;
 import sde.application.data.SavableAttribute;
 import sde.application.data.model.DatabaseObject;
@@ -55,7 +55,7 @@ public class DrawableNode extends DatabaseObject {
         // Used for finding node class names when running inside a jar
         ZipInputStream zip = null;
         try {
-            CodeSource src = Main.class.getProtectionDomain().getCodeSource();
+            CodeSource src = GUI.class.getProtectionDomain().getCodeSource();
             if (src != null) {
                 URL jar = src.getLocation();
                 zip = new ZipInputStream(jar.openStream());

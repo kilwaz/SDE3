@@ -1,12 +1,12 @@
 package sde.application.utils;
 
-import sde.application.Main;
-import sde.application.error.Error;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import sde.application.GUI;
+import sde.application.error.Error;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,10 +24,13 @@ public class AppProperties {
     public AppProperties() {
         instance = this;
 
-        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String path = GUI.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         try {
-            path = path.replace("SDE.jar", "");
-            propertiesPath = URLDecoder.decode(path + "/../../", "UTF-8") + "SDE.xml";
+
+            if (SDEUtils.isJar()) {
+                path = path.substring(0, path.lastIndexOf("/"));
+                propertiesPath = URLDecoder.decode(path + "/SDE.xml", "UTF-8");
+            }
         } catch (UnsupportedEncodingException ex) {
             Error.APP_PROPERTIES_READ.record().create(ex);
         }

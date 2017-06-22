@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.zeroturnaround.zip.ZipUtil;
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.error.Error;
 import sde.application.gui.FlowController;
 import sde.application.net.ssh.SSHCommand;
@@ -164,7 +164,7 @@ public class SDEUtils {
         final URL url;
         final URI uri;
 
-        domain = Main.class.getProtectionDomain();
+        domain = GUI.class.getProtectionDomain();
         source = domain.getCodeSource();
         url = source.getLocation();
         uri = url.toURI();
@@ -317,7 +317,7 @@ public class SDEUtils {
 
     public static Boolean isJar() {
         if (IS_JAR == null) {
-            String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String resourcesPath = GUI.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             IS_JAR = resourcesPath.endsWith(".jar");
         }
         return IS_JAR;
@@ -325,7 +325,7 @@ public class SDEUtils {
 
     // Figure out the absolute path for if the application is being run via jar or compiled within an IDE
     public static String getResourcePath() {
-        String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String resourcesPath = GUI.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         try {
             if (resourcesPath.endsWith("fdsa.jar")) {
                 resourcesPath = resourcesPath.replace("SDE3-0.5.3.jar", ""); // Removes the jar name
@@ -344,7 +344,7 @@ public class SDEUtils {
 
     // Figure out the absolute path for if the application is being run via jar or compiled within an IDE
     public static String getNodeImplementationsClassPath() {
-        String resourcesPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String resourcesPath = GUI.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         try {
             if (resourcesPath.contains("SDE3.jar")) {
                 resourcesPath = resourcesPath.substring(1); // Removes an initial / from the start of the string

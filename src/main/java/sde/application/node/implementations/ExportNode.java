@@ -1,6 +1,6 @@
 package sde.application.node.implementations;
 
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.data.SavableAttribute;
 import sde.application.data.export.Export;
 import sde.application.data.export.ExportBuilder;
@@ -104,7 +104,7 @@ public class ExportNode extends DrawableNode {
             if (startDirectory.exists()) {
                 directoryChooser.setInitialDirectory(startDirectory);
             }
-            File selectedDirectory = directoryChooser.showDialog(Main.getInstance().getMainStage());
+            File selectedDirectory = directoryChooser.showDialog(GUI.getInstance().getMainStage());
 
             if (selectedDirectory != null) {
                 fileOutputDirectory = selectedDirectory.getAbsolutePath();

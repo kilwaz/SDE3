@@ -1,6 +1,6 @@
 package sde.application.data.export;
 
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.test.ExpectedElement;
 import sde.application.test.PageStateCompare;
 import sde.application.test.core.TestCase;
@@ -23,7 +23,7 @@ public class CreateTestResultExcel {
         fileChooser.setTitle("Save test results");
         fileChooser.setInitialFileName("Test result " + testSetBatch.getFormattedTime().replace(":", "-") + ".xlsx");
 
-        File saveFile = fileChooser.showSaveDialog(Main.getInstance().getMainStage());
+        File saveFile = fileChooser.showSaveDialog(GUI.getInstance().getMainStage());
 
         // Create the exportSheet value
         ExportSheet exportSheet = new ExportSheet();

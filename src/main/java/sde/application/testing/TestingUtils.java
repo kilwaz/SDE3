@@ -3,7 +3,7 @@ package sde.application.testing;
 import com.jayway.awaitility.Awaitility;
 import javafx.application.Application;
 import javafx.application.Platform;
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.data.DataSourceFactory;
 import sde.application.gui.Program;
 import sde.application.node.design.DrawableNode;
@@ -25,7 +25,7 @@ public class TestingUtils {
      */
     private static Callable<Boolean> mainIsReady() {
         return () -> {
-            return Main.getInstance() != null; // The condition that must be fulfilled
+            return GUI.getInstance() != null; // The condition that must be fulfilled
         };
     }
 
@@ -37,7 +37,7 @@ public class TestingUtils {
             javaFXThread = new Thread("JavaFX Init Thread") {
                 @Override
                 public void run() {
-                    Application.launch(Main.class);
+                    Application.launch(GUI.class);
                 }
             };
             javaFXThread.setDaemon(true);

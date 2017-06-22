@@ -1,10 +1,6 @@
 package sde.application.utils.managers;
 
 
-import sde.application.Main;
-import sde.application.error.Error;
-import sde.application.log.LogClass;
-import sde.application.log.LogMessage;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,7 +8,12 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import sde.application.GUI;
+import sde.application.error.Error;
+import sde.application.log.LogClass;
+import sde.application.log.LogMessage;
 import sde.application.utils.AppParams;
+import sde.application.utils.SDEUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +48,14 @@ public class LogManager {
 
     public String getLogOutputDirectoryPath() {
         if ("".equals(AppParams.getLogDirectory())) {
-            String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String path = GUI.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             try {
-                path = URLDecoder.decode(path + "../../../logs/", "UTF-8");
+                if (SDEUtils.isJar()) {
+                    path = path.substring(0, path.lastIndexOf("/"));
+                    path = URLDecoder.decode(path + "/logs/", "UTF-8");
+                } else {
+                    path = URLDecoder.decode(path + "../../../logs/", "UTF-8");
+                }
             } catch (UnsupportedEncodingException ex) {
                 Error.LOG_OUTPUT.record().create(ex);
             }
@@ -83,7 +89,7 @@ public class LogManager {
             DateTime dt = new DateTime();
             DateTimeFormatter fmt = DateTimeFormat.forPattern("ddMMMyyyy HHmmss");
             String str = fmt.print(dt);
-            logOutputFilePath = getLogOutputDirectoryPath() + "SDE3 - Started " + str + ".log";
+            logOutputFilePath = getLogOutputDirectoryPath() + "/SDE3 - Started " + str + ".log";
         }
 
         return logOutputFilePath;

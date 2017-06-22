@@ -174,7 +174,7 @@ public class TestCommand extends DatabaseObject {
     /**
      * Gets the main command.
      *
-     * @return Main command.
+     * @return GUI command.
      */
     public String getMainCommand() {
         return mainCommand.get();

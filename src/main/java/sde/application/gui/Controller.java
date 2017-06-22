@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 import org.controlsfx.control.Notifications;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.StatusBar;
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.data.*;
 import sde.application.data.model.dao.ProgramDAO;
 import sde.application.data.processes.ClearDatabaseRequestDataRunner;
@@ -796,7 +796,7 @@ public class Controller implements Initializable {
             }
         }
 
-        if (!Main.isHeadless) {
+        if (!GUI.isHeadless) {
             Platform.runLater(new GUIUpdate(threadCount));
         }
     }
@@ -823,7 +823,7 @@ public class Controller implements Initializable {
             }
 
             public void run() {
-                Main.getInstance().getMainStage().setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+                GUI.getInstance().getMainStage().setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
             }
         }
 

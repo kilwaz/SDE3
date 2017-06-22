@@ -1,6 +1,6 @@
 package sde.application.gui.inspect;
 
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.error.Error;
 import sde.application.net.proxy.RecordedRequest;
 import javafx.geometry.Pos;
@@ -67,7 +67,7 @@ public class RenderTab extends Tab {
                     OutputStream os = null;
                     InputStream is = recordedRequest.getResponseInputStream();
                     try {
-                        File saveFile = fileChooser.showSaveDialog(Main.getInstance().getMainStage());
+                        File saveFile = fileChooser.showSaveDialog(GUI.getInstance().getMainStage());
                         os = new FileOutputStream(saveFile);
                         IOUtils.copy(recordedRequest.getResponseInputStream(), os);
                     } catch (FileNotFoundException ex) {

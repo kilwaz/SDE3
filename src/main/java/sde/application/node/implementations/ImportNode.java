@@ -1,6 +1,6 @@
 package sde.application.node.implementations;
 
-import sde.application.Main;
+import sde.application.GUI;
 import sde.application.data.SavableAttribute;
 import sde.application.data.export.Export;
 import sde.application.data.imports.ImportBuilder;
@@ -74,7 +74,7 @@ public class ImportNode extends DrawableNode {
                 fileChooser.setInitialDirectory(fileImport.getParentFile());
             }
 
-            File selectedFile = fileChooser.showOpenDialog(Main.getInstance().getMainStage());
+            File selectedFile = fileChooser.showOpenDialog(GUI.getInstance().getMainStage());
 
             if (selectedFile != null) {
                 fileImportName = selectedFile.getAbsolutePath();

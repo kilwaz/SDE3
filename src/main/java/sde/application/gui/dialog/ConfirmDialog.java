@@ -1,6 +1,6 @@
 package sde.application.gui.dialog;
 
-import sde.application.Main;
+import sde.application.GUI;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -80,7 +80,7 @@ public class ConfirmDialog implements Dialog {
                 }
             }
         }
-        if (!Main.isHeadless) {
+        if (!GUI.isHeadless) {
             Platform.runLater(new OneShotTask(title, content));
         }
     }

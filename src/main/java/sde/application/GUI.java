@@ -25,6 +25,8 @@ import sde.application.error.Error;
 import sde.application.gui.Controller;
 import sde.application.gui.Program;
 import sde.application.net.proxy.WebProxyManager;
+import sde.application.test.selenium.NodeHelperClient;
+import sde.application.test.selenium.NodeHelperSocketServer;
 import sde.application.utils.AppParams;
 import sde.application.utils.AppProperties;
 import sde.application.utils.managers.*;
@@ -37,7 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Main handling class of the application.
+ * GUI handling class of the application.
  * <p>
  * The job of this class is to prep the application and handle the splash screen.
  * <p>
@@ -45,12 +47,15 @@ import java.util.Set;
  *
  * @author Alex Brown
  */
-public class Main extends Application {
+public class GUI extends Application {
     private static final int SPLASH_WIDTH = 940;
     private static final int SPLASH_HEIGHT = 360;
     public static Boolean isHeadless = false;
-    private static Main instance;
-    private static Logger log = Logger.getLogger(Main.class);
+    public static Boolean isSeleniumNodeHelper = false;
+    private static Boolean isShowHelp = false;
+    private static Boolean useDatabase = true;
+    private static GUI instance;
+    private static Logger log = Logger.getLogger(GUI.class);
     private static Boolean printJavaProperties = false;
     private static List argsList;
     private static String programNameToRun;
@@ -62,7 +67,7 @@ public class Main extends Application {
     private Stage splashStage;
 
     /**
-     * Main method and entry point into the application.
+     * GUI method and entry point into the application.
      *
      * @param args Standard args that can be passed into main method, current no args are used.
      */
@@ -74,7 +79,7 @@ public class Main extends Application {
     /**
      * @return Returns self.
      */
-    public static Main getInstance() {
+    public static GUI getInstance() {
         return instance;
     }
 
@@ -101,6 +106,9 @@ public class Main extends Application {
         // Load any command line parameters that have been included
         Integer parameterIndex = 0;
         for (int i = 0; i < argsList.size(); i++) {
+            if ("-help".equals(argsList.get(i))) {
+                isShowHelp = true;
+            }
             if ("-headless".equals(argsList.get(i))) {
                 isHeadless = true;
             }
@@ -115,6 +123,22 @@ public class Main extends Application {
                     Error.MISSING_RUN_PROGRAM_NAME.record().create();
                 }
             }
+            if ("-selenium-node-helper".equals(argsList.get(i))) {
+                isSeleniumNodeHelper = true;
+                useDatabase = false;
+                isHeadless = true;
+            }
+        }
+
+        if (isShowHelp) {
+            log.info("Available options:");
+            log.info("-help");
+            log.info("-selenium-node-helper");
+            log.info("-run");
+            log.info("-show-properties");
+            log.info("-headless");
+            System.exit(0);
+            return;
         }
 
         if (isHeadless) {
@@ -136,10 +160,13 @@ public class Main extends Application {
             showSplash();
         }
 
-        SQLiteProcess sqLiteProcess = new SQLiteProcess();
-        sqLiteProcess.start();
+        Boolean connectionSuccessful = false;
+        if (useDatabase) {
+            SQLiteProcess sqLiteProcess = new SQLiteProcess();
+            sqLiteProcess.start();
 
-        Boolean connectionSuccessful = startDatabase();
+            connectionSuccessful = startDatabase();
+        }
         if (!isHeadless) {
             loadProgress.setProgress(0.5);
         }
@@ -149,7 +176,7 @@ public class Main extends Application {
         StatisticsManager.getInstance().getTotalStatisticStore().incrementApplicationStart();
 
         // Start loading data from the database
-        if (connectionSuccessful) {
+        if (useDatabase && connectionSuccessful) {
             DataBank.createCurrentSession();
         }
 
@@ -201,15 +228,14 @@ public class Main extends Application {
                 } else {
                     log.error("Program with name " + programNameToRun + " was not found");
                 }
+            } else if (isSeleniumNodeHelper) {
+                // Run the selenium node server stuff here
+                NodeHelperSocketServer.execute();
             }
         }
 
-        // Clean up old unreachable proxies
-        //ClearDatabaseRequestDataRunner.execute();
-        //ClearDatabaseTestDataRunner.execute();
-        //OptimiseTables.optimiseAllTables();
-
         //*** ADD TEST CODE HERE ***//
+        NodeHelperClient.execute();
 
 //        SSHManager sshManager = SDEUtils.openSSHSession("uk-mysql","spiralinks","C0deFreeze09",null);
 //        sshManager.createShellChannel();
