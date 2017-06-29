@@ -8,8 +8,4 @@ public class TestCommandDAO {
 
     public TestCommandDAO() {
     }
-
-    public void deleteAllTestCommands() {
-        new UpdateQuery("update test_command set forDelete = 1").execute();
-    }
 }

@@ -93,8 +93,4 @@ public class RecordedRequestDAO {
 
         return responseStream;
     }
-
-    public void deleteAllRecordedRequests() {
-        new UpdateQuery("update recorded_requests set forDelete = 1").execute();
-    }
 }

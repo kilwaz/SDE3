@@ -42,12 +42,45 @@ public class NodeHelperSocketServer extends SDERunnable {
                     out.println(nodeHelperMessageDecoder.getCurrentResponse());
                 }
 
+                if (nodeHelperMessageDecoder.hasCommand()) {
+                    runCommand(nodeHelperMessageDecoder.getCurrentCommand());
+                }
+
                 if (nodeHelperMessageDecoder.isGoodBye()) {
                     break;
                 }
             }
             log.info("Listener closing down");
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void runCommand(String command) {
+        log.info("Running command ... " + command);
+
+        StringBuffer output = new StringBuffer();
+
+        String[] args = new String[]{"/bin/bash", "-c", command};
+        Process p = null;
+        try {
+            p = new ProcessBuilder(args).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (p != null) {
+                p.waitFor();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    output.append(line + "\n");
+                }
+                log.info("Completed command");
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

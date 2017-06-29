@@ -13,6 +13,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import sde.application.error.Error;
 import sde.application.gui.Program;
 import sde.application.net.proxy.RecordedRequest;
@@ -22,10 +23,12 @@ import sde.application.node.objects.BrowserLogListener;
 import sde.application.node.objects.Test;
 import sde.application.test.action.WebAction;
 import sde.application.test.action.helpers.*;
+import sde.application.test.selenium.NodeHelperClient;
 import sde.application.utils.AppParams;
 import sde.application.utils.BrowserHelper;
 import sde.application.utils.SDERunnable;
 import sde.application.utils.SDEThread;
+import sde.application.utils.managers.SeleniumNodeHelperManager;
 import sde.application.utils.managers.StatisticsManager;
 
 import java.io.File;
@@ -158,8 +161,16 @@ public class TestRunner extends SDERunnable {
                 }
             }
 
+            test.setWebDriverId(((RemoteWebDriver) driver).getSessionId().toString());
+
+            // Start video recording the test
+            NodeHelperClient nodeHelperClient = null;
             if (remoteTestNode != null) {
-                log.info("Running remote test on node " + remoteTestNode.getNodeId());
+                log.info("Running remote test on node " + remoteTestNode.getNodeId() + " on " + remoteTestNode.getNodeHost());
+                nodeHelperClient = SeleniumNodeHelperManager.getInstance().getNodeHelper(remoteTestNode.getNodeHost());
+                if (nodeHelperClient != null) {
+                    nodeHelperClient.startRecordCommand(remoteTestNode.getReferenceId(), remoteTestNode.getScreenNumber());
+                }
             }
 
             log.info("Number of commands in test " + commands.size());
@@ -333,7 +344,13 @@ public class TestRunner extends SDERunnable {
                     Error.DOCUMENT_CREATION_ISSUE.record().create(ex);
                 }
             }
+
+            // Stop video recording the test
+            if (nodeHelperClient != null) {
+                nodeHelperClient.endRecordCommand(remoteTestNode.getReferenceId());
+            }
         }
+
         status = TEST_FINISHED;
 
         // Temp fix to reduce memory overhead

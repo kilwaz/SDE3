@@ -1,7 +1,6 @@
 package sde.application.data.export;
 
 
-import sde.application.error.Error;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FormulaError;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -9,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import sde.application.error.Error;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,7 +55,7 @@ public class ExportBuilder {
 
             for (ExportSheet exportSheet : exportSheets) {
                 XSSFSheet sheet;
-                if(!"sheet".equals(exportSheet.getSheetName())){
+                if (!"sheet".equals(exportSheet.getSheetName())) {
                     sheet = workbook.createSheet(exportSheet.getSheetName());
                 } else {
                     sheet = workbook.createSheet();
@@ -111,15 +111,18 @@ public class ExportBuilder {
             }
 
             // Setup and create the file location we are going to use
-            File exportOutputFile = null;
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
             Date date = new Date();
             dateFormat.format(date);
 
-            exportOutputFile = saveLocation;
+            File exportOutputFile = saveLocation;
             if (!exportOutputFile.exists()) {
                 Boolean createDirectoryResult = exportOutputFile.getParentFile().mkdirs();
                 Boolean createFileResult = exportOutputFile.createNewFile();
+
+                if (!createDirectoryResult || !createFileResult) {
+                    Error.FILE_CREATION_FAILED.record().additionalInformation(exportOutputFile.getAbsolutePath()).create();
+                }
             }
 
             // Try writing the file

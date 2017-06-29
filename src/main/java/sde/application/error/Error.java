@@ -170,7 +170,8 @@ public enum Error {
     TEMP_DIRECTORY(165, "Could not create temp directory"),
     ZIP_FILE_NOT_FOUND(166, "Zip file not found"),
     DATABASE_DELETE_CASCADE_CLASS_INIT(167, "Unable to delete object via cascade"),
-    DATABASE_DELETE_CASCADE_DATABASE_LINK(168, "Unable to find database link when doing a cascade delete");
+    DATABASE_DELETE_CASCADE_DATABASE_LINK(168, "Unable to find database link when doing a cascade delete"),
+    FILE_CREATION_FAILED(169, "Unable to create file or directory");
 
     private Integer code;
     private String description;

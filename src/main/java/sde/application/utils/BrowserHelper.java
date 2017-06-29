@@ -29,7 +29,7 @@ import java.net.URL;
 import java.util.logging.Level;
 
 public class BrowserHelper {
-    private static final String CHROME_DRIVER = "chromedriver-2.29.exe";
+    private static final String CHROME_DRIVER = "chromedriver-2.30.exe";
     private static final String IE_DRIVER = "IEDriverServer-2.53.1.exe";
     private static final String OPREA_DRIVER = "operadriver-0.2.2.exe";
 

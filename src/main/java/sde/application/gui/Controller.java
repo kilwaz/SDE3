@@ -44,11 +44,9 @@ import sde.application.gui.window.*;
 import sde.application.node.design.DrawableNode;
 import sde.application.node.implementations.BatchNode;
 import sde.application.node.implementations.TestManagerNode;
+import sde.application.test.selenium.NodeHelperClient;
 import sde.application.utils.AppParams;
-import sde.application.utils.managers.DataSourceManager;
-import sde.application.utils.managers.SessionManager;
-import sde.application.utils.managers.StatisticsManager;
-import sde.application.utils.managers.ThreadManager;
+import sde.application.utils.managers.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -92,6 +90,10 @@ public class Controller implements Initializable {
     private MenuItem menuBarMenuItemClearTestData;
     @FXML
     private MenuItem menuBarMenuItemOptimiseTables;
+    @FXML
+    private MenuItem menuBarMenuItemTestSeleniumNodeHelper;
+    @FXML
+    private MenuItem menuBarMenuItemTestSeleniumCommand;
     @FXML
     private MenuItem menuBarMenuItemOpenManualProxy;
     @FXML
@@ -557,6 +559,8 @@ public class Controller implements Initializable {
         menuBarMenuItemClearRequestData.setOnAction(event -> ClearDatabaseRequestDataRunner.execute());
         menuBarMenuItemClearTestData.setOnAction(event -> ClearDatabaseTestDataRunner.execute());
         menuBarMenuItemOptimiseTables.setOnAction(event -> OptimiseTables.execute());
+        menuBarMenuItemTestSeleniumNodeHelper.setOnAction(event -> SeleniumNodeHelperManager.getInstance().connectToNodeHelper("selenium-browser-1"));
+        menuBarMenuItemTestSeleniumCommand.setOnAction(event -> SeleniumNodeHelperManager.getInstance().getNodeHelper("selenium-browser-1").testCommand());
 
         nodeTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
         updateThreadCount(ThreadManager.getInstance().getActiveThreads());

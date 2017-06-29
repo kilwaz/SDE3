@@ -6,6 +6,7 @@ import sde.application.node.implementations.TestNode;
 import sde.application.test.core.TestCase;
 import sde.application.test.core.TestStructure;
 
+import java.io.InputStream;
 import java.util.regex.Pattern;
 
 public class Test extends DatabaseObject {
@@ -17,6 +18,8 @@ public class Test extends DatabaseObject {
     private Boolean clone = false;
     private TestCase testCase = null;
     private String fileOutputPath = null;
+    private String webDriverId = null;
+    private Object recording = null;
 
     public Test() {
         super();
@@ -137,5 +140,22 @@ public class Test extends DatabaseObject {
 
     public void setFileOutputPath(String fileOutputPath) {
         this.fileOutputPath = fileOutputPath;
+    }
+
+    public String getWebDriverId() {
+        return webDriverId;
+    }
+
+    public void setWebDriverId(String webDriverId) {
+        this.webDriverId = webDriverId;
+    }
+
+    public InputStream getRecordingFileInputStream() {
+        return null;
+    }
+
+    public void setRecordingFile(Object recordingFile) {
+        // Probably don't want this to be serialised
+        //recording = Serializer.deserialize(inputStream);
     }
 }

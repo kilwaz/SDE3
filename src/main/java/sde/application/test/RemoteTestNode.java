@@ -22,6 +22,8 @@ public class RemoteTestNode {
     private RemoteTestNodeURL remoteTestNodeURL;
     private RemoteWebDriver remoteWebDriver;
     private String nodeId;
+    private String nodeHost;
+    private String referenceId = "NoID";
 
     public RemoteTestNode() {
 
@@ -30,13 +32,20 @@ public class RemoteTestNode {
     public RemoteTestNode setRemoteTestNodeURL(RemoteTestNodeURL remoteTestNodeURL) {
         this.remoteTestNodeURL = remoteTestNodeURL;
         return this;
-
     }
 
     public RemoteTestNode setWebDriver(WebDriver webDriver) {
         this.remoteWebDriver = (RemoteWebDriver) webDriver;
 
+        findNodeId();
+        findNodeHost();
 
+        referenceId = "RECORDING-" + remoteWebDriver.getSessionId();
+
+        return this;
+    }
+
+    private void findNodeId() {
         HttpClient httpClient = HttpClientBuilder.create()
                 .setRetryHandler(new HttpClientRetryHandler(AppParams.getBrowserDefaultRetryCount())) // Get Default max retries
                 .build();
@@ -59,8 +68,31 @@ public class RemoteTestNode {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        return this;
+    private void findNodeHost() {
+        HttpClient httpClient = HttpClientBuilder.create()
+                .setRetryHandler(new HttpClientRetryHandler(AppParams.getBrowserDefaultRetryCount())) // Get Default max retries
+                .build();
+
+        HttpRequestBase request = new HttpGet();
+
+        try {
+            URI destinationURI = new URI("http", null, remoteTestNodeURL.getHubIp(), remoteTestNodeURL.getHubPort(), "/grid/api/proxy", "id=" + this.nodeId, null);
+            request.setURI(destinationURI);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpResponse httpResponse = httpClient.execute(request);
+            String json = IOUtils.toString(httpResponse.getEntity().getContent());
+            JSONObject jsonObject = new JSONObject(json);
+
+            nodeHost = jsonObject.getJSONObject("request").getJSONObject("configuration").getString("host");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public RemoteTestNodeURL getRemoteTestNodeURL() {
@@ -73,5 +105,20 @@ public class RemoteTestNode {
 
     public String getNodeId() {
         return nodeId;
+    }
+
+    public String getNodeHost() {
+        return nodeHost;
+    }
+
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    public String getScreenNumber() {
+        if (nodeId != null) {
+            return nodeId.substring(nodeId.lastIndexOf("-") + 1);
+        }
+        return "";
     }
 }

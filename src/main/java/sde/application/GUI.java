@@ -235,12 +235,6 @@ public class GUI extends Application {
         }
 
         //*** ADD TEST CODE HERE ***//
-        NodeHelperClient.execute();
-
-//        SSHManager sshManager = SDEUtils.openSSHSession("uk-mysql","spiralinks","C0deFreeze09",null);
-//        sshManager.createShellChannel();
-//        sshManager.runSSHCommand(new SSHCommand("ping www.google.com","]$",1000));
-//        sshManager.close();
 
         //**************************//
     }

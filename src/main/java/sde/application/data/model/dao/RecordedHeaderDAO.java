@@ -45,8 +45,4 @@ public class RecordedHeaderDAO {
         }
         return recordedHeaders;
     }
-
-    public void deleteAllRecordedHeaders() {
-        new UpdateQuery("update http_headers set forDelete = 1").execute();
-    }
 }
