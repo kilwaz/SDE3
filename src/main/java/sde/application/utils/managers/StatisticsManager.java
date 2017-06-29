@@ -19,6 +19,7 @@ import sde.application.utils.timers.SaveStatisticsJob;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -109,8 +110,13 @@ public class StatisticsManager {
         try {
             // use the factory to take an instance of the document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
-            // parse using the builder to get the DOM mapping of the
-            // XML file
+            // parse using the builder to get the DOM mapping of the XML file
+
+            // If the file does not exist, we create it first
+            if (!new File(statisticsPath).exists()) {
+                saveToXML();
+            }
+
             document = db.parse(statisticsPath);
 
             Element documentElement = document.getDocumentElement();
