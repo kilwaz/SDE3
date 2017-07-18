@@ -9,10 +9,6 @@ import org.apache.log4j.Logger;
 
 public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel> {
 
-    // Commands to keep
-    // certutil -addstore Root cert.cer
-    // keytool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass secret -validity 360 -keysize 2048 -dname "CN=*.uk.spl.com"
-
     private final SslContext sslCtx;
     private WebProxyRequestManager webProxyRequestManager;
     private static Logger log = Logger.getLogger(HttpProxyServerInitializer.class);

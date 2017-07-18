@@ -16,11 +16,11 @@ public class AppParams {
     public static final String CURRENT_USER = "alex";
 
     // Database information - Defaults are displayed here and can be overridden by the SDE.xml file
-    private static String REMOTE_DATABASE_CONNECTION = "jdbc:mysql://172.16.10.234/sde";
-    private static String SQL_LITE_FILE_NAME = "sqlite-3.18.0.exe";
+    private static String REMOTE_DATABASE_CONNECTION = "jdbc:mysql://172.16.10.217/sde5?autoReconnect=true&useSSL=false";
+    private static String SQL_LITE_FILE_NAME = "sqlite-3.19.3.exe";
     private static String LOCAL_DATABASE_NAME = "sde";
-    private static String REMOTE_DATABASE_USERNAME = "spiralinks";
-    private static String REMOTE_DATABASE_PASSWORD = "spiralinks";
+    private static String REMOTE_DATABASE_USERNAME = "v8_demo_qa";
+    private static String REMOTE_DATABASE_PASSWORD = "C0deFreeze09";
     private static Boolean LOCAL_DATABASE = true;
     private static Boolean AUTO_MANAGE_SELENIUM_HUB = false;
 

@@ -21,7 +21,7 @@ public class LoopedWebElement extends LoopedObject {
     }
 
     public WebElement getWebElement(WebDriver webDriver) {
-        // Here we get the element from Selenium as it is ready to be used
+        // Here we keystore the element from Selenium as it is ready to be used
         WebElement webElement = null;
         try {
             try { // We need to check this first as trying to find an element with xpath if an alert is open causes selenium to hang

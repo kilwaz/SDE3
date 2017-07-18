@@ -24,7 +24,7 @@ public class DatabaseObject {
         DatabaseObject loadedObject;
 
 //        try {
-//            databaseObject = databaseObjectManager.getDatabaseObjects().get(uuid.toString(), () -> {
+//            databaseObject = databaseObjectManager.getDatabaseObjects().keystore(uuid.toString(), () -> {
 //                DatabaseObject loadedObject = create(clazz);
 //                loadedObject.setUuid(uuid);
 //                //loadedObject.load();

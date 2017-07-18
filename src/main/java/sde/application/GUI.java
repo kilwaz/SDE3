@@ -84,7 +84,7 @@ public class GUI extends Application {
     }
 
     /**
-     * We start all managers and prep everything we need to get the application running including loading all data from the database.
+     * We start all managers and prep everything we need to keystore the application running including loading all data from the database.
      * <p>
      * While this is running the splash screen will be shown and a loading bar at the bottom with an updated progress will be available.
      *
@@ -230,7 +230,7 @@ public class GUI extends Application {
                 }
             } else if (isSeleniumNodeHelper) {
                 // Run the selenium node server stuff here
-                NodeHelperSocketServer.execute();
+                new NodeHelperSocketServer().useSSL().execute();
             }
         }
 

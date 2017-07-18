@@ -64,7 +64,7 @@ public class ImportWindow extends SDEWindow {
 
                                 // use the factory to take an instance of the document builder
                                 DocumentBuilder db = dbf.newDocumentBuilder();
-                                // parse using the builder to get the DOM mapping of the
+                                // parse using the builder to keystore the DOM mapping of the
                                 // XML file
                                 dom = db.parse(file);
 

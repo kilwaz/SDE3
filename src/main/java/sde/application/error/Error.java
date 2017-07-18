@@ -73,7 +73,7 @@ public enum Error {
     CLOSE_SSH_CONNECTION(68, "Error closing SSH Connection"),
     OPEN_SSH_CONNECTION(69, "Error opening SSH Connection"),
     RUN_SSH_COMMAND(70, "Error running SSH Command"),
-    SSL_CONTEXT(71, "Error getting SSL Context"),
+    SSL_CONTEXT(71, "Error getting KeyStore Context"),
     HTTP_PROXY_REQUEST(72, "Error running http proxy request"),
     TEST_WAIT_INTERRUPT(73, "Thread interrupt test wait"),
     TEST_NODE_ACTION(74, "Error finding action to run"),
@@ -110,7 +110,7 @@ public enum Error {
     SELENIUM_JAVASCRIPT_FAILED(105, "Javascript exception seen within browser"),
     HTTP_PROXY_BAD_END_OF_LINE(106, "Error writing http proxy response"),
     SELENIUM_CLICK_ELEMENT_NOT_VISIBLE(107, "Tried to click on an element that was not visible"),
-    SSL_EXCEPTION(108, "Unrecognized SSL message"),
+    SSL_EXCEPTION(108, "Unrecognized KeyStore message"),
     HTTP_TIMEOUT(109, "Http connection has timed out"),
     HTTP_UNKNOWN_HOST(110, "Unknown host for connection"),
     SELENIUM_FAILED_TO_CLOSE_WINDOW(111, "Failed to close browser window"),
@@ -124,7 +124,7 @@ public enum Error {
     TEST_CASE_METHOD_ANNOTATIONS_NOT_FOUND(119, "Method annotations cannot be found, make sure '// METHOD ANNOTATIONS' is in the correct place and present"),
     WEB_DRIVER_EXCEPTION(120, "Web Driver experiences an unexpected problem"),
     NOT_SERIALIZABLE_OBJECT(121, "The current object does not support serialization"),
-    CANNOT_RESOLVE_HOST_THIS_MACHINE(122, "Unable to get the named host for the current machine"),
+    CANNOT_RESOLVE_HOST_THIS_MACHINE(122, "Unable to keystore the named host for the current machine"),
     FAILED_TO_DECODE_GZIP_RESPONSE(123, "Failed to decode a gzip encoded response"),
     PARSE_DATE_FAILED(124, "Failed to parse Date"),
     TEST_CASE_THREAD_WAIT_METHOD_NOT_FOUND(125, "While working with Test Case, thread wait method could not be found"),
@@ -162,7 +162,7 @@ public enum Error {
     WEBSOCKET_SERVER_NO_SUCH_ALGORITHM(157, "No available algorithm to handshake websocket connection"),
     WEBSOCKET_CANNOT_CLOSE_INPUT(158, "Trouble closing the current inputstream"),
     WEBSOCKET_EXCEPTION(159, "Exception with websocket"),
-    LOCAL_HOST_NOT_FOUND(160, "Unable to get local network address of current machine"),
+    LOCAL_HOST_NOT_FOUND(160, "Unable to keystore local network address of current machine"),
     ACE_EDITOR_ERROR(161, "Error from ace editor web pane"),
     HTTP_CLIENT_RETRY_CONNECTION_ATTEMPT(162, "Retrying connection"),
     HTTP_CLIENT_RETRY_MAX_ATTEMPTS_REACHED(163, "Aborting connection, max attempts reached"),
@@ -171,7 +171,10 @@ public enum Error {
     ZIP_FILE_NOT_FOUND(166, "Zip file not found"),
     DATABASE_DELETE_CASCADE_CLASS_INIT(167, "Unable to delete object via cascade"),
     DATABASE_DELETE_CASCADE_DATABASE_LINK(168, "Unable to find database link when doing a cascade delete"),
-    FILE_CREATION_FAILED(169, "Unable to create file or directory");
+    FILE_CREATION_FAILED(169, "Unable to create file or directory"),
+    SSL_KEYSTORE(170, "KeyStore retrieval failed"),
+    SEND_NETWORK_OBJECT_FAILED(171, "Error sending NetworkObject"),
+    UNABLE_TO_RESOLVE_NETWORK_OBJECT_CLASS(172, "Unable to resolve network object class, is the class added to object types?");
 
     private Integer code;
     private String description;

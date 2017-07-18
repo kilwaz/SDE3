@@ -11,7 +11,7 @@ public final class ClassFinder {
     private final static char DOT = '.';
     private final static char SLASH = '/';
     private final static String CLASS_SUFFIX = ".class";
-    private final static String BAD_PACKAGE_ERROR = "Unable to get resources from path '%s'. Are you sure the given '%s' package exists?";
+    private final static String BAD_PACKAGE_ERROR = "Unable to keystore resources from path '%s'. Are you sure the given '%s' package exists?";
 
     public static List<Class<?>> find(final String scannedPackage) {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

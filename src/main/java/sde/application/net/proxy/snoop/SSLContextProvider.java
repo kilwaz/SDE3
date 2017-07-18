@@ -18,9 +18,17 @@ import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 
+// Commands to keep - creates the keystore file - keystore certs expire eventually!
+// Keytool can be found in java folder under /bin
+// certutil -addstore Root cert.cer
+// keytool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass secret -validity 2000 -keysize 2048 -dname "CN=*.uk.spl.com"
+
 public class SSLContextProvider {
     private static SSLContext sslContext = null;
     private static Logger log = Logger.getLogger(SSLContextProvider.class);
+
+    private static String KEY_STORE_PASSWORD = "secret";
+    private static String KEY_STORE_FILE_NAME = "keystore.jks";
 
     public static synchronized SSLContext get() {
         if (sslContext == null) {
@@ -29,36 +37,31 @@ public class SSLContextProvider {
                 String keyStoreFileName = "";
                 if (SDEUtils.isJar()) {
                     try {
-                        URI uri = SDEUtils.getFile(SDEUtils.getJarURI(), "keystore.jks");
+                        URI uri = SDEUtils.getFile(SDEUtils.getJarURI(), KEY_STORE_FILE_NAME);
                         keyStoreFileName = uri.getPath();
                     } catch (IOException | URISyntaxException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    keyStoreFileName = SDEUtils.getResourcePath() + "/keystore.jks";
+                    keyStoreFileName = SDEUtils.getResourcePath() + "/" + KEY_STORE_FILE_NAME;
                 }
 
-                //log.info("File path " + keyStoreFileName);
+                log.info("File path " + keyStoreFileName);
                 File keyStore = new File(keyStoreFileName);
                 if (!keyStore.exists()) {
                     Boolean fileCreateResult = keyStore.createNewFile();
                 }
 
-                //CertificateFactory factory = CertificateFactory.getInstance("X.509");
-                //X509Certificate cert = (X509Certificate) factory.generateCertificate(new FileInputStream(keyStoreFileName));
-
                 sslContext = SSLContext.getInstance("TLS");
                 KeyStore ks = KeyStore.getInstance("JKS");
                 fis = new FileInputStream(keyStoreFileName);
-                ks.load(fis, "secret".toCharArray());
-
-//                ks.setCertificateEntry("SDE", cert);
+                ks.load(fis, KEY_STORE_PASSWORD.toCharArray());
 
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 tmf.init(ks);
 
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-                kmf.init(ks, "secret".toCharArray());
+                kmf.init(ks, KEY_STORE_PASSWORD.toCharArray());
                 sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             } catch (Exception ex) {
                 Error.SSL_CONTEXT.record().create(ex);

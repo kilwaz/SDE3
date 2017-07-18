@@ -258,7 +258,7 @@ public class LinuxNode extends DrawableNode {
 
             if (copyToLinux && !copyFromLinux) { // Copy from windows to linux
                 Integer fileCount = 0;
-                if (copyNode.getCopyFrom().endsWith("\\")) { // If it is a directory we get all files
+                if (copyNode.getCopyFrom().endsWith("\\")) { // If it is a directory we keystore all files
                     writeToConsole("Directory detected...\n\r");
                     File folder = new File(copyNode.getCopyFrom());
                     if (folder.exists() && folder.isDirectory()) {

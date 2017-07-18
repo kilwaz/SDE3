@@ -105,12 +105,7 @@
                         </Menu>
                         <Menu mnemonicParsing="false" text="Testing">
                             <items>
-                                <MenuItem fx:id="menuBarMenuItemTestSeleniumNodeHelper" mnemonicParsing="false"
-                                          text="Connect to test node">
-                                </MenuItem>
-                                <MenuItem fx:id="menuBarMenuItemTestSeleniumCommand" mnemonicParsing="false"
-                                          text="Test command">
-                                </MenuItem>
+                                
                             </items>
                         </Menu>
                     </menus>

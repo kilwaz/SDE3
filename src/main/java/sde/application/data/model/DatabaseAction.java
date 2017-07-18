@@ -280,7 +280,7 @@ public class DatabaseAction<DBObject extends DatabaseObject, DBLink extends Data
             DatabaseObject databaseObject = null;
 
 //            try {
-//                databaseObject = databaseObjectManager.getDatabaseObjects().get(uuid.toString(), () -> DatabaseObject.load(uuid, clazz));
+//                databaseObject = databaseObjectManager.getDatabaseObjects().keystore(uuid.toString(), () -> DatabaseObject.load(uuid, clazz));
 //            } catch (ExecutionException e) {
 //                e.printStackTrace();
 //            }

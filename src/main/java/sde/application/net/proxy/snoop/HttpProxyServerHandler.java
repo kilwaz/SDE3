@@ -156,7 +156,7 @@ public class HttpProxyServerHandler extends SimpleChannelInboundHandler<Object> 
                 .setHttps(webProxyRequestManager.getSSL())
                 .execute();
 
-        // This can happen if we get an exception when executing the request, for example a bad URL
+        // This can happen if we keystore an exception when executing the request, for example a bad URL
         if (standaloneHTTPRequest != null) {
             // Create our response object
             ByteBuffer responseBuffer = standaloneHTTPRequest.getResponse();

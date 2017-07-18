@@ -20,7 +20,7 @@ public class DocumentTracker {
      * This methods converts the page source returned by Selenium and converts it into a JSoup Document.
      * <p>
      * The reason for this is the overhead that is incurred when interacting with Selenium.  A large amount of
-     * actions against Selenium can cause the WebDriver to run close and get overloaded.  Previously it was causing
+     * actions against Selenium can cause the WebDriver to run close and keystore overloaded.  Previously it was causing
      * issues with the number of ports on the local machine.  Selenium uses local ports to connect to the WebDriver
      * browser and requesting too much too fast exhausts the current ports that are available.
      * <p>

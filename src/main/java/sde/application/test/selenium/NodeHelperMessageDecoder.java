@@ -24,8 +24,11 @@ public class NodeHelperMessageDecoder {
         } else if (currentMessage.startsWith("ServerHello")) {
             isInitialiseFromServer = true;
             log.info("Hello from server");
-        } else if (currentMessage.startsWith("COMMAND")) {
-            currentCommand = currentMessage.substring(7);
+        } else if (currentMessage.startsWith("COMMAND:")) {
+            currentCommand = currentMessage.substring(currentMessage.indexOf(":") + 1);
+        } else if (currentMessage.startsWith("RETRIEVE_RECORDING:")) {
+            String recordingReference = currentMessage.substring(currentMessage.indexOf(":") + 1);
+            log.info("Trying to retrieve recording with reference " + recordingReference);
         }
     }
 

@@ -1,7 +1,7 @@
 package sde.application.utils;
 
-import sde.application.error.Error;
 import org.apache.log4j.Logger;
+import sde.application.error.Error;
 
 import java.io.*;
 
@@ -10,6 +10,7 @@ public class Serializer {
     private static Logger log = Logger.getLogger(Serializer.class);
 
     // Return the input stream ready to be used of the object passed in, generally this will be saved to the database straight away
+    // or if used for network messages be sent straight away as well
     public static InputStream serializeToInputStream(Object object) {
         InputStream inputStream = null;
         try {

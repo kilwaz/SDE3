@@ -168,7 +168,7 @@ public class SSHManager {
             Channel channel = sesConnection.openChannel("exec");
             ((ChannelExec) channel).setCommand(command);
 
-            // get I/O streams for remote scp
+            // keystore I/O streams for remote scp
             OutputStream out = channel.getOutputStream();
             InputStream in = channel.getInputStream();
 
@@ -270,7 +270,7 @@ public class SSHManager {
             Channel channel = sesConnection.openChannel("exec");
             ((ChannelExec) channel).setCommand(command);
 
-            // get I/O streams for remote scp
+            // keystore I/O streams for remote scp
             OutputStream out = channel.getOutputStream();
             InputStream in = channel.getInputStream();
 

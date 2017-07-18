@@ -98,7 +98,7 @@ public final class HttpProxyServer extends SDERunnable {
         workerGroup = new NioEventLoopGroup();
 
         try {
-            // Configure SSL.
+            // Configure KeyStore.
             SslContext sslCtx;
             if (SSL) {
                 SelfSignedCertificate ssc = new SelfSignedCertificate();

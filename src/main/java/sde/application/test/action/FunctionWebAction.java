@@ -31,7 +31,7 @@ public class FunctionWebAction extends WebAction {
         }
 
         if (functionEnd.exists()) {
-            // If we get to the end of our function then we need to back to the original call
+            // If we keystore to the end of our function then we need to back to the original call
             Integer callingLineNumber = getFunctionTracker().popFunctionStack() + 1;
             getRunningTest().setCurrentLine(callingLineNumber);
         }

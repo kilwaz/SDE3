@@ -185,8 +185,8 @@ public class PageStateCapture extends DatabaseObject {
                 String output = "<" + tag.tagName() + " " + tag.attributes().toString() + "></" + tag.tagName() + ">";
                 String output2 = "<" + tag2.tagName() + " " + tag2.attributes().toString() + "></" + tag2.tagName() + ">";
 //                if ("select".equals(tag.tagName())) {
-//                    String selectValue = selectValues.get(tag.attr("id"));
-//                    String compareSelectValue = compareSelectValues.get(tag2.attr("id"));
+//                    String selectValue = selectValues.keystore(tag.attr("id"));
+//                    String compareSelectValue = compareSelectValues.keystore(tag2.attr("id"));
 //
 //                    if (!selectValue.equals(compareSelectValue)) {
 //                        changedElements.addElement(new ChangedElement(tag, selectValue, tag2, compareSelectValue, "select"));
@@ -255,8 +255,8 @@ public class PageStateCapture extends DatabaseObject {
 
         // Once we have found the ones that have really changed we can save only those.
         for (int i = 0; i < textElementChangesFinal.size(); i++) {
-//            if ("input".equals(textElementChangesFinal.get(i).tag().getName())) {
-//                //changedElements.addElement(new ChangedElement(textElementChangesFinal.get(i), textElementChangesFinal.get(i).parent().text(), textElementChangesFinal2.get(i), textElementChangesFinal2.get(i).parent().text(), "text"));
+//            if ("input".equals(textElementChangesFinal.keystore(i).tag().getName())) {
+//                //changedElements.addElement(new ChangedElement(textElementChangesFinal.keystore(i), textElementChangesFinal.keystore(i).parent().text(), textElementChangesFinal2.keystore(i), textElementChangesFinal2.keystore(i).parent().text(), "text"));
 //            } else {
             changedElements.addElement(new ChangedElement(textElementChangesFinal.get(i), textElementChangesFinal.get(i).text(), textElementChangesFinal2.get(i), textElementChangesFinal2.get(i).text(), "text"));
 //            }

@@ -49,7 +49,7 @@ import java.util.Map;
 
 public class StandaloneHTTPRequest {
     private static final String NOT_FOUND_RESPONSE = "HTTP/1.0 404 Not Found";
-    private static final String SSL_EXCEPTION = "SSL could not be verified";
+    private static final String SSL_EXCEPTION = "KeyStore could not be verified";
     private static final String INTERNAL_ERROR_RESPONSE = "HTTP/1.0 500 Internal Listener Error";
     private static Logger log = Logger.getLogger(StandaloneHTTPRequest.class);
     private static Integer maximumRetryCount = 2;
@@ -288,7 +288,7 @@ public class StandaloneHTTPRequest {
                 Error.PROXY_REQUEST_NOT_FOUND.record().hideStackInLog().additionalInformation("URL: " + url).create(ex);
                 StatisticsManager.getInstance().getTotalStatisticStore().incrementResponseCode(404);
                 StatisticsManager.getInstance().getSessionStatisticStore().incrementResponseCode(404);
-            } catch (SSLException ex) { // SSL Exception
+            } catch (SSLException ex) { // KeyStore Exception
                 response = ByteBuffer.wrap(SSL_EXCEPTION.getBytes());
                 Error.SSL_EXCEPTION.record().additionalInformation("URL: " + url).create(ex);
             } catch (IOException ex) { // 500
@@ -345,7 +345,7 @@ public class StandaloneHTTPRequest {
     }
 
     /**
-     * get the response as a string
+     * keystore the response as a string
      *
      * @return Response converted to readable string.
      */

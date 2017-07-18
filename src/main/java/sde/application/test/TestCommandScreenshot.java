@@ -35,7 +35,7 @@ public class TestCommandScreenshot extends DatabaseObject {
         InputStream inputStream = null;
         // First see if the object already has a screenshot available
         BufferedImage screenshot = this.screenshot;
-        if (screenshot == null) { // If not we get the screenshot from the database
+        if (screenshot == null) { // If not we keystore the screenshot from the database
             screenshot = getScreenshotFromDatabase();
         }
 

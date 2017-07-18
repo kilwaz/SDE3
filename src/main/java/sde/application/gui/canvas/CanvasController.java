@@ -215,7 +215,7 @@ public class CanvasController {
         for (NodeConnection connection : connectionsToUpdate) {
             // Solution to path finding for each connection, these are cached and only recalculated when needed
             solvedPathsCache.put(connection, network.solvePath(connection));
-            startPointsCache.put(connection, network.findStartAStarPointFromNode(connection.getConnectionStart())); // We must get the start after we have solved the path
+            startPointsCache.put(connection, network.findStartAStarPointFromNode(connection.getConnectionStart())); // We must keystore the start after we have solved the path
         }
     }
 
@@ -258,9 +258,9 @@ public class CanvasController {
                     updateAStarNetwork();
                 }
 
-                // Refer to the network cache to get the paths
+                // Refer to the network cache to keystore the paths
                 List<AStarPoint> currentSolvedPath = solvedPathsCache.get(connection);
-                AStarPoint currentPoint = startPointsCache.get(connection); // We must get the start after we have solved the path
+                AStarPoint currentPoint = startPointsCache.get(connection); // We must keystore the start after we have solved the path
                 for (AStarPoint path : currentSolvedPath) {
                     gc.strokeLine(currentPoint.getX() + offsetWidth, currentPoint.getY() + offsetHeight, path.getX() + offsetWidth, path.getY() + offsetHeight);
                     currentPoint = path;

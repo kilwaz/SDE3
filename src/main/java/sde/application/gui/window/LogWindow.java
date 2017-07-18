@@ -56,7 +56,7 @@ public class LogWindow extends SDEWindow {
             // List view sits on the left side of the window, text area on the right
             hbox.getChildren().add(listView);
             hbox.getChildren().add(loggingTextArea);
-            // This is needed in order to get the text area to fill the remaining space
+            // This is needed in order to keystore the text area to fill the remaining space
             hbox.setHgrow(loggingTextArea, Priority.ALWAYS);
 
             root.getChildren().add(hbox);

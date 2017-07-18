@@ -27,7 +27,7 @@ public class CallWebAction extends WebAction {
 
             // We add one to the line number as we really want to run what is inside the function, not the function itself.
             // One thing to note here is that the line counter has already been counted on for this line by the time this is
-            // executed, therefore we need to backtrack once to get the real value for this current line.
+            // executed, therefore we need to backtrack once to keystore the real value for this current line.
             getFunctionTracker().pushFunctionStack(getRunningTest().getCurrentLine() - 1);
             getRunningTest().setCurrentLine(lineNumber);
         }

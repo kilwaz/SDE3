@@ -70,7 +70,7 @@ public class HarExportHelper {
                 if (cookie.getExpiryDate() != null) {
                     cookieEntry.setExpires(formatter.format(cookie.getExpiryDate()));
                 }
-                //cookieEntry.setHttpOnly(Boolean.toString(cookie.)); // We can't get this yet..
+                //cookieEntry.setHttpOnly(Boolean.toString(cookie.)); // We can't keystore this yet..
                 cookieEntry.setSecure(Boolean.toString(cookie.isSecure()));
 
                 entry.getResponse().getCookies().addCookie(cookieEntry);

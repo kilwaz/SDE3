@@ -24,7 +24,7 @@ public class ProgramXML implements XML {
         // instance of a DocumentBuilderFactory
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
-            // use factory to get an instance of document builder
+            // use factory to keystore an instance of document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
             // create instance of DOM
             document = db.newDocument();

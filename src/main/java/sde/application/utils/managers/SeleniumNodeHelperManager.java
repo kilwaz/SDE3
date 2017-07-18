@@ -15,7 +15,7 @@ public class SeleniumNodeHelperManager {
     }
 
     public NodeHelperClient connectToNodeHelper(String host) {
-        NodeHelperClient nodeHelperClient = new NodeHelperClient(host);
+        NodeHelperClient nodeHelperClient = new NodeHelperClient().host(host).useSSL(true);
         nodeHelperClient.execute();
         clientHelpers.put(host, nodeHelperClient);
         return nodeHelperClient;

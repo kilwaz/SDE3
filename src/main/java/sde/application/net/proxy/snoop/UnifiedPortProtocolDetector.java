@@ -87,7 +87,7 @@ public class UnifiedPortProtocolDetector extends ByteToMessageDecoder {
         pipeline.remove(this);
     }
 
-    // Turn SSL on
+    // Turn KeyStore on
     private void enabledSsl(ChannelHandlerContext ctx) {
         sslEnabled = true;
 

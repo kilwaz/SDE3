@@ -35,7 +35,7 @@ public class SCPProgress {
             Channel channel = sshManager.openExecChannel();
             ((ChannelExec) channel).setCommand(command);
 
-            // get I/O streams for remote scp
+            // keystore I/O streams for remote scp
             OutputStream out = channel.getOutputStream();
             InputStream in = channel.getInputStream();
 

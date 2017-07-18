@@ -13,6 +13,6 @@ public class SDEFileDatabaseLink extends DatabaseLink {
         link("uuid", method("getUuidString"), method("setUuidFromString", String.class)); // 1
         link("node_id", method("getParentUuid"), null); // 2
         linkBlob("serial_object", method("getInputStream"), method("setFile", File.class)); // 2
-        //link("serial_reference", SDEFile.class.getMethod("get")); // 2
+        //link("serial_reference", SDEFile.class.getMethod("keystore")); // 2
     }
 }

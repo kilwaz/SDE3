@@ -10,7 +10,7 @@ import javafx.util.Callback;
 
 public class SSLColumn extends TableColumn {
     public SSLColumn() {
-        setText("SSL");
+        setText("KeyStore");
         setPrefWidth(40);
         setCellValueFactory(new PropertyValueFactory<MetaRecordedRequest, Boolean>("Https"));
 

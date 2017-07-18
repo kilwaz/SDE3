@@ -44,7 +44,7 @@ public class AppProperties {
         try {
             // use the factory to take an instance of the document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
-            // parse using the builder to get the DOM mapping of the XML file
+            // parse using the builder to keystore the DOM mapping of the XML file
 
             // If the file does not exist, we create it first
             if (!new File(propertiesPath).exists()) {
@@ -94,7 +94,7 @@ public class AppProperties {
         // instance of a DocumentBuilderFactory
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
-            // use factory to get an instance of document builder
+            // use factory to keystore an instance of document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
             // create instance of DOM
             document = db.newDocument();

@@ -1,13 +1,15 @@
 package sde.application.test.selenium;
 
 import org.apache.log4j.Logger;
+import sde.application.net.objects.NetworkObjectCommunicator;
+import sde.application.net.proxy.snoop.SSLContextProvider;
 import sde.application.utils.SDERunnable;
 import sde.application.utils.SDEThread;
 
+import javax.net.ServerSocketFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -16,43 +18,57 @@ public class NodeHelperSocketServer extends SDERunnable {
     private static Logger log = Logger.getLogger(NodeHelperSocketServer.class);
 
     private Integer listenPortNumber = 4446;
+    private Boolean useSSL = false;
 
     public NodeHelperSocketServer() {
 
     }
 
-    public static void execute() {
-        new SDEThread(new NodeHelperSocketServer(), "Selenium node helper listener server", "", true);
+    public NodeHelperSocketServer useSSL() {
+        log.info("Using SSL");
+        this.useSSL = true;
+        return this;
+    }
+
+    public void execute() {
+        new SDEThread(this, "Selenium node helper listener server", "", true);
     }
 
     public void threadRun() {
         try {
-            ServerSocket serverSocket = new ServerSocket(listenPortNumber);
-            log.info("Listening for selenium node helper commands...");
-            Socket clientSocket = serverSocket.accept();
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            log.info("Creating socket server with SSL = " + useSSL);
+            ServerSocket serverSocket = initServer(); // Create the server
 
-            String inputLine, outputLine;
+            log.info("Listening for selenium node helper commands... (port " + listenPortNumber + ")");
+            Socket clientSocket = listenForNewConnection(serverSocket); // Listen for a new connection
 
-            while ((inputLine = in.readLine()) != null) {
-                NodeHelperMessageDecoder nodeHelperMessageDecoder = new NodeHelperMessageDecoder(inputLine);
+            log.info("Incoming connection");
 
-                if (nodeHelperMessageDecoder.hasResponse()) {
-                    out.println(nodeHelperMessageDecoder.getCurrentResponse());
-                }
+            NetworkObjectCommunicator networkObjectCommunicator = new NetworkObjectCommunicator(clientSocket).isSever(true);
+            // This won't return until the connection is closed
+            networkObjectCommunicator.execute();
 
-                if (nodeHelperMessageDecoder.hasCommand()) {
-                    runCommand(nodeHelperMessageDecoder.getCurrentCommand());
-                }
-
-                if (nodeHelperMessageDecoder.isGoodBye()) {
-                    break;
-                }
-            }
             log.info("Listener closing down");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private Socket listenForNewConnection(ServerSocket serverSocket) throws IOException {
+        return serverSocket.accept();
+    }
+
+    private ServerSocket initServer() throws IOException {
+        if (useSSL) { // KeyStore Socket
+            ServerSocketFactory serverSocketFactory = SSLContextProvider.get().getServerSocketFactory();
+
+            ServerSocket serverSocket = serverSocketFactory.createServerSocket(listenPortNumber);
+
+            return serverSocket;
+        } else { // Non KeyStore Socket
+            ServerSocket serverSocket = new ServerSocket(listenPortNumber);
+
+            return serverSocket;
         }
     }
 

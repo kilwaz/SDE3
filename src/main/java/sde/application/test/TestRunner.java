@@ -169,7 +169,7 @@ public class TestRunner extends SDERunnable {
                 log.info("Running remote test on node " + remoteTestNode.getNodeId() + " on " + remoteTestNode.getNodeHost());
                 nodeHelperClient = SeleniumNodeHelperManager.getInstance().getNodeHelper(remoteTestNode.getNodeHost());
                 if (nodeHelperClient != null) {
-                    nodeHelperClient.startRecordCommand(remoteTestNode.getReferenceId(), remoteTestNode.getScreenNumber());
+                    nodeHelperClient.startRecording(remoteTestNode.getReferenceId(), remoteTestNode.getScreenNumber());
                 }
             }
 
@@ -267,7 +267,7 @@ public class TestRunner extends SDERunnable {
                         }
                     }
 
-//                    entries = driver.manage().logs().get(LogType.PERFORMANCE).getAll();
+//                    entries = driver.manage().logs().keystore(LogType.PERFORMANCE).getAll();
 //                    for (LogEntry logEntry : entries) {
 //                        log.info("BROWSER PERFORMANCE: " + new Date(logEntry.getTimestamp()) + " " + logEntry.getLevel() + " " + logEntry.getMessage());
 //                    }
@@ -347,7 +347,18 @@ public class TestRunner extends SDERunnable {
 
             // Stop video recording the test
             if (nodeHelperClient != null) {
-                nodeHelperClient.endRecordCommand(remoteTestNode.getReferenceId());
+                // End the recording
+                nodeHelperClient.endRecording(remoteTestNode.getReferenceId());
+                // Wait for the recording to finalise before retrieving
+                log.info("Starting to wait...");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                log.info("DONE waiting!!");
+                // Get the recording file
+                nodeHelperClient.retrieveRecording(remoteTestNode.getReferenceId());
             }
         }
 
