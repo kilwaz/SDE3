@@ -12,7 +12,7 @@
 
     <groupId>spiralinks.developement.engine</groupId>
     <artifactId>SDE3</artifactId>
-    <version>0.5.3</version>
+    <version>0.5.4</version>
 
     <build>
         <pluginManagement>

@@ -4,6 +4,7 @@ import com.jayway.awaitility.Awaitility;
 import org.apache.log4j.Logger;
 import sde.application.error.Error;
 import sde.application.net.objects.messages.client.Command;
+import sde.application.net.objects.messages.client.DeleteRecording;
 import sde.application.net.objects.messages.initilise.ClientHello;
 import sde.application.net.objects.messages.initilise.ServerHello;
 import sde.application.net.objects.messages.server.Recording;
@@ -60,8 +61,10 @@ public class NetworkObjectCommunicator {
                     command.runCommand();
                 } else if (networkObject instanceof Recording) {
                     Recording recording = (Recording) networkObject;
-                    log.info("Saving recording file");
                     recording.saveFile();
+                } else if (networkObject instanceof DeleteRecording) {
+                    DeleteRecording deleteRecording = (DeleteRecording) networkObject;
+                    deleteRecording.deleteFile();
                 }
 
                 // Send any commands back if any are generated
@@ -83,12 +86,9 @@ public class NetworkObjectCommunicator {
         try {
             // Let client hello go through a non inited connection, everything else needs to wait
             if (!(networkObject instanceof ClientHello)) {
-                log.info(networkObject.getName() + ": checking connection init");
                 Awaitility.await().atMost(10, TimeUnit.SECONDS).until(nowConnected());
             }
-            log.info("Writing " + networkObject.getName() + " now");
             oos.writeObject(networkObject);
-            log.info("Written " + networkObject.getName());
         } catch (IOException ex) {
             Error.SEND_NETWORK_OBJECT_FAILED.record().create(ex);
         }
@@ -96,7 +96,6 @@ public class NetworkObjectCommunicator {
 
     public Callable<Boolean> nowConnected() {
         return () -> {
-            log.info("Checking inited - " + this.initialised);
             return initialised; // The condition that must be fulfilled
         };
     }

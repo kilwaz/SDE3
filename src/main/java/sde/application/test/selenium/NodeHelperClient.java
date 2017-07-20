@@ -111,9 +111,10 @@ public class NodeHelperClient extends SDERunnable {
         networkObjectCommunicator.sendNetworkObject(command);
     }
 
-    public void retrieveRecording(String recordingReference) {
-        log.info("Sending end recording command");
-        RetrieveRecording retrieveRecording = new RetrieveRecording().setRecordingReference("/home/spiralinks/" + recordingReference + ".mp4");
+    public void retrieveRecording(String recordingReference, String localFileLocation) {
+        RetrieveRecording retrieveRecording = new RetrieveRecording()
+                .setRecordingReference("/home/spiralinks/" + recordingReference + ".mp4")
+                .setLocalFileLocation(localFileLocation);
         waitForEstablishedConnection();
         networkObjectCommunicator.sendNetworkObject(retrieveRecording);
     }

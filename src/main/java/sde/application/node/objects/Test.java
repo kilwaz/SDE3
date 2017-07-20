@@ -18,6 +18,7 @@ public class Test extends DatabaseObject {
     private Boolean clone = false;
     private TestCase testCase = null;
     private String fileOutputPath = null;
+    private String fileRecordingPath = null;
     private String webDriverId = null;
     private Object recording = null;
 
@@ -140,6 +141,14 @@ public class Test extends DatabaseObject {
 
     public void setFileOutputPath(String fileOutputPath) {
         this.fileOutputPath = fileOutputPath;
+    }
+
+    public String getFileRecordingPath() {
+        return fileRecordingPath;
+    }
+
+    public void setFileRecordingPath(String fileRecordingPath) {
+        this.fileRecordingPath = fileRecordingPath;
     }
 
     public String getWebDriverId() {

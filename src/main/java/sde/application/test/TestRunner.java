@@ -283,15 +283,16 @@ public class TestRunner extends SDERunnable {
 
             httpProxyServer.close();
 
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+            Date date = new Date();
+            String fileDate = dateFormat.format(date);
+
             // Doing something with the screenshots
             if (test.getTestCase() != null && AppParams.getCreateTestDocument()) {
                 try {
                     XWPFDocument document = new XWPFDocument();
                     // Write the Document in file system
                     String fileName;
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-                    Date date = new Date();
-                    String fileDate = dateFormat.format(date);
 
                     if (test.getFileOutputPath() != null) {
                         fileName = test.getFileOutputPath();
@@ -352,13 +353,17 @@ public class TestRunner extends SDERunnable {
                 // Wait for the recording to finalise before retrieving
                 log.info("Starting to wait...");
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(5000); // TODO: This needs to be done in a better way
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 log.info("DONE waiting!!");
                 // Get the recording file
-                nodeHelperClient.retrieveRecording(remoteTestNode.getReferenceId());
+
+                String recordingFileName = getTest().getFileRecordingPath();
+                recordingFileName = recordingFileName.replace("[DATE]", fileDate);
+
+                nodeHelperClient.retrieveRecording(remoteTestNode.getReferenceId(), recordingFileName);
             }
         }
 

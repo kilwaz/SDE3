@@ -1,7 +1,7 @@
 package sde.application.utils;
 
-import sde.application.error.Error;
 import javafx.scene.text.Font;
+import sde.application.error.Error;
 import sde.application.utils.managers.LogManager;
 
 import java.net.InetAddress;
@@ -9,8 +9,10 @@ import java.net.UnknownHostException;
 
 public class AppParams {
     // Application information
-    public final static String APP_TITLE = "SpiraLinks Development Engine";
-    public final static String APP_VERSION = "v0.5.3";
+    public final static String APP_TITLE = "SpiraLinks Automated Testing Engine";
+    public final static Integer APP_VERSION_MAJOR = 0;
+    public final static Integer APP_VERSION_MINOR = 5;
+    public final static Integer APP_VERSION_REVISION = 4;
 
     // Current user logged into the application
     public static final String CURRENT_USER = "alex";
@@ -65,6 +67,10 @@ public class AppParams {
 
     public static void setRemoteDatabasePassword(String remoteDatabasePassword) {
         REMOTE_DATABASE_PASSWORD = remoteDatabasePassword;
+    }
+
+    public static String getAppVersionString() {
+        return "V" + APP_VERSION_MAJOR + "." + APP_VERSION_MINOR + "." + APP_VERSION_REVISION;
     }
 
     public static Font getFont(Integer size) {

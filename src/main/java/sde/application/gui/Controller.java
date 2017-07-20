@@ -823,7 +823,7 @@ public class Controller implements Initializable {
             }
 
             public void run() {
-                GUI.getInstance().getMainStage().setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+                GUI.getInstance().getMainStage().setTitle(AppParams.APP_TITLE + " " + AppParams.getAppVersionString());
             }
         }
 

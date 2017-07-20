@@ -174,7 +174,8 @@ public enum Error {
     FILE_CREATION_FAILED(169, "Unable to create file or directory"),
     SSL_KEYSTORE(170, "KeyStore retrieval failed"),
     SEND_NETWORK_OBJECT_FAILED(171, "Error sending NetworkObject"),
-    UNABLE_TO_RESOLVE_NETWORK_OBJECT_CLASS(172, "Unable to resolve network object class, is the class added to object types?");
+    UNABLE_TO_RESOLVE_NETWORK_OBJECT_CLASS(172, "Unable to resolve network object class, is the class added to object types?"),
+    ERROR_SAVING_TEST_RECORDING(173, "Unable to save test recording");
 
     private Integer code;
     private String description;

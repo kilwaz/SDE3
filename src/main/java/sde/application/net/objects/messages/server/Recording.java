@@ -4,17 +4,22 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
+import sde.application.error.Error;
 import sde.application.net.objects.NetworkObject;
+import sde.application.net.objects.messages.client.DeleteRecording;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Recording extends NetworkObject {
 
     private static Logger log = Logger.getLogger(Recording.class);
 
     private String recordingFileName = "";
+    private String localFileLocation = "";
     private Byte[] recording = null;
     private Long fileLength = -1l;
     private Boolean fileExists = false;
@@ -23,15 +28,21 @@ public class Recording extends NetworkObject {
         super();
     }
 
+    public Recording setLocalFileLocation(String localFileLocation) {
+        this.localFileLocation = localFileLocation;
+        return this;
+    }
+
+    public String getLocalFileLocation() {
+        return localFileLocation;
+    }
+
     public Recording setRecordingFileName(String recordingFileName) {
         this.recordingFileName = recordingFileName;
 
         File recordingFile = new File(recordingFileName);
         fileExists = recordingFile.exists();
         fileLength = recordingFile.length();
-
-        log.info("Requested file name is: " + recordingFileName);
-        log.info("Setting length as " + recordingFile.length() + " exists? " + fileExists);
 
         return this;
     }
@@ -58,10 +69,6 @@ public class Recording extends NetworkObject {
                 recording = new Byte[primitiveRecording.length];
 
                 recording = ArrayUtils.toObject(primitiveRecording);
-
-
-
-                log.info("Recording has length " + primitiveRecording.length);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -79,20 +86,21 @@ public class Recording extends NetworkObject {
     }
 
     public void saveFile() {
-        log.info("Save file method");
-        log.info("Recording reference: " + recordingFileName);
-        log.info("Recording? " + (recording == null));
-        log.info("Recording length is " + recording.length);
-
-        log.info("File length is " + fileLength);
-        log.info("File exists is " + fileExists);
-
         try {
-            FileUtils.writeByteArrayToFile(new File("C:\\Users\\alex\\Downloads\\" + recordingFileName), ArrayUtils.toPrimitive(recording));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            log.info("Saving recording to " + localFileLocation);
 
-        log.info("File save complete");
+            FileUtils.writeByteArrayToFile(new File(localFileLocation), ArrayUtils.toPrimitive(recording));
+        } catch (IOException ex) {
+            Error.ERROR_SAVING_TEST_RECORDING.record().create(ex);
+        }
+    }
+
+    public List<NetworkObject> getResponses() {
+        List<NetworkObject> networkObjects = new ArrayList<>();
+
+        // Clean up the file on the server once we have received and finished this
+        networkObjects.add(new DeleteRecording().setFileName(recordingFileName));
+
+        return networkObjects;
     }
 }

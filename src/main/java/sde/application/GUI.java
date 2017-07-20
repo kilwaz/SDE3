@@ -100,7 +100,7 @@ public class GUI extends Application {
 
         // This lets all logging be captured and then displayed
         new LogManager();
-        log.info(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+        log.info(AppParams.APP_TITLE + " " + AppParams.getAppVersionString());
         log.info("Log location = " + LogManager.getInstance().getLogOutputCanonicalPath());
 
         // Load any command line parameters that have been included
@@ -299,7 +299,7 @@ public class GUI extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/ApplicationScene.fxml"));
         Scene scene = new Scene(root);
         mainStage.setScene(scene);
-        mainStage.setTitle(AppParams.APP_TITLE + " " + AppParams.APP_VERSION);
+        mainStage.setTitle(AppParams.APP_TITLE + " " + AppParams.getAppVersionString());
         mainStage.setOnCloseRequest(windowEvent -> {
             // On Application Close we try and clean up all the open connections and running threads
             shutdownApplication();

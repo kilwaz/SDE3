@@ -18,7 +18,7 @@ ace.define("ace/mode/sde_highlight_rules", ["require", "exports", "module", "ace
                 },
                 {
                     token: "variable",
-                    regex: /(if|url|wait|frame|loop|exit|click|input|track|run|set|log|call|function|end|select|javascript|driver|state|window|keyboard|screenshot|refresh)>/
+                    regex: /(if|url|wait|frame|loop|exit|click|input|track|run|set|log|call|function|test|end|select|javascript|driver|state|window|keyboard|screenshot|refresh)>/
                 }
             ]
         };

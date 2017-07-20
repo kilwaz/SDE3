@@ -4,7 +4,7 @@ import sde.application.utils.AppParams;
 
 public class Creator extends HarObject {
     private HarObject name = new HarObject("name", AppParams.APP_TITLE);
-    private HarObject version = new HarObject("version", AppParams.APP_VERSION);
+    private HarObject version = new HarObject("version", AppParams.getAppVersionString());
 
     public Creator() {
         super("creator", OBJECT);
